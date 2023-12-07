@@ -4,11 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -55,7 +52,8 @@ fun StartScreen(
             },
             actions = {
                 IconButton(onClick = {
-                    /* TODO */
+                    Toast.makeText(context, "This is not implemented yet!", Toast.LENGTH_SHORT)
+                        .show()
                 }) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
@@ -63,8 +61,7 @@ fun StartScreen(
                     )
                 }
             },
-
-            )
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
@@ -82,29 +79,10 @@ fun StartScreen(
             }
             Button(onClick = {
                 /*TODO*/
+                Toast.makeText(context, "This is not implemented yet!", Toast.LENGTH_SHORT).show()
             }) {
                 Text(text = "See Statistics")
             }
         }
-        Row {
-            Button(onClick = {
-                /*TODO*/
-            }) {
-                Text(text = "Quit App")
-            }
-            Spacer(
-                modifier = modifier
-                    .size(50.dp)
-            )
-            Button(onClick = {
-                Toast.makeText(context, "This is not implemented yet!", Toast.LENGTH_SHORT).show()
-            }) {
-                Text(text = "About this App")
-            }
-        }
-        Spacer(
-            modifier = modifier
-                .weight(0.1f)
-        )
     }
 }
