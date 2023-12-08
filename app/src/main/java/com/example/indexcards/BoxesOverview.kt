@@ -1,5 +1,6 @@
 package com.example.indexcards
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,12 +11,15 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,9 +35,9 @@ import androidx.room.Room
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BoxesScreen(
+fun BoxesOverview(
     modifier: Modifier = Modifier,
-    navigateToStartScreen: () -> Unit,
+    navigateToBoxScreen: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -56,20 +60,11 @@ fun BoxesScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
-        CenterAlignedTopAppBar(
+        TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 titleContentColor = MaterialTheme.colorScheme.primary,
             ),
-            navigationIcon = {
-                IconButton(onClick = { navigateToStartScreen() }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Localized description"
-                    )
-                }
-            },
-
             title = {
                 Text(
                     text = "Your Boxes",
@@ -78,13 +73,66 @@ fun BoxesScreen(
                 )
             },
             actions = {
-                IconButton(onClick = {
-                    expanded = true
-                }) {
+                IconButton(
+                    onClick = {
+                        expanded = true
+                    }) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
-                        contentDescription = "Sort By"
+                        contentDescription = "Localized description"
                     )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Settings")
+                        },
+                        onClick = {
+                            /* TODO: Navigate to settings screen */
+                            expanded = false
+                            Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
+                        })
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Statistics")
+                        },
+                        onClick = {
+                            /* TODO: Show statistics */
+                            expanded = false
+                            Toast.makeText(
+                                context,
+                                "This feature is not implemented yet!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        })
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "About this App")
+                        },
+                        onClick = {
+                            /* TODO: Show information card */
+                            expanded = false
+                            Toast.makeText(
+                                context,
+                                "This feature is not implemented yet!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        })
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Navigate to box screen")
+                        },
+                        onClick = {
+                            expanded = false
+                            navigateToBoxScreen()
+                        })
                 }
             },
         )
@@ -96,7 +144,8 @@ fun BoxesScreen(
         }
         FloatingActionButton(
             onClick = {
-                /* TODO: Dialogue to create new box */
+                /* TODO: Dialog to create new box */
+                Toast.makeText(context, "Adding new box ...", Toast.LENGTH_SHORT).show()
             }) {
             Icon(Icons.Default.Add, contentDescription = "Add")
         }

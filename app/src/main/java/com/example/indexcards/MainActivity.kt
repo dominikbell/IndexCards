@@ -32,9 +32,9 @@ class MainActivity : ComponentActivity() {
         val dao = AppDatabase.getInstance(applicationContext).dao
         val box1 = Box(0, "Test1", "_no")
 
-        lifecycleScope.launch {
-            dao.upsertBox(box1)
-        }
+//        lifecycleScope.launch {
+//            dao.upsertBox(box1)
+//        }
 
         setContent {
             IndexCardsTheme {

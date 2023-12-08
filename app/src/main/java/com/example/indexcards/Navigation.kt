@@ -12,13 +12,17 @@ fun Navigation(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "startScreen"
+        startDestination = "boxesOverview"
     ) {
-        composable("startScreen") {
-            StartScreen(navigateToBoxesScreen = {navController.navigate("boxesScreen")})
+        composable("boxesOverview") {
+            BoxesOverview(
+                navigateToBoxScreen = { navController.navigate("boxScreen") }
+            )
         }
-        composable("boxesScreen") {
-            BoxesScreen(navigateToStartScreen = {navController.navigate("StartScreen")})
+        composable("boxScreen") {
+            BoxScreen(
+                navigateToBoxesOverview = {navController.navigate("boxesOverview")}
+            )
         }
     }
 }
