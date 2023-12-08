@@ -17,11 +17,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import com.example.indexcards.entities.Box
 import com.example.indexcards.ui.theme.IndexCardsTheme
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        GlobalScope.launch {
+//            AppDatabase.getDatabase(applicationContext)
+//        }
+        val dao = AppDatabase.getInstance(applicationContext).dao
+        val box1 = Box(0, "Test1", "_no")
+
+        lifecycleScope.launch {
+            dao.upsertBox(box1)
+        }
+
         setContent {
             IndexCardsTheme {
                 // A surface container using the 'background' color from the theme

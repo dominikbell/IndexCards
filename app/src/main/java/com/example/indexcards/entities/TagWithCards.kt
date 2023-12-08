@@ -10,7 +10,7 @@ data class TagWithCards(
     @Relation(
         parentColumn = "tagId",
         entityColumn = "cardId",
-        associateBy = Junction(CrossRef::class)
+        associateBy = Junction(CardTagCrossRef::class)
     )
     val cards: Flow<List<Card>>
 )

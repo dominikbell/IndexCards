@@ -3,7 +3,7 @@ package com.example.indexcards.entities
 import androidx.room.Entity
 
 @Entity(primaryKeys = ["cardId", "tagId"])
-data class CrossRef(
+data class CardTagCrossRef(
     val cardId: Long,
-    val tagInt: Long,
+    val tagId: Long,
 )

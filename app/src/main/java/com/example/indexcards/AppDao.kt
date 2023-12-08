@@ -4,12 +4,19 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
+import com.example.indexcards.entities.Box
+import com.example.indexcards.entities.BoxWithCards
 import com.example.indexcards.entities.Card
 import com.example.indexcards.entities.Tag
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
+    @Upsert
+    suspend fun upsertBox(box: Box)
+
+    @Delete
+    suspend fun deleteBox(box: Box)
+
     @Upsert
     suspend fun upsertCard(card: Card)
 
@@ -22,12 +29,6 @@ interface AppDao {
     @Delete
     suspend fun deleteTag(tag: Tag)
 
-    @Query("SELECT * FROM cards WHERE language = :lang")
-    suspend fun getCards(lang: String): Flow<List<Card>>
-
-    @Query("SELECT * FROM cards WHERE language = :lang & level = :lev")
-    suspend fun getCardsInLevel(lang: String, lev: Int): Flow<List<Card>>
-
-    @Query("SELECT * FROM cards WHERE language = :lang ORDER BY dateAdded DESC")
-    suspend fun getCardsSortedByDate(lang: String): Flow<List<Card>>
+    @Query("SELECT * FROM box WHERE boxId = :boxId")
+    suspend fun getBoxWithCards(boxId: Long): List<BoxWithCards>
 }
