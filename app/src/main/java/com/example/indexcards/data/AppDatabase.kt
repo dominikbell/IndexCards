@@ -1,13 +1,9 @@
-package com.example.indexcards
+package com.example.indexcards.data
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.indexcards.entities.Box
-import com.example.indexcards.entities.Card
-import com.example.indexcards.entities.CardTagCrossRef
-import com.example.indexcards.entities.Tag
 
 @Database(
     entities = [

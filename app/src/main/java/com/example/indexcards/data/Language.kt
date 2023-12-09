@@ -1,4 +1,4 @@
-package com.example.indexcards.entities
+package com.example.indexcards.data
 
 enum class Language {
     _cn,

@@ -1,13 +1,9 @@
-package com.example.indexcards
+package com.example.indexcards.data
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
-import com.example.indexcards.entities.Box
-import com.example.indexcards.entities.BoxWithCards
-import com.example.indexcards.entities.Card
-import com.example.indexcards.entities.Tag
 
 @Dao
 interface AppDao {

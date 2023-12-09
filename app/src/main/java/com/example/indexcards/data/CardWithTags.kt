@@ -1,16 +1,16 @@
-package com.example.indexcards.entities
+package com.example.indexcards.data
 
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import kotlinx.coroutines.flow.Flow
 
-data class TagWithCards(
-    @Embedded val tag: Tag,
+data class CardWithTags(
+    @Embedded val card: Card,
     @Relation(
-        parentColumn = "tagId",
-        entityColumn = "cardId",
+        parentColumn = "cardId",
+        entityColumn = "tagId",
         associateBy = Junction(CardTagCrossRef::class)
     )
-    val cards: Flow<List<Card>>
+    val tags: Flow<List<Tag>>
 )
