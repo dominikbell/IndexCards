@@ -90,7 +90,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Box` (`boxId`,`name`,`languageOrTopic`) VALUES (nullif(?, 0),?,?)";
+        return "INSERT INTO `Box` (`boxId`,`name`,`topic`,`description`) VALUES (nullif(?, 0),?,?,?)";
       }
 
       @Override
@@ -102,17 +102,22 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(2, entity.getName());
         }
-        if (entity.getLanguageOrTopic() == null) {
+        if (entity.getTopic() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getLanguageOrTopic());
+          statement.bindString(3, entity.getTopic());
+        }
+        if (entity.getDescription() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getDescription());
         }
       }
     }, new EntityDeletionOrUpdateAdapter<Box>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Box` SET `boxId` = ?,`name` = ?,`languageOrTopic` = ? WHERE `boxId` = ?";
+        return "UPDATE `Box` SET `boxId` = ?,`name` = ?,`topic` = ?,`description` = ? WHERE `boxId` = ?";
       }
 
       @Override
@@ -124,12 +129,17 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(2, entity.getName());
         }
-        if (entity.getLanguageOrTopic() == null) {
+        if (entity.getTopic() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getLanguageOrTopic());
+          statement.bindString(3, entity.getTopic());
         }
-        statement.bindLong(4, entity.getBoxId());
+        if (entity.getDescription() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getDescription());
+        }
+        statement.bindLong(5, entity.getBoxId());
       }
     });
     this.__upsertionAdapterOfCard = new EntityUpsertionAdapter<Card>(new EntityInsertionAdapter<Card>(__db) {
@@ -346,7 +356,8 @@ public final class AppDao_Impl implements AppDao {
         try {
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfLanguageOrTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "languageOrTopic");
+          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
           while (_cursor.moveToNext()) {
             final long _tmpKey;
@@ -356,7 +367,7 @@ public final class AppDao_Impl implements AppDao {
             }
           }
           _cursor.moveToPosition(-1);
-          __fetchRelationshipcardsAscomExampleIndexcardsEntitiesCard(_collectionCards);
+          __fetchRelationshipcardsAscomExampleIndexcardsDataCard(_collectionCards);
           final List<BoxWithCards> _result = new ArrayList<BoxWithCards>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final BoxWithCards _item;
@@ -369,13 +380,19 @@ public final class AppDao_Impl implements AppDao {
             } else {
               _tmpName = _cursor.getString(_cursorIndexOfName);
             }
-            final String _tmpLanguageOrTopic;
-            if (_cursor.isNull(_cursorIndexOfLanguageOrTopic)) {
-              _tmpLanguageOrTopic = null;
+            final String _tmpTopic;
+            if (_cursor.isNull(_cursorIndexOfTopic)) {
+              _tmpTopic = null;
             } else {
-              _tmpLanguageOrTopic = _cursor.getString(_cursorIndexOfLanguageOrTopic);
+              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
             }
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpLanguageOrTopic);
+            final String _tmpDescription;
+            if (_cursor.isNull(_cursorIndexOfDescription)) {
+              _tmpDescription = null;
+            } else {
+              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            }
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription);
             final ArrayList<Card> _tmpCardsCollection;
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
@@ -397,14 +414,14 @@ public final class AppDao_Impl implements AppDao {
     return Collections.emptyList();
   }
 
-  private void __fetchRelationshipcardsAscomExampleIndexcardsEntitiesCard(
+  private void __fetchRelationshipcardsAscomExampleIndexcardsDataCard(
       @NonNull final LongSparseArray<ArrayList<Card>> _map) {
     if (_map.isEmpty()) {
       return;
     }
     if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
       RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipcardsAscomExampleIndexcardsEntitiesCard(map);
+        __fetchRelationshipcardsAscomExampleIndexcardsDataCard(map);
         return Unit.INSTANCE;
       });
       return;

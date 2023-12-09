@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
 //            AppDatabase.getDatabase(applicationContext)
 //        }
         val dao = AppDatabase.getInstance(applicationContext).dao
-        val box1 = Box(0, "Test1", "_no")
+        val box1 = Box(0, "Test1", "_no", "Norwegian")
 
 //        lifecycleScope.launch {
 //            dao.upsertBox(box1)

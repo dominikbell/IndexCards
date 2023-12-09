@@ -8,5 +8,6 @@ data class Box(
     @PrimaryKey(autoGenerate = true)
     val boxId: Long,
     val name: String,
-    val languageOrTopic: String,
+    val topic: String,
+    val description: String,
 )

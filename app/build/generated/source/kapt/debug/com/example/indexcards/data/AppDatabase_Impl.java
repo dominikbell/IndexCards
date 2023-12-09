@@ -32,12 +32,12 @@ public final class AppDatabase_Impl extends AppDatabase {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `languageOrTopic` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `description` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `cards` (`cardId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL, `meaning` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `level` INTEGER NOT NULL, `boxId` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `tags` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `CardTagCrossRef` (`cardId` INTEGER NOT NULL, `tagId` INTEGER NOT NULL, PRIMARY KEY(`cardId`, `tagId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b3fedcda1be9c327cb8aa62e3d9830a1')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8da6f1713099dc486dec368241cbf16a')");
       }
 
       @Override
@@ -89,16 +89,17 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsBox = new HashMap<String, TableInfo.Column>(3);
+        final HashMap<String, TableInfo.Column> _columnsBox = new HashMap<String, TableInfo.Column>(4);
         _columnsBox.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsBox.put("languageOrTopic", new TableInfo.Column("languageOrTopic", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsBox.put("topic", new TableInfo.Column("topic", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsBox.put("description", new TableInfo.Column("description", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysBox = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesBox = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoBox = new TableInfo("Box", _columnsBox, _foreignKeysBox, _indicesBox);
         final TableInfo _existingBox = TableInfo.read(db, "Box");
         if (!_infoBox.equals(_existingBox)) {
-          return new RoomOpenHelper.ValidationResult(false, "Box(com.example.indexcards.entities.Box).\n"
+          return new RoomOpenHelper.ValidationResult(false, "Box(com.example.indexcards.data.Box).\n"
                   + " Expected:\n" + _infoBox + "\n"
                   + " Found:\n" + _existingBox);
         }
@@ -114,7 +115,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         final TableInfo _infoCards = new TableInfo("cards", _columnsCards, _foreignKeysCards, _indicesCards);
         final TableInfo _existingCards = TableInfo.read(db, "cards");
         if (!_infoCards.equals(_existingCards)) {
-          return new RoomOpenHelper.ValidationResult(false, "cards(com.example.indexcards.entities.Card).\n"
+          return new RoomOpenHelper.ValidationResult(false, "cards(com.example.indexcards.data.Card).\n"
                   + " Expected:\n" + _infoCards + "\n"
                   + " Found:\n" + _existingCards);
         }
@@ -126,7 +127,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         final TableInfo _infoTags = new TableInfo("tags", _columnsTags, _foreignKeysTags, _indicesTags);
         final TableInfo _existingTags = TableInfo.read(db, "tags");
         if (!_infoTags.equals(_existingTags)) {
-          return new RoomOpenHelper.ValidationResult(false, "tags(com.example.indexcards.entities.Tag).\n"
+          return new RoomOpenHelper.ValidationResult(false, "tags(com.example.indexcards.data.Tag).\n"
                   + " Expected:\n" + _infoTags + "\n"
                   + " Found:\n" + _existingTags);
         }
@@ -138,13 +139,13 @@ public final class AppDatabase_Impl extends AppDatabase {
         final TableInfo _infoCardTagCrossRef = new TableInfo("CardTagCrossRef", _columnsCardTagCrossRef, _foreignKeysCardTagCrossRef, _indicesCardTagCrossRef);
         final TableInfo _existingCardTagCrossRef = TableInfo.read(db, "CardTagCrossRef");
         if (!_infoCardTagCrossRef.equals(_existingCardTagCrossRef)) {
-          return new RoomOpenHelper.ValidationResult(false, "CardTagCrossRef(com.example.indexcards.entities.CardTagCrossRef).\n"
+          return new RoomOpenHelper.ValidationResult(false, "CardTagCrossRef(com.example.indexcards.data.CardTagCrossRef).\n"
                   + " Expected:\n" + _infoCardTagCrossRef + "\n"
                   + " Found:\n" + _existingCardTagCrossRef);
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "b3fedcda1be9c327cb8aa62e3d9830a1", "deb0a57a0964698a181719fcd304f3d7");
+    }, "8da6f1713099dc486dec368241cbf16a", "5506f1e649f984dbfcd56d7bb0d5a936");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

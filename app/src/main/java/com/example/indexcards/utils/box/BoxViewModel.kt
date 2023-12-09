@@ -21,4 +21,16 @@ class BoxViewModel : ViewModel() {
             currentState.copy(name = newName)
         }
     }
+
+    fun setTopic(newTopic: String) {
+        _state.update { currentState ->
+            currentState.copy(topic = newTopic)
+        }
+    }
+
+    fun setDescription(newDescription: String) {
+        _state.update { currentState ->
+            currentState.copy(description = newDescription)
+        }
+    }
 }
