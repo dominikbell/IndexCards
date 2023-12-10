@@ -63,7 +63,7 @@ fun BoxesOverviewTopBar(
                         Text(text = "Settings")
                     },
                     onClick = {
-                        /* TODO: Navigate to settings screen */
+                        /* TODO: Make settings screen and navigate there */
                         expanded = false
                         Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
                     })

@@ -15,7 +15,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -27,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -78,7 +76,7 @@ fun AddBoxDialog(
                     onValueChange = {
                         boxName = it
                     },
-                    label = { Text(text = "Name") },
+                    label = { Text(text = "Name*") },
                 )
 
                 if (!isLanguage) {
@@ -87,7 +85,7 @@ fun AddBoxDialog(
                         onValueChange = {
                             boxTopic = it
                         },
-                        label = { Text(text = "Topic") },
+                        label = { Text(text = "Topic*") },
                     )
                 } else {
                     ExposedDropdownMenuBox(
@@ -98,7 +96,7 @@ fun AddBoxDialog(
                             modifier = modifier.menuAnchor(),
                             readOnly = true,
                             value = boxTopic,
-                            label = { Text(text = "Language") },
+                            label = { Text(text = "Language*") },
                             onValueChange = { },
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
