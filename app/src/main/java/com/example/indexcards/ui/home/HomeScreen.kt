@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.box
+package com.example.indexcards.ui.home
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,45 +16,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.room.Room
-import com.example.indexcards.data.AppDatabase
-import com.example.indexcards.data.Box
+import com.example.indexcards.ui.box.BoxList
+import com.example.indexcards.ui.box.BoxesOverviewTopBar
+import com.example.indexcards.utils.AppViewModelProvider
 import com.example.indexcards.utils.box.AddBoxDialog
-import com.example.indexcards.utils.box.BoxViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BoxesOverview(
-    modifier: Modifier = Modifier,
-    boxViewModel: BoxViewModel = viewModel(),
+fun HomeScreen(
     navigateToBoxScreen: () -> Unit,
+    modifier: Modifier = Modifier,
+    homeScreenViewModel: HomeScreenViewModel = viewModel(
+        factory = AppViewModelProvider.Factory
+    ),
 ) {
-    val context = LocalContext.current
+//    val homeScreenUiState by homeScreenViewModel.homeUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val boxState by boxViewModel.state.collectAsState()
-
-    val db by lazy {
-        Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "cards.db"
-        ).build()
-    }
+//    val coroutineScope = rememberCoroutineScope()
 
     var dialog by remember { mutableStateOf(false) }
-    val testList = mutableListOf<Box>()
+//    val testList = mutableListOf<Box>()
+//
+//    for (i in 0..5) {
+//        testList +=
+//            Box(
+//                i.toLong(),
+//                "Norsk $i",
+//                "Norwegian",
+//                "Learning Norwegian!",
+//                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+//            )
+//    }
 
-    for (i in 0..20) {
-        testList +=
-            Box(i.toLong(), "Norsk $i", "Norwegian", "Learning Norwegian!")
-    }
 
     Scaffold(
         modifier = modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-        ,
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             BoxesOverviewTopBar {
                 navigateToBoxScreen()
@@ -70,18 +68,16 @@ fun BoxesOverview(
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }
-    ) { innerPadding ->
-        BoxList(
-            modifier = modifier
-                .padding(innerPadding)
-            ,
-            boxList = testList
-        )
+    ) { innerPadding -> null
+//        BoxList(
+//            modifier = modifier
+//                .padding(innerPadding),
+//            boxList = homeScreenUiState.boxList
+//        )
     }
 
     if (dialog) {
         AddBoxDialog(
-            boxViewModel = boxViewModel,
             onDismiss = { dialog = false }
         )
     }

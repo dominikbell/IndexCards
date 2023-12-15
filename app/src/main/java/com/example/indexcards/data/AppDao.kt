@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
@@ -25,6 +26,12 @@ interface AppDao {
     @Delete
     suspend fun deleteTag(tag: Tag)
 
+    @Query("SELECT * FROM box ORDER BY dateAdded DESC")
+    fun getAllBoxes(): Flow<List<Box>>
+
+    @Query("SELECT * FROM box WHERE boxId = :id")
+    fun getBox(id: Long): Flow<Box>
+
     @Query("SELECT * FROM box WHERE boxId = :boxId")
-    suspend fun getBoxWithCards(boxId: Long): List<BoxWithCards>
+    fun getBoxWithCards(boxId: Long): List<BoxWithCards>
 }

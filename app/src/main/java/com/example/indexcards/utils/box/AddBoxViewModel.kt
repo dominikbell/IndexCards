@@ -1,0 +1,36 @@
+package com.example.indexcards.utils.box
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import com.example.indexcards.data.AppRepository
+
+class AddBoxViewModel(
+    private val appRepository: AppRepository
+) : ViewModel() {
+
+    var boxUiState by mutableStateOf(BoxState())
+
+    fun updateUiState(boxDetails: BoxDetails) {
+        boxUiState =
+            BoxState(
+                boxDetails = boxDetails,
+                isValid = validateInput(boxDetails)
+            )
+    }
+
+    suspend fun saveItem() {
+        if (validateInput()) {
+            appRepository.insertBox(boxUiState.boxDetails.toBox())
+        }
+    }
+
+    private fun validateInput(
+        uiState: BoxDetails = boxUiState.boxDetails
+    ): Boolean {
+        return with(uiState) {
+            name.isNotBlank() && topic.isNotBlank()
+        }
+    }
+}

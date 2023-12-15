@@ -36,7 +36,6 @@ import com.example.indexcards.data.LanguageData
 @Composable
 fun AddBoxDialog(
     modifier: Modifier = Modifier,
-    boxViewModel: BoxViewModel,
     onDismiss: () -> Unit,
 ) {
     var boxName by remember { mutableStateOf("") }
@@ -53,7 +52,7 @@ fun AddBoxDialog(
     @SuppressLint("DiscouragedApi")
     fun getImageId(nameBase: String): Int {
         return context.resources.getIdentifier(
-            "flag" + nameBase,
+            "flag$nameBase",
             "drawable",
             context.packageName
         )
@@ -173,8 +172,8 @@ fun AddBoxDialog(
         confirmButton = {
             TextButton(onClick = {
                 if (boxName.isNotBlank()) {
-                    boxViewModel.setName(boxName)
-                    boxViewModel.setDescription(boxDescription)
+//                    boxViewModel.setName(boxName)
+//                    boxViewModel.setDescription(boxDescription)
                     onDismiss()
                 }
             }) {

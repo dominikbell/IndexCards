@@ -10,4 +10,5 @@ data class Box(
     val name: String,
     val topic: String,
     val description: String,
+    val dateAdded: Long,
 )
