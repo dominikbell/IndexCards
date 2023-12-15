@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.box.BoxList
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
@@ -28,12 +29,12 @@ fun HomeScreen(
     navigateToBoxScreen: () -> Unit,
     modifier: Modifier = Modifier,
     homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = AppViewModelProvider.Factory
+        factory = AppViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-//    val homeScreenUiState by homeScreenViewModel.homeUiState.collectAsState()
+    val homeScreenUiState by homeScreenViewModel.homeUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-//    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var dialog by remember { mutableStateOf(false) }
 //    val testList = mutableListOf<Box>()
@@ -68,12 +69,12 @@ fun HomeScreen(
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }
-    ) { innerPadding -> null
-//        BoxList(
-//            modifier = modifier
-//                .padding(innerPadding),
-//            boxList = homeScreenUiState.boxList
-//        )
+    ) { innerPadding ->
+        BoxList(
+            modifier = modifier
+                .padding(innerPadding),
+            boxList = homeScreenUiState.boxList
+        )
     }
 
     if (dialog) {

@@ -1,27 +1,21 @@
 package com.example.indexcards.utils
 
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
+import android.content.Context
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.indexcards.utils.box.AddBoxViewModel
-import com.example.indexcards.IndexCardsApplication
+import com.example.indexcards.data.AppDatabase
+import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.ui.home.HomeScreenViewModel
 
-object AppViewModelProvider {
-    val Factory = viewModelFactory {
+class AppViewModelProvider(
+    context: Context
+) {
+    val factory = viewModelFactory {
         initializer {
+            /* Very hot fix */
             HomeScreenViewModel(
-                indexCardsApplication().container.appRepository
+                OfflineAppRepository(AppDatabase.getDatabase(context).appDao())
             )
         }
-//        initializer {
-//            AddBoxViewModel(
-//                indexCardsApplication().container.appRepository
-//            )
-//        }
     }
 }
-
-fun CreationExtras.indexCardsApplication(): IndexCardsApplication =
-    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as IndexCardsApplication)
