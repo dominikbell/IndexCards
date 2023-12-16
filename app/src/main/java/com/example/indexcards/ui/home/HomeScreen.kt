@@ -15,13 +15,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.data.Box
 import com.example.indexcards.ui.box.BoxList
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
 import com.example.indexcards.utils.AppViewModelProvider
 import com.example.indexcards.utils.box.AddBoxDialog
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 @Composable
 fun HomeScreen(
@@ -32,19 +29,6 @@ fun HomeScreen(
     ),
 ) {
     val homeScreenUiState by homeScreenViewModel.homeUiState.collectAsState()
-
-    val testList = mutableListOf<Box>()
-
-    for (i in 0..15) {
-        testList +=
-            Box(
-                i.toLong(),
-                "Norsk $i",
-                "Norwegian",
-                "Learning Norwegian!",
-                LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-            )
-    }
 
     var dialog by remember { mutableStateOf(false) }
 
@@ -69,8 +53,7 @@ fun HomeScreen(
         BoxList(
             modifier = modifier
                 .padding(innerPadding),
-//            boxList = homeScreenUiState.boxList
-            boxList = testList
+            boxList = homeScreenUiState.boxList
         )
     }
 
