@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,17 +31,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.LanguageData
+import com.example.indexcards.utils.AppViewModelProvider
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBoxDialog(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
+    addBoxViewModel: AddBoxViewModel = viewModel(
+        factory = AppViewModelProvider(context = LocalContext.current).factory
+    )
 ) {
-    var boxName by remember { mutableStateOf("") }
-    var boxDescription by remember { mutableStateOf("") }
-    var boxTopic by remember { mutableStateOf("") }
+    val addBoxUiState = addBoxViewModel.boxUiState
+
+    val coroutineScope = rememberCoroutineScope()
+
     var isLanguage by remember { mutableStateOf(true) }
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -71,18 +79,18 @@ fun AddBoxDialog(
                 modifier = modifier
             ) {
                 OutlinedTextField(
-                    value = boxName,
+                    value = addBoxUiState.boxDetails.name,
                     onValueChange = {
-                        boxName = it
+                        addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(name = it))
                     },
                     label = { Text(text = "Name*") },
                 )
 
                 if (!isLanguage) {
                     OutlinedTextField(
-                        value = boxTopic,
+                        value = addBoxUiState.boxDetails.topic,
                         onValueChange = {
-                            boxTopic = it
+                            addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
                         },
                         label = { Text(text = "Topic*") },
                     )
@@ -94,9 +102,11 @@ fun AddBoxDialog(
                         OutlinedTextField(
                             modifier = modifier.menuAnchor(),
                             readOnly = true,
-                            value = boxTopic,
+                            value = addBoxUiState.boxDetails.topic,
                             label = { Text(text = "Language*") },
-                            onValueChange = { },
+                            onValueChange = {
+                                addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
+                            },
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                             },
@@ -127,7 +137,11 @@ fun AddBoxDialog(
                                         }
                                     },
                                     onClick = {
-                                        boxTopic = option.value
+                                        addBoxViewModel.updateUiState(
+                                            addBoxUiState.boxDetails.copy(
+                                                topic = option.value
+                                            )
+                                        )
                                         changeExpanded()
                                     }
                                 )
@@ -138,9 +152,9 @@ fun AddBoxDialog(
 
                 OutlinedTextField(
                     modifier = modifier,
-                    value = boxDescription,
+                    value = addBoxUiState.boxDetails.description,
                     onValueChange = {
-                        boxDescription = it
+                        addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(description = it))
                     },
                     label = { Text(text = "Description") },
                 )
@@ -171,9 +185,8 @@ fun AddBoxDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                if (boxName.isNotBlank()) {
-//                    boxViewModel.setName(boxName)
-//                    boxViewModel.setDescription(boxDescription)
+                coroutineScope.launch {
+                    addBoxViewModel.saveItem()
                     onDismiss()
                 }
             }) {
