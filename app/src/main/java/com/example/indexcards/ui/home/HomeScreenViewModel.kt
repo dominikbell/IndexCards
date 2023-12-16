@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class HomeScreenViewModel(
-    appRepository: AppRepository
+    private val appRepository: AppRepository
 ) : ViewModel() {
 
+    var boxToBeDeleted: Box? = null
     val homeUiState: StateFlow<HomeUiState> =
         appRepository.getAllBoxesStream().map {
             HomeUiState(it)
@@ -21,6 +22,12 @@ class HomeScreenViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = HomeUiState()
         )
+
+    suspend fun deleteBox() {
+        if (boxToBeDeleted != null) {
+            appRepository.deleteBox(boxToBeDeleted!!)
+        }
+    }
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L

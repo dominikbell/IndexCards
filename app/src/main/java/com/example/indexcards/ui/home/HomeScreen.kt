@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,6 +20,8 @@ import com.example.indexcards.ui.box.BoxList
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
 import com.example.indexcards.utils.AppViewModelProvider
 import com.example.indexcards.utils.box.AddBoxDialog
+import com.example.indexcards.utils.box.DeleteBoxDialog
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -29,8 +32,10 @@ fun HomeScreen(
     ),
 ) {
     val homeScreenUiState by homeScreenViewModel.homeUiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
-    var dialog by remember { mutableStateOf(false) }
+    var addDialog by remember { mutableStateOf(false) }
+    var deleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -42,7 +47,7 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    dialog = true
+                    addDialog = true
                 },
                 modifier = modifier
             ) {
@@ -53,13 +58,31 @@ fun HomeScreen(
         BoxList(
             modifier = modifier
                 .padding(innerPadding),
-            boxList = homeScreenUiState.boxList
+            boxList = homeScreenUiState.boxList,
+            showDelete = { deleteDialog = true }
         )
     }
 
-    if (dialog) {
+    if (addDialog) {
         AddBoxDialog(
-            onDismiss = { dialog = false }
+            onDismiss = { addDialog = false }
+        )
+    }
+
+    if (deleteDialog) {
+        DeleteBoxDialog(
+            onDismiss = {
+                coroutineScope.launch {
+                    homeScreenViewModel.boxToBeDeleted = null
+                    deleteDialog = false
+                }
+            },
+            deleteBox = {
+                coroutineScope.launch {
+                    homeScreenViewModel.deleteBox()
+                    deleteDialog = false
+                }
+            }
         )
     }
 }

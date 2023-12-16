@@ -47,6 +47,17 @@ fun AddBoxDialog(
 ) {
     val addBoxUiState = addBoxViewModel.boxUiState
 
+    fun newOnDismiss() {
+        onDismiss()
+        addBoxViewModel.updateUiState(
+            BoxDetails(
+                id = 0,
+                name = "",
+                topic = "",
+                description = "",
+            )
+        )
+    }
     val coroutineScope = rememberCoroutineScope()
 
     var isLanguage by remember { mutableStateOf(true) }
@@ -187,7 +198,7 @@ fun AddBoxDialog(
             TextButton(onClick = {
                 coroutineScope.launch {
                     addBoxViewModel.saveItem()
-                    onDismiss()
+                    newOnDismiss()
                 }
             }) {
                 Text(text = "Save")
@@ -195,7 +206,7 @@ fun AddBoxDialog(
         },
         dismissButton = {
             TextButton(onClick = {
-                onDismiss()
+                newOnDismiss()
             }) {
                 Text(text = "Cancel")
             }
