@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.box
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -12,49 +11,39 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.data.Box
 import com.example.indexcards.utils.AppViewModelProvider
 
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
-    navigateToBoxEditScreen: () -> Unit,
+    navigateToEditBoxScreen: (Long) -> Unit,
     boxId: Long,
     boxEditBoxViewModel: EditBoxViewModel = viewModel(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val boxUiState = boxEditBoxViewModel.boxUiState.collectAsState()
-    val context = LocalContext.current
 
     Scaffold(
         modifier = modifier,
         topBar = {
             BoxTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
-                navigateToBoxEditScreen = navigateToBoxEditScreen,
+                navigateToEditBoxScreen = { navigateToEditBoxScreen(boxId) },
+                thisBox = boxUiState.value.box
             )
         },
 
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    /* TODO: Dialog to create new box */
-                    Toast.makeText(
-                        context,
-//                        "Box $boxId",
-                        "Box ${boxUiState.value.box.boxId}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    /* TODO: Dialog to create new card */
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -63,22 +52,30 @@ fun BoxScreen(
     ) { innerPadding ->
         BoxScreenBody(
             modifier = modifier
-                .padding(innerPadding)
+                .padding(innerPadding),
+            thisBox = boxUiState.value.box
         )
     }
 }
 
 @Composable
 fun BoxScreenBody(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    thisBox: Box
 ) {
     Column(
         modifier = modifier
     ) {
         Text(
-            text = "Statistics",
+            text = "Description: ${thisBox.description}",
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleLarge,
+        )
+
+        /* TODO: add CardList here */
+        Text(
+            text = "Here will be an list of all the cards in this box",
+            textAlign = TextAlign.Start,
         )
     }
 }

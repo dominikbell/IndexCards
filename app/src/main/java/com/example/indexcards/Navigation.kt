@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.indexcards.ui.box.BoxEditScreen
+import com.example.indexcards.ui.box.EditBoxScreen
 import com.example.indexcards.ui.box.BoxScreen
 import com.example.indexcards.ui.home.HomeScreen
 
@@ -35,13 +35,23 @@ fun Navigation(
             val boxId = it.arguments?.getLong("boxId") ?: 0
             BoxScreen(
                 navigateToBoxesOverview = { navController.navigate("homeScreen") },
-                navigateToBoxEditScreen = { navController.navigate("boxEditScreen") },
+                navigateToEditBoxScreen = { navController.navigate("editBoxScreen/${it}") },
                 boxId = boxId,
             )
         }
-        composable("boxEditScreen") {
-            BoxEditScreen(
-                navigateToBoxScreen = { navController.navigate("boxScreen") }
+        composable(
+            "editBoxScreen/{boxId}",
+            arguments = listOf(
+                navArgument("boxId") {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            val boxId = it.arguments?.getLong("boxId") ?: 0
+            EditBoxScreen(
+                navigateToBoxScreen = { navController.navigate("boxScreen/${it}") },
+                navigateToBoxesOverview = { navController.navigate("homeScreen") },
+                boxId = boxId
             )
         }
     }

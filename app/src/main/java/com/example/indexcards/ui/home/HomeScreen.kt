@@ -72,17 +72,20 @@ fun HomeScreen(
     }
 
     if (deleteDialog) {
-        DeleteBoxDialog(
-            onDismiss = {
-                homeScreenViewModel.boxToBeDeleted = null
-                deleteDialog = false
-            },
-            deleteBox = {
-                coroutineScope.launch {
-                    homeScreenViewModel.deleteBox()
+        homeScreenViewModel.boxToBeDeleted?.let {
+            DeleteBoxDialog(
+                onDismiss = {
+                    homeScreenViewModel.boxToBeDeleted = null
                     deleteDialog = false
-                }
-            }
-        )
+                },
+                deleteBox = {
+                    coroutineScope.launch {
+                        homeScreenViewModel.deleteBox()
+                        deleteDialog = false
+                    }
+                },
+                boxToBeDeleted = it
+            )
+        }
     }
 }

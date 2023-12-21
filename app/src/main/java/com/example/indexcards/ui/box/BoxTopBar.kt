@@ -19,13 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.example.indexcards.data.Box
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxTopBar(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
-    navigateToBoxEditScreen: () -> Unit,
+    navigateToEditBoxScreen: () -> Unit,
+    thisBox: Box
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -45,8 +47,7 @@ fun BoxTopBar(
 
         title = {
             Text(
-                text = "EMPTY BOX",
-//                text = boxViewModel.currentBox.name,
+                text = thisBox.name,
                 fontWeight = FontWeight.Bold,
                 modifier = modifier
             )
@@ -71,8 +72,7 @@ fun BoxTopBar(
                     },
                     onClick = {
                         expanded = false
-                        /* TODO: navigate to EditBoxScreen */
-                        navigateToBoxEditScreen()
+                        navigateToEditBoxScreen()
                     }
                 )
             }

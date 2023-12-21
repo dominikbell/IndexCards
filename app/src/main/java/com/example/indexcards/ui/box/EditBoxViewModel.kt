@@ -25,9 +25,13 @@ class EditBoxViewModel(
                 BoxUiState(box = it)
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(EditBoxViewModel.TIMEOUT_MILLIS),
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = BoxUiState()
             )
+
+    suspend fun deleteBox() {
+        appRepository.deleteBox(boxUiState.value.box)
+    }
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L

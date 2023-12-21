@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.data.Box
 import com.example.indexcards.utils.box.HomeScreenViewModel
 import com.example.indexcards.utils.AppViewModelProvider
 
@@ -20,29 +21,15 @@ fun DeleteBoxDialog(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     deleteBox: () -> Unit,
-    homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
-    ),
+    boxToBeDeleted: Box,
 ) {
-    val context = LocalContext.current
-    var nameOfToBeDeleted by remember { mutableStateOf("")}
-
-    nameOfToBeDeleted = if (homeScreenViewModel.boxToBeDeleted != null) {
-        " " + homeScreenViewModel.boxToBeDeleted!!.name
-    } else {
-        ""
-    }
-
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
         confirmButton =
         {
             TextButton(
-//                onClick = deleteBox
-                onClick = {
-                    Toast.makeText(context, homeScreenViewModel.boxToBeDeleted?.name, Toast.LENGTH_SHORT).show()
-                }
+                onClick = deleteBox
             ) {
                 Text(text = "Delete")
             }
@@ -55,7 +42,7 @@ fun DeleteBoxDialog(
                 Text(text = "Cancel")
             }
         },
-        text = { Text(text = "Are you sure you want to delete the box$nameOfToBeDeleted ?") },
+        text = { Text(text = "Are you sure you want to delete the box ${boxToBeDeleted.name}?") },
         title = { Text(text = "Delete this Box") }
     )
 }
