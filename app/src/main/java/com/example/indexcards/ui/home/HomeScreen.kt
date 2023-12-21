@@ -19,14 +19,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.box.BoxList
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
 import com.example.indexcards.utils.AppViewModelProvider
-import com.example.indexcards.utils.box.AddBoxDialog
-import com.example.indexcards.utils.box.DeleteBoxDialog
+import com.example.indexcards.ui.box.AddBoxDialog
+import com.example.indexcards.ui.box.DeleteBoxDialog
+import com.example.indexcards.utils.box.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    navigateToBoxScreen: () -> Unit,
     modifier: Modifier = Modifier,
+    navigateToBoxScreen: (Long) -> Unit,
     homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     ),
@@ -39,11 +40,11 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier,
+
         topBar = {
-            BoxesOverviewTopBar {
-                navigateToBoxScreen()
-            }
+            BoxesOverviewTopBar()
         },
+
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -59,7 +60,8 @@ fun HomeScreen(
             modifier = modifier
                 .padding(innerPadding),
             boxList = homeScreenUiState.boxList,
-            showDelete = { deleteDialog = true }
+            showDelete = { deleteDialog = true },
+            navigateToBoxScreen = navigateToBoxScreen,
         )
     }
 
@@ -72,10 +74,8 @@ fun HomeScreen(
     if (deleteDialog) {
         DeleteBoxDialog(
             onDismiss = {
-                coroutineScope.launch {
-                    homeScreenViewModel.boxToBeDeleted = null
-                    deleteDialog = false
-                }
+                homeScreenViewModel.boxToBeDeleted = null
+                deleteDialog = false
             },
             deleteBox = {
                 coroutineScope.launch {

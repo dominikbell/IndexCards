@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.home
+package com.example.indexcards.utils.box
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +26,7 @@ class HomeScreenViewModel(
     suspend fun deleteBox() {
         if (boxToBeDeleted != null) {
             appRepository.deleteBox(boxToBeDeleted!!)
+            boxToBeDeleted = null
         }
     }
 

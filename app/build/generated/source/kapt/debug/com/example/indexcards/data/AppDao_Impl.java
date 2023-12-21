@@ -235,7 +235,7 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Object deleteBox(final Box box, final Continuation<? super Unit> arg1) {
+  public Object deleteBox(final Box box, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -249,11 +249,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object deleteCard(final Card card, final Continuation<? super Unit> arg1) {
+  public Object deleteCard(final Card card, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -267,11 +267,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object deleteTag(final Tag tag, final Continuation<? super Unit> arg1) {
+  public Object deleteTag(final Tag tag, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -285,11 +285,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object upsertBox(final Box box, final Continuation<? super Unit> arg1) {
+  public Object upsertBox(final Box box, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -303,11 +303,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object upsertCard(final Card card, final Continuation<? super Unit> arg1) {
+  public Object upsertCard(final Card card, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -321,11 +321,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object upsertTag(final Tag tag, final Continuation<? super Unit> arg1) {
+  public Object upsertTag(final Tag tag, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -339,7 +339,7 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
@@ -457,62 +457,94 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public List<BoxWithCards> getBoxWithCards(final long boxId) {
+  public Flow<List<BoxWithCards>> getBoxWithCards(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, boxId);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-    try {
-      final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-      final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
-      final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-      final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-      final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
-      while (_cursor.moveToNext()) {
-        final long _tmpKey;
-        _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
-        if (!_collectionCards.containsKey(_tmpKey)) {
-          _collectionCards.put(_tmpKey, new ArrayList<Card>());
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"cards",
+        "box"}, new Callable<List<BoxWithCards>>() {
+      @Override
+      @NonNull
+      public List<BoxWithCards> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+        try {
+          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
+          while (_cursor.moveToNext()) {
+            final long _tmpKey;
+            _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
+            if (!_collectionCards.containsKey(_tmpKey)) {
+              _collectionCards.put(_tmpKey, new ArrayList<Card>());
+            }
+          }
+          _cursor.moveToPosition(-1);
+          __fetchRelationshipcardsAscomExampleIndexcardsDataCard(_collectionCards);
+          final List<BoxWithCards> _result = new ArrayList<BoxWithCards>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final BoxWithCards _item;
+            final Box _tmpBox;
+            final long _tmpBoxId;
+            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+            final String _tmpName;
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _tmpName = null;
+            } else {
+              _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
+            final String _tmpTopic;
+            if (_cursor.isNull(_cursorIndexOfTopic)) {
+              _tmpTopic = null;
+            } else {
+              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
+            }
+            final String _tmpDescription;
+            if (_cursor.isNull(_cursorIndexOfDescription)) {
+              _tmpDescription = null;
+            } else {
+              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            }
+            final long _tmpDateAdded;
+            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+            final ArrayList<Card> _tmpCardsCollection;
+            final long _tmpKey_1;
+            _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
+            _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
+            _item = new BoxWithCards(_tmpBox,_tmpCardsCollection);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
         }
       }
-      _cursor.moveToPosition(-1);
-      __fetchRelationshipcardsAscomExampleIndexcardsDataCard(_collectionCards);
-      final List<BoxWithCards> _result = new ArrayList<BoxWithCards>(_cursor.getCount());
-      while (_cursor.moveToNext()) {
-        final BoxWithCards _item;
-        final Box _tmpBox;
-        final long _tmpBoxId;
-        _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-        final String _tmpName;
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _tmpName = null;
-        } else {
-          _tmpName = _cursor.getString(_cursorIndexOfName);
-        }
-        final String _tmpTopic;
-        if (_cursor.isNull(_cursorIndexOfTopic)) {
-          _tmpTopic = null;
-        } else {
-          _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
-        }
-        final String _tmpDescription;
-        if (_cursor.isNull(_cursorIndexOfDescription)) {
-          _tmpDescription = null;
-        } else {
-          _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-        }
-        final long _tmpDateAdded;
-        _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-        _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
-        final ArrayList<Card> _tmpCardsCollection;
-        final long _tmpKey_1;
-        _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
-        _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
-        _item = new BoxWithCards(_tmpBox,_tmpCardsCollection);
-        _result.add(_item);
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public int getNumberOfCards(final long boxId) {
+    final String _sql = "SELECT COUNT(*) from box WHERE boxId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, boxId);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+    try {
+      final int _result;
+      if (_cursor.moveToFirst()) {
+        _result = _cursor.getInt(0);
+      } else {
+        _result = 0;
       }
       return _result;
     } finally {

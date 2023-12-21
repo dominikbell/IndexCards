@@ -1,4 +1,4 @@
-package com.example.indexcards.utils.box
+package com.example.indexcards.ui.box
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.AppViewModelProvider
+import com.example.indexcards.utils.box.AddBoxViewModel
+import com.example.indexcards.utils.box.BoxDetails
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

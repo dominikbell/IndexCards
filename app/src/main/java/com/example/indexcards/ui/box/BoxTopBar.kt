@@ -1,8 +1,9 @@
 package com.example.indexcards.ui.box
 
-import android.widget.Toast
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,7 +11,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,34 +18,43 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BoxesOverviewTopBar(
+fun BoxTopBar(
     modifier: Modifier = Modifier,
+    navigateToBoxesOverview: () -> Unit,
+    navigateToBoxEditScreen: () -> Unit,
 ) {
-    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
 
-    TopAppBar(
+    CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
+        navigationIcon = {
+            IconButton(onClick = { navigateToBoxesOverview() }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back Arrow"
+                )
+            }
+        },
+
         title = {
             Text(
-                text = "Your Boxes",
+                text = "EMPTY BOX",
+//                text = boxViewModel.currentBox.name,
                 fontWeight = FontWeight.Bold,
                 modifier = modifier
             )
         },
         actions = {
-            IconButton(
-                onClick = {
-                    expanded = true
-                }) {
+            IconButton(onClick = {
+                expanded = true
+            }) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     contentDescription = "Menu"
@@ -54,46 +63,18 @@ fun BoxesOverviewTopBar(
 
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = modifier
+                onDismissRequest = { expanded = false }
             ) {
                 DropdownMenuItem(
                     text = {
-                        Text(text = "Settings")
+                        Text(text = "Edit Box Details")
                     },
                     onClick = {
-                        /* TODO: Make settings screen and navigate there */
                         expanded = false
-                        Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
-                    })
-
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Statistics")
-                    },
-                    onClick = {
-                        /* TODO: Show statistics */
-                        expanded = false
-                        Toast.makeText(
-                            context,
-                            "This feature is not implemented yet!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    })
-
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "About this App")
-                    },
-                    onClick = {
-                        /* TODO: Show information card */
-                        expanded = false
-                        Toast.makeText(
-                            context,
-                            "This feature is not implemented yet!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    })
+                        /* TODO: navigate to EditBoxScreen */
+                        navigateToBoxEditScreen()
+                    }
+                )
             }
         },
     )

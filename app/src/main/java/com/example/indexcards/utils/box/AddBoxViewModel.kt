@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.indexcards.data.AppRepository
 
 class AddBoxViewModel(
-    private val appRepository: AppRepository
+    private val appRepository: AppRepository,
 ) : ViewModel() {
 
     var boxUiState by mutableStateOf(BoxState())
