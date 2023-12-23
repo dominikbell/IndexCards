@@ -457,16 +457,16 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Flow<List<BoxWithCards>> getBoxWithCards(final long boxId) {
+  public Flow<BoxWithCards> getBoxWithCards(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, boxId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"cards",
-        "box"}, new Callable<List<BoxWithCards>>() {
+        "box"}, new Callable<BoxWithCards>() {
       @Override
       @NonNull
-      public List<BoxWithCards> call() throws Exception {
+      public BoxWithCards call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
         try {
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
@@ -484,9 +484,8 @@ public final class AppDao_Impl implements AppDao {
           }
           _cursor.moveToPosition(-1);
           __fetchRelationshipcardsAscomExampleIndexcardsDataCard(_collectionCards);
-          final List<BoxWithCards> _result = new ArrayList<BoxWithCards>(_cursor.getCount());
-          while (_cursor.moveToNext()) {
-            final BoxWithCards _item;
+          final BoxWithCards _result;
+          if (_cursor.moveToFirst()) {
             final Box _tmpBox;
             final long _tmpBoxId;
             _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
@@ -515,8 +514,9 @@ public final class AppDao_Impl implements AppDao {
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
             _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
-            _item = new BoxWithCards(_tmpBox,_tmpCardsCollection);
-            _result.add(_item);
+            _result = new BoxWithCards(_tmpBox,_tmpCardsCollection);
+          } else {
+            _result = null;
           }
           return _result;
         } finally {

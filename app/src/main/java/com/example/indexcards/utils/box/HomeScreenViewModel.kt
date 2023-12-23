@@ -1,6 +1,8 @@
 package com.example.indexcards.utils.box
 
-import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
@@ -11,9 +13,13 @@ import kotlinx.coroutines.flow.stateIn
 
 class HomeScreenViewModel(
     private val appRepository: AppRepository
-) : ViewModel() {
-
+) : BoxViewModel(
+    appRepository = appRepository
+) {
     var boxToBeDeleted: Box? = null
+
+    var addBoxUiState by mutableStateOf(BoxState())
+
     val homeUiState: StateFlow<HomeUiState> =
         appRepository.getAllBoxesStream().map {
             HomeUiState(it)

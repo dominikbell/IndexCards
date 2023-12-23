@@ -33,7 +33,7 @@ interface AppDao {
     fun getBox(id: Long): Flow<Box>
 
     @Query("SELECT * FROM box WHERE boxId = :boxId")
-    fun getBoxWithCards(boxId: Long): Flow<List<BoxWithCards>>
+    fun getBoxWithCards(boxId: Long): Flow<BoxWithCards>
 
     @Query("SELECT COUNT(*) from box WHERE boxId = :boxId")
     fun getNumberOfCards(boxId: Long): Int

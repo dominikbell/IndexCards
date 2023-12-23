@@ -3,11 +3,18 @@ package com.example.indexcards.utils.box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
+import com.example.indexcards.data.Box
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 
-class AddBoxViewModel(
-    private val appRepository: AppRepository,
+open class BoxViewModel(
+    private val appRepository: AppRepository
 ) : ViewModel() {
 
     var boxUiState by mutableStateOf(BoxState())
@@ -20,13 +27,25 @@ class AddBoxViewModel(
             )
     }
 
-    suspend fun saveItem() {
+//    fun updateUiState(box: Box) {
+//        boxUiState =
+//            BoxState(
+//                boxDetails = BoxDetails(
+//                    id = box.boxId,
+//                    name = box.name,
+//                    topic = box.topic,
+//                    description = box.description
+//                )
+//            )
+//    }
+
+    open suspend fun saveItem() {
         if (validateInput()) {
             appRepository.insertBox(boxUiState.boxDetails.toBox())
         }
     }
 
-    private fun validateInput(
+    fun validateInput(
         uiState: BoxDetails = boxUiState.boxDetails
     ): Boolean {
         return with(uiState) {

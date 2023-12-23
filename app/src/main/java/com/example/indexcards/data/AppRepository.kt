@@ -5,7 +5,11 @@ import kotlinx.coroutines.flow.Flow
 interface AppRepository {
     fun getAllBoxesStream(): Flow<List<Box>>
 
-    fun getBoxStream(id: Long): Flow<Box>
+    fun getBox(id: Long): Flow<Box>
+
+    fun getNumberOfCards(boxId: Long): Int
+
+    fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards>
 
     suspend fun insertBox(box: Box)
 

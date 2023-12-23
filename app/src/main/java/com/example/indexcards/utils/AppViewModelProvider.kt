@@ -6,9 +6,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.indexcards.data.AppDatabase
 import com.example.indexcards.data.OfflineAppRepository
-import com.example.indexcards.ui.box.EditBoxViewModel
 import com.example.indexcards.utils.box.HomeScreenViewModel
-import com.example.indexcards.utils.box.AddBoxViewModel
+import com.example.indexcards.utils.box.BoxViewModel
+import com.example.indexcards.utils.box.EditBoxViewModel
 
 class AppViewModelProvider(
     context: Context
@@ -21,7 +21,7 @@ class AppViewModelProvider(
             )
         }
         initializer {
-            AddBoxViewModel(
+            BoxViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao())
             )
         }

@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,27 +30,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.AppViewModelProvider
-import com.example.indexcards.utils.box.AddBoxViewModel
 import com.example.indexcards.utils.box.BoxDetails
+import com.example.indexcards.utils.box.BoxState
+import com.example.indexcards.utils.box.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBoxDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    addBoxViewModel: AddBoxViewModel = viewModel(
+    hideDialog: () -> Unit,
+    homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     )
 ) {
-    val addBoxUiState = addBoxViewModel.boxUiState
+    val addBoxUiState = homeScreenViewModel.addBoxUiState
 
-    fun newOnDismiss() {
-        onDismiss()
-        addBoxViewModel.updateUiState(
+    fun onDismiss() {
+        hideDialog()
+        homeScreenViewModel.updateUiState(
             BoxDetails(
                 id = 0,
                 name = "",
@@ -60,9 +60,107 @@ fun AddBoxDialog(
             )
         )
     }
-    val coroutineScope = rememberCoroutineScope()
 
     var isLanguage by remember { mutableStateOf(true) }
+
+    fun changeIsLanguage() {
+        isLanguage = !isLanguage
+    }
+
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = { },
+        title = {
+            Text(
+                text = "Add a new box",
+            )
+        },
+        text = {
+            Column(
+                modifier = modifier
+            ) {
+                NameField(addBoxUiState = addBoxUiState, homeScreenViewModel = homeScreenViewModel)
+
+                if (!isLanguage) {
+                    OutlinedTextField(
+                        value = addBoxUiState.boxDetails.topic,
+                        onValueChange = {
+                            homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
+                        },
+                        label = { Text(text = "Topic*") },
+                    )
+                } else {
+                    LanguageDropDownMenu(
+                        modifier = modifier,
+                        addBoxUiState = addBoxUiState,
+                        homeScreenViewModel = homeScreenViewModel)
+                }
+
+                DescriptionField(addBoxUiState = addBoxUiState, homeScreenViewModel = homeScreenViewModel)
+
+                IsLanguageRadioButton(modifier = modifier, isLanguage = isLanguage) {
+                    changeIsLanguage()
+                }
+
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                /* TODO: When text fields are empty, don't discard but make fields red*/
+                homeScreenViewModel.viewModelScope.launch {
+                    homeScreenViewModel.saveItem()
+                }
+                onDismiss()
+            }) {
+                Text(text = "Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onDismiss()
+            }) {
+                Text(text = "Cancel")
+            }
+        }
+    )
+}
+
+
+@Composable
+fun NameField(
+    addBoxUiState: BoxState,
+    homeScreenViewModel: HomeScreenViewModel
+) {
+    OutlinedTextField(
+        value = addBoxUiState.boxDetails.name,
+        onValueChange = {
+            homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(name = it))
+        },
+        label = { Text(text = "Name*") },
+    )
+}
+
+@Composable
+fun DescriptionField(
+    addBoxUiState: BoxState,
+    homeScreenViewModel: HomeScreenViewModel
+) {
+    OutlinedTextField(
+        value = addBoxUiState.boxDetails.description,
+        onValueChange = {
+            homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(description = it))
+        },
+        label = { Text(text = "Description") },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LanguageDropDownMenu(
+    modifier: Modifier,
+    addBoxUiState: BoxState,
+    homeScreenViewModel: HomeScreenViewModel,
+) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -79,139 +177,87 @@ fun AddBoxDialog(
         )
     }
 
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = { },
-        title = {
-            Text(
-                text = "Add a new box",
-            )
-        },
-        text = {
-            Column(
-                modifier = modifier
-            ) {
-                OutlinedTextField(
-                    value = addBoxUiState.boxDetails.name,
-                    onValueChange = {
-                        addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(name = it))
-                    },
-                    label = { Text(text = "Name*") },
-                )
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { changeExpanded() }
+    ) {
+        OutlinedTextField(
+            modifier = modifier.menuAnchor(),
+            readOnly = true,
+            value = addBoxUiState.boxDetails.topic,
+            label = { Text(text = "Language*") },
+            onValueChange = {
+                homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
+            },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { changeExpanded() }) {
+            LanguageData.language.entries.forEach() { option ->
 
-                if (!isLanguage) {
-                    OutlinedTextField(
-                        value = addBoxUiState.boxDetails.topic,
-                        onValueChange = {
-                            addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
-                        },
-                        label = { Text(text = "Topic*") },
-                    )
-                } else {
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { changeExpanded() }
-                    ) {
-                        OutlinedTextField(
-                            modifier = modifier.menuAnchor(),
-                            readOnly = true,
-                            value = addBoxUiState.boxDetails.topic,
-                            label = { Text(text = "Language*") },
-                            onValueChange = {
-                                addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
-                            },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                            },
-                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { changeExpanded() }) {
-                            LanguageData.language.entries.forEach() { option ->
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            modifier = modifier
+                                .fillMaxWidth()
+                        ) {
+                            Image(
+                                painter = painterResource(
+                                    id = getImageId(option.key)
+                                ),
+                                contentDescription = null,
+                                modifier = modifier
+                                    .size(AssistChipDefaults.IconSize),
+                            )
+                            Spacer(modifier = modifier.size(6.dp))
+                            Text(text = option.value)
 
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            modifier = modifier
-                                                .fillMaxWidth()
-                                        ) {
-                                            Image(
-                                                painter = painterResource(
-                                                    id = getImageId(option.key)
-                                                ),
-                                                contentDescription = null,
-                                                modifier = modifier
-                                                    .size(AssistChipDefaults.IconSize),
-                                            )
-                                            Spacer(modifier = modifier.size(6.dp))
-                                            Text(text = option.value)
-
-                                        }
-                                    },
-                                    onClick = {
-                                        addBoxViewModel.updateUiState(
-                                            addBoxUiState.boxDetails.copy(
-                                                topic = option.value
-                                            )
-                                        )
-                                        changeExpanded()
-                                    }
-                                )
-                            }
                         }
-                    }
-                }
-
-                OutlinedTextField(
-                    modifier = modifier,
-                    value = addBoxUiState.boxDetails.description,
-                    onValueChange = {
-                        addBoxViewModel.updateUiState(addBoxUiState.boxDetails.copy(description = it))
                     },
-                    label = { Text(text = "Description") },
+                    onClick = {
+                        homeScreenViewModel.updateUiState(
+                            addBoxUiState.boxDetails.copy(
+                                topic = option.value
+                            )
+                        )
+                        changeExpanded()
+                    }
                 )
-                Row(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .selectable(
-                            selected = isLanguage,
-                            role = Role.RadioButton,
-                            onClick = {
-                                isLanguage = !isLanguage
-                            }
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = isLanguage,
-                        onClick = null
-                    )
-                    Text(
-                        modifier = modifier
-                            .padding(6.dp),
-                        text = "Adding a language box"
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                coroutineScope.launch {
-                    addBoxViewModel.saveItem()
-                    newOnDismiss()
-                }
-            }) {
-                Text(text = "Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                newOnDismiss()
-            }) {
-                Text(text = "Cancel")
             }
         }
-    )
+    }
+}
+
+@Composable
+fun IsLanguageRadioButton(
+    modifier: Modifier,
+    isLanguage: Boolean,
+    changeIsLanguage: () -> Unit
+) {
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .selectable(
+                selected = isLanguage,
+                role = Role.RadioButton,
+                onClick = { changeIsLanguage() }
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = isLanguage,
+            onClick = null
+        )
+        Text(
+            modifier = modifier
+                .padding(6.dp),
+            text = "Adding a language box"
+        )
+    }
 }

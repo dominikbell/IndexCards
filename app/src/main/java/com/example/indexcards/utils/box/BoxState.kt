@@ -9,6 +9,10 @@ data class BoxState(
     val isValid: Boolean = false,
 )
 
+fun validateInput(boxDetails: BoxDetails) : Boolean {
+    return (boxDetails.name.isNotBlank() && boxDetails.topic.isNotBlank())
+}
+
 data class BoxDetails(
     val id: Long = 0,
     val name: String = "",
@@ -22,4 +26,16 @@ fun BoxDetails.toBox(): Box = Box(
     topic = topic,
     description = description,
     dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
+)
+
+fun Box.toBoxState(isValid: Boolean = false) : BoxState = BoxState(
+    boxDetails = this.toBoxDetails(),
+    isValid = isValid
+)
+
+fun Box.toBoxDetails(): BoxDetails = BoxDetails(
+    id = boxId,
+    name = name,
+    topic = topic,
+    description = description
 )

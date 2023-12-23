@@ -67,7 +67,7 @@ fun HomeScreen(
 
     if (addDialog) {
         AddBoxDialog(
-            onDismiss = { addDialog = false }
+            hideDialog = { addDialog = false }
         )
     }
 

@@ -1,7 +1,6 @@
 package com.example.indexcards.ui.box
 
 import androidx.compose.material3.Icon
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,8 +37,6 @@ fun BoxList(
     boxList: List<Box>,
     showDelete: () -> Unit,
 ) {
-    val context = LocalContext.current
-
     Column(
         modifier = modifier
             .fillMaxSize(),
@@ -65,7 +62,6 @@ fun BoxList(
                         modifier = Modifier,
                         item = item,
                         onClick = {
-//                            Toast.makeText(context, "Box Nr ${item.boxId}", Toast.LENGTH_SHORT).show()
                             navigateToBoxScreen(item.boxId)
                         },
                         showDelete = showDelete
@@ -86,8 +82,6 @@ fun BoxListItem(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val context = LocalContext.current
-
     Card(
         modifier = modifier
             .clickable { onClick(item.boxId) }
@@ -119,7 +113,6 @@ fun BoxListItem(
             IconButton(
                 onClick = {
                     homeScreenViewModel.boxToBeDeleted = item
-                    Toast.makeText(context, homeScreenViewModel.boxToBeDeleted?.name, Toast.LENGTH_SHORT).show()
                     showDelete()
                 }
             ) {

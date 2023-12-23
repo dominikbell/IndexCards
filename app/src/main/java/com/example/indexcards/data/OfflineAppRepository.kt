@@ -8,8 +8,14 @@ class OfflineAppRepository(
     override fun getAllBoxesStream(): Flow<List<Box>> =
         appDao.getAllBoxes()
 
-    override fun getBoxStream(id: Long): Flow<Box> =
+    override fun getBox(id: Long): Flow<Box> =
         appDao.getBox(id)
+
+    override fun getNumberOfCards(boxId: Long): Int =
+        appDao.getNumberOfCards(boxId)
+
+    override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards> =
+        appDao.getBoxWithCards(boxId)
 
     override suspend fun insertBox(box: Box) =
         appDao.upsertBox(box)

@@ -10,13 +10,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.AppViewModelProvider
+import com.example.indexcards.utils.box.EditBoxViewModel
+import com.example.indexcards.utils.box.toBox
 
 @Composable
 fun BoxScreen(
@@ -24,11 +26,11 @@ fun BoxScreen(
     navigateToBoxesOverview: () -> Unit,
     navigateToEditBoxScreen: (Long) -> Unit,
     boxId: Long,
-    boxEditBoxViewModel: EditBoxViewModel = viewModel(
+    editBoxViewModel: EditBoxViewModel = viewModel(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val boxUiState = boxEditBoxViewModel.boxUiState.collectAsState()
+    val boxUiState = editBoxViewModel.boxUiState
 
     Scaffold(
         modifier = modifier,
@@ -36,7 +38,7 @@ fun BoxScreen(
             BoxTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
                 navigateToEditBoxScreen = { navigateToEditBoxScreen(boxId) },
-                thisBox = boxUiState.value.box
+                thisBox = boxUiState.boxDetails.toBox()
             )
         },
 
@@ -53,7 +55,7 @@ fun BoxScreen(
         BoxScreenBody(
             modifier = modifier
                 .padding(innerPadding),
-            thisBox = boxUiState.value.box
+            thisBox = boxUiState.boxDetails.toBox()
         )
     }
 }
@@ -65,6 +67,7 @@ fun BoxScreenBody(
 ) {
     Column(
         modifier = modifier
+            .padding(6.dp)
     ) {
         Text(
             text = "Description: ${thisBox.description}",
