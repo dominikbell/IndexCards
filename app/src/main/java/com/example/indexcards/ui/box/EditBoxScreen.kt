@@ -1,18 +1,20 @@
 package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -28,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.AppViewModelProvider
 import com.example.indexcards.utils.box.EditBoxViewModel
 import com.example.indexcards.utils.box.toBox
@@ -68,8 +71,14 @@ fun EditBoxScreen(
     ) { innerPadding ->
         BoxEditBody(
             modifier = modifier
-                .padding(top = innerPadding.calculateTopPadding()),
-            editBoxViewModel = editBoxViewModel
+                .padding(innerPadding),
+            editBoxViewModel = editBoxViewModel,
+            onSave = {
+                coroutineScope.launch {
+                    editBoxViewModel.saveEdit()
+                }
+                navigateToBoxScreen(boxId)
+            }
         )
     }
 
@@ -94,21 +103,70 @@ fun EditBoxScreen(
 fun BoxEditBody(
     modifier: Modifier = Modifier,
     editBoxViewModel: EditBoxViewModel,
+    onSave: () -> Unit,
 ) {
     val newBoxState = editBoxViewModel.newBoxState
+    val isLanguage = (newBoxState.boxDetails.topic in LanguageData.language.values)
 
     Column(
-        modifier = Modifier
+        modifier = modifier
+            .fillMaxWidth()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        OutlinedTextField(
-            modifier = modifier
-                .fillMaxWidth(),
-            value = newBoxState.boxDetails.name,
-            onValueChange = { editBoxViewModel.updateNewBoxState(newBoxState.boxDetails.copy(name = it)) },
-            label = { Text(text = "Name*") },
+        NameField(
+            modifier = Modifier.fillMaxWidth(),
+            boxUiState = newBoxState,
+            onValueChange = { editBoxViewModel.updateNewBoxState(newBoxState.boxDetails.copy(name = it)) }
         )
+        if (isLanguage) {
+            LanguageDropDownMenu(
+                modifier = Modifier.fillMaxWidth(),
+                boxUiState = newBoxState,
+                onValueChange = {
+                    editBoxViewModel.updateNewBoxState(
+                        newBoxState.boxDetails.copy(
+                            topic = it
+                        )
+                    )
+                }
+            )
+        } else {
+            TopicField(
+                modifier = Modifier.fillMaxWidth(),
+                boxUiState = newBoxState,
+                onValueChange = {
+                    editBoxViewModel.updateNewBoxState(
+                        newBoxState.boxDetails.copy(
+                            topic = it
+                        )
+                    )
+                }
+            )
+        }
+
+        DescriptionField(
+            modifier = Modifier.fillMaxWidth(),
+            boxUiState = newBoxState,
+            onValueChange = {
+                editBoxViewModel.updateNewBoxState(
+                    newBoxState.boxDetails.copy(
+                        description = it
+                    )
+                )
+            }
+        )
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        Button(
+            onClick = {
+                /* TODO: Only save valid entries -> BoxState.isValid */
+                onSave()
+            }
+        ) {
+            Text(text = "Save")
+        }
     }
 }
 

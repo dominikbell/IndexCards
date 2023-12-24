@@ -54,6 +54,15 @@ class EditBoxViewModel(
             )
     }
 
+    suspend fun saveEdit() {
+        copyNewStateToBox()
+        appRepository.updateBox(boxUiState.boxDetails.toBox())
+    }
+
+    private fun copyNewStateToBox() {
+        boxUiState = newBoxState
+    }
+
     suspend fun deleteBox(box: Box) {
         appRepository.deleteBox(box)
     }
