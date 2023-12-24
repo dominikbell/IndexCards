@@ -18,8 +18,6 @@ class HomeScreenViewModel(
 ) {
     var boxToBeDeleted: Box? = null
 
-    var addBoxUiState by mutableStateOf(BoxState())
-
     val homeUiState: StateFlow<HomeUiState> =
         appRepository.getAllBoxesStream().map {
             HomeUiState(it)
@@ -34,10 +32,6 @@ class HomeScreenViewModel(
             appRepository.deleteBox(boxToBeDeleted!!)
             boxToBeDeleted = null
         }
-    }
-
-    companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
     }
 }
 

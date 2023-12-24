@@ -7,7 +7,7 @@ interface AppRepository {
 
     fun getBox(id: Long): Flow<Box>
 
-    fun getNumberOfCards(boxId: Long): Int
+    fun getNumberOfCards(boxId: Long): Flow<Int>
 
     fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards>
 

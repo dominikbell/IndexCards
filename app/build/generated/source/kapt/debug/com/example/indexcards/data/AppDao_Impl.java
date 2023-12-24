@@ -16,6 +16,7 @@ import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Class;
 import java.lang.Exception;
+import java.lang.Integer;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -64,7 +65,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "DELETE FROM `cards` WHERE `cardId` = ?";
+        return "DELETE FROM `Card` WHERE `cardId` = ?";
       }
 
       @Override
@@ -77,7 +78,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "DELETE FROM `tags` WHERE `tagId` = ?";
+        return "DELETE FROM `Tag` WHERE `tagId` = ?";
       }
 
       @Override
@@ -148,7 +149,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `cards` (`cardId`,`word`,`meaning`,`dateAdded`,`level`,`boxId`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`dateAdded`,`level`,`boxId`) VALUES (nullif(?, 0),?,?,?,?,?)";
       }
 
       @Override
@@ -173,7 +174,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `cards` SET `cardId` = ?,`word` = ?,`meaning` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ? WHERE `cardId` = ?";
+        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ? WHERE `cardId` = ?";
       }
 
       @Override
@@ -200,7 +201,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `tags` (`tagId`,`text`) VALUES (nullif(?, 0),?)";
+        return "INSERT INTO `Tag` (`tagId`,`text`) VALUES (nullif(?, 0),?)";
       }
 
       @Override
@@ -217,7 +218,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `tags` SET `tagId` = ?,`text` = ? WHERE `tagId` = ?";
+        return "UPDATE `Tag` SET `tagId` = ?,`text` = ? WHERE `tagId` = ?";
       }
 
       @Override
@@ -235,7 +236,7 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Object deleteBox(final Box box, final Continuation<? super Unit> $completion) {
+  public Object deleteBox(final Box box, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -249,11 +250,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object deleteCard(final Card card, final Continuation<? super Unit> $completion) {
+  public Object deleteCard(final Card card, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -267,11 +268,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object deleteTag(final Tag tag, final Continuation<? super Unit> $completion) {
+  public Object deleteTag(final Tag tag, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -285,11 +286,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object upsertBox(final Box box, final Continuation<? super Unit> $completion) {
+  public Object upsertBox(final Box box, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -303,11 +304,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object upsertCard(final Card card, final Continuation<? super Unit> $completion) {
+  public Object upsertCard(final Card card, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -321,11 +322,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object upsertTag(final Tag tag, final Continuation<? super Unit> $completion) {
+  public Object upsertTag(final Tag tag, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -339,7 +340,7 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
@@ -462,7 +463,7 @@ public final class AppDao_Impl implements AppDao {
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"cards",
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"Card",
         "box"}, new Callable<BoxWithCards>() {
       @Override
       @NonNull
@@ -483,7 +484,7 @@ public final class AppDao_Impl implements AppDao {
             }
           }
           _cursor.moveToPosition(-1);
-          __fetchRelationshipcardsAscomExampleIndexcardsDataCard(_collectionCards);
+          __fetchRelationshipCardAscomExampleIndexcardsDataCard(_collectionCards);
           final BoxWithCards _result;
           if (_cursor.moveToFirst()) {
             final Box _tmpBox;
@@ -532,25 +533,40 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public int getNumberOfCards(final long boxId) {
-    final String _sql = "SELECT COUNT(*) from box WHERE boxId = ?";
+  public Flow<Integer> getNumberOfCards(final long boxId) {
+    final String _sql = "SELECT COUNT(*) from card WHERE boxId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, boxId);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _result;
-      if (_cursor.moveToFirst()) {
-        _result = _cursor.getInt(0);
-      } else {
-        _result = 0;
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"card"}, new Callable<Integer>() {
+      @Override
+      @NonNull
+      public Integer call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Integer _result;
+          if (_cursor.moveToFirst()) {
+            final Integer _tmp;
+            if (_cursor.isNull(0)) {
+              _tmp = null;
+            } else {
+              _tmp = _cursor.getInt(0);
+            }
+            _result = _tmp;
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
   }
 
   @NonNull
@@ -558,20 +574,20 @@ public final class AppDao_Impl implements AppDao {
     return Collections.emptyList();
   }
 
-  private void __fetchRelationshipcardsAscomExampleIndexcardsDataCard(
+  private void __fetchRelationshipCardAscomExampleIndexcardsDataCard(
       @NonNull final LongSparseArray<ArrayList<Card>> _map) {
     if (_map.isEmpty()) {
       return;
     }
     if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
       RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipcardsAscomExampleIndexcardsDataCard(map);
+        __fetchRelationshipCardAscomExampleIndexcardsDataCard(map);
         return Unit.INSTANCE;
       });
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`dateAdded`,`level`,`boxId` FROM `cards` WHERE `cardId` IN (");
+    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`dateAdded`,`level`,`boxId` FROM `Card` WHERE `cardId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");

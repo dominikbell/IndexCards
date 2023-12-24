@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,7 +49,7 @@ fun AddBoxDialog(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     )
 ) {
-    val addBoxUiState = homeScreenViewModel.addBoxUiState
+    val addBoxUiState = homeScreenViewModel.boxUiState
 
     fun onDismiss() {
         hideDialog()
@@ -88,6 +90,7 @@ fun AddBoxDialog(
                             homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))
                         },
                         label = { Text(text = "Topic*") },
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                     )
                 } else {
                     LanguageDropDownMenu(
@@ -137,6 +140,7 @@ fun NameField(
             homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(name = it))
         },
         label = { Text(text = "Name*") },
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
     )
 }
 
@@ -151,6 +155,7 @@ fun DescriptionField(
             homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(description = it))
         },
         label = { Text(text = "Description") },
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
 

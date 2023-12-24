@@ -35,6 +35,6 @@ interface AppDao {
     @Query("SELECT * FROM box WHERE boxId = :boxId")
     fun getBoxWithCards(boxId: Long): Flow<BoxWithCards>
 
-    @Query("SELECT COUNT(*) from box WHERE boxId = :boxId")
-    fun getNumberOfCards(boxId: Long): Int
+    @Query("SELECT COUNT(*) from card WHERE boxId = :boxId")
+    fun getNumberOfCards(boxId: Long): Flow<Int>
 }

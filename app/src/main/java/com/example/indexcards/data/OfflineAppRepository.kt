@@ -11,7 +11,7 @@ class OfflineAppRepository(
     override fun getBox(id: Long): Flow<Box> =
         appDao.getBox(id)
 
-    override fun getNumberOfCards(boxId: Long): Int =
+    override fun getNumberOfCards(boxId: Long): Flow<Int> =
         appDao.getNumberOfCards(boxId)
 
     override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards> =

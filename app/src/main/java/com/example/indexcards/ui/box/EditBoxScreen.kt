@@ -68,7 +68,7 @@ fun EditBoxScreen(
     ) { innerPadding ->
         BoxEditBody(
             modifier = modifier
-                .padding(innerPadding),
+                .padding(top = innerPadding.calculateTopPadding()),
             editBoxViewModel = editBoxViewModel
         )
     }
@@ -98,7 +98,7 @@ fun BoxEditBody(
     val newBoxState = editBoxViewModel.newBoxState
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

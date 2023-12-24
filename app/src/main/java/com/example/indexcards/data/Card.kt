@@ -3,7 +3,7 @@ package com.example.indexcards.data
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "cards")
+@Entity(tableName = "Card")
 data class Card(
     @PrimaryKey(autoGenerate = true)
     val cardId: Long,

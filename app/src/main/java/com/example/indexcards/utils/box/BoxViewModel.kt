@@ -39,6 +39,10 @@ open class BoxViewModel(
 //            )
 //    }
 
+    companion object {
+        const val TIMEOUT_MILLIS = 5_000L
+    }
+
     open suspend fun saveItem() {
         if (validateInput()) {
             appRepository.insertBox(boxUiState.boxDetails.toBox())

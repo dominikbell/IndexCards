@@ -9,10 +9,6 @@ data class BoxState(
     val isValid: Boolean = false,
 )
 
-fun validateInput(boxDetails: BoxDetails) : Boolean {
-    return (boxDetails.name.isNotBlank() && boxDetails.topic.isNotBlank())
-}
-
 data class BoxDetails(
     val id: Long = 0,
     val name: String = "",
