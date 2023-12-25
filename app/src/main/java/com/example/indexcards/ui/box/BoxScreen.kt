@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.box
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -36,12 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
-import com.example.indexcards.ui.card.AddCardDialog
+import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.utils.AppViewModelProvider
 import com.example.indexcards.utils.box.EditBoxViewModel
 import com.example.indexcards.utils.box.toBox
 import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.card.toCardDetails
 
 @Composable
 fun BoxScreen(
@@ -54,7 +55,8 @@ fun BoxScreen(
     ),
 ) {
     val boxUiState = editBoxViewModel.boxUiState
-    var addDialog by remember { mutableStateOf(false) }
+    var newCard by remember { mutableStateOf(true) }
+    var cardDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -70,8 +72,8 @@ fun BoxScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    /* TODO: Dialog to create new card */
-                    addDialog = true
+                    newCard = true
+                    cardDialog = true
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -82,14 +84,20 @@ fun BoxScreen(
             modifier = modifier
                 .padding(innerPadding),
             thisBox = boxUiState.boxDetails.toBox(),
-            showDelete = { deleteDialog = true }
+            showDelete = { deleteDialog = true },
+            showEdit = {
+                newCard = false
+                cardDialog = true
+            }
         )
     }
 
-    if (addDialog) {
-        AddCardDialog(
-            hideDialog = { addDialog = false },
-            boxId = boxId
+    if (cardDialog) {
+        CardDialog(
+            hideDialog = {
+                cardDialog = false
+            },
+            newCard = newCard
         )
     }
 
@@ -105,21 +113,25 @@ fun BoxScreenBody(
     modifier: Modifier = Modifier,
     thisBox: Box,
     showDelete: () -> Unit,
+    showEdit: () -> Unit,
     editBoxViewModel: EditBoxViewModel = viewModel(
+        factory = AppViewModelProvider(context = LocalContext.current).factory
+    ),
+    editCardViewModel: EditCardViewModel = viewModel(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
     val numberOfCards = editBoxViewModel.numberOfCards.collectAsState()
     val boxWithCards = editBoxViewModel.boxWithCards.collectAsState()
-    val context = LocalContext.current
 
-    /* TODO: this only shows the first card in the list, and
-    *   if it is deleted thinks the list is empty */
+    var listVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .padding(6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top,
     ) {
         Text(
             text = "Description: ${thisBox.description}",
@@ -127,11 +139,9 @@ fun BoxScreenBody(
             style = MaterialTheme.typography.titleLarge,
         )
 
-        Text(
-            text = "Number of Cards in this box: ${numberOfCards.value}"
-        )
+        Text(text = "Number of Cards in this box: ${numberOfCards.value}")
 
-        Spacer(modifier = modifier.size(12.dp))
+        Spacer(modifier = Modifier.size(4.dp))
 
         if (boxWithCards.value.cardList.isEmpty()) {
             Text(
@@ -140,21 +150,38 @@ fun BoxScreenBody(
                 style = MaterialTheme.typography.titleLarge,
             )
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.Top
-            ) {
-                items(
-                    items = boxWithCards.value.cardList,
-                    key = { it.cardId }
+            Button(onClick = { listVisible = !listVisible }) {
+                if (listVisible) {
+                    Text(text = "Hide card list")
+                } else {
+                    Text(text = "Show card list")
+                }
+            }
+
+            Spacer(modifier = Modifier.size(6.dp))
+
+            if (listVisible) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Top
                 ) {
-                    item ->
-                    CardListItem(
-                        item = item,
-                        onClick = {
-                            Toast.makeText(context, "This is card Nr ${item.cardId}", Toast.LENGTH_SHORT).show() },
-                        showDelete = showDelete)
+                    items(
+                        items = boxWithCards.value.cardList,
+                        key = { it.cardId }
+                    ) { item ->
+                        CardListItem(
+                            item = item,
+                            onClick = {
+                                editCardViewModel.updateUiState(it.toCardDetails())
+                                showEdit()
+                            },
+                            showDelete = {
+                                editBoxViewModel.idOfCardToBeDeleted = it
+                                showDelete()
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -165,16 +192,12 @@ fun BoxScreenBody(
 fun CardListItem(
     modifier: Modifier = Modifier,
     item: Card,
-    onClick: (Long) -> Unit,
-    showDelete: () -> Unit,
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
-    ),
+    onClick: (Card) -> Unit,
+    showDelete: (Long) -> Unit,
 ) {
-    /* TODO: Maybe change appearance of how cards are displayed*/
     Card(
         modifier = modifier
-            .clickable { onClick(item.cardId) }
+            .clickable { onClick(item) }
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -201,8 +224,7 @@ fun CardListItem(
 
             IconButton(
                 onClick = {
-                    editCardViewModel.idOfCardToBeDeleted = item.cardId
-                    showDelete()
+                    showDelete(item.cardId)
                 }
             ) {
                 Icon(

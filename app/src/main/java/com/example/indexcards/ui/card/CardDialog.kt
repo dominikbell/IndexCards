@@ -17,15 +17,20 @@ import com.example.indexcards.utils.card.EditCardViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddCardDialog(
+fun CardDialog(
     modifier: Modifier = Modifier,
     hideDialog: () -> Unit,
-    boxId: Long,
+    newCard: Boolean,
     editCardViewModel: EditCardViewModel = viewModel(
         factory = AppViewModelProvider(context = LocalContext.current).factory
     )
 ) {
     val newCardUiState = editCardViewModel.cardUiState
+    val titleText = if (newCard) {
+         "Add a new card"
+    } else {
+        "Edit card"
+    }
 
     fun onDismiss() {
         hideDialog()
@@ -35,7 +40,7 @@ fun AddCardDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = { onDismiss() },
-        title = { Text(text = "Add a new card") },
+        title = { Text(text = titleText) },
         text = {
             Column(
                 modifier = modifier

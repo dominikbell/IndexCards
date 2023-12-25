@@ -15,7 +15,6 @@ class EditCardViewModel(
     private val boxId: Long = checkNotNull(savedStateHandle["boxId"])
 
     var cardUiState by mutableStateOf(CardState())
-    var idOfCardToBeDeleted by mutableLongStateOf(-1)
 
     suspend fun saveCard() {
         updateUiState(cardUiState.cardDetails.copy(boxId = boxId))
@@ -24,16 +23,12 @@ class EditCardViewModel(
         }
     }
 
-    suspend fun deleteCard() {
-        appRepository.deleteCard(idOfCardToBeDeleted)
+    suspend fun deleteCard(cardId: Long) {
+        appRepository.deleteCard(cardId = cardId)
     }
 
     fun resetUiStatus() {
         updateUiState(CardDetails())
-    }
-
-    fun resetIdOfCardToBeDeleted() {
-        idOfCardToBeDeleted = -1
     }
 
     fun updateUiState(cardDetails: CardDetails) {

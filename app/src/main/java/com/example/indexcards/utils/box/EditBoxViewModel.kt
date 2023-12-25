@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.box
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -24,6 +25,7 @@ class EditBoxViewModel(
     private val boxId: Long = checkNotNull(savedStateHandle["boxId"])
 
     var newBoxState by mutableStateOf(BoxState())
+    var idOfCardToBeDeleted by mutableLongStateOf(-1)
 
     val numberOfCards: StateFlow<Int> =
         appRepository.getNumberOfCards(boxId).stateIn(
@@ -76,6 +78,14 @@ class EditBoxViewModel(
 
     suspend fun deleteBox(boxId: Long) {
         appRepository.deleteBox(boxId)
+    }
+
+    suspend fun deleteCard() {
+        appRepository.deleteCard(idOfCardToBeDeleted)
+    }
+
+    fun resetIdOfCardToBeDeleted() {
+        idOfCardToBeDeleted = -1
     }
 }
 
