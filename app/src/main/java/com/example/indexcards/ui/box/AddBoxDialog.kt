@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.utils.AppViewModelProvider
-import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.HomeScreenViewModel
 import kotlinx.coroutines.launch
 

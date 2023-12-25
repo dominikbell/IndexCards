@@ -604,7 +604,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId` FROM `Card` WHERE `cardId` IN (");
+    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId` FROM `Card` WHERE `boxId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -619,7 +619,7 @@ public final class AppDao_Impl implements AppDao {
     }
     final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
-      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "cardId");
+      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "boxId");
       if (_itemKeyIndex == -1) {
         return;
       }

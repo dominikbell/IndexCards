@@ -1,14 +1,12 @@
 package com.example.indexcards.utils.card
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.utils.box.BoxDetails
 
 class EditCardViewModel(
     private val appRepository: AppRepository,

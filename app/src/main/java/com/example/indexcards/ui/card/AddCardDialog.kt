@@ -5,9 +5,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.box.MeaningField
 import com.example.indexcards.ui.box.NotesField
@@ -26,7 +26,6 @@ fun AddCardDialog(
     )
 ) {
     val newCardUiState = editCardViewModel.cardUiState
-    val coroutineScope = rememberCoroutineScope()
 
     fun onDismiss() {
         hideDialog()
@@ -49,6 +48,7 @@ fun AddCardDialog(
                         )
                     }
                 )
+
                 MeaningField(
                     cardUiState = newCardUiState,
                     onValueChange = {
@@ -57,6 +57,7 @@ fun AddCardDialog(
                         )
                     }
                 )
+
                 NotesField(
                     cardUiState = newCardUiState,
                     onValueChange = {
@@ -70,7 +71,7 @@ fun AddCardDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    coroutineScope.launch {
+                    editCardViewModel.viewModelScope.launch {
                         editCardViewModel.saveCard()
                     }
                     onDismiss()
@@ -79,6 +80,7 @@ fun AddCardDialog(
                 Text(text = "Save")
             }
         },
+
         dismissButton = {
             TextButton(onClick = { onDismiss() }) {
                 Text(text = "Cancel")
