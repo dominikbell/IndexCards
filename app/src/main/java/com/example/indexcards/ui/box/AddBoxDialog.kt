@@ -30,14 +30,7 @@ fun AddBoxDialog(
 
     fun onDismiss() {
         hideDialog()
-        homeScreenViewModel.updateUiState(
-            BoxDetails(
-                id = 0,
-                name = "",
-                topic = "",
-                description = "",
-            )
-        )
+        homeScreenViewModel.resetUiStatus()
     }
 
     var isLanguage by remember { mutableStateOf(true) }
@@ -74,7 +67,7 @@ fun AddBoxDialog(
                     )
                 } else {
                     LanguageDropDownMenu(
-                        modifier = modifier,
+                        modifier = Modifier,
                         boxUiState = addBoxUiState,
                         onValueChange = {
                             homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = it))

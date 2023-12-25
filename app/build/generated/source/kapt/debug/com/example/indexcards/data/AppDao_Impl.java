@@ -9,6 +9,7 @@ import androidx.room.EntityInsertionAdapter;
 import androidx.room.EntityUpsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.RelationUtil;
@@ -34,11 +35,11 @@ import kotlinx.coroutines.flow.Flow;
 public final class AppDao_Impl implements AppDao {
   private final RoomDatabase __db;
 
-  private final EntityDeletionOrUpdateAdapter<Box> __deletionAdapterOfBox;
+  private final SharedSQLiteStatement __preparedStmtOfDeleteBox;
 
-  private final EntityDeletionOrUpdateAdapter<Card> __deletionAdapterOfCard;
+  private final SharedSQLiteStatement __preparedStmtOfDeleteCard;
 
-  private final EntityDeletionOrUpdateAdapter<Tag> __deletionAdapterOfTag;
+  private final SharedSQLiteStatement __preparedStmtOfDeleteTag;
 
   private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
 
@@ -48,43 +49,28 @@ public final class AppDao_Impl implements AppDao {
 
   public AppDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
-    this.__deletionAdapterOfBox = new EntityDeletionOrUpdateAdapter<Box>(__db) {
+    this.__preparedStmtOfDeleteBox = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
-      protected String createQuery() {
-        return "DELETE FROM `Box` WHERE `boxId` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Box entity) {
-        statement.bindLong(1, entity.getBoxId());
+      public String createQuery() {
+        final String _query = "DELETE FROM box WHERE boxId = ?";
+        return _query;
       }
     };
-    this.__deletionAdapterOfCard = new EntityDeletionOrUpdateAdapter<Card>(__db) {
+    this.__preparedStmtOfDeleteCard = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
-      protected String createQuery() {
-        return "DELETE FROM `Card` WHERE `cardId` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Card entity) {
-        statement.bindLong(1, entity.getCardId());
+      public String createQuery() {
+        final String _query = "DELETE FROM card WHERE cardId = ?";
+        return _query;
       }
     };
-    this.__deletionAdapterOfTag = new EntityDeletionOrUpdateAdapter<Tag>(__db) {
+    this.__preparedStmtOfDeleteTag = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
-      protected String createQuery() {
-        return "DELETE FROM `Tag` WHERE `tagId` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Tag entity) {
-        statement.bindLong(1, entity.getTagId());
+      public String createQuery() {
+        final String _query = "DELETE FROM tag WHERE tagId = ?";
+        return _query;
       }
     };
     this.__upsertionAdapterOfBox = new EntityUpsertionAdapter<Box>(new EntityInsertionAdapter<Box>(__db) {
@@ -149,7 +135,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`dateAdded`,`level`,`boxId`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
       }
 
       @Override
@@ -166,15 +152,20 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(3, entity.getMeaning());
         }
-        statement.bindLong(4, entity.getDateAdded());
-        statement.bindLong(5, entity.getLevel());
-        statement.bindLong(6, entity.getBoxId());
+        if (entity.getNotes() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getNotes());
+        }
+        statement.bindLong(5, entity.getDateAdded());
+        statement.bindLong(6, entity.getLevel());
+        statement.bindLong(7, entity.getBoxId());
       }
     }, new EntityDeletionOrUpdateAdapter<Card>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ? WHERE `cardId` = ?";
+        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`notes` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ? WHERE `cardId` = ?";
       }
 
       @Override
@@ -191,10 +182,15 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(3, entity.getMeaning());
         }
-        statement.bindLong(4, entity.getDateAdded());
-        statement.bindLong(5, entity.getLevel());
-        statement.bindLong(6, entity.getBoxId());
-        statement.bindLong(7, entity.getCardId());
+        if (entity.getNotes() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getNotes());
+        }
+        statement.bindLong(5, entity.getDateAdded());
+        statement.bindLong(6, entity.getLevel());
+        statement.bindLong(7, entity.getBoxId());
+        statement.bindLong(8, entity.getCardId());
       }
     });
     this.__upsertionAdapterOfTag = new EntityUpsertionAdapter<Tag>(new EntityInsertionAdapter<Tag>(__db) {
@@ -236,61 +232,82 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Object deleteBox(final Box box, final Continuation<? super Unit> arg1) {
+  public Object deleteBox(final long boxId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
-        __db.beginTransaction();
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteBox.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
         try {
-          __deletionAdapterOfBox.handle(box);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
         } finally {
-          __db.endTransaction();
+          __preparedStmtOfDeleteBox.release(_stmt);
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object deleteCard(final Card card, final Continuation<? super Unit> arg1) {
+  public Object deleteCard(final long cardId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
-        __db.beginTransaction();
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
         try {
-          __deletionAdapterOfCard.handle(card);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
         } finally {
-          __db.endTransaction();
+          __preparedStmtOfDeleteCard.release(_stmt);
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object deleteTag(final Tag tag, final Continuation<? super Unit> arg1) {
+  public Object deleteTag(final long tagId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
-        __db.beginTransaction();
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTag.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, tagId);
         try {
-          __deletionAdapterOfTag.handle(tag);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
         } finally {
-          __db.endTransaction();
+          __preparedStmtOfDeleteTag.release(_stmt);
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object upsertBox(final Box box, final Continuation<? super Unit> arg1) {
+  public Object upsertBox(final Box box, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -304,11 +321,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object upsertCard(final Card card, final Continuation<? super Unit> arg1) {
+  public Object upsertCard(final Card card, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -322,11 +339,11 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object upsertTag(final Tag tag, final Continuation<? super Unit> arg1) {
+  public Object upsertTag(final Tag tag, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -340,7 +357,7 @@ public final class AppDao_Impl implements AppDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
@@ -587,7 +604,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`dateAdded`,`level`,`boxId` FROM `Card` WHERE `cardId` IN (");
+    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId` FROM `Card` WHERE `cardId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -609,9 +626,10 @@ public final class AppDao_Impl implements AppDao {
       final int _cursorIndexOfCardId = 0;
       final int _cursorIndexOfWord = 1;
       final int _cursorIndexOfMeaning = 2;
-      final int _cursorIndexOfDateAdded = 3;
-      final int _cursorIndexOfLevel = 4;
-      final int _cursorIndexOfBoxId = 5;
+      final int _cursorIndexOfNotes = 3;
+      final int _cursorIndexOfDateAdded = 4;
+      final int _cursorIndexOfLevel = 5;
+      final int _cursorIndexOfBoxId = 6;
       while (_cursor.moveToNext()) {
         final long _tmpKey;
         _tmpKey = _cursor.getLong(_itemKeyIndex);
@@ -632,13 +650,19 @@ public final class AppDao_Impl implements AppDao {
           } else {
             _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
           }
-          final int _tmpDateAdded;
-          _tmpDateAdded = _cursor.getInt(_cursorIndexOfDateAdded);
+          final String _tmpNotes;
+          if (_cursor.isNull(_cursorIndexOfNotes)) {
+            _tmpNotes = null;
+          } else {
+            _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
           final int _tmpLevel;
           _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
           final long _tmpBoxId;
           _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
           _tmpRelation.add(_item_1);
         }
       }

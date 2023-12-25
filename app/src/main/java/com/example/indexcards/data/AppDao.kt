@@ -11,20 +11,20 @@ interface AppDao {
     @Upsert
     suspend fun upsertBox(box: Box)
 
-    @Delete
-    suspend fun deleteBox(box: Box)
+    @Query("DELETE FROM box WHERE boxId = :boxId")
+    suspend fun deleteBox(boxId: Long)
 
     @Upsert
     suspend fun upsertCard(card: Card)
 
-    @Delete
-    suspend fun deleteCard(card: Card)
+    @Query("DELETE FROM card WHERE cardId = :cardId")
+    suspend fun deleteCard(cardId: Long)
 
     @Upsert
     suspend fun upsertTag(tag: Tag)
 
-    @Delete
-    suspend fun deleteTag(tag: Tag)
+    @Query("DELETE FROM tag WHERE tagId = :tagId")
+    suspend fun deleteTag(tagId: Long)
 
     @Query("SELECT * FROM box ORDER BY dateAdded DESC")
     fun getAllBoxes(): Flow<List<Box>>

@@ -27,18 +27,6 @@ open class BoxViewModel(
             )
     }
 
-//    fun updateUiState(box: Box) {
-//        boxUiState =
-//            BoxState(
-//                boxDetails = BoxDetails(
-//                    id = box.boxId,
-//                    name = box.name,
-//                    topic = box.topic,
-//                    description = box.description
-//                )
-//            )
-//    }
-
     companion object {
         const val TIMEOUT_MILLIS = 5_000L
     }

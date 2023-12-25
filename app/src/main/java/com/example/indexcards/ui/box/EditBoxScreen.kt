@@ -91,7 +91,7 @@ fun EditBoxScreen(
                 coroutineScope.launch {
                     deleteDialog = false
                     navigateToBoxesOverview()
-                    editBoxViewModel.deleteBox(boxUiState.boxDetails.toBox())
+                    editBoxViewModel.deleteBox(boxUiState.boxDetails.id)
                 }
             },
             boxToBeDeleted = boxUiState.boxDetails.toBox()
@@ -133,7 +133,7 @@ fun BoxEditBody(
             )
         } else {
             TopicField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 boxUiState = newBoxState,
                 onValueChange = {
                     editBoxViewModel.updateNewBoxState(

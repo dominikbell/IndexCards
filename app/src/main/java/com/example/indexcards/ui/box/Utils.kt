@@ -31,6 +31,49 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
+import com.example.indexcards.utils.card.CardState
+
+@Composable
+fun WordField(
+    modifier: Modifier = Modifier,
+    cardUiState: CardState,
+    onValueChange: (String) -> Unit,
+) {
+    OutlinedTextField(
+        value = cardUiState.cardDetails.word,
+        onValueChange = { onValueChange(it) },
+        label = { Text(text = "Word*") },
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+    )
+}
+
+@Composable
+fun MeaningField(
+    modifier: Modifier = Modifier,
+    cardUiState: CardState,
+    onValueChange: (String) -> Unit,
+) {
+    OutlinedTextField(
+        value = cardUiState.cardDetails.meaning,
+        onValueChange = { onValueChange(it) },
+        label = { Text(text = "Meaning*") },
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+    )
+}
+
+@Composable
+fun NotesField(
+    modifier: Modifier = Modifier,
+    cardUiState: CardState,
+    onValueChange: (String) -> Unit,
+) {
+    OutlinedTextField(
+        value = cardUiState.cardDetails.notes,
+        onValueChange = { onValueChange(it) },
+        label = { Text(text = "Notes") },
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+    )
+}
 
 @Composable
 fun NameField(
@@ -117,11 +160,10 @@ fun LanguageDropDownMenu(
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         ExposedDropdownMenu(
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
             expanded = expanded,
             onDismissRequest = { changeExpanded() }) {
             LanguageData.language.entries.forEach() { option ->
-
                 DropdownMenuItem(
                     text = {
                         Row(
@@ -133,12 +175,11 @@ fun LanguageDropDownMenu(
                                     id = getImageId(option.key)
                                 ),
                                 contentDescription = null,
-                                modifier = modifier
+                                modifier = Modifier
                                     .size(AssistChipDefaults.IconSize),
                             )
-                            Spacer(modifier = modifier.size(6.dp))
+                            Spacer(modifier = Modifier.size(6.dp))
                             Text(text = option.value)
-
                         }
                     },
                     onClick = {

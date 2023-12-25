@@ -9,7 +9,8 @@ data class Card(
     val cardId: Long,
     val word: String,
     val meaning: String,
-    val dateAdded: Int,
+    val notes: String,
+    val dateAdded: Long,
     val level: Int,
     val boxId: Long,
 )

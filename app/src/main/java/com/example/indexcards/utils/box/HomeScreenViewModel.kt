@@ -1,8 +1,5 @@
 package com.example.indexcards.utils.box
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
@@ -29,9 +26,13 @@ class HomeScreenViewModel(
 
     suspend fun deleteBox() {
         if (boxToBeDeleted != null) {
-            appRepository.deleteBox(boxToBeDeleted!!)
+            appRepository.deleteBox(boxToBeDeleted!!.boxId)
             boxToBeDeleted = null
         }
+    }
+
+    fun resetUiStatus() {
+        updateUiState(BoxDetails())
     }
 }
 
