@@ -17,6 +17,15 @@ class OfflineAppRepository(
     override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards> =
         appDao.getBoxWithCards(boxId)
 
+    override fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags> =
+        appDao.getTagsOfCard(cardId)
+
+    override fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards> =
+        appDao.getCardsOfTag(tagId)
+
+    override fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags> =
+        appDao.getTagsOfBox(boxId)
+
     override suspend fun insertBox(box: Box) =
         appDao.upsertBox(box)
 
@@ -34,4 +43,13 @@ class OfflineAppRepository(
 
     override suspend fun updateCard(card: Card) =
         appDao.upsertCard(card)
+
+    override suspend fun insertTag(tag: Tag) =
+        appDao.upsertTag(tag)
+
+    override suspend fun deleteTag(tagId: Long) =
+        appDao.deleteTag(tagId)
+
+    override suspend fun updateTag(tag: Tag) =
+        appDao.upsertTag(tag)
 }

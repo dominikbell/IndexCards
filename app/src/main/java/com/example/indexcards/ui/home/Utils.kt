@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.box
+package com.example.indexcards.ui.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -17,6 +17,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,17 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.card.CardState
+
+@Composable
+fun NewTagButton(
+    onClick: () -> Unit
+) {
+    TextButton(
+        onClick = onClick
+    ) {
+        Text(text = "New Tag")
+    }
+}
 
 @Composable
 fun WordField(

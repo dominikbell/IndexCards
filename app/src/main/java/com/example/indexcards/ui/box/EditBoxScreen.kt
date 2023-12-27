@@ -31,6 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.LanguageData
+import com.example.indexcards.ui.home.DescriptionField
+import com.example.indexcards.ui.home.LanguageDropDownMenu
+import com.example.indexcards.ui.home.NameField
+import com.example.indexcards.ui.home.TopicField
 import com.example.indexcards.utils.AppViewModelProvider
 import com.example.indexcards.utils.box.EditBoxViewModel
 import com.example.indexcards.utils.box.toBox

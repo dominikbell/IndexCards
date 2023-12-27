@@ -77,4 +77,6 @@ dependencies {
 
     //noinspection KaptUsageInsteadOfKsp
     kapt("androidx.room:room-compiler:$roomVersion")
+
+    implementation("com.github.skydoves:colorpicker-compose:1.0.7")
 }

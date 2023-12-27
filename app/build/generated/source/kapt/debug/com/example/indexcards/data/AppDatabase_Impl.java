@@ -29,15 +29,15 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(7) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `Card` (`cardId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL, `meaning` TEXT NOT NULL, `notes` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `level` INTEGER NOT NULL, `boxId` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Tag` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `Tag` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `text` TEXT NOT NULL, `color` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `CardTagCrossRef` (`cardId` INTEGER NOT NULL, `tagId` INTEGER NOT NULL, PRIMARY KEY(`cardId`, `tagId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '02841afcc7205620510fcac122b11e38')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a8dd85f8b326fccd0acbacf5a431c6ca')");
       }
 
       @Override
@@ -121,9 +121,11 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoCard + "\n"
                   + " Found:\n" + _existingCard);
         }
-        final HashMap<String, TableInfo.Column> _columnsTag = new HashMap<String, TableInfo.Column>(2);
+        final HashMap<String, TableInfo.Column> _columnsTag = new HashMap<String, TableInfo.Column>(4);
         _columnsTag.put("tagId", new TableInfo.Column("tagId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTag.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTag.put("text", new TableInfo.Column("text", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTag.put("color", new TableInfo.Column("color", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysTag = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesTag = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoTag = new TableInfo("Tag", _columnsTag, _foreignKeysTag, _indicesTag);
@@ -147,7 +149,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "02841afcc7205620510fcac122b11e38", "1c12eb8047c542ba571f5507c487b99f");
+    }, "a8dd85f8b326fccd0acbacf5a431c6ca", "127baa6a1998f2071e22be1eaca5cf50");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

@@ -11,6 +11,12 @@ interface AppRepository {
 
     fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards>
 
+    fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags>
+
+    fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards>
+
+    fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags>
+
     suspend fun insertBox(box: Box)
 
     suspend fun deleteBox(boxId: Long)
@@ -22,4 +28,10 @@ interface AppRepository {
     suspend fun deleteCard(cardId: Long)
 
     suspend fun updateCard(card: Card)
+
+    suspend fun insertTag(tag: Tag)
+
+    suspend fun deleteTag(tagId: Long)
+
+    suspend fun updateTag(tag: Tag)
 }

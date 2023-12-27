@@ -7,5 +7,7 @@ import androidx.room.PrimaryKey
 data class Tag(
     @PrimaryKey(autoGenerate = true)
     val tagId: Long,
+    val boxId: Long,
     val text: String,
+    val color: String,
 )

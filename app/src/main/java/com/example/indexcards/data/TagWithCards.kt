@@ -12,5 +12,5 @@ data class TagWithCards(
         entityColumn = "cardId",
         associateBy = Junction(CardTagCrossRef::class)
     )
-    val cards: Flow<List<Card>>
+    val cards: List<Card>
 )

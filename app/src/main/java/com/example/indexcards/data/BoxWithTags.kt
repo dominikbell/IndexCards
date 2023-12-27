@@ -5,12 +5,11 @@ import androidx.room.Junction
 import androidx.room.Relation
 import kotlinx.coroutines.flow.Flow
 
-data class CardWithTags(
-    @Embedded val card: Card,
+data class BoxWithTags(
+    @Embedded val box: Box,
     @Relation(
-        parentColumn = "cardId",
-        entityColumn = "tagId",
-        associateBy = Junction(CardTagCrossRef::class)
+        parentColumn = "boxId",
+        entityColumn = "boxId",
     )
     val tags: List<Tag>
 )

@@ -10,6 +10,7 @@ import com.example.indexcards.utils.box.HomeScreenViewModel
 import com.example.indexcards.utils.box.BoxViewModel
 import com.example.indexcards.utils.box.EditBoxViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.tag.EditTagViewModel
 
 class AppViewModelProvider(
     context: Context
@@ -34,6 +35,12 @@ class AppViewModelProvider(
         }
         initializer {
             EditCardViewModel(
+                OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+                this.createSavedStateHandle(),
+            )
+        }
+        initializer {
+            EditTagViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
                 this.createSavedStateHandle(),
             )

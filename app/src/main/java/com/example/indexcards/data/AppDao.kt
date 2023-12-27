@@ -3,6 +3,7 @@ package com.example.indexcards.data
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -35,6 +36,17 @@ interface AppDao {
     @Query("SELECT * FROM box WHERE boxId = :boxId")
     fun getBoxWithCards(boxId: Long): Flow<BoxWithCards>
 
+    @Query("SELECT * FROM box WHERE boxId = :boxId")
+    fun getTagsOfBox(boxId: Long): Flow<BoxWithTags>
+
     @Query("SELECT COUNT(*) from card WHERE boxId = :boxId")
     fun getNumberOfCards(boxId: Long): Flow<Int>
+
+    @Transaction
+    @Query("SELECT * FROM tag WHERE tagId = :tagId")
+    fun getCardsOfTag(tagId: Long): Flow<TagWithCards>
+
+    @Transaction
+    @Query("SELECT * FROM card WHERE cardId = :cardId")
+    fun getTagsOfCard(cardId: Long): Flow<CardWithTags>
 }

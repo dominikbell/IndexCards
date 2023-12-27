@@ -197,36 +197,48 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Tag` (`tagId`,`text`) VALUES (nullif(?, 0),?)";
+        return "INSERT INTO `Tag` (`tagId`,`boxId`,`text`,`color`) VALUES (nullif(?, 0),?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Tag entity) {
         statement.bindLong(1, entity.getTagId());
+        statement.bindLong(2, entity.getBoxId());
         if (entity.getText() == null) {
-          statement.bindNull(2);
+          statement.bindNull(3);
         } else {
-          statement.bindString(2, entity.getText());
+          statement.bindString(3, entity.getText());
+        }
+        if (entity.getColor() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getColor());
         }
       }
     }, new EntityDeletionOrUpdateAdapter<Tag>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Tag` SET `tagId` = ?,`text` = ? WHERE `tagId` = ?";
+        return "UPDATE `Tag` SET `tagId` = ?,`boxId` = ?,`text` = ?,`color` = ? WHERE `tagId` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Tag entity) {
         statement.bindLong(1, entity.getTagId());
+        statement.bindLong(2, entity.getBoxId());
         if (entity.getText() == null) {
-          statement.bindNull(2);
+          statement.bindNull(3);
         } else {
-          statement.bindString(2, entity.getText());
+          statement.bindString(3, entity.getText());
         }
-        statement.bindLong(3, entity.getTagId());
+        if (entity.getColor() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getColor());
+        }
+        statement.bindLong(5, entity.getTagId());
       }
     });
   }
@@ -550,6 +562,81 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
+  public Flow<BoxWithTags> getTagsOfBox(final long boxId) {
+    final String _sql = "SELECT * FROM box WHERE boxId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, boxId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"Tag",
+        "box"}, new Callable<BoxWithTags>() {
+      @Override
+      @NonNull
+      public BoxWithTags call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+        try {
+          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
+          while (_cursor.moveToNext()) {
+            final long _tmpKey;
+            _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
+            if (!_collectionTags.containsKey(_tmpKey)) {
+              _collectionTags.put(_tmpKey, new ArrayList<Tag>());
+            }
+          }
+          _cursor.moveToPosition(-1);
+          __fetchRelationshipTagAscomExampleIndexcardsDataTag(_collectionTags);
+          final BoxWithTags _result;
+          if (_cursor.moveToFirst()) {
+            final Box _tmpBox;
+            final long _tmpBoxId;
+            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+            final String _tmpName;
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _tmpName = null;
+            } else {
+              _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
+            final String _tmpTopic;
+            if (_cursor.isNull(_cursorIndexOfTopic)) {
+              _tmpTopic = null;
+            } else {
+              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
+            }
+            final String _tmpDescription;
+            if (_cursor.isNull(_cursorIndexOfDescription)) {
+              _tmpDescription = null;
+            } else {
+              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            }
+            final long _tmpDateAdded;
+            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+            final ArrayList<Tag> _tmpTagsCollection;
+            final long _tmpKey_1;
+            _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
+            _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
+            _result = new BoxWithTags(_tmpBox,_tmpTagsCollection);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
   public Flow<Integer> getNumberOfCards(final long boxId) {
     final String _sql = "SELECT COUNT(*) from card WHERE boxId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
@@ -576,6 +663,167 @@ public final class AppDao_Impl implements AppDao {
           return _result;
         } finally {
           _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<TagWithCards> getCardsOfTag(final long tagId) {
+    final String _sql = "SELECT * FROM tag WHERE tagId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, tagId);
+    return CoroutinesRoom.createFlow(__db, true, new String[] {"CardTagCrossRef", "Card",
+        "tag"}, new Callable<TagWithCards>() {
+      @Override
+      @NonNull
+      public TagWithCards call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+          try {
+            final int _cursorIndexOfTagId = CursorUtil.getColumnIndexOrThrow(_cursor, "tagId");
+            final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+            final int _cursorIndexOfText = CursorUtil.getColumnIndexOrThrow(_cursor, "text");
+            final int _cursorIndexOfColor = CursorUtil.getColumnIndexOrThrow(_cursor, "color");
+            final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
+            while (_cursor.moveToNext()) {
+              final long _tmpKey;
+              _tmpKey = _cursor.getLong(_cursorIndexOfTagId);
+              if (!_collectionCards.containsKey(_tmpKey)) {
+                _collectionCards.put(_tmpKey, new ArrayList<Card>());
+              }
+            }
+            _cursor.moveToPosition(-1);
+            __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(_collectionCards);
+            final TagWithCards _result;
+            if (_cursor.moveToFirst()) {
+              final Tag _tmpTag;
+              final long _tmpTagId;
+              _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
+              final long _tmpBoxId;
+              _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+              final String _tmpText;
+              if (_cursor.isNull(_cursorIndexOfText)) {
+                _tmpText = null;
+              } else {
+                _tmpText = _cursor.getString(_cursorIndexOfText);
+              }
+              final String _tmpColor;
+              if (_cursor.isNull(_cursorIndexOfColor)) {
+                _tmpColor = null;
+              } else {
+                _tmpColor = _cursor.getString(_cursorIndexOfColor);
+              }
+              _tmpTag = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
+              final ArrayList<Card> _tmpCardsCollection;
+              final long _tmpKey_1;
+              _tmpKey_1 = _cursor.getLong(_cursorIndexOfTagId);
+              _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
+              _result = new TagWithCards(_tmpTag,_tmpCardsCollection);
+            } else {
+              _result = null;
+            }
+            __db.setTransactionSuccessful();
+            return _result;
+          } finally {
+            _cursor.close();
+          }
+        } finally {
+          __db.endTransaction();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<CardWithTags> getTagsOfCard(final long cardId) {
+    final String _sql = "SELECT * FROM card WHERE cardId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, cardId);
+    return CoroutinesRoom.createFlow(__db, true, new String[] {"CardTagCrossRef", "Tag",
+        "card"}, new Callable<CardWithTags>() {
+      @Override
+      @NonNull
+      public CardWithTags call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+          try {
+            final int _cursorIndexOfCardId = CursorUtil.getColumnIndexOrThrow(_cursor, "cardId");
+            final int _cursorIndexOfWord = CursorUtil.getColumnIndexOrThrow(_cursor, "word");
+            final int _cursorIndexOfMeaning = CursorUtil.getColumnIndexOrThrow(_cursor, "meaning");
+            final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
+            final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+            final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
+            final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+            final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
+            while (_cursor.moveToNext()) {
+              final long _tmpKey;
+              _tmpKey = _cursor.getLong(_cursorIndexOfCardId);
+              if (!_collectionTags.containsKey(_tmpKey)) {
+                _collectionTags.put(_tmpKey, new ArrayList<Tag>());
+              }
+            }
+            _cursor.moveToPosition(-1);
+            __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_collectionTags);
+            final CardWithTags _result;
+            if (_cursor.moveToFirst()) {
+              final Card _tmpCard;
+              final long _tmpCardId;
+              _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
+              final String _tmpWord;
+              if (_cursor.isNull(_cursorIndexOfWord)) {
+                _tmpWord = null;
+              } else {
+                _tmpWord = _cursor.getString(_cursorIndexOfWord);
+              }
+              final String _tmpMeaning;
+              if (_cursor.isNull(_cursorIndexOfMeaning)) {
+                _tmpMeaning = null;
+              } else {
+                _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
+              }
+              final String _tmpNotes;
+              if (_cursor.isNull(_cursorIndexOfNotes)) {
+                _tmpNotes = null;
+              } else {
+                _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+              }
+              final long _tmpDateAdded;
+              _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+              final int _tmpLevel;
+              _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
+              final long _tmpBoxId;
+              _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+              final ArrayList<Tag> _tmpTagsCollection;
+              final long _tmpKey_1;
+              _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
+              _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
+              _result = new CardWithTags(_tmpCard,_tmpTagsCollection);
+            } else {
+              _result = null;
+            }
+            __db.setTransactionSuccessful();
+            return _result;
+          } finally {
+            _cursor.close();
+          }
+        } finally {
+          __db.endTransaction();
         }
       }
 
@@ -663,6 +911,222 @@ public final class AppDao_Impl implements AppDao {
           final long _tmpBoxId;
           _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
           _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+          _tmpRelation.add(_item_1);
+        }
+      }
+    } finally {
+      _cursor.close();
+    }
+  }
+
+  private void __fetchRelationshipTagAscomExampleIndexcardsDataTag(
+      @NonNull final LongSparseArray<ArrayList<Tag>> _map) {
+    if (_map.isEmpty()) {
+      return;
+    }
+    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag(map);
+        return Unit.INSTANCE;
+      });
+      return;
+    }
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT `tagId`,`boxId`,`text`,`color` FROM `Tag` WHERE `boxId` IN (");
+    final int _inputSize = _map.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (int i = 0; i < _map.size(); i++) {
+      final long _item = _map.keyAt(i);
+      _stmt.bindLong(_argIndex, _item);
+      _argIndex++;
+    }
+    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
+    try {
+      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "boxId");
+      if (_itemKeyIndex == -1) {
+        return;
+      }
+      final int _cursorIndexOfTagId = 0;
+      final int _cursorIndexOfBoxId = 1;
+      final int _cursorIndexOfText = 2;
+      final int _cursorIndexOfColor = 3;
+      while (_cursor.moveToNext()) {
+        final long _tmpKey;
+        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        final ArrayList<Tag> _tmpRelation = _map.get(_tmpKey);
+        if (_tmpRelation != null) {
+          final Tag _item_1;
+          final long _tmpTagId;
+          _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
+          final long _tmpBoxId;
+          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          final String _tmpText;
+          if (_cursor.isNull(_cursorIndexOfText)) {
+            _tmpText = null;
+          } else {
+            _tmpText = _cursor.getString(_cursorIndexOfText);
+          }
+          final String _tmpColor;
+          if (_cursor.isNull(_cursorIndexOfColor)) {
+            _tmpColor = null;
+          } else {
+            _tmpColor = _cursor.getString(_cursorIndexOfColor);
+          }
+          _item_1 = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
+          _tmpRelation.add(_item_1);
+        }
+      }
+    } finally {
+      _cursor.close();
+    }
+  }
+
+  private void __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(
+      @NonNull final LongSparseArray<ArrayList<Card>> _map) {
+    if (_map.isEmpty()) {
+      return;
+    }
+    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
+        __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(map);
+        return Unit.INSTANCE;
+      });
+      return;
+    }
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,_junction.`tagId` FROM `CardTagCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
+    final int _inputSize = _map.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (int i = 0; i < _map.size(); i++) {
+      final long _item = _map.keyAt(i);
+      _stmt.bindLong(_argIndex, _item);
+      _argIndex++;
+    }
+    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
+    try {
+      // _junction.tagId;
+      final int _itemKeyIndex = 7;
+      if (_itemKeyIndex == -1) {
+        return;
+      }
+      final int _cursorIndexOfCardId = 0;
+      final int _cursorIndexOfWord = 1;
+      final int _cursorIndexOfMeaning = 2;
+      final int _cursorIndexOfNotes = 3;
+      final int _cursorIndexOfDateAdded = 4;
+      final int _cursorIndexOfLevel = 5;
+      final int _cursorIndexOfBoxId = 6;
+      while (_cursor.moveToNext()) {
+        final long _tmpKey;
+        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        final ArrayList<Card> _tmpRelation = _map.get(_tmpKey);
+        if (_tmpRelation != null) {
+          final Card _item_1;
+          final long _tmpCardId;
+          _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
+          final String _tmpWord;
+          if (_cursor.isNull(_cursorIndexOfWord)) {
+            _tmpWord = null;
+          } else {
+            _tmpWord = _cursor.getString(_cursorIndexOfWord);
+          }
+          final String _tmpMeaning;
+          if (_cursor.isNull(_cursorIndexOfMeaning)) {
+            _tmpMeaning = null;
+          } else {
+            _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
+          }
+          final String _tmpNotes;
+          if (_cursor.isNull(_cursorIndexOfNotes)) {
+            _tmpNotes = null;
+          } else {
+            _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+          final int _tmpLevel;
+          _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
+          final long _tmpBoxId;
+          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+          _tmpRelation.add(_item_1);
+        }
+      }
+    } finally {
+      _cursor.close();
+    }
+  }
+
+  private void __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(
+      @NonNull final LongSparseArray<ArrayList<Tag>> _map) {
+    if (_map.isEmpty()) {
+      return;
+    }
+    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(map);
+        return Unit.INSTANCE;
+      });
+      return;
+    }
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT `Tag`.`tagId` AS `tagId`,`Tag`.`boxId` AS `boxId`,`Tag`.`text` AS `text`,`Tag`.`color` AS `color`,_junction.`cardId` FROM `CardTagCrossRef` AS _junction INNER JOIN `Tag` ON (_junction.`tagId` = `Tag`.`tagId`) WHERE _junction.`cardId` IN (");
+    final int _inputSize = _map.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (int i = 0; i < _map.size(); i++) {
+      final long _item = _map.keyAt(i);
+      _stmt.bindLong(_argIndex, _item);
+      _argIndex++;
+    }
+    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
+    try {
+      // _junction.cardId;
+      final int _itemKeyIndex = 4;
+      if (_itemKeyIndex == -1) {
+        return;
+      }
+      final int _cursorIndexOfTagId = 0;
+      final int _cursorIndexOfBoxId = 1;
+      final int _cursorIndexOfText = 2;
+      final int _cursorIndexOfColor = 3;
+      while (_cursor.moveToNext()) {
+        final long _tmpKey;
+        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        final ArrayList<Tag> _tmpRelation = _map.get(_tmpKey);
+        if (_tmpRelation != null) {
+          final Tag _item_1;
+          final long _tmpTagId;
+          _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
+          final long _tmpBoxId;
+          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          final String _tmpText;
+          if (_cursor.isNull(_cursorIndexOfText)) {
+            _tmpText = null;
+          } else {
+            _tmpText = _cursor.getString(_cursorIndexOfText);
+          }
+          final String _tmpColor;
+          if (_cursor.isNull(_cursorIndexOfColor)) {
+            _tmpColor = null;
+          } else {
+            _tmpColor = _cursor.getString(_cursorIndexOfColor);
+          }
+          _item_1 = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
           _tmpRelation.add(_item_1);
         }
       }

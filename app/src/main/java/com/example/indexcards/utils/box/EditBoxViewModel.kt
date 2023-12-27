@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Card
+import com.example.indexcards.utils.card.UiTagList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -34,15 +35,22 @@ class EditBoxViewModel(
             initialValue = 0
         )
 
-    val boxWithCards: StateFlow<CardList> =
+    val boxWithCards: StateFlow<UiCardList> =
         appRepository.getBoxWithCardsStream(boxId = boxId).map {
-            CardList(
-                it.cards
-            )
+            UiCardList(it.cards)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = CardList()
+            initialValue = UiCardList()
+        )
+
+    val boxWithTags: StateFlow<UiTagList> =
+        appRepository.getBoxWithTagsStream(boxId = boxId).map {
+            UiTagList(it.tags)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = UiTagList()
         )
 
     init {
@@ -89,6 +97,6 @@ class EditBoxViewModel(
     }
 }
 
-data class CardList(
+data class UiCardList(
     val cardList: List<Card> = listOf()
 )
