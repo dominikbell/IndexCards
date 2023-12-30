@@ -35,11 +35,21 @@ import kotlinx.coroutines.flow.Flow;
 public final class AppDao_Impl implements AppDao {
   private final RoomDatabase __db;
 
+  private final EntityDeletionOrUpdateAdapter<TagCardCrossRef> __deletionAdapterOfTagCardCrossRef;
+
+  private final SharedSQLiteStatement __preparedStmtOfUpdateTag;
+
   private final SharedSQLiteStatement __preparedStmtOfDeleteBox;
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteCard;
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteTag;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteCardsFromBox;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteTagsFromBox;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteTagsFromCard;
 
   private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
 
@@ -47,8 +57,32 @@ public final class AppDao_Impl implements AppDao {
 
   private final EntityUpsertionAdapter<Tag> __upsertionAdapterOfTag;
 
+  private final EntityUpsertionAdapter<TagCardCrossRef> __upsertionAdapterOfTagCardCrossRef;
+
   public AppDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
+    this.__deletionAdapterOfTagCardCrossRef = new EntityDeletionOrUpdateAdapter<TagCardCrossRef>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "DELETE FROM `TagCardCrossRef` WHERE `tagId` = ? AND `cardId` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final TagCardCrossRef entity) {
+        statement.bindLong(1, entity.getTagId());
+        statement.bindLong(2, entity.getCardId());
+      }
+    };
+    this.__preparedStmtOfUpdateTag = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE tag SET text = ?, color = ? WHERE tagId = ?";
+        return _query;
+      }
+    };
     this.__preparedStmtOfDeleteBox = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
@@ -70,6 +104,30 @@ public final class AppDao_Impl implements AppDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM tag WHERE tagId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteCardsFromBox = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM card WHERE boxId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteTagsFromBox = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM tag WHERE boxId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteTagsFromCard = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM tagcardcrossref WHERE cardId = ?";
         return _query;
       }
     };
@@ -241,6 +299,92 @@ public final class AppDao_Impl implements AppDao {
         statement.bindLong(5, entity.getTagId());
       }
     });
+    this.__upsertionAdapterOfTagCardCrossRef = new EntityUpsertionAdapter<TagCardCrossRef>(new EntityInsertionAdapter<TagCardCrossRef>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT INTO `TagCardCrossRef` (`tagId`,`cardId`) VALUES (?,?)";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final TagCardCrossRef entity) {
+        statement.bindLong(1, entity.getTagId());
+        statement.bindLong(2, entity.getCardId());
+      }
+    }, new EntityDeletionOrUpdateAdapter<TagCardCrossRef>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE `TagCardCrossRef` SET `tagId` = ?,`cardId` = ? WHERE `tagId` = ? AND `cardId` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final TagCardCrossRef entity) {
+        statement.bindLong(1, entity.getTagId());
+        statement.bindLong(2, entity.getCardId());
+        statement.bindLong(3, entity.getTagId());
+        statement.bindLong(4, entity.getCardId());
+      }
+    });
+  }
+
+  @Override
+  public Object deleteTagCardCrossRef(final TagCardCrossRef crossRef,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __deletionAdapterOfTagCardCrossRef.handle(crossRef);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateTag(final long tagId, final String text, final String color,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateTag.acquire();
+        int _argIndex = 1;
+        if (text == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, text);
+        }
+        _argIndex = 2;
+        if (color == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindString(_argIndex, color);
+        }
+        _argIndex = 3;
+        _stmt.bindLong(_argIndex, tagId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateTag.release(_stmt);
+        }
+      }
+    }, $completion);
   }
 
   @Override
@@ -319,6 +463,82 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
+  public Object deleteCardsFromBox(final long boxId, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCardsFromBox.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteCardsFromBox.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteTagsFromBox(final long boxId, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTagsFromBox.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteTagsFromBox.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteTagsFromCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTagsFromCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteTagsFromCard.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Object upsertBox(final Box box, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
@@ -363,6 +583,25 @@ public final class AppDao_Impl implements AppDao {
         __db.beginTransaction();
         try {
           __upsertionAdapterOfTag.upsert(tag);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object upsertTagCardCrossRef(final TagCardCrossRef crossRef,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __upsertionAdapterOfTagCardCrossRef.upsert(crossRef);
           __db.setTransactionSuccessful();
           return Unit.INSTANCE;
         } finally {
@@ -429,11 +668,11 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Flow<Box> getBox(final long id) {
+  public Flow<Box> getBox(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, id);
+    _statement.bindLong(_argIndex, boxId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"box"}, new Callable<Box>() {
       @Override
       @NonNull
@@ -470,6 +709,158 @@ public final class AppDao_Impl implements AppDao {
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
             _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<Card> getCard(final long cardId) {
+    final String _sql = "SELECT * FROM card WHERE cardId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, cardId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"card"}, new Callable<Card>() {
+      @Override
+      @NonNull
+      public Card call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfCardId = CursorUtil.getColumnIndexOrThrow(_cursor, "cardId");
+          final int _cursorIndexOfWord = CursorUtil.getColumnIndexOrThrow(_cursor, "word");
+          final int _cursorIndexOfMeaning = CursorUtil.getColumnIndexOrThrow(_cursor, "meaning");
+          final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
+          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
+          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+          final Card _result;
+          if (_cursor.moveToFirst()) {
+            final long _tmpCardId;
+            _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
+            final String _tmpWord;
+            if (_cursor.isNull(_cursorIndexOfWord)) {
+              _tmpWord = null;
+            } else {
+              _tmpWord = _cursor.getString(_cursorIndexOfWord);
+            }
+            final String _tmpMeaning;
+            if (_cursor.isNull(_cursorIndexOfMeaning)) {
+              _tmpMeaning = null;
+            } else {
+              _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
+            }
+            final String _tmpNotes;
+            if (_cursor.isNull(_cursorIndexOfNotes)) {
+              _tmpNotes = null;
+            } else {
+              _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+            }
+            final long _tmpDateAdded;
+            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+            final int _tmpLevel;
+            _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
+            final long _tmpBoxId;
+            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+            _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<Tag> getTag(final long tagId) {
+    final String _sql = "SELECT * FROM tag WHERE tagId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, tagId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"tag"}, new Callable<Tag>() {
+      @Override
+      @NonNull
+      public Tag call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfTagId = CursorUtil.getColumnIndexOrThrow(_cursor, "tagId");
+          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+          final int _cursorIndexOfText = CursorUtil.getColumnIndexOrThrow(_cursor, "text");
+          final int _cursorIndexOfColor = CursorUtil.getColumnIndexOrThrow(_cursor, "color");
+          final Tag _result;
+          if (_cursor.moveToFirst()) {
+            final long _tmpTagId;
+            _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
+            final long _tmpBoxId;
+            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+            final String _tmpText;
+            if (_cursor.isNull(_cursorIndexOfText)) {
+              _tmpText = null;
+            } else {
+              _tmpText = _cursor.getString(_cursorIndexOfText);
+            }
+            final String _tmpColor;
+            if (_cursor.isNull(_cursorIndexOfColor)) {
+              _tmpColor = null;
+            } else {
+              _tmpColor = _cursor.getString(_cursorIndexOfColor);
+            }
+            _result = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<Integer> getNumberOfCards(final long boxId) {
+    final String _sql = "SELECT COUNT(*) from card WHERE boxId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, boxId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"card"}, new Callable<Integer>() {
+      @Override
+      @NonNull
+      public Integer call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Integer _result;
+          if (_cursor.moveToFirst()) {
+            final Integer _tmp;
+            if (_cursor.isNull(0)) {
+              _tmp = null;
+            } else {
+              _tmp = _cursor.getInt(0);
+            }
+            _result = _tmp;
           } else {
             _result = null;
           }
@@ -562,7 +953,7 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Flow<BoxWithTags> getTagsOfBox(final long boxId) {
+  public Flow<BoxWithTags> getBoxWithTags(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
@@ -637,49 +1028,12 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Flow<Integer> getNumberOfCards(final long boxId) {
-    final String _sql = "SELECT COUNT(*) from card WHERE boxId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"card"}, new Callable<Integer>() {
-      @Override
-      @NonNull
-      public Integer call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Integer _result;
-          if (_cursor.moveToFirst()) {
-            final Integer _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(0);
-            }
-            _result = _tmp;
-          } else {
-            _result = null;
-          }
-          return _result;
-        } finally {
-          _cursor.close();
-        }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
-      }
-    });
-  }
-
-  @Override
-  public Flow<TagWithCards> getCardsOfTag(final long tagId) {
+  public Flow<TagWithCards> getTagWithCards(final long tagId) {
     final String _sql = "SELECT * FROM tag WHERE tagId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, tagId);
-    return CoroutinesRoom.createFlow(__db, true, new String[] {"CardTagCrossRef", "Card",
+    return CoroutinesRoom.createFlow(__db, true, new String[] {"TagCardCrossRef", "Card",
         "tag"}, new Callable<TagWithCards>() {
       @Override
       @NonNull
@@ -748,12 +1102,12 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Flow<CardWithTags> getTagsOfCard(final long cardId) {
+  public Flow<CardWithTags> getCardWithTags(final long cardId) {
     final String _sql = "SELECT * FROM card WHERE cardId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, cardId);
-    return CoroutinesRoom.createFlow(__db, true, new String[] {"CardTagCrossRef", "Tag",
+    return CoroutinesRoom.createFlow(__db, true, new String[] {"TagCardCrossRef", "Tag",
         "card"}, new Callable<CardWithTags>() {
       @Override
       @NonNull
@@ -999,7 +1353,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,_junction.`tagId` FROM `CardTagCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
+    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,_junction.`tagId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -1080,7 +1434,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `Tag`.`tagId` AS `tagId`,`Tag`.`boxId` AS `boxId`,`Tag`.`text` AS `text`,`Tag`.`color` AS `color`,_junction.`cardId` FROM `CardTagCrossRef` AS _junction INNER JOIN `Tag` ON (_junction.`tagId` = `Tag`.`tagId`) WHERE _junction.`cardId` IN (");
+    _stringBuilder.append("SELECT `Tag`.`tagId` AS `tagId`,`Tag`.`boxId` AS `boxId`,`Tag`.`text` AS `text`,`Tag`.`color` AS `color`,_junction.`cardId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Tag` ON (_junction.`tagId` = `Tag`.`tagId`) WHERE _junction.`cardId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");

@@ -22,20 +22,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Box
-import com.example.indexcards.utils.box.HomeScreenViewModel
-import com.example.indexcards.utils.AppViewModelProvider
 
 @Composable
 fun BoxList(
     modifier: Modifier = Modifier,
     navigateToBoxScreen: (Long) -> Unit,
     boxList: List<Box>,
-    showDelete: () -> Unit,
+    onDelete: (Long) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -61,10 +57,8 @@ fun BoxList(
                     BoxListItem(
                         modifier = Modifier,
                         item = item,
-                        onClick = {
-                            navigateToBoxScreen(item.boxId)
-                        },
-                        showDelete = showDelete
+                        onClick = { navigateToBoxScreen(item.boxId) },
+                        showDelete = onDelete
                     )
                 }
             }
@@ -77,10 +71,7 @@ fun BoxListItem(
     modifier: Modifier = Modifier,
     item: Box,
     onClick: (Long) -> Unit,
-    showDelete: () -> Unit,
-    homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
-    ),
+    showDelete: (Long) -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -112,8 +103,7 @@ fun BoxListItem(
 
             IconButton(
                 onClick = {
-                    homeScreenViewModel.boxToBeDeleted = item
-                    showDelete()
+                    showDelete(item.boxId)
                 }
             ) {
                 Icon(

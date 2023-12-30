@@ -29,15 +29,15 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(7) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(8) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `Card` (`cardId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL, `meaning` TEXT NOT NULL, `notes` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `level` INTEGER NOT NULL, `boxId` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `Tag` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `text` TEXT NOT NULL, `color` TEXT NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `CardTagCrossRef` (`cardId` INTEGER NOT NULL, `tagId` INTEGER NOT NULL, PRIMARY KEY(`cardId`, `tagId`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `TagCardCrossRef` (`tagId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, PRIMARY KEY(`tagId`, `cardId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a8dd85f8b326fccd0acbacf5a431c6ca')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4983d828c0d521084ad136472ce47780')");
       }
 
       @Override
@@ -45,7 +45,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("DROP TABLE IF EXISTS `Box`");
         db.execSQL("DROP TABLE IF EXISTS `Card`");
         db.execSQL("DROP TABLE IF EXISTS `Tag`");
-        db.execSQL("DROP TABLE IF EXISTS `CardTagCrossRef`");
+        db.execSQL("DROP TABLE IF EXISTS `TagCardCrossRef`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -135,21 +135,21 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoTag + "\n"
                   + " Found:\n" + _existingTag);
         }
-        final HashMap<String, TableInfo.Column> _columnsCardTagCrossRef = new HashMap<String, TableInfo.Column>(2);
-        _columnsCardTagCrossRef.put("cardId", new TableInfo.Column("cardId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsCardTagCrossRef.put("tagId", new TableInfo.Column("tagId", "INTEGER", true, 2, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysCardTagCrossRef = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesCardTagCrossRef = new HashSet<TableInfo.Index>(0);
-        final TableInfo _infoCardTagCrossRef = new TableInfo("CardTagCrossRef", _columnsCardTagCrossRef, _foreignKeysCardTagCrossRef, _indicesCardTagCrossRef);
-        final TableInfo _existingCardTagCrossRef = TableInfo.read(db, "CardTagCrossRef");
-        if (!_infoCardTagCrossRef.equals(_existingCardTagCrossRef)) {
-          return new RoomOpenHelper.ValidationResult(false, "CardTagCrossRef(com.example.indexcards.data.CardTagCrossRef).\n"
-                  + " Expected:\n" + _infoCardTagCrossRef + "\n"
-                  + " Found:\n" + _existingCardTagCrossRef);
+        final HashMap<String, TableInfo.Column> _columnsTagCardCrossRef = new HashMap<String, TableInfo.Column>(2);
+        _columnsTagCardCrossRef.put("tagId", new TableInfo.Column("tagId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTagCardCrossRef.put("cardId", new TableInfo.Column("cardId", "INTEGER", true, 2, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysTagCardCrossRef = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesTagCardCrossRef = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoTagCardCrossRef = new TableInfo("TagCardCrossRef", _columnsTagCardCrossRef, _foreignKeysTagCardCrossRef, _indicesTagCardCrossRef);
+        final TableInfo _existingTagCardCrossRef = TableInfo.read(db, "TagCardCrossRef");
+        if (!_infoTagCardCrossRef.equals(_existingTagCardCrossRef)) {
+          return new RoomOpenHelper.ValidationResult(false, "TagCardCrossRef(com.example.indexcards.data.TagCardCrossRef).\n"
+                  + " Expected:\n" + _infoTagCardCrossRef + "\n"
+                  + " Found:\n" + _existingTagCardCrossRef);
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "a8dd85f8b326fccd0acbacf5a431c6ca", "127baa6a1998f2071e22be1eaca5cf50");
+    }, "4983d828c0d521084ad136472ce47780", "654bba3d60510727d396b6824c4c12fb");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -160,7 +160,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "Box","Card","Tag","CardTagCrossRef");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "Box","Card","Tag","TagCardCrossRef");
   }
 
   @Override
@@ -172,7 +172,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       _db.execSQL("DELETE FROM `Box`");
       _db.execSQL("DELETE FROM `Card`");
       _db.execSQL("DELETE FROM `Tag`");
-      _db.execSQL("DELETE FROM `CardTagCrossRef`");
+      _db.execSQL("DELETE FROM `TagCardCrossRef`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();

@@ -17,8 +17,9 @@ import com.example.indexcards.ui.home.DescriptionField
 import com.example.indexcards.ui.home.IsLanguageRadioButton
 import com.example.indexcards.ui.home.LanguageDropDownMenu
 import com.example.indexcards.ui.home.NameField
+import com.example.indexcards.ui.home.RequiredFieldsText
 import com.example.indexcards.ui.home.TopicField
-import com.example.indexcards.utils.AppViewModelProvider
+import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
@@ -27,14 +28,14 @@ fun AddBoxDialog(
     modifier: Modifier = Modifier,
     hideDialog: () -> Unit,
     homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
+        factory = ViewModelProvider(context = LocalContext.current).factory
     )
 ) {
     val addBoxUiState = homeScreenViewModel.boxUiState
 
     fun onDismiss() {
         hideDialog()
-        homeScreenViewModel.resetUiStatus()
+        homeScreenViewModel.resetUiState()
     }
 
     var isLanguage by remember { mutableStateOf(true) }
@@ -86,23 +87,27 @@ fun AddBoxDialog(
                     }
                 )
 
+                RequiredFieldsText()
+
                 IsLanguageRadioButton(modifier = modifier, isLanguage = isLanguage) {
+                    homeScreenViewModel.updateUiState(addBoxUiState.boxDetails.copy(topic = ""))
                     changeIsLanguage()
                 }
-
             }
         },
+
         confirmButton = {
             TextButton(onClick = {
                 /* TODO: When text fields are empty, don't discard but make fields red */
                 homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.saveItem()
+                    homeScreenViewModel.saveBox()
                 }
                 onDismiss()
             }) {
                 Text(text = "Save")
             }
         },
+
         dismissButton = {
             TextButton(onClick = {
                 onDismiss()

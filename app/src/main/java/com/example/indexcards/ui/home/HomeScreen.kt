@@ -11,14 +11,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.box.BoxList
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
-import com.example.indexcards.utils.AppViewModelProvider
+import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.ui.box.AddBoxDialog
 import com.example.indexcards.ui.box.DeleteBoxDialog
 import com.example.indexcards.utils.box.HomeScreenViewModel
@@ -29,11 +29,10 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToBoxScreen: (Long) -> Unit,
     homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
+        factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val homeScreenUiState by homeScreenViewModel.homeUiState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
+    val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
 
     var addDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
@@ -41,15 +40,11 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
 
-        topBar = {
-            BoxesOverviewTopBar()
-        },
+        topBar = { BoxesOverviewTopBar() },
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    addDialog = true
-                },
+                onClick = { addDialog = true },
                 modifier = modifier
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -60,7 +55,12 @@ fun HomeScreen(
             modifier = modifier
                 .padding(innerPadding),
             boxList = homeScreenUiState.boxList,
-            showDelete = { deleteDialog = true },
+            onDelete = {
+                homeScreenViewModel.viewModelScope.launch {
+                    homeScreenViewModel.getBoxToBeDeleted(it)
+                }
+                deleteDialog = true
+            },
             navigateToBoxScreen = navigateToBoxScreen,
         )
     }
@@ -72,20 +72,19 @@ fun HomeScreen(
     }
 
     if (deleteDialog) {
-        homeScreenViewModel.boxToBeDeleted?.let {
-            DeleteBoxDialog(
-                onDismiss = {
-                    homeScreenViewModel.boxToBeDeleted = null
-                    deleteDialog = false
-                },
-                deleteBox = {
-                    coroutineScope.launch {
-                        homeScreenViewModel.deleteBox()
-                        deleteDialog = false
-                    }
-                },
-                boxToBeDeleted = it
-            )
-        }
+        DeleteBoxDialog(
+            onDismiss = {
+                deleteDialog = false
+                homeScreenViewModel.resetIdOfBoxToBeDeleted()
+            },
+            onDelete = {
+                deleteDialog = false
+                homeScreenViewModel.viewModelScope.launch {
+                    homeScreenViewModel.deleteBox(homeScreenViewModel.idOfBoxToBeDeleted)
+                    homeScreenViewModel.resetIdOfBoxToBeDeleted()
+                }
+            },
+            boxToBeDeleted = homeScreenViewModel.boxToBeDeleted
+        )
     }
 }

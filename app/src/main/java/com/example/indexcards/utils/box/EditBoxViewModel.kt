@@ -7,8 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Card
-import com.example.indexcards.utils.card.UiTagList
+import com.example.indexcards.data.Box
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -18,85 +17,34 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EditBoxViewModel(
-    private val appRepository: AppRepository,
+    appRepository: AppRepository,
     savedStateHandle: SavedStateHandle
 ) : BoxViewModel(
-    appRepository = appRepository
+    appRepository = appRepository,
 ) {
-    private val boxId: Long = checkNotNull(savedStateHandle["boxId"])
+    val boxId: Long = checkNotNull(savedStateHandle["boxId"])
 
-    var newBoxState by mutableStateOf(BoxState())
+    var currentBox by mutableStateOf(emptyBox)
     var idOfCardToBeDeleted by mutableLongStateOf(-1)
 
-    val numberOfCards: StateFlow<Int> =
-        appRepository.getNumberOfCards(boxId).stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = 0
-        )
-
-    val boxWithCards: StateFlow<UiCardList> =
-        appRepository.getBoxWithCardsStream(boxId = boxId).map {
-            UiCardList(it.cards)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = UiCardList()
-        )
-
-    val boxWithTags: StateFlow<UiTagList> =
-        appRepository.getBoxWithTagsStream(boxId = boxId).map {
-            UiTagList(it.tags)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = UiTagList()
-        )
+//    val currentBox: StateFlow<Box> =
+//        appRepository.getBox(boxId)
+//            .filterNotNull()
+//            .map { it }
+//            .stateIn(
+//                scope = viewModelScope,
+//                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+//                initialValue = emptyBox
+//            )
 
     init {
         viewModelScope.launch {
-            boxUiState = appRepository.getBoxStream(boxId)
+            currentBox = appRepository.getBox(boxId)
                 .filterNotNull()
                 .first()
-                .toBoxState(true)
 
-            newBoxState = BoxState(
-                boxDetails = boxUiState.boxDetails.copy(),
-                isValid = true
-            )
+            boxUiState = currentBox
+                .toBoxState()
         }
     }
-
-    fun updateNewBoxState(boxDetails: BoxDetails) {
-        newBoxState =
-            BoxState(
-                boxDetails = boxDetails,
-                isValid = validateInput(boxDetails)
-            )
-    }
-
-    suspend fun saveEdit() {
-        copyNewStateToBox()
-        appRepository.updateBox(boxUiState.boxDetails.toBox())
-    }
-
-    private fun copyNewStateToBox() {
-        boxUiState = newBoxState
-    }
-
-    suspend fun deleteBox(boxId: Long) {
-        appRepository.deleteBox(boxId)
-    }
-
-    suspend fun deleteCard() {
-        appRepository.deleteCard(idOfCardToBeDeleted)
-    }
-
-    fun resetIdOfCardToBeDeleted() {
-        idOfCardToBeDeleted = -1
-    }
 }
-
-data class UiCardList(
-    val cardList: List<Card> = listOf()
-)

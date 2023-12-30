@@ -12,41 +12,65 @@ interface AppDao {
     @Upsert
     suspend fun upsertBox(box: Box)
 
-    @Query("DELETE FROM box WHERE boxId = :boxId")
-    suspend fun deleteBox(boxId: Long)
-
     @Upsert
     suspend fun upsertCard(card: Card)
-
-    @Query("DELETE FROM card WHERE cardId = :cardId")
-    suspend fun deleteCard(cardId: Long)
 
     @Upsert
     suspend fun upsertTag(tag: Tag)
 
+    @Query("UPDATE tag SET text = :text, color = :color WHERE tagId = :tagId")
+    suspend fun updateTag(tagId: Long, text: String, color: String)
+
+    @Upsert
+    suspend fun upsertTagCardCrossRef(crossRef: TagCardCrossRef)
+
+    @Query("DELETE FROM box WHERE boxId = :boxId")
+    suspend fun deleteBox(boxId: Long)
+
+    @Query("DELETE FROM card WHERE cardId = :cardId")
+    suspend fun deleteCard(cardId: Long)
+
     @Query("DELETE FROM tag WHERE tagId = :tagId")
     suspend fun deleteTag(tagId: Long)
+
+    @Delete
+    suspend fun deleteTagCardCrossRef(crossRef: TagCardCrossRef)
+
+    @Query("DELETE FROM card WHERE boxId = :boxId")
+    suspend fun deleteCardsFromBox(boxId: Long)
+
+    @Query("DELETE FROM tag WHERE boxId = :boxId")
+    suspend fun deleteTagsFromBox(boxId: Long)
+
+    @Query("DELETE FROM tagcardcrossref WHERE cardId = :cardId")
+    suspend fun deleteTagsFromCard(cardId: Long)
 
     @Query("SELECT * FROM box ORDER BY dateAdded DESC")
     fun getAllBoxes(): Flow<List<Box>>
 
-    @Query("SELECT * FROM box WHERE boxId = :id")
-    fun getBox(id: Long): Flow<Box>
+    @Query("SELECT * FROM box WHERE boxId = :boxId")
+    fun getBox(boxId: Long): Flow<Box>
+
+    @Query("SELECT * FROM card WHERE cardId = :cardId")
+    fun getCard(cardId: Long): Flow<Card>
+
+    @Query("SELECT * FROM tag WHERE tagId = :tagId")
+    fun getTag(tagId: Long): Flow<Tag>
+
+    @Query("SELECT COUNT(*) from card WHERE boxId = :boxId")
+    fun getNumberOfCards(boxId: Long): Flow<Int>
 
     @Query("SELECT * FROM box WHERE boxId = :boxId")
     fun getBoxWithCards(boxId: Long): Flow<BoxWithCards>
 
     @Query("SELECT * FROM box WHERE boxId = :boxId")
-    fun getTagsOfBox(boxId: Long): Flow<BoxWithTags>
-
-    @Query("SELECT COUNT(*) from card WHERE boxId = :boxId")
-    fun getNumberOfCards(boxId: Long): Flow<Int>
+    fun getBoxWithTags(boxId: Long): Flow<BoxWithTags>
 
     @Transaction
     @Query("SELECT * FROM tag WHERE tagId = :tagId")
-    fun getCardsOfTag(tagId: Long): Flow<TagWithCards>
+    fun getTagWithCards(tagId: Long): Flow<TagWithCards>
 
     @Transaction
     @Query("SELECT * FROM card WHERE cardId = :cardId")
-    fun getTagsOfCard(cardId: Long): Flow<CardWithTags>
+    fun getCardWithTags(cardId: Long): Flow<CardWithTags>
 }

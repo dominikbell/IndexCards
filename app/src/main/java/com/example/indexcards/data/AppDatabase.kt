@@ -10,9 +10,9 @@ import androidx.room.RoomDatabase
         Box::class,
         Card::class,
         Tag::class,
-        CardTagCrossRef::class,
+        TagCardCrossRef::class,
     ],
-    version = 7
+    version = 8
 )
 abstract class AppDatabase : RoomDatabase() {
 
