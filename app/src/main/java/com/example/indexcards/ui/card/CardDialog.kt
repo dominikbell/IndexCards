@@ -2,128 +2,73 @@ package com.example.indexcards.ui.card
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.ui.home.MeaningField
-import com.example.indexcards.ui.home.NewTagButton
-import com.example.indexcards.ui.home.NotesField
-import com.example.indexcards.ui.home.WordField
-import com.example.indexcards.ui.tag.TagDialog
-import com.example.indexcards.utils.AppViewModelProvider
+import com.example.indexcards.ui.tag.TagList
+import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun CardDialog(
     modifier: Modifier = Modifier,
-    hideDialog: () -> Unit,
-    newCard: Boolean,
+    onDismiss: () -> Unit,
+    showEditCardDialog: () -> Unit,
+    cardViewModel: CardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
     editCardViewModel: EditCardViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
+        factory = ViewModelProvider(context = LocalContext.current).factory
     )
 ) {
-    val newCardUiState = editCardViewModel.cardUiState
-    var tagDialog by remember { mutableStateOf(false) }
-    val titleText = if (newCard) {
-        "Add a new card"
-    } else {
-        "Edit card"
-    }
-
-    fun onDismiss() {
-        hideDialog()
-        editCardViewModel.resetUiStatus()
-    }
+    val cardUiState = cardViewModel.cardUiState
+    val cardWithTags = cardViewModel.cardWithTags.collectAsState()
 
     AlertDialog(
         modifier = modifier,
-        onDismissRequest = { onDismiss() },
-        title = { Text(text = titleText) },
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = cardUiState.cardDetails.word,
+                )
+                IconButton(
+                    onClick = {
+                        editCardViewModel.updateUiState(cardUiState.cardDetails)
+                        showEditCardDialog()
+                    }
+                ) {
+                    Icon(Icons.Default.Create, contentDescription = "Edit")
+                }
+            }
+        },
         text = {
-            Column(
-                modifier = modifier
-            ) {
-                WordField(
-                    cardUiState = newCardUiState,
-                    onValueChange = {
-                        editCardViewModel.updateUiState(
-                            newCardUiState.cardDetails.copy(word = it)
-                        )
-                    }
-                )
+               Column {
+                   Text(text = cardUiState.cardDetails.meaning)
 
-                MeaningField(
-                    cardUiState = newCardUiState,
-                    onValueChange = {
-                        editCardViewModel.updateUiState(
-                            newCardUiState.cardDetails.copy(meaning = it)
-                        )
-                    }
-                )
-
-                LazyRow(
-                    modifier = Modifier,
-                ) {
-                    /* TODO: list used tags here */
-                }
-
-                LazyRow(
-                    modifier = Modifier,
-                ) {
-                    /* TODO: list unused tags here */
-                }
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    NewTagButton(onClick = { tagDialog = true })
-                }
-
-                NotesField(
-                    cardUiState = newCardUiState,
-                    onValueChange = {
-                        editCardViewModel.updateUiState(
-                            newCardUiState.cardDetails.copy(notes = it)
-                        )
-                    }
-                )
-            }
+                   TagList(
+                       tagList = cardWithTags.value.tagList,
+                       onClick = {},
+                       onLongClick = {}
+                   )
+                   
+                   Text(text = cardUiState.cardDetails.notes)
+               }
         },
 
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    editCardViewModel.viewModelScope.launch {
-                        editCardViewModel.saveCard()
-                    }
-                    onDismiss()
-                }
-            ) {
-                Text(text = "Save")
-            }
-        },
-
-        dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text(text = "Cancel")
-            }
-        }
+        confirmButton = {}
     )
-
-    if (tagDialog) {
-        TagDialog(
-            modifier = modifier,
-            hideDialog = { tagDialog = false }
-        )
-    }
 }

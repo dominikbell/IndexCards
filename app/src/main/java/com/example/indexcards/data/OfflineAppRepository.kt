@@ -48,6 +48,12 @@ class OfflineAppRepository(
     override fun getBox(boxId: Long): Flow<Box> =
         appDao.getBox(boxId)
 
+    override fun getCard(cardId: Long): Flow<Card> =
+        appDao.getCard(cardId)
+
+    override fun getTag(tagId: Long): Flow<Tag> =
+        appDao.getTag(tagId)
+
     override fun getNumberOfCards(boxId: Long): Flow<Int> =
         appDao.getNumberOfCards(boxId)
 

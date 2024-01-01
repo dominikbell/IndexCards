@@ -7,35 +7,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.utils.AppViewModelProvider
-import com.example.indexcards.utils.box.EditBoxViewModel
+import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.card.EditCardViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun DeleteCardDialog(
     modifier: Modifier = Modifier,
-    hideDialog: () -> Unit,
-    editBoxViewModel: EditBoxViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
+    onDismiss: () -> Unit,
+    editCardViewModel: EditCardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    val currentCard = editCardViewModel.currentCard
 
     AlertDialog(
         modifier = modifier,
         text = { Text(text = "Are you sure you want to delete this card?") },
-        title = { Text(text = "Delete Card") },
-        onDismissRequest = hideDialog,
+        title = { Text(text = "Delete Card for '${currentCard.word}'") },
+        onDismissRequest = onDismiss,
         confirmButton =
         {
             TextButton(
                 onClick = {
-                    coroutineScope.launch {
-                        editBoxViewModel.deleteCard()
-                        editBoxViewModel.resetIdOfCardToBeDeleted()
+                    editCardViewModel.viewModelScope.launch {
+                        editCardViewModel.deleteCard(currentCard.cardId)
                     }
-                    hideDialog()
+                    onDismiss()
                 }
             ) {
                 Text(text = "Delete")
@@ -44,10 +44,7 @@ fun DeleteCardDialog(
         dismissButton =
         {
             TextButton(
-                onClick = {
-                    editBoxViewModel.resetIdOfCardToBeDeleted()
-                    hideDialog()
-                }
+                onClick = onDismiss
             ) {
                 Text(text = "Cancel")
             }

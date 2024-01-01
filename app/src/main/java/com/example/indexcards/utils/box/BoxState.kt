@@ -4,6 +4,14 @@ import com.example.indexcards.data.Box
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+val emptyBox: Box = Box(
+    boxId = -1,
+    name = "EMPTY BOX",
+    topic = "EMPTY BOX",
+    description = "EMPTY BOX",
+    dateAdded = 0,
+)
+
 data class BoxState(
     val boxDetails: BoxDetails = BoxDetails(),
     val isValid: Boolean = false,

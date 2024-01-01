@@ -4,6 +4,16 @@ import com.example.indexcards.data.Card
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+val emptyCard: Card = Card(
+    cardId = -1,
+    boxId = -1,
+    word = "EMPTY CARD",
+    meaning = "EMPTY CARD",
+    notes = "EMPTY CARD",
+    level = -1,
+    dateAdded = 0,
+)
+
 data class CardState(
     val cardDetails: CardDetails = CardDetails(),
     val isValid: Boolean = false

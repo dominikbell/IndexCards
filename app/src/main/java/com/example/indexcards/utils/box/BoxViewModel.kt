@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
 import com.example.indexcards.utils.AppViewModel
 import kotlinx.coroutines.launch
 

@@ -7,9 +7,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.indexcards.data.AppDatabase
 import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.box.BoxDetailViewModel
 import com.example.indexcards.utils.box.HomeScreenViewModel
 import com.example.indexcards.utils.box.BoxViewModel
 import com.example.indexcards.utils.box.EditBoxViewModel
+import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
 import com.example.indexcards.utils.tag.EditTagViewModel
 
@@ -19,6 +21,13 @@ class ViewModelProvider(
     val factory = viewModelFactory {
         initializer {
             AppViewModel(
+                OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+            )
+        }
+
+        /** For HomeScreen and EditBoxScreen **/
+        initializer {
+            BoxViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
             )
         }
@@ -33,15 +42,25 @@ class ViewModelProvider(
                 this.createSavedStateHandle(),
             )
         }
+
+        /** For BoxScreen **/
+        initializer {
+            BoxDetailViewModel(
+                OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+                this.createSavedStateHandle(),
+            )
+        }
         initializer {
             BoxScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
                 this.createSavedStateHandle(),
             )
         }
+        /** For CardDialog */
         initializer {
-            BoxViewModel(
+            CardViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+                this.createSavedStateHandle(),
             )
         }
         initializer {
@@ -50,6 +69,7 @@ class ViewModelProvider(
                 this.createSavedStateHandle(),
             )
         }
+        /** For TagDialog */
         initializer {
             EditTagViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),

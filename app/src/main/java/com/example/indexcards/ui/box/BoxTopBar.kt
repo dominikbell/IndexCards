@@ -75,17 +75,6 @@ fun BoxTopBar(
                         navigateToEditBoxScreen()
                     }
                 )
-
-                /* TODO: enable editing of existing tags in this box */
-                DropdownMenuItem(
-                    text = {
-                        Text(text = "Edit Tags")
-                    },
-                    onClick = {
-//                        expanded = false
-//                        navigateToEditBoxScreen()
-                    }
-                )
             }
         },
     )

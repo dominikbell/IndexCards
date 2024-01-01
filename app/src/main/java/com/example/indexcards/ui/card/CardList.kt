@@ -1,6 +1,8 @@
 package com.example.indexcards.ui.card
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +18,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,24 +25,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Card
-import com.example.indexcards.utils.AppViewModelProvider
-import com.example.indexcards.utils.box.EditBoxViewModel
+import com.example.indexcards.data.Tag
+import com.example.indexcards.ui.tag.TagList
+import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
 import com.example.indexcards.utils.card.toCardDetails
+import kotlinx.coroutines.launch
 
 @Composable
 fun CardList(
     modifier: Modifier = Modifier,
     cardList: List<Card>,
     showDelete: () -> Unit,
-    showEdit: () -> Unit,
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
+    showDialog: () -> Unit,
+    showEditDialog: () -> Unit,
+    cardViewModel: CardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
     ),
-    editBoxViewModel: EditBoxViewModel = viewModel(
-        factory = AppViewModelProvider(context = LocalContext.current).factory
+    editCardViewModel: EditCardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
     LazyColumn(
@@ -56,28 +62,44 @@ fun CardList(
             CardListItem(
                 item = item,
                 onClick = {
-                    editCardViewModel.updateUiState(it.toCardDetails())
-                    showEdit()
+                    cardViewModel.updateUiState(it.toCardDetails())
+                    showDialog()
+                },
+                onLongClick = {
+                    editCardViewModel.viewModelScope.launch {
+                        editCardViewModel.setCurrentCard(it.cardId)
+                        editCardViewModel.updateUiState(it.toCardDetails())
+                    }
+                    showEditDialog()
                 },
                 showDelete = {
-                    editBoxViewModel.idOfCardToBeDeleted = it
+                    editCardViewModel.viewModelScope.launch {
+                        editCardViewModel.setCurrentCard(it.cardId)
+                    }
                     showDelete()
-                }
+                },
+                tagList = listOf()
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardListItem(
     modifier: Modifier = Modifier,
     item: Card,
     onClick: (Card) -> Unit,
-    showDelete: (Long) -> Unit,
+    onLongClick: (Card) -> Unit,
+    showDelete: (Card) -> Unit,
+    tagList: List<Tag>
 ) {
     Card(
         modifier = modifier
-            .clickable { onClick(item) }
+            .combinedClickable(
+                onClick = { onClick(item) },
+                onLongClick = { onLongClick(item) }
+            )
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -96,16 +118,15 @@ fun CardListItem(
                     textAlign = TextAlign.Start,
                 )
                 Spacer(modifier = modifier.size(4.dp))
-                Text(
-                    text = item.meaning,
-                    style = MaterialTheme.typography.bodyMedium
+                TagList(
+                    tagList = tagList,
+                    onClick = {},
+                    onLongClick = { /*TODO*/ }
                 )
             }
 
             IconButton(
-                onClick = {
-                    showDelete(item.cardId)
-                }
+                onClick = { showDelete(item) }
             ) {
                 Icon(
                     Icons.Default.Delete,
