@@ -12,8 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.home.MeaningField
 import com.example.indexcards.ui.home.NewTagButton
@@ -63,7 +65,7 @@ fun EditCardDialog(
             cardViewModel.updateUiState(editCardViewModel.cardUiState.cardDetails)
             showCardDialog()
         },
-        titleText = "Edit Card for '${currentCard.value.word}'",
+        titleText = stringResource(R.string.edit_card) + " '${currentCard.value.word}'",
         deleteButton = true,
         cardUiState = editCardViewModel.cardUiState,
         onWordChange = {
@@ -125,7 +127,7 @@ fun NewCardDialog(
             }
             onDismiss()
         },
-        titleText = "Add a new card",
+        titleText = stringResource(R.string.add_new_card),
         deleteButton = false,
         cardUiState = newCardViewModel.cardUiState,
         onWordChange = {
@@ -198,7 +200,7 @@ fun CardDialogBody(
                         onLongClick = { showEditTagDialog() },
                         selectedTags = tagList
                     )
-                    NewTagButton(onClick = showNewTagDialog)
+                    NewTagButton(onClick = showNewTagDialog, short = true)
                 }
 
                 NotesField(cardUiState = cardUiState, onValueChange = { onNotesChange(it) })
@@ -209,7 +211,7 @@ fun CardDialogBody(
             TextButton(
                 onClick = onSave
             ) {
-                Text(text = "Save")
+                Text(text = stringResource(R.string.save))
             }
         },
 
@@ -218,13 +220,13 @@ fun CardDialogBody(
                 TextButton(
                     onClick = onCancel
                 ) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.cancel))
                 }
                 if (deleteButton) {
                     TextButton(
                         onClick = onDelete
                     ) {
-                        Text(text = "Delete")
+                        Text(text = stringResource(R.string.delete))
                     }
                 }
             }

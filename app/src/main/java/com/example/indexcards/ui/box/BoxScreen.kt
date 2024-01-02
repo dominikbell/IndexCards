@@ -24,9 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
@@ -174,12 +176,12 @@ fun BoxScreenBody(
         verticalArrangement = Arrangement.Top,
     ) {
         Text(
-            text = "Description: ${boxWithCards.value.box.description}",
+            text = stringResource(R.string.description) + ": ${boxWithCards.value.box.description}",
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleLarge,
         )
 
-        Text(text = "Number of Cards in this box: ${boxWithCards.value.cardList.size}")
+        Text(text = stringResource(R.string.nr_card) + ": ${boxWithCards.value.cardList.size}")
 
         Spacer(modifier = Modifier.size(4.dp))
 
@@ -216,7 +218,7 @@ fun BoxScreenBody(
 
         if (boxWithCards.value.cardList.isEmpty()) {
             Text(
-                text = "Click '+' to add a new card to this box",
+                text = stringResource(R.string.click_to_add_card),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
             )

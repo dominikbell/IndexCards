@@ -6,7 +6,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxViewModel
@@ -21,14 +23,14 @@ fun DeleteBoxDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        text = { Text(text = "Are you sure you want to delete this box?") },
-        title = { Text(text = "Delete box '${boxToBeDeleted.name}'") },
+        text = { Text(text = stringResource(R.string.delete_box_sure)) },
+        title = { Text(text = stringResource(R.string.delete_box) + " '${boxToBeDeleted.name}'") },
         dismissButton =
         {
             TextButton(
                 onClick = onDismiss
             ) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         },
         confirmButton =
@@ -36,7 +38,7 @@ fun DeleteBoxDialog(
             TextButton(
                 onClick = onDelete
             ) {
-                Text(text = "Delete")
+                Text(text = stringResource(R.string.delete))
             }
         },
     )

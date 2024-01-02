@@ -14,9 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.ui.home.RequiredFieldsText
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.tag.EditTagViewModel
@@ -39,9 +41,9 @@ fun TagDialog(
     val tagUiState = editTagViewModel.tagUiState
     val controller = rememberColorPickerController()
     val titleText = if (newTag) {
-        "Add a tag"
+        stringResource(R.string.new_tag)
     } else {
-        "Edit tag"
+        stringResource(R.string.edit_tag)
     }
 
     val initialColor = editTagViewModel.colorUiState.toColor()
@@ -61,7 +63,7 @@ fun TagDialog(
             ) {
                 OutlinedTextField(
                     value = tagUiState.tagDetails.text,
-                    label = { Text(text = "Tag Name*") },
+                    label = { Text(text = stringResource(R.string.tag_name) + "*") },
                     onValueChange = {
                         editTagViewModel.updateUiState(
                             tagUiState.tagDetails.copy(text = it)
@@ -109,14 +111,14 @@ fun TagDialog(
                     }
                     newOnDismiss()
                 }) {
-                Text(text = "Save")
+                Text(text = stringResource(R.string.save))
             }
         },
 
         dismissButton = {
             Row {
                 TextButton(onClick = { newOnDismiss() }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.cancel))
                 }
                 if (!newTag) {
                     TextButton(onClick = {
@@ -125,7 +127,7 @@ fun TagDialog(
                             editTagViewModel.deleteTag()
                         }
                     }) {
-                        Text(text = "Delete")
+                        Text(text = stringResource(R.string.delete))
                     }
                 }
             }

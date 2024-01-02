@@ -7,8 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.card.EditCardViewModel
 import kotlinx.coroutines.launch
@@ -25,8 +27,8 @@ fun DeleteCardDialog(
 
     AlertDialog(
         modifier = modifier,
-        text = { Text(text = "Are you sure you want to delete this card?") },
-        title = { Text(text = "Delete Card for '${currentCard.word}'") },
+        text = { Text(text = stringResource(R.string.delete_card_sure)) },
+        title = { Text(text = stringResource(R.string.delete_card) + " '${currentCard.word}'") },
         onDismissRequest = onDismiss,
         confirmButton =
         {
@@ -38,7 +40,7 @@ fun DeleteCardDialog(
                     onDismiss()
                 }
             ) {
-                Text(text = "Delete")
+                Text(text = stringResource(R.string.delete))
             }
         },
         dismissButton =
@@ -46,7 +48,7 @@ fun DeleteCardDialog(
             TextButton(
                 onClick = onDismiss
             ) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         },
     )

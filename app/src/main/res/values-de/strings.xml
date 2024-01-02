@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Karteikarten</string>
+    <string name="your_boxes">Deine Karteikästen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="delete">Löschen</string>
+    <string name="not_implemented">Diese Funktion gibt es leider noch nicht!</string>
+    <string name="click_to_add_box">Drücke auf \'+\', um einen neuen Karteikasten anzulegen</string>
+    <string name="add_new_box">Einen neuen Karteikasten anlegen</string>
+    <string name="name">Name</string>
+    <string name="language">Sprache</string>
+    <string name="topic">Thema</string>
+    <string name="description">Beschreibung</string>
+    <string name="required_fields">* benötigte Felder</string>
+    <string name="required_field">* benötigtes Feld</string>
+    <string name="is_language">Karteikasten für eine Sprache</string>
+    <string name="delete_box">Karteikasten löschen</string>
+    <string name="delete_box_sure">Bist Du sicher, dass Du diesen Karteikasten löschen möchtest?</string>
+    <string name="settings">Einstellungen</string>
+    <string name="statistics">Statistiken</string>
+    <string name="about_app">Über diese App</string>
+    <string name="nr_card">Anzahl der Karten in diesem Kasten</string>
+    <string name="edit_box">Karteikasten bearbeiten</string>
+    <string name="click_to_add_card">Drücke auf \'+\', um eine neue Karte zu diesem Karteikasten hinzuzufügen</string>
+    <string name="new_tag">Neues Stichwort</string>
+    <string name="new_tag_short">Neu</string>
+    <string name="add_new_tag">Ein Stichwort erstellen</string>
+    <string name="edit_tag">Stichwort bearbeiten</string>
+    <string name="tag_name">Stichwort</string>
+    <string name="add_new_card">Eine neue Karte hinzufügen</string>
+    <string name="word">Wort</string>
+    <string name="meaning">Bedeutung</string>
+    <string name="notes">Notizen</string>
+    <string name="edit_card">Bearbeiten von</string>
+    <string name="delete_card">Löschen von</string>
+    <string name="delete_card_sure">Bist Du sicher, dass Du diese Karteikarte löschen möchtest?</string>
+    <string name="editing_box">Bearbeiten von</string>
+</resources>

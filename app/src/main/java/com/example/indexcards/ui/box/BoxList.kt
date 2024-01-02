@@ -22,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.indexcards.R
 import com.example.indexcards.data.Box
 
 @Composable
@@ -40,8 +42,9 @@ fun BoxList(
         verticalArrangement = Arrangement.Top,
     ) {
         if (boxList.isEmpty()) {
+            Spacer(modifier = Modifier.size(20.dp))
             Text(
-                text = "Click '+' to create a new box",
+                text = stringResource(R.string.click_to_add_box),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
             )

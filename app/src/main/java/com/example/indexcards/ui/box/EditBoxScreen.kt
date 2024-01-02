@@ -27,9 +27,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.ui.home.DescriptionField
 import com.example.indexcards.ui.home.LanguageDropDownMenu
@@ -157,7 +159,7 @@ fun BoxEditBody(
                 onSave()
             }
         ) {
-            Text(text = "Save")
+            Text(text = stringResource(R.string.save))
         }
     }
 }
@@ -184,7 +186,7 @@ fun BoxEditTopBar(
             }
         },
         title = {
-            Text(text = "Editing box $boxName")
+            Text(text = stringResource(R.string.editing_box) + " '$boxName'")
         }
     )
 }

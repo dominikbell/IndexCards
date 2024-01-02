@@ -19,7 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.indexcards.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +38,7 @@ fun BoxesOverviewTopBar(
         ),
         title = {
             Text(
-                text = "Your Boxes",
+                text = stringResource(R.string.your_boxes),
                 fontWeight = FontWeight.Bold,
                 modifier = modifier
             )
@@ -59,41 +61,36 @@ fun BoxesOverviewTopBar(
             ) {
                 DropdownMenuItem(
                     text = {
-                        Text(text = "Settings")
+                        Text(text = stringResource(R.string.settings))
                     },
                     onClick = {
                         /* TODO: Make settings screen and navigate there */
                         expanded = false
-                        Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
-                    })
+                        Toast.makeText(context, R.string.not_implemented, Toast.LENGTH_SHORT).show()
+                    }
+                )
 
                 DropdownMenuItem(
                     text = {
-                        Text(text = "Statistics")
+                        Text(text = stringResource(R.string.statistics))
                     },
                     onClick = {
                         /* TODO: Show statistics */
                         expanded = false
-                        Toast.makeText(
-                            context,
-                            "This feature is not implemented yet!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    })
+                        Toast.makeText(context, R.string.not_implemented, Toast.LENGTH_SHORT).show()
+                    }
+                )
 
                 DropdownMenuItem(
                     text = {
-                        Text(text = "About this App")
+                        Text(text = stringResource(R.string.about_app))
                     },
                     onClick = {
                         /* TODO: Show information card */
                         expanded = false
-                        Toast.makeText(
-                            context,
-                            "This feature is not implemented yet!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    })
+                        Toast.makeText(context, R.string.not_implemented, Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         },
     )

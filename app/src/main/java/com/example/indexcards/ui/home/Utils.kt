@@ -26,25 +26,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.indexcards.R
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.card.CardState
 
 @Composable
 fun NewTagButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    short: Boolean = false
 ) {
+    val text = if (short){
+        stringResource(R.string.new_tag_short)
+    } else {
+        stringResource(R.string.new_tag)
+    }
     TextButton(
         onClick = onClick
     ) {
-        Text(text = "New Tag")
+        Text(text = text)
     }
 }
 
@@ -57,7 +64,7 @@ fun WordField(
     OutlinedTextField(
         value = cardUiState.cardDetails.word,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = "Word*") },
+        label = { Text(text = stringResource(R.string.word) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
@@ -71,7 +78,7 @@ fun MeaningField(
     OutlinedTextField(
         value = cardUiState.cardDetails.meaning,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = "Meaning*") },
+        label = { Text(text = stringResource(R.string.meaning) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
@@ -85,7 +92,7 @@ fun NotesField(
     OutlinedTextField(
         value = cardUiState.cardDetails.notes,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = "Notes") },
+        label = { Text(text = stringResource(R.string.notes)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
@@ -96,9 +103,9 @@ fun RequiredFieldsText(
     plural: Boolean = true,
 ) {
     val text = if(plural) {
-        "* required fields"
+        stringResource(R.string.required_fields)
     } else {
-        "* required field"
+        stringResource(R.string.required_field)
     }
 
     Text(
@@ -119,7 +126,7 @@ fun NameField(
         modifier = modifier,
         value = boxUiState.boxDetails.name,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = "Name*") },
+        label = { Text(text = stringResource(R.string.name) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
     )
 }
@@ -134,7 +141,7 @@ fun DescriptionField(
         modifier = modifier,
         value = boxUiState.boxDetails.description,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = "Description") },
+        label = { Text(text = stringResource(R.string.description)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
@@ -149,7 +156,7 @@ fun TopicField(
         modifier = modifier,
         value = boxUiState.boxDetails.topic,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = "Topic*") },
+        label = { Text(text = stringResource(R.string.topic) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
     )
 }
@@ -186,7 +193,7 @@ fun LanguageDropDownMenu(
             modifier = modifier.menuAnchor(),
             readOnly = true,
             value = boxUiState.boxDetails.topic,
-            label = { Text(text = "Language*") },
+            label = { Text(text = stringResource(R.string.language) + "*") },
             onValueChange = { },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -250,7 +257,7 @@ fun IsLanguageRadioButton(
         Text(
             modifier = modifier
                 .padding(6.dp),
-            text = "Adding a language box"
+            text = stringResource(R.string.is_language)
         )
     }
 }

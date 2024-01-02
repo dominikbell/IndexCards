@@ -12,8 +12,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
 import com.example.indexcards.ui.home.DescriptionField
 import com.example.indexcards.ui.home.IsLanguageRadioButton
 import com.example.indexcards.ui.home.LanguageDropDownMenu
@@ -53,7 +55,7 @@ fun AddBoxDialog(
         onDismissRequest = { },
         title = {
             Text(
-                text = "Add a new box",
+                text = stringResource(R.string.add_new_box),
             )
         },
         text = {
@@ -108,7 +110,7 @@ fun AddBoxDialog(
                 }
                 onDismiss()
             }) {
-                Text(text = "Save")
+                Text(text = stringResource(R.string.save))
             }
         },
 
@@ -116,7 +118,7 @@ fun AddBoxDialog(
             TextButton(onClick = {
                 onDismiss()
             }) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         }
     )

@@ -18,7 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.indexcards.R
 import com.example.indexcards.data.Box
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +70,7 @@ fun BoxTopBar(
             ) {
                 DropdownMenuItem(
                     text = {
-                        Text(text = "Edit Box Details")
+                        Text(text = stringResource(R.string.edit_box))
                     },
                     onClick = {
                         expanded = false
