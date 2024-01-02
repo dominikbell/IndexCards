@@ -3,10 +3,8 @@ package com.example.indexcards.utils.card
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.tag.emptyTag
-import kotlinx.coroutines.flow.first
 
 class NewCardViewModel(
     private val appRepository: AppRepository,
@@ -16,8 +14,9 @@ class NewCardViewModel(
     savedStateHandle = savedStateHandle
 ) {
     var tagList = mutableStateListOf(emptyTag)
+
     override suspend fun saveCard() {
-        val newId = appRepository.getBiggestCardId().first() + 1
+        val newId = appRepository.getBiggestCardId() + 1
 
         updateUiState(cardUiState.cardDetails.copy(boxId = boxId, id = newId))
 

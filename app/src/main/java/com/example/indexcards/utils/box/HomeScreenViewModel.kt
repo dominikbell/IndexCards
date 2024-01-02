@@ -18,7 +18,6 @@ class HomeScreenViewModel(
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
-    var idOfBoxToBeDeleted by mutableLongStateOf(-1)
     var boxToBeDeleted by mutableStateOf(emptyBox)
 
     val uiBoxList: StateFlow<UiBoxList> =
@@ -39,8 +38,8 @@ class HomeScreenViewModel(
             .value
     }
 
-    fun resetIdOfBoxToBeDeleted() {
-        idOfBoxToBeDeleted = -1
+    fun resetBoxToBeDeleted() {
+        boxToBeDeleted = emptyBox
     }
 }
 

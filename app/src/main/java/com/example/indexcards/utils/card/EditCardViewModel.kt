@@ -1,15 +1,8 @@
 package com.example.indexcards.utils.card
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 open class EditCardViewModel(
     private val appRepository: AppRepository,

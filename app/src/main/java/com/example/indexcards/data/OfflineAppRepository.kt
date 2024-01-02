@@ -1,7 +1,9 @@
 package com.example.indexcards.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 
 class OfflineAppRepository(
     private val appDao: AppDao
@@ -22,7 +24,10 @@ class OfflineAppRepository(
         appDao.upsertTagCardCrossRef(tagCrossRef)
 
     override suspend fun deleteBox(boxId: Long) {
-        appDao.getBoxWithCards(boxId).first().cards
+        appDao.getBoxWithCards(boxId)
+            .filterNotNull()
+            .first()
+            .cards
             .forEach {
                 appDao.deleteCardFromTags(cardId = it.cardId)
             }
@@ -68,6 +73,7 @@ class OfflineAppRepository(
     override fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards> =
         appDao.getTagWithCards(tagId)
 
-    override fun getBiggestCardId(): Flow<Long> =
-        appDao.getBiggestCardId()
+    override suspend fun getBiggestCardId(): Long {
+        return appDao.getBiggestCardId() ?: -1
+    }
 }

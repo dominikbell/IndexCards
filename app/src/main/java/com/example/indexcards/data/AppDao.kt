@@ -75,5 +75,5 @@ interface AppDao {
     fun getCardWithTags(cardId: Long): Flow<CardWithTags>
 
     @Query("SELECT MAX(cardId) FROM card")
-    fun getBiggestCardId(): Flow<Long>
+    suspend fun getBiggestCardId(): Long?
 }

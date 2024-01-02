@@ -75,13 +75,13 @@ fun HomeScreen(
         DeleteBoxDialog(
             onDismiss = {
                 deleteDialog = false
-                homeScreenViewModel.resetIdOfBoxToBeDeleted()
+                homeScreenViewModel.resetBoxToBeDeleted()
             },
             onDelete = {
                 deleteDialog = false
                 homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.deleteBox(homeScreenViewModel.idOfBoxToBeDeleted)
-                    homeScreenViewModel.resetIdOfBoxToBeDeleted()
+                    homeScreenViewModel.deleteBox(homeScreenViewModel.boxToBeDeleted.boxId)
+                    homeScreenViewModel.resetBoxToBeDeleted()
                 }
             },
             boxToBeDeleted = homeScreenViewModel.boxToBeDeleted

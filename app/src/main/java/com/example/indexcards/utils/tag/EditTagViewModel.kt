@@ -21,7 +21,6 @@ class EditTagViewModel(
     var colorUiState by mutableStateOf(UiColorState())
     var currentTag by mutableStateOf(emptyTag)
 
-
     suspend fun saveTag() {
         /* TODO: Ensure that tag does not already exist */
         updateUiState(tagUiState.tagDetails.copy(boxId = boxId, color = colorUiState.color))

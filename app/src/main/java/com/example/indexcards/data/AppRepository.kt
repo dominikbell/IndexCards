@@ -37,5 +37,5 @@ interface AppRepository {
 
     fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards>
 
-    fun getBiggestCardId(): Flow<Long>
+    suspend fun getBiggestCardId(): Long
 }

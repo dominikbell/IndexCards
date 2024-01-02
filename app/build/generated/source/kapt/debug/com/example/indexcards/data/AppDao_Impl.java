@@ -1,7 +1,9 @@
 package com.example.indexcards.data;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
 import androidx.room.CoroutinesRoom;
 import androidx.room.EntityDeletionOrUpdateAdapter;
@@ -1187,12 +1189,13 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Flow<Long> getBiggestCardId() {
+  public Object getBiggestCardId(final Continuation<? super Long> $completion) {
     final String _sql = "SELECT MAX(cardId) FROM card";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"card"}, new Callable<Long>() {
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Long>() {
       @Override
-      @NonNull
+      @Nullable
       public Long call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
@@ -1211,14 +1214,10 @@ public final class AppDao_Impl implements AppDao {
           return _result;
         } finally {
           _cursor.close();
+          _statement.release();
         }
       }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
-      }
-    });
+    }, $completion);
   }
 
   @NonNull

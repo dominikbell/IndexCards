@@ -22,7 +22,7 @@ fun DeleteBoxDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
         text = { Text(text = "Are you sure you want to delete this box?") },
-        title = { Text(text = "Delete ${boxToBeDeleted.name}") },
+        title = { Text(text = "Delete box '${boxToBeDeleted.name}'") },
         dismissButton =
         {
             TextButton(
