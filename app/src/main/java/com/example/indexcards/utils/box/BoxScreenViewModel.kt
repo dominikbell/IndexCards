@@ -6,14 +6,20 @@ import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag
+import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.tag.emptyTag
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class BoxScreenViewModel(
     private val appRepository: AppRepository,
     savedStateHandle: SavedStateHandle
@@ -21,7 +27,35 @@ class BoxScreenViewModel(
     appRepository = appRepository,
     savedStateHandle = savedStateHandle
 ) {
-    var tagWithCards: StateFlow<UiTagWithCards> = MutableStateFlow(UiTagWithCards())
+    private val _tagSortedBy = MutableStateFlow(emptyTag)
+
+    val tagWithCards: StateFlow<UiTagWithCards> = _tagSortedBy
+        .flatMapLatest {
+            when (it) {
+                emptyTag -> flow {
+                    emit(
+                        TagWithCards(
+                            tag = emptyTag,
+                            cards = listOf()
+                        )
+                    )
+                }
+
+                else -> appRepository.getTagWithCardsStream(_tagSortedBy.value.tagId)
+            }
+        }
+        .filterNotNull()
+        .map {
+            UiTagWithCards(
+                tag = it.tag,
+                cardList = it.cards,
+            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = UiTagWithCards()
+        )
 
     val boxWithCards: StateFlow<UiBoxWithCards> =
         appRepository.getBoxWithCardsStream(boxId = boxId)
@@ -36,25 +70,13 @@ class BoxScreenViewModel(
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = UiBoxWithCards()
             )
-    suspend fun getTagWithCards(tagId: Long) {
-        tagWithCards =
-            appRepository.getTagWithCardsStream(tagId = tagId)
-                .filterNotNull()
-                .map {
-                    UiTagWithCards(
-                        tag = it.tag,
-                        cardList = it.cards,
-                    )
-                }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                    initialValue = UiTagWithCards()
-                )
+
+    fun setTagSortedBy(newTag: Tag) {
+        _tagSortedBy.value = newTag
     }
 
-    fun resetTagWithCards() {
-        tagWithCards = MutableStateFlow(UiTagWithCards())
+    fun resetTagSortedBy() {
+        _tagSortedBy.value = emptyTag
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.home.NewTagButton
+import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
@@ -104,10 +106,7 @@ fun BoxScreen(
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    newCard = true
-                    editCardDialog = true
-                }
+                onClick = { showNewCardDialog() }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
@@ -118,7 +117,9 @@ fun BoxScreen(
                 .padding(innerPadding),
             showCard = { showCardDialog() },
             showEditCardDialog = { showEditCardDialog() },
-            showCardDelete = { showDeleteCardDialog() }
+            showCardDelete = { showDeleteCardDialog() },
+            showNewTagDialog = { showNewTagDialog() },
+            showEditTagDialog = { showEditTagDialog() }
         )
     }
 
@@ -149,25 +150,23 @@ fun BoxScreen(
         )
     }
 
-//    if (tagDialog) {
-//        TagDialog(
-//            modifier = Modifier,
-//            hideDialog = { tagDialog = false },
-//            newTag = true
-//        )
-//    }
+    if (tagDialog) {
+        TagDialog(
+            modifier = Modifier,
+            onDismiss = { onTagDialogDismiss() },
+            newTag = newTag
+        )
+    }
 }
 
 @Composable
 fun BoxScreenBody(
     modifier: Modifier = Modifier,
     showCard: () -> Unit,
-    showCardDelete: () -> Unit,
     showEditCardDialog: () -> Unit,
-//    showEditTagDialog: () -> Unit,
-//    showNewTagDialog: () -> Unit,
-//    onCardDismiss: () -> Unit,
-//    onTagDismiss: () -> Unit,
+    showCardDelete: () -> Unit,
+    showNewTagDialog: () -> Unit,
+    showEditTagDialog: () -> Unit,
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -205,19 +204,19 @@ fun BoxScreenBody(
                 tagList = boxWithTags.value.tagList,
                 onClick = {
                     if (tagWithCards.value.tag == emptyTag) {
-                        boxScreenViewModel.viewModelScope.launch {
-                            boxScreenViewModel.getTagWithCards(it)
-                        }
+                        boxScreenViewModel.setTagSortedBy(it)
                     } else {
-                        boxScreenViewModel.resetTagWithCards()
+                        if (tagWithCards.value.tag == it) {
+                            boxScreenViewModel.resetTagSortedBy()
+                        } else {
+                            boxScreenViewModel.setTagSortedBy(it)
+                        }
                     }
                 },
-                onLongClick = {}
-//                        showEditTagDialog
+                onLongClick = { showEditTagDialog() }
             )
 
-            NewTagButton(onClick = {}
-//            showNewTagDialog
+            NewTagButton(onClick = showNewTagDialog
             )
         }
 
@@ -230,7 +229,7 @@ fun BoxScreenBody(
                 style = MaterialTheme.typography.titleLarge,
             )
         } else {
-            if (tagWithCards.value.cardList.isEmpty()) {
+            if (tagWithCards.value.tag == emptyTag) {
                 CardList(
                     cardList = boxWithCards.value.cardList,
                     showDialog = showCard,
@@ -238,12 +237,12 @@ fun BoxScreenBody(
                     showEditDialog = { showEditCardDialog() }
                 )
             } else {
-//                CardList(
-//                    cardList = tagWithCards.value.cardList,
-//                    showEdit = showCard,
-//                    showDelete = {}
-////                    showCardDelete
-//                )
+                CardList(
+                    cardList = tagWithCards.value.cardList,
+                    showDialog = showCard,
+                    showDelete = { showCardDelete() },
+                    showEditDialog = { showEditCardDialog() }
+                )
             }
         }
     }
