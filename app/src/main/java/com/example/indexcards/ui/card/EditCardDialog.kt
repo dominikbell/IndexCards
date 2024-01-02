@@ -50,6 +50,7 @@ fun EditCardDialog(
     CardDialogBody(
         modifier = modifier,
         onDismiss = onDismiss,
+        onCancel = showCardDialog,
         onDelete = showDeleteCard,
         onSave = {
             editCardViewModel.viewModelScope.launch {
@@ -106,6 +107,10 @@ fun NewCardDialog(
     CardDialogBody(
         modifier = modifier,
         onDismiss = onDismiss,
+        onCancel = {
+            newCardViewModel.updateUiState(CardDetails())
+            onDismiss()
+        },
         onDelete = {},
         onSave = {
             newCardViewModel.viewModelScope.launch {
@@ -144,6 +149,7 @@ fun NewCardDialog(
 fun CardDialogBody(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
+    onCancel: () -> Unit,
     onDelete: () -> Unit,
     onSave: () -> Unit,
     titleText: String,
@@ -202,7 +208,7 @@ fun CardDialogBody(
         dismissButton = {
             Row {
                 TextButton(
-                    onClick = onDismiss
+                    onClick = onCancel
                 ) {
                     Text(text = "Cancel")
                 }

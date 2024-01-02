@@ -26,8 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.CardList
+import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
@@ -36,8 +36,6 @@ import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.card.CardViewModel
-import com.example.indexcards.utils.card.EditCardViewModel
 import com.example.indexcards.utils.tag.emptyTag
 
 @Composable
