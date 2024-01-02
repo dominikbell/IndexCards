@@ -51,6 +51,8 @@ public final class AppDao_Impl implements AppDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteTagsFromCard;
 
+  private final SharedSQLiteStatement __preparedStmtOfDeleteCardFromTags;
+
   private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
 
   private final EntityUpsertionAdapter<Card> __upsertionAdapterOfCard;
@@ -124,6 +126,14 @@ public final class AppDao_Impl implements AppDao {
       }
     };
     this.__preparedStmtOfDeleteTagsFromCard = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM tagcardcrossref WHERE tagId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteCardFromTags = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
@@ -513,13 +523,38 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
-  public Object deleteTagsFromCard(final long cardId,
-      final Continuation<? super Unit> $completion) {
+  public Object deleteTagsFromCard(final long tagId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTagsFromCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, tagId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteTagsFromCard.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCardFromTags(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCardFromTags.acquire();
         int _argIndex = 1;
         _stmt.bindLong(_argIndex, cardId);
         try {
@@ -532,7 +567,7 @@ public final class AppDao_Impl implements AppDao {
             __db.endTransaction();
           }
         } finally {
-          __preparedStmtOfDeleteTagsFromCard.release(_stmt);
+          __preparedStmtOfDeleteCardFromTags.release(_stmt);
         }
       }
     }, $completion);

@@ -62,7 +62,10 @@ fun CardList(
             CardListItem(
                 item = item,
                 onClick = {
-                    cardViewModel.updateUiState(it.toCardDetails())
+                    cardViewModel.viewModelScope.launch {
+                        cardViewModel.setCurrentCard(it.cardId)
+                        cardViewModel.updateUiState(it.toCardDetails())
+                    }
                     showDialog()
                 },
                 onLongClick = {
@@ -121,7 +124,8 @@ fun CardListItem(
                 TagList(
                     tagList = tagList,
                     onClick = {},
-                    onLongClick = { /*TODO*/ }
+                    onLongClick = { /*TODO*/ },
+                    selectedTags = listOf()
                 )
             }
 

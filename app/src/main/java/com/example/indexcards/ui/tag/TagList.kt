@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.tag
 
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.tag.EditTagViewModel
 import com.example.indexcards.utils.tag.toTagDetails
 
@@ -36,6 +33,7 @@ fun TagList(
     tagList: List<Tag>,
     onClick: (Tag) -> Unit = {},
     onLongClick: (Long) -> Unit = {},
+    selectedTags: List<Tag>,
     editTagViewModel: EditTagViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -51,15 +49,13 @@ fun TagList(
             TagListItem(
                 modifier = modifier.padding(2.dp),
                 item = item,
-                onClick = {
-                    onClick(item)
-                    /* TODO: Filter by tag */
-                },
+                onClick = { onClick(item) },
                 onLongClick = {
                     editTagViewModel.setColor(item.color)
                     editTagViewModel.updateUiState(item.toTagDetails())
                     onLongClick(item.tagId)
-                }
+                },
+                selectedTags = selectedTags
             )
         }
     }
@@ -72,13 +68,11 @@ fun TagListItem(
     item: Tag,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
-    boxScreenViewModel: BoxScreenViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    selectedTags: List<Tag>,
 ) {
     var backgroundColor by remember { mutableStateOf(String()) }
 
-    val selected = (item == boxScreenViewModel.tagWithCards.collectAsState().value.tag)
+    val selected = (selectedTags.contains(item))
 
     backgroundColor =
         if (selected) {

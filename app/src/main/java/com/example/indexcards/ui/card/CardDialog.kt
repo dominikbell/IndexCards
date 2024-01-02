@@ -13,11 +13,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun CardDialog(
@@ -47,7 +49,10 @@ fun CardDialog(
                 )
                 IconButton(
                     onClick = {
-                        editCardViewModel.updateUiState(cardUiState.cardDetails)
+                        editCardViewModel.viewModelScope.launch {
+                            editCardViewModel.updateUiState(cardUiState.cardDetails)
+                            editCardViewModel.setCurrentCard(cardUiState.cardDetails.id)
+                        }
                         showEditCardDialog()
                     }
                 ) {
@@ -56,17 +61,18 @@ fun CardDialog(
             }
         },
         text = {
-               Column {
-                   Text(text = cardUiState.cardDetails.meaning)
+            Column {
+                Text(text = cardUiState.cardDetails.meaning)
 
-                   TagList(
-                       tagList = cardWithTags.value.tagList,
-                       onClick = {},
-                       onLongClick = {}
-                   )
-                   
-                   Text(text = cardUiState.cardDetails.notes)
-               }
+                TagList(
+                    tagList = cardWithTags.value.tagList,
+                    onClick = {},
+                    onLongClick = {},
+                    selectedTags = cardWithTags.value.tagList
+                )
+
+                Text(text = cardUiState.cardDetails.notes)
+            }
         },
 
         confirmButton = {}

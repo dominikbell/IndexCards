@@ -42,8 +42,11 @@ interface AppDao {
     @Query("DELETE FROM tag WHERE boxId = :boxId")
     suspend fun deleteTagsFromBox(boxId: Long)
 
+    @Query("DELETE FROM tagcardcrossref WHERE tagId = :tagId")
+    suspend fun deleteTagsFromCard(tagId: Long)
+
     @Query("DELETE FROM tagcardcrossref WHERE cardId = :cardId")
-    suspend fun deleteTagsFromCard(cardId: Long)
+    suspend fun deleteCardFromTags(cardId: Long)
 
     @Query("SELECT * FROM box ORDER BY dateAdded DESC")
     fun getAllBoxes(): Flow<List<Box>>

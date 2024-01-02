@@ -24,20 +24,22 @@ class OfflineAppRepository(
     override suspend fun deleteBox(boxId: Long) {
         appDao.getBoxWithCards(boxId).first().cards
             .forEach {
-                appDao.deleteTagsFromCard(it.cardId)
+                appDao.deleteCardFromTags(cardId = it.cardId)
             }
-        appDao.deleteTagsFromBox(boxId)
-        appDao.deleteCardsFromBox(boxId)
-        appDao.deleteBox(boxId)
+        appDao.deleteTagsFromBox(boxId = boxId)
+        appDao.deleteCardsFromBox(boxId = boxId)
+        appDao.deleteBox(boxId = boxId)
     }
 
     override suspend fun deleteCard(cardId: Long) {
-        appDao.deleteTagsFromCard(cardId)
-        appDao.deleteCard(cardId)
+        appDao.deleteCardFromTags(cardId = cardId)
+        appDao.deleteCard(cardId = cardId)
     }
 
-    override suspend fun deleteTag(tagId: Long) =
-        appDao.deleteTag(tagId)
+    override suspend fun deleteTag(tagId: Long) {
+        appDao.deleteTagsFromCard(tagId = tagId)
+        appDao.deleteTag(tagId = tagId)
+    }
 
     override suspend fun deleteTagCardCrossRef(tagId: Long, cardId: Long) =
         appDao.deleteTagCardCrossRef(TagCardCrossRef(tagId, cardId))

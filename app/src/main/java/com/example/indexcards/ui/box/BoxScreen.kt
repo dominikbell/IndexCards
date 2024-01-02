@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.box
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,19 +25,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
+import com.example.indexcards.ui.card.NewCardDialog
 import com.example.indexcards.ui.home.NewTagButton
 import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.card.CardViewModel
+import com.example.indexcards.utils.card.EditCardViewModel
 import com.example.indexcards.utils.tag.emptyTag
-import kotlinx.coroutines.launch
 
 @Composable
 fun BoxScreen(
@@ -53,28 +53,12 @@ fun BoxScreen(
     val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
 
-    var newCard by remember { mutableStateOf(true) }
     var cardDialog by remember { mutableStateOf(false) }
+    var newCardDialog by remember { mutableStateOf(false) }
     var editCardDialog by remember { mutableStateOf(false) }
     var deleteCardDialog by remember { mutableStateOf(false) }
     var newTag by remember { mutableStateOf(true) }
     var tagDialog by remember { mutableStateOf(false) }
-
-    fun showDeleteCardDialog() {
-        deleteCardDialog = true
-    }
-
-    fun showCardDialog() {
-        cardDialog = true
-    }
-
-    fun showEditCardDialog() {
-        newCard = false; editCardDialog = true
-    }
-
-    fun showNewCardDialog() {
-        newCard = true; editCardDialog = true
-    }
 
     fun hideCardDialogs() {
         cardDialog = false; editCardDialog = false
@@ -86,10 +70,6 @@ fun BoxScreen(
 
     fun showNewTagDialog() {
         newTag = true; tagDialog = true
-    }
-
-    fun onTagDialogDismiss() {
-        tagDialog = false
     }
 
     Scaffold(
@@ -106,7 +86,7 @@ fun BoxScreen(
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showNewCardDialog() }
+                onClick = { newCardDialog = true }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
@@ -115,9 +95,9 @@ fun BoxScreen(
         BoxScreenBody(
             modifier = modifier
                 .padding(innerPadding),
-            showCard = { showCardDialog() },
-            showEditCardDialog = { showEditCardDialog() },
-            showCardDelete = { showDeleteCardDialog() },
+            showCard = { cardDialog = true },
+            showEditCardDialog = { editCardDialog = true },
+            showCardDelete = { deleteCardDialog = true },
             showNewTagDialog = { showNewTagDialog() },
             showEditTagDialog = { showEditTagDialog() }
         )
@@ -126,22 +106,26 @@ fun BoxScreen(
     if (cardDialog) {
         CardDialog(
             onDismiss = { hideCardDialogs() },
-            showEditCardDialog = { showEditCardDialog() }
+            showEditCardDialog = { editCardDialog = true }
         )
     }
 
     if (editCardDialog) {
         EditCardDialog(
             onDismiss = { hideCardDialogs() },
-            newCard = newCard,
             boxWithTags = boxWithTags.value,
+            showCardDialog = { editCardDialog = false },
             showDeleteCard = {
                 hideCardDialogs()
-                showDeleteCardDialog()
+                deleteCardDialog = true
             },
             showNewTagDialog = { showNewTagDialog() },
             showEditTagDialog = { showEditTagDialog() },
         )
+    }
+
+    if (newCardDialog) {
+        NewCardDialog()
     }
 
     if (deleteCardDialog) {
@@ -153,7 +137,7 @@ fun BoxScreen(
     if (tagDialog) {
         TagDialog(
             modifier = Modifier,
-            onDismiss = { onTagDialogDismiss() },
+            onDismiss = { tagDialog = false },
             newTag = newTag
         )
     }
@@ -213,7 +197,8 @@ fun BoxScreenBody(
                         }
                     }
                 },
-                onLongClick = { showEditTagDialog() }
+                onLongClick = { showEditTagDialog() },
+                selectedTags = listOf(tagWithCards.value.tag)
             )
 
             NewTagButton(onClick = showNewTagDialog
@@ -234,7 +219,9 @@ fun BoxScreenBody(
                     cardList = boxWithCards.value.cardList,
                     showDialog = showCard,
                     showDelete = { showCardDelete() },
-                    showEditDialog = { showEditCardDialog() }
+                    showEditDialog = {
+                        showEditCardDialog()
+                    }
                 )
             } else {
                 CardList(

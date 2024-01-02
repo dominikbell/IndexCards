@@ -4,7 +4,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
@@ -21,7 +21,7 @@ fun DeleteCardDialog(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val currentCard = editCardViewModel.currentCard
+    val currentCard = editCardViewModel.currentCard.collectAsState().value
 
     AlertDialog(
         modifier = modifier,
