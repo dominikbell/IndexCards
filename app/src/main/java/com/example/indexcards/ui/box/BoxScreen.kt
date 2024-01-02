@@ -125,7 +125,12 @@ fun BoxScreen(
     }
 
     if (newCardDialog) {
-        NewCardDialog()
+        NewCardDialog(
+            onDismiss = { newCardDialog = false },
+            boxWithTags = boxWithTags.value,
+            showNewTagDialog = { showNewTagDialog() },
+            showEditTagDialog = { showEditTagDialog() },
+        )
     }
 
     if (deleteCardDialog) {

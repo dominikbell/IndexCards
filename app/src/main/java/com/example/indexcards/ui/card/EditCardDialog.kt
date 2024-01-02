@@ -21,9 +21,11 @@ import com.example.indexcards.ui.home.WordField
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.UiBoxWithTags
+import com.example.indexcards.utils.card.CardDetails
 import com.example.indexcards.utils.card.CardState
 import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.card.NewCardViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,6 +77,7 @@ fun EditCardDialog(
             )
         },
         boxWithTags = boxWithTags,
+        tagList = cardWithTags.value.tagList,
         onTagClick = {
             editCardViewModel.viewModelScope.launch {
                 if (cardWithTags.value.tagList.contains(it)) {
@@ -84,16 +87,57 @@ fun EditCardDialog(
                 }
             }
         },
+        showNewTagDialog = showNewTagDialog,
         showEditTagDialog = showEditTagDialog,
-        showNewTagDialog = showNewTagDialog
     )
 }
 
 @Composable
 fun NewCardDialog(
     modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    boxWithTags: UiBoxWithTags,
+    showNewTagDialog: () -> Unit,
+    showEditTagDialog: () -> Unit,
+    newCardViewModel: NewCardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
 ) {
-
+    CardDialogBody(
+        modifier = modifier,
+        onDismiss = onDismiss,
+        onDelete = {},
+        onSave = {
+            newCardViewModel.viewModelScope.launch {
+                newCardViewModel.saveCard()
+                newCardViewModel.updateUiState(CardDetails())
+            }
+            onDismiss()
+        },
+        titleText = "Add a new card",
+        deleteButton = false,
+        cardUiState = newCardViewModel.cardUiState,
+        onWordChange = {
+            newCardViewModel.updateUiState(
+                newCardViewModel.cardUiState.cardDetails.copy(word = it)
+            )
+        },
+        onMeaningChange = {
+            newCardViewModel.updateUiState(
+                newCardViewModel.cardUiState.cardDetails.copy(meaning = it)
+            )
+        },
+        onNotesChange = {
+            newCardViewModel.updateUiState(
+                newCardViewModel.cardUiState.cardDetails.copy(notes = it)
+            )
+        },
+        boxWithTags = boxWithTags,
+        tagList = newCardViewModel.tagList,
+        onTagClick = { newCardViewModel.tagList += it },
+        showNewTagDialog = showNewTagDialog,
+        showEditTagDialog = showEditTagDialog,
+    )
 }
 
 @Composable
@@ -109,15 +153,11 @@ fun CardDialogBody(
     onMeaningChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     boxWithTags: UiBoxWithTags,
+    tagList: List<Tag>,
     onTagClick: (Tag) -> Unit,
     showNewTagDialog: () -> Unit,
     showEditTagDialog: () -> Unit,
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
 ) {
-    val tagList = editCardViewModel.cardWithTags.collectAsState()
-
     AlertDialog(modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(text = titleText) },
@@ -142,7 +182,7 @@ fun CardDialogBody(
                         tagList = boxWithTags.tagList,
                         onClick = { onTagClick(it) },
                         onLongClick = { showEditTagDialog() },
-                        selectedTags = tagList.value.tagList
+                        selectedTags = tagList
                     )
                     NewTagButton(onClick = showNewTagDialog)
                 }
@@ -160,7 +200,7 @@ fun CardDialogBody(
         },
 
         dismissButton = {
-            Row() {
+            Row {
                 TextButton(
                     onClick = onDismiss
                 ) {

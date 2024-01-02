@@ -56,9 +56,6 @@ class OfflineAppRepository(
     override fun getTag(tagId: Long): Flow<Tag> =
         appDao.getTag(tagId)
 
-    override fun getNumberOfCards(boxId: Long): Flow<Int> =
-        appDao.getNumberOfCards(boxId)
-
     override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards> =
         appDao.getBoxWithCards(boxId)
 
@@ -70,4 +67,7 @@ class OfflineAppRepository(
 
     override fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards> =
         appDao.getTagWithCards(tagId)
+
+    override fun getBiggestCardId(): Flow<Long> =
+        appDao.getBiggestCardId()
 }

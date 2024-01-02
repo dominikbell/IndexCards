@@ -13,6 +13,7 @@ import com.example.indexcards.utils.box.BoxViewModel
 import com.example.indexcards.utils.box.EditBoxViewModel
 import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.card.NewCardViewModel
 import com.example.indexcards.utils.tag.EditTagViewModel
 
 class ViewModelProvider(
@@ -65,6 +66,12 @@ class ViewModelProvider(
         }
         initializer {
             EditCardViewModel(
+                OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+                this.createSavedStateHandle(),
+            )
+        }
+        initializer {
+            NewCardViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
                 this.createSavedStateHandle(),
             )

@@ -41,7 +41,3 @@ open class EditCardViewModel(
         )
     }
 }
-
-data class UiCardTagList(
-    val tags: List<Tag> = listOf()
-)

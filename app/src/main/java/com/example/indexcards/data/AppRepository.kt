@@ -29,8 +29,6 @@ interface AppRepository {
 
     fun getTag(tagId: Long): Flow<Tag>
 
-    fun getNumberOfCards(boxId: Long): Flow<Int>
-
     fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards>
 
     fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags>
@@ -38,4 +36,6 @@ interface AppRepository {
     fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags>
 
     fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards>
+
+    fun getBiggestCardId(): Flow<Long>
 }
