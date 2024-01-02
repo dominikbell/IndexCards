@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -70,6 +71,8 @@ fun BoxScreen(
         newTag = true; tagDialog = true
     }
 
+    BackHandler { navigateToBoxesOverview() }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -104,7 +107,8 @@ fun BoxScreen(
     if (cardDialog) {
         CardDialog(
             onDismiss = { hideCardDialogs() },
-            showEditCardDialog = { editCardDialog = true }
+            showEditCardDialog = { editCardDialog = true },
+            isEditing = editCardDialog
         )
     }
 

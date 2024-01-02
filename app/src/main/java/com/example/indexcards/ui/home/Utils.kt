@@ -26,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
@@ -90,9 +92,21 @@ fun NotesField(
 
 @Composable
 fun RequiredFieldsText(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    plural: Boolean = true,
 ) {
-    Text(text = "* required fields", style = MaterialTheme.typography.bodySmall)
+    val text = if(plural) {
+        "* required fields"
+    } else {
+        "* required field"
+    }
+
+    Text(
+        modifier = modifier.fillMaxWidth(),
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        textAlign = TextAlign.Left
+    )
 }
 
 @Composable

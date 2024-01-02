@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.card
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ fun CardDialog(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     showEditCardDialog: () -> Unit,
+    isEditing: Boolean,
     cardViewModel: CardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -48,6 +50,13 @@ fun CardDialog(
 ) {
     val cardUiState = cardViewModel.cardUiState
     val cardWithTags = cardViewModel.cardWithTags.collectAsState()
+
+    /* TODO: navigating back from editTagDialog still closes this one */
+    BackHandler {
+        if (!isEditing) {
+            onDismiss()
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss

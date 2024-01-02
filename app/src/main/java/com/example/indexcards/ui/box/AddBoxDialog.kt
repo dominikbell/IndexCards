@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -43,6 +44,9 @@ fun AddBoxDialog(
     fun changeIsLanguage() {
         isLanguage = !isLanguage
     }
+
+    /* TODO: doesn't work */
+    BackHandler { onDismiss() }
 
     AlertDialog(
         modifier = modifier,

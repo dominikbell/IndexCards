@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.card
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.home.MeaningField
 import com.example.indexcards.ui.home.NewTagButton
 import com.example.indexcards.ui.home.NotesField
+import com.example.indexcards.ui.home.RequiredFieldsText
 import com.example.indexcards.ui.home.WordField
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
@@ -46,6 +48,8 @@ fun EditCardDialog(
 ) {
     val cardWithTags = editCardViewModel.cardWithTags.collectAsState()
     val currentCard = editCardViewModel.currentCard.collectAsState()
+
+    BackHandler { showCardDialog() }
 
     CardDialogBody(
         modifier = modifier,
@@ -104,6 +108,8 @@ fun NewCardDialog(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
+    BackHandler { onDismiss() }
+
     CardDialogBody(
         modifier = modifier,
         onDismiss = onDismiss,
@@ -178,6 +184,8 @@ fun CardDialogBody(
                 MeaningField(
                     cardUiState = cardUiState, onValueChange = onMeaningChange
                 )
+
+                RequiredFieldsText()
 
                 Row(
                     modifier = modifier.fillMaxWidth(),

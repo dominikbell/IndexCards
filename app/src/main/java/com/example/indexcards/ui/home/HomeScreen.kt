@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,6 +37,8 @@ fun HomeScreen(
 
     var addDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
+
+    BackHandler {}
 
     Scaffold(
         modifier = modifier,

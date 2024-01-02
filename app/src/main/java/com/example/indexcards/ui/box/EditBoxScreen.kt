@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,6 +53,8 @@ fun EditBoxScreen(
     val thisBox = editBoxViewModel.currentBox
 
     var deleteDialog by remember { mutableStateOf(false) }
+
+    BackHandler { navigateToBoxScreen(thisBox.boxId) }
 
     Scaffold(
         modifier = modifier,
