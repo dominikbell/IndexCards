@@ -30,9 +30,7 @@ import kotlinx.coroutines.launch
 fun AddBoxDialog(
     modifier: Modifier = Modifier,
     hideDialog: () -> Unit,
-    homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    )
+    homeScreenViewModel: HomeScreenViewModel,
 ) {
     val addBoxUiState = homeScreenViewModel.boxUiState
 

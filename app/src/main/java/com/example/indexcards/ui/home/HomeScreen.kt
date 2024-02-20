@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.home
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,10 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.box.BoxList
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
-import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.ui.box.AddBoxDialog
 import com.example.indexcards.ui.box.DeleteBoxDialog
 import com.example.indexcards.utils.box.HomeScreenViewModel
@@ -29,16 +28,19 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToBoxScreen: (Long) -> Unit,
-    homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    homeScreenViewModel: HomeScreenViewModel
 ) {
     val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
+    val currentBox = homeScreenViewModel.selectedBox.collectAsState()
+    val context = LocalContext.current
 
     var addDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
 
-    BackHandler {}
+    BackHandler {
+        // TODO: Close app after pressing back twice (within given time interval)
+        Toast.makeText(context, "Pressing 'Back' again will not! close the app.", Toast.LENGTH_SHORT).show()
+    }
 
     Scaffold(
         modifier = modifier,
@@ -60,7 +62,7 @@ fun HomeScreen(
             boxList = homeScreenUiState.boxList,
             onDelete = {
                 homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.getBoxToBeDeleted(it)
+                    homeScreenViewModel.setCurrentBox(it)
                 }
                 deleteDialog = true
             },
@@ -70,7 +72,8 @@ fun HomeScreen(
 
     if (addDialog) {
         AddBoxDialog(
-            hideDialog = { addDialog = false }
+            hideDialog = { addDialog = false },
+            homeScreenViewModel = homeScreenViewModel
         )
     }
 
@@ -78,16 +81,16 @@ fun HomeScreen(
         DeleteBoxDialog(
             onDismiss = {
                 deleteDialog = false
-                homeScreenViewModel.resetBoxToBeDeleted()
+                homeScreenViewModel.resetCurrentBox()
             },
             onDelete = {
                 deleteDialog = false
                 homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.deleteBox(homeScreenViewModel.boxToBeDeleted.boxId)
-                    homeScreenViewModel.resetBoxToBeDeleted()
+                    homeScreenViewModel.deleteBox()
+                    homeScreenViewModel.resetCurrentBox()
                 }
             },
-            boxToBeDeleted = homeScreenViewModel.boxToBeDeleted
+            boxToBeDeleted = currentBox.value
         )
     }
 }

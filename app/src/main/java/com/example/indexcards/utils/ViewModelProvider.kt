@@ -7,10 +7,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.indexcards.data.AppDatabase
 import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.box.BoxDetailViewModel
 import com.example.indexcards.utils.box.HomeScreenViewModel
 import com.example.indexcards.utils.box.BoxViewModel
-import com.example.indexcards.utils.box.EditBoxViewModel
 import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
 import com.example.indexcards.utils.card.NewCardViewModel
@@ -26,31 +24,21 @@ class ViewModelProvider(
             )
         }
 
-        /** For HomeScreen and EditBoxScreen **/
-        initializer {
-            BoxViewModel(
-                OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
-            )
-        }
+        /** For HomeScreen **/
         initializer {
             HomeScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
             )
         }
+
+        /** For BoxScreen and EditBoxScreen **/
         initializer {
-            EditBoxViewModel(
+            BoxViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
-                this.createSavedStateHandle(),
             )
         }
 
         /** For BoxScreen **/
-        initializer {
-            BoxDetailViewModel(
-                OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
-                this.createSavedStateHandle(),
-            )
-        }
         initializer {
             BoxScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),

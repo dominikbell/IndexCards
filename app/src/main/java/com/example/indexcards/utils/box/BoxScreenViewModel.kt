@@ -7,9 +7,9 @@ import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagWithCards
+import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,17 +19,32 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoxScreenViewModel(
-    private val appRepository: AppRepository,
+    appRepository: AppRepository,
     savedStateHandle: SavedStateHandle
-) : BoxDetailViewModel(
+) : BoxViewModel(
     appRepository = appRepository,
-    savedStateHandle = savedStateHandle
 ) {
     private val _tagSortedBy = MutableStateFlow(emptyTag)
+    val boxId: Long = checkNotNull(savedStateHandle["boxId"])
     val levelSelected = MutableStateFlow(-1)
+
+    val boxWithTags: StateFlow<UiBoxWithTags> =
+        appRepository.getBoxWithTagsStream(boxId = boxId)
+            .filterNotNull()
+            .map {
+                UiBoxWithTags(
+                    box = it.box,
+                    tagList = it.tags,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = UiBoxWithTags()
+            )
 
     val tagWithCards: StateFlow<UiTagWithCards> = _tagSortedBy
         .flatMapLatest {
@@ -74,11 +89,21 @@ class BoxScreenViewModel(
             )
 
     fun setTagSortedBy(newTag: Tag) {
-        _tagSortedBy.value = newTag
+        _tagSortedBy.update {
+            newTag
+        }
     }
 
     fun resetTagSortedBy() {
-        _tagSortedBy.value = emptyTag
+        _tagSortedBy.update {
+            emptyTag
+        }
+    }
+
+    fun deleteBox() {
+        viewModelScope.launch {
+            appRepository.deleteBox(boxId = boxId)
+        }
     }
 
     fun updateSelectedLevel(newLevel: Int) {
@@ -98,4 +123,9 @@ data class UiBoxWithCards(
 data class UiTagWithCards(
     val tag: Tag = emptyTag,
     val cardList: List<Card> = listOf()
+)
+
+data class UiBoxWithTags(
+    val box: Box = emptyBox,
+    val tagList: List<Tag> = listOf()
 )
