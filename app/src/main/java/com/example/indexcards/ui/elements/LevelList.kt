@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,7 +75,7 @@ fun LevelListItem(
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Level $level", fontSize = 18.sp)
+        Text(text = "Level ${level + 1}", fontSize = 18.sp)
 
         Text(text = "$numberOfItems items", fontSize = 12.sp)
     }

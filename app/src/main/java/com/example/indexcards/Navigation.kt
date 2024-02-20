@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.indexcards.ui.box.EditBoxScreen
 import com.example.indexcards.ui.box.BoxScreen
 import com.example.indexcards.ui.home.HomeScreen
+import com.example.indexcards.ui.training.TrainingScreen
 
 @Composable
 fun Navigation(
@@ -36,6 +37,7 @@ fun Navigation(
             BoxScreen(
                 navigateToBoxesOverview = { navController.navigate("homeScreen") },
                 navigateToEditBoxScreen = { navController.navigate("editBoxScreen/${it}") },
+                navigateToTrainingScreen = { navController.navigate("trainingScreen/${it}") },
                 boxId = boxId,
             )
         }
@@ -51,6 +53,19 @@ fun Navigation(
             EditBoxScreen(
                 navigateToBoxScreen = { navController.navigate("boxScreen/${it}") },
                 navigateToBoxesOverview = { navController.navigate("homeScreen") },
+                boxId = boxId
+            )
+        }
+        composable("trainingScreen/{boxId}",
+            arguments = listOf(
+                navArgument("boxId") {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            val boxId = it.arguments?.getLong("boxId") ?: 0
+            TrainingScreen(
+                navigateToBoxScreen = { navController.navigate("boxScreen/${it}") },
                 boxId = boxId
             )
         }

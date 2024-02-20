@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +47,7 @@ fun BoxScreen(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
     navigateToEditBoxScreen: (Long) -> Unit,
+    navigateToTrainingScreen: (Long) -> Unit,
     boxId: Long,
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -84,6 +84,14 @@ fun BoxScreen(
                 navigateToBoxesOverview = navigateToBoxesOverview,
                 navigateToEditBoxScreen = {
                     navigateToEditBoxScreen(boxId)
+                },
+                trainAll = {
+                    navigateToTrainingScreen(boxId)
+                    boxScreenViewModel.resetTagSortedBy()
+                    boxScreenViewModel.updateSelectedLevel(-1)
+                },
+                trainSelected = {
+                    navigateToTrainingScreen(boxId)
                 },
                 thisBox = boxWithCards.value.box
             )

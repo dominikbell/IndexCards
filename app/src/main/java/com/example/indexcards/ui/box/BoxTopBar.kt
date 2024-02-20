@@ -29,6 +29,8 @@ fun BoxTopBar(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
     navigateToEditBoxScreen: () -> Unit,
+    trainAll: () -> Unit,
+    trainSelected: () -> Unit,
     thisBox: Box
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -75,6 +77,24 @@ fun BoxTopBar(
                     onClick = {
                         expanded = false
                         navigateToEditBoxScreen()
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                           Text(text = "Train all")
+                    },
+                    onClick = {
+                        expanded = false
+                        trainAll()
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                           Text(text = "Train current selection")
+                    },
+                    onClick = {
+                        expanded = false
+                        trainSelected()
                     }
                 )
             }
