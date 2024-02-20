@@ -1,7 +1,6 @@
 package com.example.indexcards.ui.card
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -99,12 +98,12 @@ fun CardListItem(
 ) {
     Card(
         modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
             .combinedClickable(
                 onClick = { onClick(item) },
                 onLongClick = { onLongClick(item) }
-            )
-            .fillMaxWidth()
-            .padding(8.dp),
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(

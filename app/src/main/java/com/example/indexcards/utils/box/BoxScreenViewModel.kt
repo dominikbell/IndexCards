@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoxScreenViewModel(
@@ -28,6 +29,7 @@ class BoxScreenViewModel(
     savedStateHandle = savedStateHandle
 ) {
     private val _tagSortedBy = MutableStateFlow(emptyTag)
+    val levelSelected = MutableStateFlow(-1)
 
     val tagWithCards: StateFlow<UiTagWithCards> = _tagSortedBy
         .flatMapLatest {
@@ -77,6 +79,14 @@ class BoxScreenViewModel(
 
     fun resetTagSortedBy() {
         _tagSortedBy.value = emptyTag
+    }
+
+    fun updateSelectedLevel(newLevel: Int) {
+        if (newLevel == levelSelected.value) {
+            levelSelected.update { -1 }
+        } else {
+            levelSelected.update { newLevel }
+        }
     }
 }
 

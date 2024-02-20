@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
+import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.home.NewTagButton
 import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.ui.tag.TagList
@@ -167,6 +169,22 @@ fun BoxScreenBody(
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
     val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
     val tagWithCards = boxScreenViewModel.tagWithCards.collectAsState()
+    val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
+
+    val cardList =
+        if (levelSelected.value == -1) {
+            if (tagWithCards.value.tag == emptyTag) {
+                boxWithCards.value.cardList
+            } else {
+                tagWithCards.value.cardList
+            }
+        } else {
+            if (tagWithCards.value.tag == emptyTag) {
+                boxWithCards.value.cardList.filter { it.level == levelSelected.value }
+            } else {
+                tagWithCards.value.cardList.filter { it.level == levelSelected.value }
+            }
+        }
 
     Column(
         modifier = modifier
@@ -184,6 +202,12 @@ fun BoxScreenBody(
         Text(text = stringResource(R.string.nr_card) + ": ${boxWithCards.value.cardList.size}")
 
         Spacer(modifier = Modifier.size(4.dp))
+
+        LevelList(
+            boxWithCards = boxWithCards.value,
+            currentLevel = levelSelected.value,
+            selectLevel = { boxScreenViewModel.updateSelectedLevel(it) },
+        )
 
         Row(
             modifier = Modifier
@@ -210,7 +234,8 @@ fun BoxScreenBody(
                 selectedTags = listOf(tagWithCards.value.tag)
             )
 
-            NewTagButton(onClick = showNewTagDialog
+            NewTagButton(
+                onClick = showNewTagDialog
             )
         }
 
@@ -223,24 +248,12 @@ fun BoxScreenBody(
                 style = MaterialTheme.typography.titleLarge,
             )
         } else {
-            if (tagWithCards.value.tag == emptyTag) {
-                CardList(
-                    cardList = boxWithCards.value.cardList,
-                    showDialog = showCard,
-                    showDelete = { showCardDelete() },
-                    showEditDialog = {
-                        showEditCardDialog()
-                    }
-                )
-            } else {
-                CardList(
-                    cardList = tagWithCards.value.cardList,
-                    showDialog = showCard,
-                    showDelete = { showCardDelete() },
-                    showEditDialog = { showEditCardDialog() }
-                )
-            }
+            CardList(
+                cardList = cardList,
+                showDialog = showCard,
+                showDelete = { showCardDelete() },
+                showEditDialog = { showEditCardDialog() }
+            )
         }
     }
-
 }
