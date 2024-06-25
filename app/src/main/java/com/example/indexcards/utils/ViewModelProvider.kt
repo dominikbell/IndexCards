@@ -45,6 +45,7 @@ class ViewModelProvider(
                 this.createSavedStateHandle(),
             )
         }
+
         /** For CardDialog */
         initializer {
             CardViewModel(
