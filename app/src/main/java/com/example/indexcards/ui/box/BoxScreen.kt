@@ -3,11 +3,12 @@ package com.example.indexcards.ui.box
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -212,11 +213,19 @@ fun BoxTopBar(
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         navigationIcon = {
-            IconButton(onClick = { navigateToBoxesOverview() }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back Arrow"
-                )
+            if (!isEditing) {
+                IconButton(onClick = { navigateToBoxesOverview() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back Arrow"
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = { cancelEdit() }
+                ) {
+                    Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
+                }
             }
         },
 
@@ -228,16 +237,16 @@ fun BoxTopBar(
             )
         },
         actions = {
-            IconButton(onClick = {
-                expanded = true
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = "Menu"
-                )
-            }
-
             if (!isEditing) {
+                IconButton(onClick = {
+                    expanded = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "Menu"
+                    )
+                }
+
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
@@ -269,12 +278,6 @@ fun BoxTopBar(
                             trainSelected()
                         }
                     )
-                }
-            } else {
-                IconButton(
-                    onClick = { cancelEdit() }
-                ) {
-                    Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
                 }
             }
         },
