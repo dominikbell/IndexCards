@@ -3,7 +3,6 @@ package com.example.indexcards.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 
 class OfflineAppRepository(
     private val appDao: AppDao
@@ -63,6 +62,9 @@ class OfflineAppRepository(
 
     override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards> =
         appDao.getBoxWithCards(boxId)
+
+    override fun getAllCardsWithTagsOfBoxStream(boxId: Long): Flow<List<CardWithTags>> =
+        appDao.getAllCardsWithTagsOfBox(boxId)
 
     override fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags> =
         appDao.getBoxWithTags(boxId)

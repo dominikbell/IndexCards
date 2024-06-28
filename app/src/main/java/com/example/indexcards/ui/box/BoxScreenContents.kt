@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.LanguageData
+import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.home.DescriptionField
@@ -41,23 +43,27 @@ fun BoxScreenBody(
     showEditTagDialog: () -> Unit,
     boxScreenViewModel: BoxScreenViewModel,
 ) {
+    val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
     val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
     val tagWithCards = boxScreenViewModel.tagWithCards.collectAsState()
     val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
+    val cardsWithTags = boxScreenViewModel.cardsWithTags.collectAsState()
 
-    val cardList =
+    val cardWithTagList =
         if (levelSelected.value == -1) {
-            if (tagWithCards.value.tag == emptyTag) {
-                boxWithCards.value.cardList
+            if (tagSortedBy.value == emptyTag) {
+                cardsWithTags.value.cardWithTagList
             } else {
-                tagWithCards.value.cardList
+                cardsWithTags.value.cardWithTagList.filter { it.tags.contains(tagSortedBy.value) }
             }
         } else {
-            if (tagWithCards.value.tag == emptyTag) {
-                boxWithCards.value.cardList.filter { it.level == levelSelected.value }
+            if (tagSortedBy.value == emptyTag) {
+                cardsWithTags.value.cardWithTagList.filter { it.card.level == levelSelected.value }
             } else {
-                tagWithCards.value.cardList.filter { it.level == levelSelected.value }
+                cardsWithTags.value.cardWithTagList.filter {
+                    it.card.level == levelSelected.value && it.tags.contains(tagSortedBy.value)
+                }
             }
         }
 
@@ -124,11 +130,13 @@ fun BoxScreenBody(
             )
         } else {
             CardList(
-                cardList = cardList,
+                cardWithTagList = cardWithTagList,
                 showDialog = showCard,
                 showDelete = { showCardDelete() },
                 showEditDialog = { showEditCardDialog() }
             )
+
+
         }
     }
 }
@@ -170,7 +178,13 @@ fun BoxScreenEditing(
         DescriptionField(
             modifier = Modifier.fillMaxWidth(),
             boxUiState = boxUiState,
-            onValueChange = { boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(description = it)) }
+            onValueChange = {
+                boxScreenViewModel.updateUiState(
+                    boxUiState.boxDetails.copy(
+                        description = it
+                    )
+                )
+            }
         )
 
         RequiredFieldsText()

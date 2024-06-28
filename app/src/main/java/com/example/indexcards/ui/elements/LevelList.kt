@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.elements
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,11 +9,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,12 +30,15 @@ fun LevelList(
     selectLevel: (Int) -> Unit,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
     ) {
 
-        Divider(modifier = Modifier
-            .height(3.dp)
-            .fillMaxWidth())
+        HorizontalDivider(
+            modifier = Modifier
+                .padding(bottom = 3.dp)
+                .fillMaxWidth()
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -47,9 +54,11 @@ fun LevelList(
             }
         }
 
-        Divider(modifier = Modifier
-            .height(3.dp)
-            .fillMaxWidth())
+        HorizontalDivider(
+            modifier = Modifier
+                .padding(top = 3.dp)
+                .fillMaxWidth()
+        )
     }
 }
 
@@ -61,18 +70,31 @@ fun LevelListItem(
     selected: Boolean = false,
     onClick: () -> Unit
 ) {
-    val backgroundColor =
+    val borderThickness =
         if (selected) {
-            Color.LightGray
+            3.dp
         } else {
-            Color.White
+            0.dp
+        }
+    val borderColor =
+        if (selected) {
+            MaterialTheme.colorScheme.secondary
+        } else {
+            MaterialTheme.colorScheme.primaryContainer
         }
 
     Column(
         modifier = modifier
-            .background(backgroundColor)
+            .clip(RoundedCornerShape(3.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable { onClick() }
-            .padding(4.dp),
+            .border(
+                width = borderThickness,
+                color = borderColor,
+                shape = RoundedCornerShape(3.dp)
+            )
+            .padding(4.dp)
+        ,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Level ${level + 1}", fontSize = 18.sp)

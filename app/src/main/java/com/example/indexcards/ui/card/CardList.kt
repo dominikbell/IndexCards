@@ -1,9 +1,10 @@
 package com.example.indexcards.ui.card
 
+import android.widget.Toast
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,12 +22,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
@@ -38,7 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CardList(
     modifier: Modifier = Modifier,
-    cardList: List<Card>,
+    cardWithTagList: List<CardWithTags>,
     showDelete: () -> Unit,
     showDialog: () -> Unit,
     showEditDialog: () -> Unit,
@@ -55,11 +58,11 @@ fun CardList(
         verticalArrangement = Arrangement.Top
     ) {
         items(
-            items = cardList,
-            key = { it.cardId }
+            items = cardWithTagList,
+            key = { it.card.cardId }
         ) { item ->
             CardListItem(
-                item = item,
+                item = item.card,
                 onClick = {
                     cardViewModel.viewModelScope.launch {
                         cardViewModel.setCurrentCard(it.cardId)
@@ -80,7 +83,7 @@ fun CardList(
                     }
                     showDelete()
                 },
-                tagList = listOf()
+                tagList = item.tags
             )
         }
     }
@@ -107,29 +110,35 @@ fun CardListItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(
-                modifier = modifier
-                    .weight(1f)
-                    .padding(10.dp),
-                verticalArrangement = Arrangement.Top
-            ) {
-                Text(
-                    text = item.word,
-                    textAlign = TextAlign.Start,
-                )
-                Spacer(modifier = modifier.size(4.dp))
-                TagList(
-                    tagList = tagList,
-                    onClick = {},
-                    onLongClick = { /*TODO*/ },
-                    selectedTags = listOf()
-                )
+            Text(
+                text = item.word,
+                textAlign = TextAlign.Start,
+            )
+
+            Row {
+                tagList.forEach {
+                    Canvas(modifier = Modifier) {
+                        drawCircle(
+                            color = Color(android.graphics.Color.parseColor(it.color)),
+                            radius = 20f
+                        )
+                    }
+                }
             }
 
+            val context = LocalContext.current
+
             IconButton(
-                onClick = { showDelete(item) }
+                onClick = {
+                    Toast.makeText(context, tagList.size.toString(), Toast.LENGTH_SHORT).show()
+//                    showDelete(item)
+                }
             ) {
                 Icon(
                     Icons.Default.Delete,

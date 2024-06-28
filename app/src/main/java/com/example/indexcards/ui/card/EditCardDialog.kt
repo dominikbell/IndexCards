@@ -179,13 +179,9 @@ fun CardDialogBody(
             Column(
                 modifier = modifier
             ) {
-                WordField(
-                    cardUiState = cardUiState, onValueChange = onWordChange
-                )
+                WordField(cardUiState = cardUiState, onValueChange = onWordChange)
 
-                MeaningField(
-                    cardUiState = cardUiState, onValueChange = onMeaningChange
-                )
+                MeaningField(cardUiState = cardUiState, onValueChange = onMeaningChange)
 
                 RequiredFieldsText()
 

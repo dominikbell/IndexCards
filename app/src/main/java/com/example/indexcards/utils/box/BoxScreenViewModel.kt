@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.tag.emptyTag
@@ -27,7 +28,7 @@ class BoxScreenViewModel(
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
-    private val _tagSortedBy = MutableStateFlow(emptyTag)
+    val tagSortedBy = MutableStateFlow<Tag>(emptyTag)
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
     val levelSelected = MutableStateFlow(-1)
 
@@ -45,7 +46,7 @@ class BoxScreenViewModel(
                 initialValue = UiBoxWithTags()
             )
 
-    val tagWithCards: StateFlow<UiTagWithCards> = _tagSortedBy
+    val tagWithCards: StateFlow<UiTagWithCards> = tagSortedBy
         .flatMapLatest {
             when (it) {
                 emptyTag -> flow {
@@ -57,7 +58,7 @@ class BoxScreenViewModel(
                     )
                 }
 
-                else -> appRepository.getTagWithCardsStream(_tagSortedBy.value.tagId)
+                else -> appRepository.getTagWithCardsStream(tagSortedBy.value.tagId)
             }
         }
         .filterNotNull()
@@ -87,14 +88,25 @@ class BoxScreenViewModel(
                 initialValue = UiBoxWithCards()
             )
 
+    val cardsWithTags: StateFlow<UiCardsWithTags> =
+        appRepository.getAllCardsWithTagsOfBoxStream(boxId = boxId)
+            .filterNotNull()
+            .map {
+                UiCardsWithTags(it)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = UiCardsWithTags()
+            )
+
     fun setTagSortedBy(newTag: Tag) {
-        _tagSortedBy.update {
+        tagSortedBy.update {
             newTag
         }
     }
 
     fun resetTagSortedBy() {
-        _tagSortedBy.update {
+        tagSortedBy.update {
             emptyTag
         }
     }
@@ -127,4 +139,8 @@ data class UiTagWithCards(
 data class UiBoxWithTags(
     val box: Box = emptyBox,
     val tagList: List<Tag> = listOf()
+)
+
+data class UiCardsWithTags(
+    val cardWithTagList: List<CardWithTags> = listOf()
 )

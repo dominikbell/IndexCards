@@ -60,7 +60,6 @@ open class CardViewModel(
             initialValue = UiCardWithTags()
         )
 
-
     suspend fun setCurrentCard(cardId: Long) {
         currentCard.value = appRepository.getCard(cardId)
             .filterNotNull()
