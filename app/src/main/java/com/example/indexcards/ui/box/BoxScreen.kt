@@ -140,7 +140,6 @@ fun BoxScreen(
                     .padding(innerPadding),
                 showCard = { cardDialog = true },
                 showEditCardDialog = { editCardDialog = true },
-                showCardDelete = { deleteCardDialog = true },
                 showNewTagDialog = { showNewTagDialog() },
                 showEditTagDialog = { showEditTagDialog() },
                 boxScreenViewModel = boxScreenViewModel,

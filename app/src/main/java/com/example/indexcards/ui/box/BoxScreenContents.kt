@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +40,6 @@ fun BoxScreenBody(
     modifier: Modifier = Modifier,
     showCard: () -> Unit,
     showEditCardDialog: () -> Unit,
-    showCardDelete: () -> Unit,
     showNewTagDialog: () -> Unit,
     showEditTagDialog: () -> Unit,
     boxScreenViewModel: BoxScreenViewModel,
@@ -132,11 +133,10 @@ fun BoxScreenBody(
             CardList(
                 cardWithTagList = cardWithTagList,
                 showDialog = showCard,
-                showDelete = { showCardDelete() },
                 showEditDialog = { showEditCardDialog() }
             )
 
-
+            Spacer(modifier = Modifier.height(FloatingActionButtonDefaults.LargeIconSize))
         }
     }
 }

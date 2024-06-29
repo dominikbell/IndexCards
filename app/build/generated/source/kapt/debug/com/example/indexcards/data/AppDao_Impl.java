@@ -55,6 +55,10 @@ public final class AppDao_Impl implements AppDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteCardFromTags;
 
+  private final SharedSQLiteStatement __preparedStmtOfUpgradeLevelOnCard;
+
+  private final SharedSQLiteStatement __preparedStmtOfDowngradeLevelOnCard;
+
   private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
 
   private final EntityUpsertionAdapter<Card> __upsertionAdapterOfCard;
@@ -140,6 +144,22 @@ public final class AppDao_Impl implements AppDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM tagcardcrossref WHERE cardId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfUpgradeLevelOnCard = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE Card SET level = level + 1 WHERE cardId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDowngradeLevelOnCard = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE Card SET level = level - 1 WHERE cardId = ?";
         return _query;
       }
     };
@@ -570,6 +590,58 @@ public final class AppDao_Impl implements AppDao {
           }
         } finally {
           __preparedStmtOfDeleteCardFromTags.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object upgradeLevelOnCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpgradeLevelOnCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpgradeLevelOnCard.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object downgradeLevelOnCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDowngradeLevelOnCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDowngradeLevelOnCard.release(_stmt);
         }
       }
     }, $completion);

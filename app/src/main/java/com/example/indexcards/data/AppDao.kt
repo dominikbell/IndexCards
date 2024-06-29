@@ -80,4 +80,10 @@ interface AppDao {
 
     @Query("SELECT MAX(cardId) FROM card")
     suspend fun getBiggestCardId(): Long?
+
+    @Query("UPDATE Card SET level = level + 1 WHERE cardId = :cardId")
+    suspend fun upgradeLevelOnCard(cardId: Long)
+
+    @Query("UPDATE Card SET level = level - 1 WHERE cardId = :cardId")
+    suspend fun downgradeLevelOnCard(cardId: Long)
 }
