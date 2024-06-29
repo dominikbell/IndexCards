@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +33,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
+import com.example.indexcards.data.Card
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.card.CardViewModel
@@ -43,6 +46,7 @@ fun CardDialog(
     onDismiss: () -> Unit,
     showEditCardDialog: () -> Unit,
     isEditing: Boolean,
+    showDelete: (Card) -> Unit,
     cardViewModel: CardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -71,8 +75,10 @@ fun CardDialog(
             tonalElevation = AlertDialogDefaults.TonalElevation,
         ) {
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .padding(15.dp)
+                    .fillMaxHeight()
+                    .fillMaxWidth()
             ) {
                 Row(
                     modifier = modifier.wrapContentHeight(),
@@ -129,6 +135,18 @@ fun CardDialog(
                             Text(text = cardUiState.cardDetails.notes)
                         }
                     }
+                }
+
+                IconButton(
+                    modifier = modifier.align(Alignment.End).align(Alignment.End),
+                    onClick = {
+                        showDelete(cardWithTags.value.card)
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete"
+                    )
                 }
             }
         }

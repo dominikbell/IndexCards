@@ -3,25 +3,34 @@ package com.example.indexcards.ui.card
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -77,12 +86,6 @@ fun CardList(
                     }
                     showEditDialog()
                 },
-                showDelete = {
-                    editCardViewModel.viewModelScope.launch {
-                        editCardViewModel.setCurrentCard(it.cardId)
-                    }
-                    showDelete()
-                },
                 tagList = item.tags
             )
         }
@@ -96,7 +99,6 @@ fun CardListItem(
     item: Card,
     onClick: (Card) -> Unit,
     onLongClick: (Card) -> Unit,
-    showDelete: (Card) -> Unit,
     tagList: List<Tag>
 ) {
     Card(
@@ -122,29 +124,96 @@ fun CardListItem(
             )
 
             Row {
-                tagList.forEach {
-                    Canvas(modifier = Modifier) {
-                        drawCircle(
-                            color = Color(android.graphics.Color.parseColor(it.color)),
-                            radius = 20f
-                        )
-                    }
+                if (tagList.size <= 3) {
+                    TagCircleRow(tagList = tagList)
+                } else {
+                    CompactTagCircleRow(tagList = tagList)
                 }
+
+                VerticalDivider(modifier = Modifier.fillMaxHeight().padding(3.dp))
+
+                LevelIndicator(level = item.level)
             }
+        }
+    }
+}
 
-            val context = LocalContext.current
-
-            IconButton(
-                onClick = {
-                    Toast.makeText(context, tagList.size.toString(), Toast.LENGTH_SHORT).show()
-//                    showDelete(item)
-                }
+@Composable
+fun TagCircleRow(
+    modifier: Modifier = Modifier,
+    tagList: List<Tag> = listOf()
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        tagList.forEach {
+            Canvas(
+                modifier = modifier
+                    .size(20.dp)
             ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Delete"
+                drawCircle(
+                    color = Color(android.graphics.Color.parseColor(it.color)),
+                    radius = 20f
                 )
             }
         }
     }
+}
+
+@Composable
+fun CompactTagCircleRow(
+    modifier: Modifier = Modifier,
+    tagList: List<Tag> = listOf()
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        tagList.forEach {
+            Canvas(
+                modifier = modifier
+                    .clip(RoundedCornerShape(3.dp))
+                    .height(20.dp)
+                    .width(5.dp)
+            ) {
+                drawRect(
+                    color = Color(android.graphics.Color.parseColor(it.color)),
+                )
+            }
+            Spacer(modifier = modifier.size(2.dp))
+        }
+    }
+}
+
+@Composable
+fun LevelIndicator(
+    modifier: Modifier = Modifier,
+    level: Int
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        for (k in 0..4) {
+            val color =
+                if (k <= level) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.25F)
+                }
+            Canvas(
+                modifier = modifier
+                    .clip(RoundedCornerShape(2.dp))
+                    .height(20.dp)
+                    .width(3.dp)
+            ) {
+                drawRect(
+                    color = color,
+                )
+            }
+            Spacer(modifier = modifier.size(2.dp))
+        }
+    }
+
 }

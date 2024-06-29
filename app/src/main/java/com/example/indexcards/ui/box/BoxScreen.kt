@@ -3,7 +3,6 @@ package com.example.indexcards.ui.box
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -33,8 +32,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.ui.card.CardDialog
@@ -42,8 +44,11 @@ import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
 import com.example.indexcards.ui.tag.TagDialog
+import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
+import com.example.indexcards.utils.card.EditCardViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun BoxScreen(
@@ -52,6 +57,9 @@ fun BoxScreen(
     navigateToTrainingScreen: (Long) -> Unit,
     boxId: Long,
     boxScreenViewModel: BoxScreenViewModel,
+    editCardViewModel: EditCardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
 ) {
     val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
@@ -144,7 +152,13 @@ fun BoxScreen(
         CardDialog(
             onDismiss = { hideCardDialogs() },
             showEditCardDialog = { editCardDialog = true },
-            isEditing = editCardDialog
+            isEditing = editCardDialog,
+            showDelete = {
+                editCardViewModel.viewModelScope.launch {
+                    editCardViewModel.setCurrentCard(it.cardId)
+                }
+                deleteCardDialog = true
+            },
         )
     }
 
@@ -173,7 +187,10 @@ fun BoxScreen(
 
     if (deleteCardDialog) {
         DeleteCardDialog(
-            onDismiss = { deleteCardDialog = false },
+            onDismiss = {
+                cardDialog = false
+                deleteCardDialog = false
+            },
         )
     }
 
