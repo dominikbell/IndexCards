@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.utils.box.UiBoxWithCards
 
 @Composable
 fun LevelList(

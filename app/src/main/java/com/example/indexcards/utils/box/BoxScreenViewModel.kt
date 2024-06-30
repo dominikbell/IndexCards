@@ -1,5 +1,8 @@
 package com.example.indexcards.utils.box
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
@@ -13,14 +16,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,9 +31,10 @@ class BoxScreenViewModel(
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
-    val tagSortedBy = MutableStateFlow(emptyTag)
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
+    val tagSortedBy = MutableStateFlow(emptyTag)
     val levelSelected = MutableStateFlow(-1)
+    var boxScreenState: BoxScreenState by mutableStateOf(BoxScreenState.VIEW)
 
     val boxWithTags: StateFlow<UiBoxWithTags> =
         appRepository.getBoxWithTagsStream(boxId = boxId)
@@ -89,6 +89,10 @@ class BoxScreenViewModel(
                 initialValue = UiCardsWithTags()
             )
 
+    fun changeBoxScreenState(newState: BoxScreenState) {
+        boxScreenState = newState
+    }
+
     fun setTagSortedBy(newTag: Tag) {
         tagSortedBy.update {
             newTag
@@ -116,11 +120,6 @@ class BoxScreenViewModel(
     }
 }
 
-data class UiBoxWithCards(
-    val box: Box = emptyBox,
-    val cardList: List<Card> = listOf()
-)
-
 data class UiTagWithCards(
     val tag: Tag = emptyTag,
     val cardList: List<Card> = listOf()
@@ -134,3 +133,9 @@ data class UiBoxWithTags(
 data class UiCardsWithTags(
     val cardWithTagList: List<CardWithTags> = listOf()
 )
+
+sealed interface BoxScreenState {
+    object VIEW: BoxScreenState
+    object EDIT: BoxScreenState
+    object TRAIN: BoxScreenState
+}

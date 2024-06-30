@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,11 +56,18 @@ fun BoxList(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Top,
             ) {
-                items(
-                    items = boxList, key = { it.boxId }
-                ) { item ->
+                itemsIndexed(
+                    items = boxList
+                ) { index, item ->
+
+                    val finalOffset = if (index == boxList.size - 1) {
+                        (2.5 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                    } else {
+                        0.dp
+                    }
+
                     BoxListItem(
-                        modifier = Modifier,
+                        modifier = Modifier.padding(bottom = finalOffset),
                         item = item,
                         onClick = { navigateToBoxScreen(item.boxId) },
                         showDelete = onDelete
@@ -80,14 +89,14 @@ fun BoxListItem(
         modifier = modifier
             .clickable { onClick(item.boxId) }
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .weight(1f)
                     .padding(10.dp),
                 verticalArrangement = Arrangement.Top
@@ -97,7 +106,7 @@ fun BoxListItem(
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.titleLarge,
                 )
-                Spacer(modifier = modifier.size(4.dp))
+                Spacer(modifier = Modifier.size(4.dp))
                 Text(
                     text = item.description,
                     style = MaterialTheme.typography.bodyMedium

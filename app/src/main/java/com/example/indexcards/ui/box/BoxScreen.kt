@@ -46,8 +46,8 @@ import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
 import com.example.indexcards.ui.tag.TagDialog
-import com.example.indexcards.ui.training.TrainingScreen
 import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.EditCardViewModel
@@ -64,6 +64,7 @@ fun BoxScreen(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
+    val boxScreenState = boxScreenViewModel.boxScreenState
     val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
     val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
@@ -86,8 +87,6 @@ fun BoxScreen(
             }
         }
 
-    var isEditing by remember { mutableStateOf(false) }
-    var isTraining by remember { mutableStateOf(false) }
     var cardDialog by remember { mutableStateOf(false) }
     var newCardDialog by remember { mutableStateOf(false) }
     var editCardDialog by remember { mutableStateOf(false) }
@@ -95,10 +94,6 @@ fun BoxScreen(
     var newTag by remember { mutableStateOf(true) }
     var tagDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
-
-    fun navigateToTrainingScreen() {
-        isTraining = true
-    }
 
     fun hideCardDialogs() {
         cardDialog = false; editCardDialog = false
@@ -113,10 +108,18 @@ fun BoxScreen(
     }
 
     BackHandler {
-        if (isEditing) {
-            isEditing = false
-        } else {
-            navigateToBoxesOverview()
+        when (boxScreenState) {
+            BoxScreenState.VIEW -> {
+                navigateToBoxesOverview()
+            }
+
+            BoxScreenState.EDIT -> {
+                boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+            }
+
+            BoxScreenState.TRAIN -> {
+                boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+            }
         }
     }
 
@@ -125,54 +128,40 @@ fun BoxScreen(
         topBar = {
             BoxTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
-                editBox = {
+                updateEditUiStatus = {
                     boxScreenViewModel.updateUiState(boxWithTags.value.box.toBoxDetails())
-                    isEditing = true
                 },
-                trainAll = {
-                    navigateToTrainingScreen()
-                },
-                trainSelected = {
-                    navigateToTrainingScreen()
-                },
+                changeBoxScreenState = { boxScreenViewModel.changeBoxScreenState(it) },
+                boxScreenState = boxScreenState,
                 thisBox = boxWithTags.value.box,
-                isEditing = isEditing,
-                cancelEdit = { isEditing = false }
+                cancelEdit = { boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW) }
             )
         },
 
         floatingActionButton = {
-            if (isEditing) {
-                FloatingActionButton(
-                    onClick = { deleteDialog = true }
-                ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+            when (boxScreenState) {
+                BoxScreenState.VIEW -> {
+                    FloatingActionButton(
+                        onClick = { newCardDialog = true }
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Add")
+                    }
                 }
-            } else {
-                FloatingActionButton(
-                    onClick = { newCardDialog = true }
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+
+                BoxScreenState.EDIT -> {
+                    FloatingActionButton(
+                        onClick = { deleteDialog = true }
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
                 }
+
+                BoxScreenState.TRAIN -> {}
             }
         }
     ) { innerPadding ->
-        if (isEditing) {
-            BoxScreenEditing(
-                modifier = modifier
-                    .padding(innerPadding),
-                onSave = {
-                    isEditing = false
-                    boxScreenViewModel.saveBox()
-                },
-                boxScreenViewModel = boxScreenViewModel,
-            )
-        } else {
-            if (isTraining) {
-                TrainingScreen(
-                    navigateToBoxScreen = { isTraining = false },
-                )
-            } else {
+        when (boxScreenState) {
+            BoxScreenState.VIEW -> {
                 BoxScreenBody(
                     modifier = modifier.padding(innerPadding),
                     showCard = { cardDialog = true },
@@ -184,6 +173,24 @@ fun BoxScreen(
                     cardsWithTags = cardsWithTags.value,
                     filteredCardWithTagList = filteredCardWithTagList,
                     boxScreenViewModel = boxScreenViewModel,
+                )
+            }
+
+            BoxScreenState.EDIT -> {
+                BoxScreenEditing(
+                    modifier = modifier
+                        .padding(innerPadding),
+                    onSave = {
+                        boxScreenViewModel.saveBox()
+                        boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+                    },
+                    boxScreenViewModel = boxScreenViewModel,
+                )
+            }
+
+            BoxScreenState.TRAIN -> {
+                TrainingScreen(
+                    cardList = filteredCardWithTagList
                 )
             }
         }
@@ -263,14 +270,28 @@ fun BoxScreen(
 fun BoxTopBar(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
-    editBox: () -> Unit,
-    trainAll: () -> Unit,
-    trainSelected: () -> Unit,
+    updateEditUiStatus: () -> Unit,
+    changeBoxScreenState: (BoxScreenState) -> Unit,
+    boxScreenState: BoxScreenState,
     thisBox: Box,
-    isEditing: Boolean,
     cancelEdit: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    val title: String =
+        when (boxScreenState) {
+            BoxScreenState.VIEW -> {
+                thisBox.name
+            }
+
+            BoxScreenState.EDIT -> {
+                "Editing " + thisBox.name
+            }
+
+            BoxScreenState.TRAIN -> {
+                "Training"
+            }
+        }
 
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -278,32 +299,38 @@ fun BoxTopBar(
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         navigationIcon = {
-            if (!isEditing) {
-                IconButton(onClick = { navigateToBoxesOverview() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back Arrow"
-                    )
-                }
-            } else {
+            if (boxScreenState == BoxScreenState.EDIT) {
                 IconButton(
                     onClick = { cancelEdit() }
                 ) {
                     Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
+                }
+            } else {
+                IconButton(onClick = {
+                    if (boxScreenState == BoxScreenState.TRAIN) {
+                        changeBoxScreenState(BoxScreenState.VIEW)
+                    } else {
+                        navigateToBoxesOverview()
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back Arrow"
+                    )
                 }
             }
         },
 
         title = {
             Text(
-                text = thisBox.name,
+                text = title,
                 fontWeight = FontWeight.Bold,
                 modifier = modifier
             )
         },
 
         actions = {
-            if (!isEditing) {
+            if (boxScreenState == BoxScreenState.VIEW) {
                 IconButton(onClick = {
                     expanded = true
                 }) {
@@ -322,8 +349,9 @@ fun BoxTopBar(
                             Text(text = stringResource(R.string.edit_box))
                         },
                         onClick = {
+                            updateEditUiStatus()
                             expanded = false
-                            editBox()
+                            changeBoxScreenState(BoxScreenState.EDIT)
                         }
                     )
                     DropdownMenuItem(
@@ -346,20 +374,20 @@ fun BoxTopBar(
                     )
                     DropdownMenuItem(
                         text = {
-                            Text(text = "Train all")
+                            Text(text = stringResource(R.string.train_all))
                         },
                         onClick = {
                             expanded = false
-                            trainAll()
+                            changeBoxScreenState(BoxScreenState.TRAIN)
                         }
                     )
                     DropdownMenuItem(
                         text = {
-                            Text(text = "Train current selection")
+                            Text(text = stringResource(R.string.train_selection))
                         },
                         onClick = {
                             expanded = false
-                            trainSelected()
+                            changeBoxScreenState(BoxScreenState.TRAIN)
                         }
                     )
                 }
