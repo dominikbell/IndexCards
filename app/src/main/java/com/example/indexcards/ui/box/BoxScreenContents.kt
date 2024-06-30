@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -46,6 +48,7 @@ fun BoxScreenBody(
 ) {
     val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
+    /* TODO: remove this and only use boxWithTags and CardsWithTags */
     val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
     val tagWithCards = boxScreenViewModel.tagWithCards.collectAsState()
     val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
@@ -93,8 +96,7 @@ fun BoxScreenBody(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(3.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
         ) {
@@ -102,18 +104,20 @@ fun BoxScreenBody(
                 modifier = Modifier.weight(1f),
                 tagList = boxWithTags.value.tagList,
                 onClick = {
-                    if (tagWithCards.value.tag == emptyTag) {
-                        boxScreenViewModel.setTagSortedBy(it)
+                    if (tagWithCards.value.tag == it) {
+                        boxScreenViewModel.resetTagSortedBy()
                     } else {
-                        if (tagWithCards.value.tag == it) {
-                            boxScreenViewModel.resetTagSortedBy()
-                        } else {
-                            boxScreenViewModel.setTagSortedBy(it)
-                        }
+                        boxScreenViewModel.setTagSortedBy(it)
                     }
                 },
                 onLongClick = { showEditTagDialog() },
                 selectedTags = listOf(tagWithCards.value.tag)
+            )
+
+            VerticalDivider(
+                modifier = Modifier
+                    .height(ButtonDefaults.MinHeight)
+                    .padding(start = 3.dp, end = 3.dp)
             )
 
             NewTagButton(
@@ -121,9 +125,9 @@ fun BoxScreenBody(
             )
         }
 
-        Spacer(modifier = Modifier.size(4.dp))
-
         if (boxWithCards.value.cardList.isEmpty()) {
+            Spacer(modifier = Modifier.size(4.dp))
+
             Text(
                 text = stringResource(R.string.click_to_add_card),
                 textAlign = TextAlign.Center,
@@ -135,8 +139,6 @@ fun BoxScreenBody(
                 showDialog = showCard,
                 showEditDialog = { showEditCardDialog() }
             )
-
-            Spacer(modifier = Modifier.height(FloatingActionButtonDefaults.LargeIconSize))
         }
     }
 }
@@ -165,13 +167,17 @@ fun BoxScreenEditing(
             LanguageDropDownMenu(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
-                onValueChange = { boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it)) }
+                onValueChange = {
+                    boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it))
+                }
             )
         } else {
             TopicField(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
-                onValueChange = { boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it)) }
+                onValueChange = {
+                    boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it))
+                }
             )
         }
 
@@ -179,11 +185,7 @@ fun BoxScreenEditing(
             modifier = Modifier.fillMaxWidth(),
             boxUiState = boxUiState,
             onValueChange = {
-                boxScreenViewModel.updateUiState(
-                    boxUiState.boxDetails.copy(
-                        description = it
-                    )
-                )
+                boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(description = it))
             }
         )
 

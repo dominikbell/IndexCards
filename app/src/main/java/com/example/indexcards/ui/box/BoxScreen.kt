@@ -85,7 +85,13 @@ fun BoxScreen(
         newTag = true; tagDialog = true
     }
 
-    BackHandler { navigateToBoxesOverview() }
+    BackHandler {
+        if (isEditing) {
+            isEditing = false
+        } else {
+            navigateToBoxesOverview()
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -299,10 +305,7 @@ fun BoxTopBar(
                                 )
                             }
                         },
-                        onClick = {
-                            expanded = false
-                            editBox()
-                        }
+                        onClick = { /* TODO: implement sorting */ }
                     )
                     DropdownMenuItem(
                         text = {

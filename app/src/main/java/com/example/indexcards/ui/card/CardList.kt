@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -57,11 +59,18 @@ fun CardList(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.Top
     ) {
-        items(
+        itemsIndexed(
             items = cardWithTagList,
-            key = { it.card.cardId }
-        ) { item ->
+        ) { index, item ->
+
+            val finalOffset = if (index == cardWithTagList.size - 1) {
+                (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+            } else {
+                0.dp
+            }
+
             CardListItem(
+                modifier = Modifier.padding(bottom = finalOffset),
                 item = item.card,
                 onClick = {
                     cardViewModel.viewModelScope.launch {
@@ -103,7 +112,7 @@ fun CardListItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -121,7 +130,11 @@ fun CardListItem(
                     CompactTagCircleRow(tagList = tagList)
                 }
 
-                VerticalDivider(modifier = Modifier.fillMaxHeight().padding(3.dp))
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(3.dp)
+                )
 
                 LevelIndicator(level = item.level)
             }

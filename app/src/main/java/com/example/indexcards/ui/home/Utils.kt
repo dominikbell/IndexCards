@@ -2,6 +2,7 @@ package com.example.indexcards.ui.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -19,6 +21,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,16 +46,15 @@ fun NewTagButton(
     onClick: () -> Unit,
     short: Boolean = false
 ) {
-    val text = if (short){
+    val text = if (short) {
         stringResource(R.string.new_tag_short)
     } else {
         stringResource(R.string.new_tag)
     }
-    TextButton(
-        onClick = onClick
-    ) {
-        Text(text = text)
-    }
+    Text(
+        modifier = Modifier.clickable { onClick() },
+        text = text
+    )
 }
 
 @Composable
@@ -102,7 +104,7 @@ fun RequiredFieldsText(
     modifier: Modifier = Modifier,
     plural: Boolean = true,
 ) {
-    val text = if(plural) {
+    val text = if (plural) {
         stringResource(R.string.required_fields)
     } else {
         stringResource(R.string.required_field)
