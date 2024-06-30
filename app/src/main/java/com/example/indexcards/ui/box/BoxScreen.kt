@@ -178,8 +178,7 @@ fun BoxScreen(
 
             BoxScreenState.EDIT -> {
                 BoxScreenEditing(
-                    modifier = modifier
-                        .padding(innerPadding),
+                    modifier = modifier.padding(innerPadding),
                     onSave = {
                         boxScreenViewModel.saveBox()
                         boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
@@ -190,7 +189,11 @@ fun BoxScreen(
 
             BoxScreenState.TRAIN -> {
                 TrainingScreen(
-                    cardList = filteredCardWithTagList
+                    modifier = modifier.padding(innerPadding),
+                    navigateToBoxScreen = { boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW) },
+                    cardList = filteredCardWithTagList.shuffled(),
+                    onCardCorrect = {},
+                    onCardIncorrect = {}
                 )
             }
         }
