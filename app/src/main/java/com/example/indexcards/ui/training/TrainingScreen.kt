@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.tag.emptyTag
@@ -32,49 +35,12 @@ import com.example.indexcards.utils.tag.emptyTag
 @Composable
 fun TrainingScreen(
     modifier: Modifier = Modifier,
-    navigateToBoxScreen: (Long) -> Unit,
-    boxId: Long,
-    boxScreenViewModel: BoxScreenViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    navigateToBoxScreen: () -> Unit,
+    cardList: List<CardWithTags> = listOf(),
+    title: String = "Error",
 ) {
-    val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
-    val tagWithCards = boxScreenViewModel.tagWithCards.collectAsState()
-    val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
-
-    val cardList =
-        if (levelSelected.value == -1) {
-            if (tagWithCards.value.tag == emptyTag) {
-                boxWithCards.value.cardList
-            } else {
-                tagWithCards.value.cardList
-            }
-        } else {
-            if (tagWithCards.value.tag == emptyTag) {
-                boxWithCards.value.cardList.filter { it.level == levelSelected.value }
-            } else {
-                tagWithCards.value.cardList.filter { it.level == levelSelected.value }
-            }
-        }
-
-    var title = "Training"
-
-    if (levelSelected.value != -1) {
-        title += " of Level ${levelSelected.value}"
-    }
-
-    if (tagWithCards.value.tag != emptyTag) {
-        title += " of Tag '${tagWithCards.value.tag.text}'"
-    }
-
-    if (title == "Training") {
-        title += " all"
-    }
-
-    title += " of box ${boxWithCards.value.box.name}"
-
     BackHandler {
-        navigateToBoxScreen(boxId)
+        navigateToBoxScreen()
     }
 
     Scaffold(
@@ -85,7 +51,7 @@ fun TrainingScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navigateToBoxScreen(boxId) }
+                        onClick = { navigateToBoxScreen() }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -106,12 +72,11 @@ fun TrainingScreen(
 @Composable
 fun TrainingScreenContent(
     modifier: Modifier = Modifier,
-    cardList: List<Card>
+    cardList: List<CardWithTags>
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.DarkGray),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {

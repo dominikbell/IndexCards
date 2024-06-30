@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,32 +40,54 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
 import com.example.indexcards.ui.tag.TagDialog
+import com.example.indexcards.ui.training.TrainingScreen
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.launch
 
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
-    navigateToTrainingScreen: (Long) -> Unit,
-    boxId: Long,
+    boxId: Long, /* Is only here for boxScreenViewModel to work */
     boxScreenViewModel: BoxScreenViewModel,
     editCardViewModel: EditCardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val boxWithCards = boxScreenViewModel.boxWithCards.collectAsState()
+    val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
+    val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
+    val cardsWithTags = boxScreenViewModel.cardsWithTags.collectAsState()
+
+    val filteredCardWithTagList =
+        if (levelSelected.value == -1) {
+            if (tagSortedBy.value == emptyTag) {
+                cardsWithTags.value.cardWithTagList
+            } else {
+                cardsWithTags.value.cardWithTagList.filter { it.tags.contains(tagSortedBy.value) }
+            }
+        } else {
+            if (tagSortedBy.value == emptyTag) {
+                cardsWithTags.value.cardWithTagList.filter { it.card.level == levelSelected.value }
+            } else {
+                cardsWithTags.value.cardWithTagList.filter {
+                    it.card.level == levelSelected.value && it.tags.contains(tagSortedBy.value)
+                }
+            }
+        }
 
     var isEditing by remember { mutableStateOf(false) }
+    var isTraining by remember { mutableStateOf(false) }
     var cardDialog by remember { mutableStateOf(false) }
     var newCardDialog by remember { mutableStateOf(false) }
     var editCardDialog by remember { mutableStateOf(false) }
@@ -72,6 +95,10 @@ fun BoxScreen(
     var newTag by remember { mutableStateOf(true) }
     var tagDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
+
+    fun navigateToTrainingScreen() {
+        isTraining = true
+    }
 
     fun hideCardDialogs() {
         cardDialog = false; editCardDialog = false
@@ -99,16 +126,16 @@ fun BoxScreen(
             BoxTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
                 editBox = {
-                    boxScreenViewModel.updateUiState(boxWithCards.value.box.toBoxDetails())
+                    boxScreenViewModel.updateUiState(boxWithTags.value.box.toBoxDetails())
                     isEditing = true
                 },
                 trainAll = {
-                    navigateToTrainingScreen(boxId)
+                    navigateToTrainingScreen()
                 },
                 trainSelected = {
-                    navigateToTrainingScreen(boxId)
+                    navigateToTrainingScreen()
                 },
-                thisBox = boxWithCards.value.box,
+                thisBox = boxWithTags.value.box,
                 isEditing = isEditing,
                 cancelEdit = { isEditing = false }
             )
@@ -141,15 +168,24 @@ fun BoxScreen(
                 boxScreenViewModel = boxScreenViewModel,
             )
         } else {
-            BoxScreenBody(
-                modifier = modifier
-                    .padding(innerPadding),
-                showCard = { cardDialog = true },
-                showEditCardDialog = { editCardDialog = true },
-                showNewTagDialog = { showNewTagDialog() },
-                showEditTagDialog = { showEditTagDialog() },
-                boxScreenViewModel = boxScreenViewModel,
-            )
+            if (isTraining) {
+                TrainingScreen(
+                    navigateToBoxScreen = { isTraining = false },
+                )
+            } else {
+                BoxScreenBody(
+                    modifier = modifier.padding(innerPadding),
+                    showCard = { cardDialog = true },
+                    showEditCardDialog = { editCardDialog = true },
+                    showNewTagDialog = { showNewTagDialog() },
+                    showEditTagDialog = { showEditTagDialog() },
+                    levelSelected = levelSelected.value,
+                    boxWithTags = boxWithTags.value,
+                    cardsWithTags = cardsWithTags.value,
+                    filteredCardWithTagList = filteredCardWithTagList,
+                    boxScreenViewModel = boxScreenViewModel,
+                )
+            }
         }
     }
 
@@ -216,10 +252,11 @@ fun BoxScreen(
                 navigateToBoxesOverview()
                 boxScreenViewModel.deleteBox()
             },
-            boxToBeDeleted = boxWithCards.value.box
+            boxToBeDeleted = boxWithTags.value.box
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

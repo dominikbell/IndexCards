@@ -15,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.indexcards.ui.box.BoxScreen
 import com.example.indexcards.ui.home.HomeScreen
-import com.example.indexcards.ui.training.TrainingScreen
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.HomeScreenViewModel
@@ -59,24 +58,10 @@ fun Navigation(
                 navigateToBoxesOverview = {
                     navController.navigate("homeScreen")
                 },
-                navigateToTrainingScreen = { navController.navigate("trainingScreen/${it}") },
                 boxId = boxId,
                 boxScreenViewModel = viewModel(
                     factory = ViewModelProvider(context = LocalContext.current).factory
                 ) as BoxScreenViewModel
-            )
-        }
-        composable("trainingScreen/{boxId}",
-            arguments = listOf(
-                navArgument("boxId") {
-                    type = NavType.LongType
-                }
-            )
-        ) {
-            val boxId = it.arguments?.getLong("boxId") ?: 0
-            TrainingScreen(
-                navigateToBoxScreen = { navController.navigate("boxScreen/${it}") },
-                boxId = boxId
             )
         }
     }

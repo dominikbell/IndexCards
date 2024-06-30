@@ -18,12 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.utils.box.UiBoxWithCards
 
 @Composable
 fun LevelList(
     modifier: Modifier = Modifier,
-    boxWithCards: UiBoxWithCards,
+    cardWithTagList: List<CardWithTags>,
     currentLevel: Int,
     selectLevel: (Int) -> Unit,
 ) {
@@ -45,7 +46,7 @@ fun LevelList(
             for (level in 0 until 5) {
                 LevelListItem(
                     level = level,
-                    numberOfItems = boxWithCards.cardList.filter { it.level == level }.size,
+                    numberOfItems = cardWithTagList.filter { it.card.level == level }.size,
                     onClick = { selectLevel(level) },
                     selected = (currentLevel == level)
                 )

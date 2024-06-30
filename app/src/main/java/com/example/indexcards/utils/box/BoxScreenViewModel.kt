@@ -13,10 +13,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,7 +32,7 @@ class BoxScreenViewModel(
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
-    val tagSortedBy = MutableStateFlow<Tag>(emptyTag)
+    val tagSortedBy = MutableStateFlow(emptyTag)
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
     val levelSelected = MutableStateFlow(-1)
 
@@ -73,20 +77,6 @@ class BoxScreenViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = UiTagWithCards()
         )
-
-    val boxWithCards: StateFlow<UiBoxWithCards> =
-        appRepository.getBoxWithCardsStream(boxId = boxId)
-            .filterNotNull()
-            .map {
-                UiBoxWithCards(
-                    box = it.box,
-                    cardList = it.cards,
-                )
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = UiBoxWithCards()
-            )
 
     val cardsWithTags: StateFlow<UiCardsWithTags> =
         appRepository.getAllCardsWithTagsOfBoxStream(boxId = boxId)
