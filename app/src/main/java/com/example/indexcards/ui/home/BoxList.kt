@@ -28,6 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.LanguageData
+import com.example.indexcards.data.toFlag
 
 @Composable
 fun BoxList(
@@ -84,6 +86,13 @@ fun BoxListItem(
     onClick: (Long) -> Unit,
     showDelete: (Long) -> Unit,
 ) {
+    val text =
+        if (LanguageData.language.values.contains(item.topic)) {
+            item.name + " (" + item.topic.toFlag() + ")"
+        } else {
+            item.name
+        }
+
     Card(
         modifier = modifier
             .clickable { onClick(item.boxId) }
@@ -101,7 +110,7 @@ fun BoxListItem(
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(
-                    text = item.name,
+                    text = text,
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.titleLarge,
                 )
