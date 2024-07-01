@@ -34,6 +34,7 @@ class BoxScreenViewModel(
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
     val tagSortedBy = MutableStateFlow(emptyTag)
     val levelSelected = MutableStateFlow(-1)
+    val trainingCounts = MutableStateFlow(true)
     var boxScreenState: BoxScreenState by mutableStateOf(BoxScreenState.VIEW)
 
     val boxWithTags: StateFlow<UiBoxWithTags> =
@@ -116,6 +117,22 @@ class BoxScreenViewModel(
             levelSelected.update { -1 }
         } else {
             levelSelected.update { newLevel }
+        }
+    }
+
+    fun changeTrainingCounts() {
+        trainingCounts.update { !trainingCounts.value }
+    }
+
+    suspend fun onCardCorrect(card: Card) {
+        if (card.level < 5) {
+            appRepository.upgradeLevelOnCard(card.cardId)
+        }
+    }
+
+    suspend fun onCardIncorrect(card: Card) {
+        if (card.level > 0) {
+            appRepository.downgradeLevelOnCard(card.cardId)
         }
     }
 }

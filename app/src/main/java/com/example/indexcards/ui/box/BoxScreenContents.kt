@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
@@ -34,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -211,6 +214,7 @@ fun TrainingScreen(
     cardList: List<CardWithTags>,
     onCardCorrect: (Card) -> Unit,
     onCardIncorrect: (Card) -> Unit,
+    trainingCounts: Boolean
 ) {
     var trainedCards by remember { mutableIntStateOf(0) }
     var turnedOver by remember { mutableStateOf(false) }
@@ -225,7 +229,7 @@ fun TrainingScreen(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        val cardHeight = (0.7 * LocalConfiguration.current.screenHeightDp).dp
+        val cardHeight = (0.5 * LocalConfiguration.current.screenHeightDp).dp
         val cardWidth = (0.7 * LocalConfiguration.current.screenWidthDp).dp
 
         for (k in 1..min(numberOfShadowCards, cardList.size - trainedCards - 1)) {
@@ -241,7 +245,7 @@ fun TrainingScreen(
         }
 
         if (trainedCards < cardList.size) {
-            val currentCard = cardList[trainedCards].card
+            val currentCard = cardList[trainedCards]
 
             CardCard(
                 modifier = modifier
@@ -253,8 +257,9 @@ fun TrainingScreen(
                 turnedOver = turnedOver,
                 turnOver = { turnedOver = !turnedOver },
                 goToNextCard = { goToNextCard() },
-                onCardCorrect = { onCardCorrect(currentCard) },
-                onCardIncorrect = { onCardIncorrect(currentCard) }
+                onCardCorrect = { onCardCorrect(currentCard.card) },
+                onCardIncorrect = { onCardIncorrect(currentCard.card) },
+                trainingCounts = trainingCounts
             )
 
         } else {
@@ -281,7 +286,7 @@ fun TrainingScreen(
 @Composable
 fun CardCard(
     modifier: Modifier,
-    currentCard: Card,
+    currentCard: CardWithTags,
     cardHeight: Dp,
     cardWidth: Dp,
     turnedOver: Boolean,
@@ -289,6 +294,7 @@ fun CardCard(
     goToNextCard: () -> Unit,
     onCardCorrect: () -> Unit,
     onCardIncorrect: () -> Unit,
+    trainingCounts: Boolean
 ) {
     Card(
         modifier = modifier
@@ -303,52 +309,86 @@ fun CardCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                modifier = Modifier.fillMaxHeight(0.5F),
-                verticalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.SpaceEvenly,
             ) {
-                Text(
-                    text = currentCard.word,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                )
+                SelectionContainer(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = currentCard.card.word,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+
+                Spacer(modifier = Modifier.size(8.dp))
 
                 if (!turnedOver) {
-                    Text(text = "X".repeat(currentCard.meaning.length))
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(text = "X".repeat(min(10, currentCard.card.meaning.length)))
+                    }
                 } else {
-                    Column {
-                        Text(text = currentCard.meaning)
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        SelectionContainer {
+                            Text(
+                                text = currentCard.card.meaning,
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize
+                            )
+                        }
 
-                        Text(text = currentCard.notes)
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        TagList(
+                            tagList = currentCard.tags,
+                            onClick = {},
+                            onLongClick = {},
+                            selectedTags = currentCard.tags
+                        )
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        if (currentCard.card.notes.isNotEmpty()) {
+                            Row {
+                                Text(
+                                    text = stringResource(R.string.notes) + ": ",
+                                    fontStyle = FontStyle.Italic
+                                )
+                                Text(text = currentCard.card.notes)
+                            }
+                        }
                     }
                 }
             }
 
-            Row {
-                if (!turnedOver) {
-                    TextButton(
-                        onClick = { turnOver() }
-                    ) {
-                        Text(text = "Show solution")
-                    }
-                } else {
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            onCardCorrect()
-                        }
-                    ) {
-                        Text(text = "Correct")
-                    }
+            if (!turnedOver) {
+                TextButton(
+                    onClick = { turnOver() }
+                ) {
+                    Text(text = "Show solution")
                 }
-
-                if (turnedOver) {
+            } else {
+                Row {
                     TextButton(
                         onClick = {
                             goToNextCard()
-                            onCardIncorrect()
+                            if (trainingCounts) {
+                                onCardIncorrect()
+                            }
                         }
                     ) {
                         Text(text = "Incorrect")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            goToNextCard()
+                            if (trainingCounts) {
+                                onCardCorrect()
+                            }
+                        }
+                    ) {
+                        Text(text = "Correct")
                     }
                 }
             }
