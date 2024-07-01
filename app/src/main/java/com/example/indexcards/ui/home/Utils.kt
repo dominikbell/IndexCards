@@ -2,6 +2,7 @@ package com.example.indexcards.ui.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,16 +43,15 @@ fun NewTagButton(
     onClick: () -> Unit,
     short: Boolean = false
 ) {
-    val text = if (short){
+    val text = if (short) {
         stringResource(R.string.new_tag_short)
     } else {
         stringResource(R.string.new_tag)
     }
-    TextButton(
-        onClick = onClick
-    ) {
-        Text(text = text)
-    }
+    Text(
+        modifier = Modifier.clickable { onClick() },
+        text = text
+    )
 }
 
 @Composable
@@ -102,7 +101,7 @@ fun RequiredFieldsText(
     modifier: Modifier = Modifier,
     plural: Boolean = true,
 ) {
-    val text = if(plural) {
+    val text = if (plural) {
         stringResource(R.string.required_fields)
     } else {
         stringResource(R.string.required_field)
@@ -204,7 +203,7 @@ fun LanguageDropDownMenu(
             modifier = modifier.fillMaxWidth(),
             expanded = expanded,
             onDismissRequest = { changeExpanded() }) {
-            LanguageData.language.entries.forEach() { option ->
+            LanguageData.language.entries.forEach { option ->
                 DropdownMenuItem(
                     text = {
                         Row(

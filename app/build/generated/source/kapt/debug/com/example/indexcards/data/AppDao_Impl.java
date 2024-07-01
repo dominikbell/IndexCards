@@ -55,6 +55,10 @@ public final class AppDao_Impl implements AppDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteCardFromTags;
 
+  private final SharedSQLiteStatement __preparedStmtOfUpgradeLevelOnCard;
+
+  private final SharedSQLiteStatement __preparedStmtOfDowngradeLevelOnCard;
+
   private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
 
   private final EntityUpsertionAdapter<Card> __upsertionAdapterOfCard;
@@ -140,6 +144,22 @@ public final class AppDao_Impl implements AppDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM tagcardcrossref WHERE cardId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfUpgradeLevelOnCard = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE Card SET level = level + 1 WHERE cardId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDowngradeLevelOnCard = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE Card SET level = level - 1 WHERE cardId = ?";
         return _query;
       }
     };
@@ -570,6 +590,58 @@ public final class AppDao_Impl implements AppDao {
           }
         } finally {
           __preparedStmtOfDeleteCardFromTags.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object upgradeLevelOnCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpgradeLevelOnCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpgradeLevelOnCard.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object downgradeLevelOnCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDowngradeLevelOnCard.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDowngradeLevelOnCard.release(_stmt);
         }
       }
     }, $completion);
@@ -1170,6 +1242,93 @@ public final class AppDao_Impl implements AppDao {
               _result = new CardWithTags(_tmpCard,_tmpTagsCollection);
             } else {
               _result = null;
+            }
+            __db.setTransactionSuccessful();
+            return _result;
+          } finally {
+            _cursor.close();
+          }
+        } finally {
+          __db.endTransaction();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<List<CardWithTags>> getAllCardsWithTagsOfBox(final long boxId) {
+    final String _sql = "SELECT * FROM card WHERE boxId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, boxId);
+    return CoroutinesRoom.createFlow(__db, true, new String[] {"TagCardCrossRef", "Tag",
+        "card"}, new Callable<List<CardWithTags>>() {
+      @Override
+      @NonNull
+      public List<CardWithTags> call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+          try {
+            final int _cursorIndexOfCardId = CursorUtil.getColumnIndexOrThrow(_cursor, "cardId");
+            final int _cursorIndexOfWord = CursorUtil.getColumnIndexOrThrow(_cursor, "word");
+            final int _cursorIndexOfMeaning = CursorUtil.getColumnIndexOrThrow(_cursor, "meaning");
+            final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
+            final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+            final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
+            final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+            final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
+            while (_cursor.moveToNext()) {
+              final long _tmpKey;
+              _tmpKey = _cursor.getLong(_cursorIndexOfCardId);
+              if (!_collectionTags.containsKey(_tmpKey)) {
+                _collectionTags.put(_tmpKey, new ArrayList<Tag>());
+              }
+            }
+            _cursor.moveToPosition(-1);
+            __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_collectionTags);
+            final List<CardWithTags> _result = new ArrayList<CardWithTags>(_cursor.getCount());
+            while (_cursor.moveToNext()) {
+              final CardWithTags _item;
+              final Card _tmpCard;
+              final long _tmpCardId;
+              _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
+              final String _tmpWord;
+              if (_cursor.isNull(_cursorIndexOfWord)) {
+                _tmpWord = null;
+              } else {
+                _tmpWord = _cursor.getString(_cursorIndexOfWord);
+              }
+              final String _tmpMeaning;
+              if (_cursor.isNull(_cursorIndexOfMeaning)) {
+                _tmpMeaning = null;
+              } else {
+                _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
+              }
+              final String _tmpNotes;
+              if (_cursor.isNull(_cursorIndexOfNotes)) {
+                _tmpNotes = null;
+              } else {
+                _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+              }
+              final long _tmpDateAdded;
+              _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+              final int _tmpLevel;
+              _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
+              final long _tmpBoxId;
+              _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+              final ArrayList<Tag> _tmpTagsCollection;
+              final long _tmpKey_1;
+              _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
+              _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
+              _item = new CardWithTags(_tmpCard,_tmpTagsCollection);
+              _result.add(_item);
             }
             __db.setTransactionSuccessful();
             return _result;

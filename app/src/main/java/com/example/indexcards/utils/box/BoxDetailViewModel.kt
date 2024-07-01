@@ -3,8 +3,6 @@ package com.example.indexcards.utils.box
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
-import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.AppViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,8 +32,3 @@ open class BoxDetailViewModel(
                 initialValue = UiBoxWithTags()
             )
 }
-
-data class UiBoxWithTags(
-    val box: Box = emptyBox,
-    val tagList: List<Tag> = listOf()
-)

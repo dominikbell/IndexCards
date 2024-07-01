@@ -12,3 +12,7 @@ data class Box(
     val description: String,
     val dateAdded: Long,
 )
+
+fun Box.isLanguage(): Boolean {
+    return (LanguageData.language.values.contains(this.topic))
+}

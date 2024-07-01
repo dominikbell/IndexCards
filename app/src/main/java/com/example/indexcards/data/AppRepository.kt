@@ -31,6 +31,8 @@ interface AppRepository {
 
     fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards>
 
+    fun getAllCardsWithTagsOfBoxStream(boxId: Long): Flow<List<CardWithTags>>
+
     fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags>
 
     fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags>
@@ -38,4 +40,8 @@ interface AppRepository {
     fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards>
 
     suspend fun getBiggestCardId(): Long
+
+    suspend fun upgradeLevelOnCard(cardId: Long)
+
+    suspend fun downgradeLevelOnCard(cardId: Long)
 }

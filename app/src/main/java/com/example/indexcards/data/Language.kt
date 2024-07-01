@@ -27,3 +27,19 @@ object LanguageData {
         "_tr" to "Turkish",
     )
 }
+
+/* TODO: UK-flag not recognized*/
+fun String.toFlag(): String {
+    return LanguageData.language.filter { it.value == this }.keys.first()
+        .substring(1)
+        .uppercase()
+        .map { char ->
+            Character.codePointAt("$char", 0) - 0x41 + 0x1F1E6
+        }
+        .map { codePoint ->
+            Character.toChars(codePoint)
+        }
+        .joinToString(separator = "") { charArray ->
+            String(charArray)
+        }
+}

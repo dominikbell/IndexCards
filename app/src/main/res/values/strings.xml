@@ -35,4 +35,6 @@
     <string name="delete_card">Delete card for</string>
     <string name="delete_card_sure">Are you sure you want to delete this card?</string>
     <string name="editing_box">Editing box</string>
+    <string name="train_all">Train all</string>
+    <string name="train_selection">Train selection</string>
 </resources>

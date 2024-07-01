@@ -36,4 +36,6 @@
     <string name="delete_card">Löschen von</string>
     <string name="delete_card_sure">Bist Du sicher, dass Du diese Karteikarte löschen möchtest?</string>
     <string name="editing_box">Bearbeiten von</string>
+    <string name="train_all">Alle trainieren</string>
+    <string name="train_selection">Auswahl trainieren</string>
 </resources>

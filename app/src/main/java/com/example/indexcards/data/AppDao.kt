@@ -74,6 +74,16 @@ interface AppDao {
     @Query("SELECT * FROM card WHERE cardId = :cardId")
     fun getCardWithTags(cardId: Long): Flow<CardWithTags>
 
+    @Transaction
+    @Query("SELECT * FROM card WHERE boxId = :boxId")
+    fun getAllCardsWithTagsOfBox(boxId: Long): Flow<List<CardWithTags>>
+
     @Query("SELECT MAX(cardId) FROM card")
     suspend fun getBiggestCardId(): Long?
+
+    @Query("UPDATE Card SET level = level + 1 WHERE cardId = :cardId")
+    suspend fun upgradeLevelOnCard(cardId: Long)
+
+    @Query("UPDATE Card SET level = level - 1 WHERE cardId = :cardId")
+    suspend fun downgradeLevelOnCard(cardId: Long)
 }

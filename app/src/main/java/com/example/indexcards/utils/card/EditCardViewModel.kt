@@ -5,7 +5,7 @@ import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.TagCardCrossRef
 
 open class EditCardViewModel(
-    private val appRepository: AppRepository,
+    appRepository: AppRepository,
     savedStateHandle: SavedStateHandle
 ) : CardViewModel(
     appRepository = appRepository,

@@ -1,10 +1,10 @@
 package com.example.indexcards.ui.card
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,11 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
+import com.example.indexcards.data.Card
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.card.CardViewModel
@@ -43,6 +47,7 @@ fun CardDialog(
     onDismiss: () -> Unit,
     showEditCardDialog: () -> Unit,
     isEditing: Boolean,
+    showDelete: (Card) -> Unit,
     cardViewModel: CardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -53,15 +58,12 @@ fun CardDialog(
     val cardUiState = cardViewModel.cardUiState
     val cardWithTags = cardViewModel.cardWithTags.collectAsState()
 
-    /* TODO: navigating back from editTagDialog still closes this one */
-    BackHandler {
-        if (!isEditing) {
-            onDismiss()
-        }
-    }
-
     Dialog(
-        onDismissRequest = onDismiss
+        onDismissRequest = {
+            if (!isEditing) {
+                onDismiss()
+            }
+        }
     ) {
         Surface(
             modifier = modifier
@@ -71,64 +73,89 @@ fun CardDialog(
             tonalElevation = AlertDialogDefaults.TonalElevation,
         ) {
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .padding(15.dp)
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = modifier.wrapContentHeight(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SelectionContainer(
-                        modifier = modifier.weight(1f),
+                Column {
+                    Row(
+                        modifier = modifier.wrapContentHeight(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = cardUiState.cardDetails.word,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            editCardViewModel.viewModelScope.launch {
-                                editCardViewModel.updateUiState(cardUiState.cardDetails)
-                                editCardViewModel.setCurrentCard(cardUiState.cardDetails.id)
-                            }
-                            showEditCardDialog()
+                        SelectionContainer(
+                            modifier = modifier.weight(1f),
+                        ) {
+                            Text(
+                                text = cardUiState.cardDetails.word,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge
+                            )
                         }
+
+                        IconButton(
+                            onClick = {
+                                editCardViewModel.viewModelScope.launch {
+                                    editCardViewModel.updateUiState(cardUiState.cardDetails)
+                                    editCardViewModel.setCurrentCard(cardUiState.cardDetails.id)
+                                }
+                                showEditCardDialog()
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Create,
+                                modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
+                                contentDescription = "Edit",
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = modifier,
+                        verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Icon(
-                            Icons.Default.Create,
-                            modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
-                            contentDescription = "Edit",
-                        )
-                    }
-                }
-                Column(
-                    modifier = modifier,
-                    verticalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    SelectionContainer {
-                        Text(
-                            modifier = modifier
-                                .fillMaxWidth(),
-                            text = cardUiState.cardDetails.meaning,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize
-                        )
-                    }
-                    Spacer(modifier = modifier.size(8.dp))
-
-                    TagList(
-                        tagList = cardWithTags.value.tagList,
-                        onClick = {},
-                        onLongClick = {},
-                        selectedTags = cardWithTags.value.tagList
-                    )
-
-                    Row {
-                        Text(text = stringResource(R.string.notes) + ": ", fontStyle = FontStyle.Italic)
                         SelectionContainer {
+                            Text(
+                                modifier = modifier.fillMaxWidth(),
+                                text = cardUiState.cardDetails.meaning,
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize
+                            )
+                        }
+
+                        Spacer(modifier = modifier.size(8.dp))
+
+                        TagList(
+                            tagList = cardWithTags.value.tagList,
+                            onClick = {},
+                            onLongClick = {},
+                            selectedTags = cardWithTags.value.tagList
+                        )
+
+                        Spacer(modifier = modifier.size(8.dp))
+
+                        Row {
+                            Text(
+                                text = stringResource(R.string.notes) + ": ",
+                                fontStyle = FontStyle.Italic
+                            )
                             Text(text = cardUiState.cardDetails.notes)
                         }
                     }
+                }
+
+                IconButton(
+                    modifier = modifier
+                        .align(Alignment.End),
+                    onClick = {
+                        showDelete(cardWithTags.value.card)
+                    }
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete"
+                    )
                 }
             }
         }

@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
 open class CardViewModel(
-    private val appRepository: AppRepository,
+    appRepository: AppRepository,
     savedStateHandle: SavedStateHandle
 ) : BoxDetailViewModel(
     appRepository = appRepository,
@@ -59,7 +59,6 @@ open class CardViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = UiCardWithTags()
         )
-
 
     suspend fun setCurrentCard(cardId: Long) {
         currentCard.value = appRepository.getCard(cardId)
