@@ -86,12 +86,13 @@ fun BoxListItem(
     onClick: (Long) -> Unit,
     showDelete: (Long) -> Unit,
 ) {
-    val text =
-        if (LanguageData.language.values.contains(item.topic)) {
-            item.name + " (" + item.topic.toFlag() + ")"
-        } else {
-            item.name
-        }
+    val text = item.name
+//    val text =
+//        if (LanguageData.language.values.contains(item.topic)) {
+//            item.name + " (" + item.topic.toFlag() + ")"
+//        } else {
+//            item.name
+//        }
 
     Card(
         modifier = modifier
