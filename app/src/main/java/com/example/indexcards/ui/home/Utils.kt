@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -241,21 +241,19 @@ fun IsLanguageRadioButton(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .selectable(
                 selected = isLanguage,
                 role = Role.RadioButton,
                 onClick = { changeIsLanguage() }
             ),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(
-            selected = isLanguage,
-            onClick = null
+        Checkbox(
+            checked = isLanguage,
+            onCheckedChange = {}
         )
         Text(
-            modifier = modifier
-                .padding(6.dp),
+            modifier = modifier.padding(start = 6.dp),
             text = stringResource(R.string.is_language)
         )
     }

@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.home
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
+import com.example.indexcards.R
 import com.example.indexcards.ui.box.BoxesOverviewTopBar
 import com.example.indexcards.ui.box.AddBoxDialog
 import com.example.indexcards.ui.box.DeleteBoxDialog
@@ -32,13 +35,25 @@ fun HomeScreen(
     val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox = homeScreenViewModel.selectedBox.collectAsState()
     val context = LocalContext.current
+    val activity = (LocalContext.current as? Activity)
+    val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
     var addDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
+    var backPressedTime: Long = 0
 
     BackHandler {
-        // TODO: Close app after pressing back twice (within given time interval)
-        Toast.makeText(context, "Pressing 'Back' again will not! close the app.", Toast.LENGTH_SHORT).show()
+        if (addDialog) {
+            addDialog = false
+        } else {
+            if (backPressedTime + 3000 > System.currentTimeMillis()) {
+                /* TODO: seems a bit hacky but works */
+                activity?.finish()
+            } else {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(context, backAgainString, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     Scaffold(

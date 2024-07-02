@@ -374,7 +374,7 @@ fun BoxTopBar(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.Top
                                 ) {
-                                    Text(text = "Sort by")
+                                    Text(text = stringResource(id = R.string.sort_by))
 
                                     Icon(
                                         imageVector = Icons.Filled.ArrowDropDown,

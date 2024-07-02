@@ -38,4 +38,10 @@
     <string name="editing_box">Bearbeiten von</string>
     <string name="train_all">Alle trainieren</string>
     <string name="train_selection">Auswahl trainieren</string>
+    <string name="sort_by">Sortieren</string>
+    <string name="correct">Richtig</string>
+    <string name="incorrect">Falsch</string>
+    <string name="turn_over">Umdrehen</string>
+    <string name="reminders">Erinnere mich zu trainieren</string>
+    <string name="back_twice_to_close">Nochmaliges \'Zurück\'-Drücken schließt die App</string>
 </resources>

@@ -37,4 +37,10 @@
     <string name="editing_box">Editing box</string>
     <string name="train_all">Train all</string>
     <string name="train_selection">Train selection</string>
+    <string name="sort_by">Sort by</string>
+    <string name="correct">Correct</string>
+    <string name="incorrect">Incorrect</string>
+    <string name="turn_over">Show solution</string>
+    <string name="reminders">Remind me to train</string>
+    <string name="back_twice_to_close">Pressing \'Back\' again will close the app</string>
 </resources>

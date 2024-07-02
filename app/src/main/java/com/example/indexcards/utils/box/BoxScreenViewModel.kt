@@ -34,7 +34,7 @@ class BoxScreenViewModel(
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
     val tagSortedBy = MutableStateFlow(emptyTag)
     val levelSelected = MutableStateFlow(-1)
-    val trainingCounts = MutableStateFlow(true)
+    val trainingCounts = MutableStateFlow(false)
     var boxScreenState: BoxScreenState by mutableStateOf(BoxScreenState.VIEW)
 
     val boxWithTags: StateFlow<UiBoxWithTags> =
@@ -125,7 +125,7 @@ class BoxScreenViewModel(
     }
 
     suspend fun onCardCorrect(card: Card) {
-        if (card.level < 5) {
+        if (card.level < 4) {
             appRepository.upgradeLevelOnCard(card.cardId)
         }
     }

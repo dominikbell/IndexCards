@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -365,7 +363,7 @@ fun CardCard(
                 TextButton(
                     onClick = { turnOver() }
                 ) {
-                    Text(text = "Show solution")
+                    Text(text = stringResource(id = R.string.turn_over))
                 }
             } else {
                 Row {
@@ -377,7 +375,7 @@ fun CardCard(
                             }
                         }
                     ) {
-                        Text(text = "Incorrect")
+                        Text(text = stringResource(id = R.string.incorrect))
                     }
 
                     TextButton(
@@ -388,7 +386,7 @@ fun CardCard(
                             }
                         }
                     ) {
-                        Text(text = "Correct")
+                        Text(text = stringResource(id = R.string.correct))
                     }
                 }
             }
