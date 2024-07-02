@@ -9,6 +9,7 @@ val emptyBox: Box = Box(
     name = "EMPTY BOX",
     topic = "EMPTY BOX",
     description = "EMPTY BOX",
+    reminders = false,
     dateAdded = 0,
 )
 
@@ -21,6 +22,7 @@ data class BoxDetails(
     val id: Long = 0,
     val name: String = "",
     val topic: String = "",
+    val reminders: Boolean = false,
     val description: String = "",
 )
 
@@ -29,6 +31,7 @@ fun BoxDetails.toBox(): Box = Box(
     name = name,
     topic = topic,
     description = description,
+    reminders = reminders,
     dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
 )
 
@@ -41,5 +44,6 @@ fun Box.toBoxDetails(): BoxDetails = BoxDetails(
     id = boxId,
     name = name,
     topic = topic,
+    reminders = reminders,
     description = description
 )

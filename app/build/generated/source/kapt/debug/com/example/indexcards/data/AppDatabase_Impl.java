@@ -29,15 +29,15 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(8) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(9) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `reminders` INTEGER NOT NULL DEFAULT false, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `Card` (`cardId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL, `meaning` TEXT NOT NULL, `notes` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `level` INTEGER NOT NULL, `boxId` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `Tag` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `text` TEXT NOT NULL, `color` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `TagCardCrossRef` (`tagId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, PRIMARY KEY(`tagId`, `cardId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4983d828c0d521084ad136472ce47780')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5a8e8c0a7a09b8cc1edcac6796812644')");
       }
 
       @Override
@@ -89,10 +89,11 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsBox = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsBox = new HashMap<String, TableInfo.Column>(6);
         _columnsBox.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("topic", new TableInfo.Column("topic", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsBox.put("reminders", new TableInfo.Column("reminders", "INTEGER", true, 0, "false", TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("description", new TableInfo.Column("description", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("dateAdded", new TableInfo.Column("dateAdded", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysBox = new HashSet<TableInfo.ForeignKey>(0);
@@ -149,7 +150,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "4983d828c0d521084ad136472ce47780", "654bba3d60510727d396b6824c4c12fb");
+    }, "5a8e8c0a7a09b8cc1edcac6796812644", "8a3f90a1186b5d349f260adfdb7f2cee");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -203,6 +204,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   public List<Migration> getAutoMigrations(
       @NonNull final Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs) {
     final List<Migration> _autoMigrations = new ArrayList<Migration>();
+    _autoMigrations.add(new AppDatabase_AutoMigration_8_9_Impl());
     return _autoMigrations;
   }
 

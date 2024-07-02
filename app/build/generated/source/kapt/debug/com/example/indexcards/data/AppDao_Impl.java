@@ -167,7 +167,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Box` (`boxId`,`name`,`topic`,`description`,`dateAdded`) VALUES (nullif(?, 0),?,?,?,?)";
+        return "INSERT INTO `Box` (`boxId`,`name`,`topic`,`reminders`,`description`,`dateAdded`) VALUES (nullif(?, 0),?,?,?,?,?)";
       }
 
       @Override
@@ -184,18 +184,20 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(3, entity.getTopic());
         }
+        final int _tmp = entity.getReminders() ? 1 : 0;
+        statement.bindLong(4, _tmp);
         if (entity.getDescription() == null) {
-          statement.bindNull(4);
+          statement.bindNull(5);
         } else {
-          statement.bindString(4, entity.getDescription());
+          statement.bindString(5, entity.getDescription());
         }
-        statement.bindLong(5, entity.getDateAdded());
+        statement.bindLong(6, entity.getDateAdded());
       }
     }, new EntityDeletionOrUpdateAdapter<Box>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Box` SET `boxId` = ?,`name` = ?,`topic` = ?,`description` = ?,`dateAdded` = ? WHERE `boxId` = ?";
+        return "UPDATE `Box` SET `boxId` = ?,`name` = ?,`topic` = ?,`reminders` = ?,`description` = ?,`dateAdded` = ? WHERE `boxId` = ?";
       }
 
       @Override
@@ -212,13 +214,15 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(3, entity.getTopic());
         }
+        final int _tmp = entity.getReminders() ? 1 : 0;
+        statement.bindLong(4, _tmp);
         if (entity.getDescription() == null) {
-          statement.bindNull(4);
+          statement.bindNull(5);
         } else {
-          statement.bindString(4, entity.getDescription());
+          statement.bindString(5, entity.getDescription());
         }
-        statement.bindLong(5, entity.getDateAdded());
-        statement.bindLong(6, entity.getBoxId());
+        statement.bindLong(6, entity.getDateAdded());
+        statement.bindLong(7, entity.getBoxId());
       }
     });
     this.__upsertionAdapterOfCard = new EntityUpsertionAdapter<Card>(new EntityInsertionAdapter<Card>(__db) {
@@ -733,6 +737,7 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
           final List<Box> _result = new ArrayList<Box>(_cursor.getCount());
@@ -752,6 +757,10 @@ public final class AppDao_Impl implements AppDao {
             } else {
               _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
             }
+            final boolean _tmpReminders;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfReminders);
+            _tmpReminders = _tmp != 0;
             final String _tmpDescription;
             if (_cursor.isNull(_cursorIndexOfDescription)) {
               _tmpDescription = null;
@@ -760,7 +769,7 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _item = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+            _item = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpDescription,_tmpDateAdded);
             _result.add(_item);
           }
           return _result;
@@ -791,6 +800,7 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
           final Box _result;
@@ -809,6 +819,10 @@ public final class AppDao_Impl implements AppDao {
             } else {
               _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
             }
+            final boolean _tmpReminders;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfReminders);
+            _tmpReminders = _tmp != 0;
             final String _tmpDescription;
             if (_cursor.isNull(_cursorIndexOfDescription)) {
               _tmpDescription = null;
@@ -817,7 +831,7 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+            _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpDescription,_tmpDateAdded);
           } else {
             _result = null;
           }
@@ -965,6 +979,7 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
           final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
@@ -994,6 +1009,10 @@ public final class AppDao_Impl implements AppDao {
             } else {
               _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
             }
+            final boolean _tmpReminders;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfReminders);
+            _tmpReminders = _tmp != 0;
             final String _tmpDescription;
             if (_cursor.isNull(_cursorIndexOfDescription)) {
               _tmpDescription = null;
@@ -1002,7 +1021,7 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpDescription,_tmpDateAdded);
             final ArrayList<Card> _tmpCardsCollection;
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
@@ -1040,6 +1059,7 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
           final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
@@ -1069,6 +1089,10 @@ public final class AppDao_Impl implements AppDao {
             } else {
               _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
             }
+            final boolean _tmpReminders;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfReminders);
+            _tmpReminders = _tmp != 0;
             final String _tmpDescription;
             if (_cursor.isNull(_cursorIndexOfDescription)) {
               _tmpDescription = null;
@@ -1077,7 +1101,7 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpDescription,_tmpDateAdded);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpDescription,_tmpDateAdded);
             final ArrayList<Tag> _tmpTagsCollection;
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
