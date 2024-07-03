@@ -25,6 +25,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -60,6 +61,7 @@ fun BoxScreen(
     modifier: Modifier = Modifier,
     navigateToBoxesOverview: () -> Unit,
     boxId: Long, /* Is only here for boxScreenViewModel to work */
+    startLevel: Int = -1,
     boxScreenViewModel: BoxScreenViewModel,
     editCardViewModel: EditCardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -73,6 +75,13 @@ fun BoxScreen(
     val trainingCounts = boxScreenViewModel.trainingCounts.collectAsState()
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
     val cardsWithTags = boxScreenViewModel.cardsWithTags.collectAsState()
+
+    LaunchedEffect(key1 = startLevel) {
+        if (startLevel != -1) {
+            boxScreenViewModel.updateSelectedLevel(startLevel)
+            boxScreenViewModel.changeBoxScreenState(BoxScreenState.TRAIN)
+        }
+    }
 
     val filteredCardWithTagList =
         if (levelSelected.value == -1) {

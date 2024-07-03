@@ -32,7 +32,8 @@ fun HomeScreen(
     navigateToBoxScreen: (Long) -> Unit,
     homeScreenViewModel: HomeScreenViewModel,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {}
+    requestNotificationPermission: () -> Unit = {},
+    scheduleNotification: () -> Unit = {}
 ) {
     val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox = homeScreenViewModel.selectedBox.collectAsState()
@@ -65,7 +66,10 @@ fun HomeScreen(
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { addDialog = true },
+                onClick = {
+                    scheduleNotification()
+//                    addDialog = true
+                },
                 modifier = modifier
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
