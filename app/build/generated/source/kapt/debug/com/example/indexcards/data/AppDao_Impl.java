@@ -59,6 +59,10 @@ public final class AppDao_Impl implements AppDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDowngradeLevelOnCard;
 
+  private final SharedSQLiteStatement __preparedStmtOfEnableNotificationsForBox;
+
+  private final SharedSQLiteStatement __preparedStmtOfDisableNotificationsForBox;
+
   private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
 
   private final EntityUpsertionAdapter<Card> __upsertionAdapterOfCard;
@@ -160,6 +164,22 @@ public final class AppDao_Impl implements AppDao {
       @NonNull
       public String createQuery() {
         final String _query = "UPDATE Card SET level = level - 1 WHERE cardId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfEnableNotificationsForBox = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE Box SET reminders = 1 WHERE boxId = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDisableNotificationsForBox = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE Box SET reminders = 0 WHERE boxId = ?";
         return _query;
       }
     };
@@ -646,6 +666,58 @@ public final class AppDao_Impl implements AppDao {
           }
         } finally {
           __preparedStmtOfDowngradeLevelOnCard.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object enableNotificationsForBox(final long boxId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfEnableNotificationsForBox.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfEnableNotificationsForBox.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object disableNotificationsForBox(final long boxId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDisableNotificationsForBox.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDisableNotificationsForBox.release(_stmt);
         }
       }
     }, $completion);

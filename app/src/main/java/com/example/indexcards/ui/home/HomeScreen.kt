@@ -30,7 +30,9 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToBoxScreen: (Long) -> Unit,
-    homeScreenViewModel: HomeScreenViewModel
+    homeScreenViewModel: HomeScreenViewModel,
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {}
 ) {
     val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox = homeScreenViewModel.selectedBox.collectAsState()
@@ -87,7 +89,9 @@ fun HomeScreen(
     if (addDialog) {
         AddBoxDialog(
             hideDialog = { addDialog = false },
-            homeScreenViewModel = homeScreenViewModel
+            homeScreenViewModel = homeScreenViewModel,
+            hasNotificationPermission = hasNotificationPermission,
+            requestNotificationPermission = { requestNotificationPermission() }
         )
     }
 

@@ -22,11 +22,13 @@ import com.example.indexcards.utils.box.HomeScreenViewModel
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
+    homeScreenViewModel: HomeScreenViewModel,
+    startDestination: String = "homeScreen",
+    startBoxId: Long = -1,
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {}
 ) {
-    val homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    )
-    var currentBoxId by remember { mutableLongStateOf(-1) }
+    var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
     fun setNewBoxId(newBoxId: Long) {
         currentBoxId = newBoxId
@@ -34,7 +36,7 @@ fun Navigation(
 
     NavHost(
         navController = navController,
-        startDestination = "homeScreen"
+        startDestination = startDestination
     ) {
         composable("homeScreen") {
             HomeScreen(
@@ -42,7 +44,9 @@ fun Navigation(
                     setNewBoxId(boxId)
                     navController.navigate("boxScreen/${boxId}")
                 },
-                homeScreenViewModel = homeScreenViewModel
+                homeScreenViewModel = homeScreenViewModel,
+                hasNotificationPermission = hasNotificationPermission,
+                requestNotificationPermission = { requestNotificationPermission() }
             )
         }
         composable(
@@ -61,7 +65,9 @@ fun Navigation(
                 boxId = boxId,
                 boxScreenViewModel = viewModel(
                     factory = ViewModelProvider(context = LocalContext.current).factory
-                ) as BoxScreenViewModel
+                ) as BoxScreenViewModel,
+                hasNotificationPermission = hasNotificationPermission,
+                requestNotificationPermission = { requestNotificationPermission() }
             )
         }
     }

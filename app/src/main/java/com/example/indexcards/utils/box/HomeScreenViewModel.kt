@@ -1,12 +1,8 @@
 package com.example.indexcards.utils.box
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
-import com.example.indexcards.utils.AppViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +18,7 @@ class HomeScreenViewModel(
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
-    val selectedBoxId = MutableStateFlow((-1).toLong())
+    private val selectedBoxId = MutableStateFlow((-1).toLong())
     val selectedBox = MutableStateFlow(emptyBox)
 
     val uiBoxList: StateFlow<UiBoxList> =
@@ -36,10 +32,10 @@ class HomeScreenViewModel(
                 initialValue = UiBoxList()
             )
 
-    fun setCurrentBox(newBoxId: Long) {
+    fun setCurrentBox(boxId: Long) {
         viewModelScope.launch {
             selectedBoxId.update {
-                newBoxId
+                boxId
             }
 
             selectedBox.update {

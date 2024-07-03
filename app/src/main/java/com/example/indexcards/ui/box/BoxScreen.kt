@@ -64,6 +64,8 @@ fun BoxScreen(
     editCardViewModel: EditCardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {}
 ) {
     val boxScreenState = boxScreenViewModel.boxScreenState
     val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
@@ -188,6 +190,8 @@ fun BoxScreen(
                         boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
                     },
                     boxScreenViewModel = boxScreenViewModel,
+                    hasNotificationPermission = hasNotificationPermission,
+                    requestNotificationPermission = { requestNotificationPermission() }
                 )
             }
 

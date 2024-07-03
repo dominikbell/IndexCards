@@ -82,4 +82,8 @@ class OfflineAppRepository(
     override suspend fun upgradeLevelOnCard(cardId: Long) = appDao.upgradeLevelOnCard(cardId)
 
     override suspend fun downgradeLevelOnCard(cardId: Long) = appDao.downgradeLevelOnCard(cardId)
+
+    override suspend fun enableNotificationsForBox(boxId: Long) = appDao.enableNotificationsForBox(boxId)
+
+    override suspend fun disableNotificationsForBox(boxId: Long) = appDao.disableNotificationsForBox(boxId)
 }

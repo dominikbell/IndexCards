@@ -86,4 +86,10 @@ interface AppDao {
 
     @Query("UPDATE Card SET level = level - 1 WHERE cardId = :cardId")
     suspend fun downgradeLevelOnCard(cardId: Long)
+
+    @Query("UPDATE Box SET reminders = 1 WHERE boxId = :boxId")
+    suspend fun enableNotificationsForBox(boxId: Long)
+
+    @Query("UPDATE Box SET reminders = 0 WHERE boxId = :boxId")
+    suspend fun disableNotificationsForBox(boxId: Long)
 }

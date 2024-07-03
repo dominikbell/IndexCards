@@ -3,6 +3,7 @@ package com.example.indexcards.ui.home
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -233,7 +235,36 @@ fun LanguageDropDownMenu(
 }
 
 @Composable
-fun IsLanguageRadioButton(
+fun RemindersSwitch(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = false,
+    onCheckedChange: () -> Unit,
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 4.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = stringResource(id = R.string.reminders))
+
+        Switch(
+            checked = enabled,
+            onCheckedChange = {
+                if (!hasNotificationPermission) {
+                    requestNotificationPermission()
+                }
+                onCheckedChange()
+            }
+        )
+    }
+}
+
+@Composable
+fun IsLanguageCheckBox(
     modifier: Modifier = Modifier,
     isLanguage: Boolean,
     changeIsLanguage: () -> Unit
@@ -250,7 +281,7 @@ fun IsLanguageRadioButton(
     ) {
         Checkbox(
             checked = isLanguage,
-            onCheckedChange = {}
+            onCheckedChange = { changeIsLanguage() }
         )
         Text(
             modifier = modifier.padding(start = 6.dp),

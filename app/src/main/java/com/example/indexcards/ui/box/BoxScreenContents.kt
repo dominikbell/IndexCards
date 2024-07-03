@@ -41,19 +41,21 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.data.LanguageData
+import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.home.DescriptionField
 import com.example.indexcards.ui.home.LanguageDropDownMenu
 import com.example.indexcards.ui.home.NameField
 import com.example.indexcards.ui.home.NewTagButton
+import com.example.indexcards.ui.home.RemindersSwitch
 import com.example.indexcards.ui.home.RequiredFieldsText
 import com.example.indexcards.ui.home.TopicField
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.UiCardsWithTags
+import com.example.indexcards.utils.box.toBox
 import kotlin.math.min
 
 @Composable
@@ -148,9 +150,12 @@ fun BoxScreenEditing(
     modifier: Modifier = Modifier,
     boxScreenViewModel: BoxScreenViewModel,
     onSave: () -> Unit,
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {}
 ) {
     val boxUiState = boxScreenViewModel.boxUiState
-    val isLanguage = (boxUiState.boxDetails.topic in LanguageData.language.values)
+    val isLanguage = boxUiState.boxDetails.toBox().isLanguage()
+    val isEnabled = boxUiState.boxDetails.reminders
 
     Column(
         modifier = modifier
@@ -192,6 +197,16 @@ fun BoxScreenEditing(
         RequiredFieldsText()
 
         Spacer(modifier = Modifier.size(8.dp))
+
+        RemindersSwitch(
+            modifier = modifier,
+            enabled = (isEnabled && hasNotificationPermission),
+            onCheckedChange = {
+                boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(reminders = !isEnabled))
+            },
+            hasNotificationPermission = hasNotificationPermission,
+            requestNotificationPermission = { requestNotificationPermission() }
+        )
 
         Button(
             onClick = {

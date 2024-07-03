@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 9,
-    "identityHash": "5a8e8c0a7a09b8cc1edcac6796812644",
+    "identityHash": "9add59b953560655ee95a4596fe37c21",
     "entities": [
       {
         "tableName": "Box",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `reminders` INTEGER NOT NULL DEFAULT false, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `reminders` INTEGER NOT NULL DEFAULT 0, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "boxId",
@@ -31,7 +31,7 @@
             "columnName": "reminders",
             "affinity": "INTEGER",
             "notNull": true,
-            "defaultValue": "false"
+            "defaultValue": "0"
           },
           {
             "fieldPath": "description",
@@ -180,7 +180,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5a8e8c0a7a09b8cc1edcac6796812644')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9add59b953560655ee95a4596fe37c21')"
     ]
   }
 }
