@@ -16,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.indexcards.R
 import com.example.indexcards.data.CardWithTags
 
 @Composable
@@ -91,12 +93,17 @@ fun LevelListItem(
                 color = borderColor,
                 shape = RoundedCornerShape(3.dp)
             )
-            .padding(4.dp)
-        ,
+            .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Level ${level + 1}", fontSize = 18.sp)
+        Text(
+            text = stringResource(id = R.string.level) + " " + (level + 1).toString(),
+            fontSize = 18.sp
+        )
 
-        Text(text = "$numberOfItems items", fontSize = 12.sp)
+        Text(
+            text = numberOfItems.toString() + " " + stringResource(id = R.string.items_in_level),
+            fontSize = 12.sp
+        )
     }
 }

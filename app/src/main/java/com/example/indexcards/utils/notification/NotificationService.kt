@@ -5,12 +5,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.indexcards.MainActivity
 import com.example.indexcards.R
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 object NotificationRequest {
     const val MAKE_REMINDER: Int = 1
@@ -93,7 +90,7 @@ class NotificationService(
         manager.notify(intentId, notification)
     }
 
-    fun scheduleNotification(boxId: Long = -1, level: Int = -1) {
+    fun scheduleNotification(boxId: Long = -1, level: Int = -1, time: Long) {
 
         val intent = Intent(context, NotificationReceiver::class.java)
 
@@ -107,29 +104,30 @@ class NotificationService(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val time = getTime()
-
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    time,
-                    pendingIntent
-                )
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                time,
-                pendingIntent
-            )
-        }
-    }
+        /* Works but is much more imprecise. But I guess for orders of days it doesn't matter */
+        alarmManager.setAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            time,
+            pendingIntent
+        )
 
-    private fun getTime(): Long {
-        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            if (alarmManager.canScheduleExactAlarms()) {
+//                alarmManager.setExactAndAllowWhileIdle(
+//                    AlarmManager.RTC_WAKEUP,
+//                    time,
+//                    pendingIntent
+//                )
+//            }
+//        } else {
+//            alarmManager.setExactAndAllowWhileIdle(
+//                AlarmManager.RTC_WAKEUP,
+//                time,
+//                pendingIntent
+//            )
+//        }
     }
 
     companion object {

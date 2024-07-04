@@ -11,6 +11,8 @@
     <string name="language">Language</string>
     <string name="topic">Topic</string>
     <string name="description">Description</string>
+    <string name="level">Level</string>
+    <string name="items_in_level">items</string>
     <string name="required_fields">* required fields</string>
     <string name="required_field">* required field</string>
     <string name="is_language">Adding a language box</string>
@@ -42,5 +44,11 @@
     <string name="incorrect">Incorrect</string>
     <string name="turn_over">Show solution</string>
     <string name="reminders">Remind me to train</string>
+    <string name="back_to_box">Go back to box</string>
+    <string name="all_done">All done!</string>
+    <string name="no_more_cards">There are now more cards to train.</string>
+    <string name="oops_no_cards">Oops, no cards found</string>
+    <string name="no_cards_of_level_1">There are no cards in this box of level</string>
+    <string name="no_cards_of_level_2">. This must be a mistake.</string>
     <string name="back_twice_to_close">Pressing \'Back\' again will close the app</string>
 </resources>

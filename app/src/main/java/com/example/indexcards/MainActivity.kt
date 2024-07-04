@@ -119,9 +119,10 @@ class MainActivity : ComponentActivity() {
                         homeScreenViewModel = homeScreenViewModel,
                         hasNotificationPermission = hasNotificationPermission,
                         requestNotificationPermission = { requestNotificationPermission() },
-                        scheduleNotification = {
+                        scheduleNotification = { time ->
                             service.scheduleNotification(
-                                boxId = 1, level = 0
+                                boxId = 1, level = 0,
+                                time = time
                             )
                         },
                         startBoxId = boxIdPass,

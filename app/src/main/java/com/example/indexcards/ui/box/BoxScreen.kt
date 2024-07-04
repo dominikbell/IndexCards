@@ -47,7 +47,7 @@ import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
-import com.example.indexcards.ui.card.NoCardsDialog
+import com.example.indexcards.ui.elements.NoCardsDialog
 import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
@@ -68,7 +68,8 @@ fun BoxScreen(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {}
+    requestNotificationPermission: () -> Unit = {},
+    scheduleNotification: (Long) -> Unit = {}
 ) {
     val boxScreenState = boxScreenViewModel.boxScreenState
     val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()

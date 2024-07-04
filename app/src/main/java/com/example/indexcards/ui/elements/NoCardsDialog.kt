@@ -1,10 +1,12 @@
-package com.example.indexcards.ui.card
+package com.example.indexcards.ui.elements
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.indexcards.R
 
 @Composable
 fun NoCardsDialog(
@@ -14,8 +16,14 @@ fun NoCardsDialog(
 ) {
     AlertDialog(
         modifier = modifier,
-        title = { Text(text = "Oops, no cards found") },
-        text = { Text(text = "There are no card in this box of level ${level+1}. This must be a mistake") },
+        title = { Text(text = stringResource(id = R.string.oops_no_cards)) },
+        text = {
+            Text(
+                text = stringResource(id = R.string.no_cards_of_level_1) +
+                        " " + (level + 1).toString() +
+                        stringResource(id = R.string.no_cards_of_level_2)
+            )
+        },
         onDismissRequest = onDismiss,
         confirmButton = { },
         dismissButton =
@@ -23,7 +31,7 @@ fun NoCardsDialog(
             TextButton(
                 onClick = onDismiss
             ) {
-                Text(text = "Go back to box")
+                Text(text = stringResource(id = R.string.back_to_box))
             }
         },
     )

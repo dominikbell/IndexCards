@@ -280,15 +280,15 @@ fun TrainingScreen(
                 onDismissRequest = {
                     navigateToBoxScreen()
                 },
-                title = { Text(text = "All done!") },
+                title = { Text(text = stringResource(id = R.string.all_done)) },
                 text = {
-                    Text(text = "There are no more cards to train.")
+                    Text(text = stringResource(id = R.string.no_more_cards))
                 },
                 confirmButton = {
                     TextButton(
                         onClick = { navigateToBoxScreen() }
                     ) {
-                        Text(text = "Go Back to box")
+                        Text(text = stringResource(id = R.string.back_to_box))
                     }
                 }
             )

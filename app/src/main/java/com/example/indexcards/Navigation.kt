@@ -27,7 +27,7 @@ fun Navigation(
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Unit = {},
-    scheduleNotification: () -> Unit = {}
+    scheduleNotification: (Long) -> Unit = {}
 ) {
     var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
@@ -53,7 +53,7 @@ fun Navigation(
                 homeScreenViewModel = homeScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
                 requestNotificationPermission = { requestNotificationPermission() },
-                scheduleNotification = { scheduleNotification() }
+                scheduleNotification = { time -> scheduleNotification(time) }
             )
         }
         composable(
@@ -81,7 +81,8 @@ fun Navigation(
                     factory = ViewModelProvider(context = LocalContext.current).factory
                 ) as BoxScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
-                requestNotificationPermission = { requestNotificationPermission() }
+                requestNotificationPermission = { requestNotificationPermission() },
+                scheduleNotification = { time -> scheduleNotification(time) }
             )
         }
     }

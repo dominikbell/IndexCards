@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.home
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
@@ -24,7 +25,9 @@ import com.example.indexcards.ui.box.BoxesOverviewTopBar
 import com.example.indexcards.ui.box.AddBoxDialog
 import com.example.indexcards.ui.box.DeleteBoxDialog
 import com.example.indexcards.utils.box.HomeScreenViewModel
+import com.example.indexcards.utils.notification.getTimeInTheFuture
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 @Composable
 fun HomeScreen(
@@ -33,7 +36,7 @@ fun HomeScreen(
     homeScreenViewModel: HomeScreenViewModel,
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Unit = {},
-    scheduleNotification: () -> Unit = {}
+    scheduleNotification: (Long) -> Unit = {}
 ) {
     val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox = homeScreenViewModel.selectedBox.collectAsState()
@@ -66,10 +69,7 @@ fun HomeScreen(
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    scheduleNotification()
-//                    addDialog = true
-                },
+                onClick = { addDialog = true },
                 modifier = modifier
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
