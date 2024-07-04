@@ -90,6 +90,10 @@ class BoxScreenViewModel(
                 initialValue = UiCardsWithTags()
             )
 
+    suspend fun getNumberOfCardsOfLevelInBox(level: Int): Int {
+        return appRepository.getNumberOfCardsOfLevelInBox(boxId, level)
+    }
+
     fun changeBoxScreenState(newState: BoxScreenState) {
         boxScreenState = newState
     }
@@ -124,6 +128,10 @@ class BoxScreenViewModel(
         trainingCounts.update { !trainingCounts.value }
     }
 
+    fun changeTrainingCounts(newState: Boolean) {
+        trainingCounts.update { newState }
+    }
+
     suspend fun onCardCorrect(card: Card) {
         if (card.level < 4) {
             appRepository.upgradeLevelOnCard(card.cardId)
@@ -152,7 +160,7 @@ data class UiCardsWithTags(
 )
 
 sealed interface BoxScreenState {
-    object VIEW: BoxScreenState
-    object EDIT: BoxScreenState
-    object TRAIN: BoxScreenState
+    data object VIEW: BoxScreenState
+    data object EDIT: BoxScreenState
+    data object TRAIN: BoxScreenState
 }

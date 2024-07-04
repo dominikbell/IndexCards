@@ -48,4 +48,6 @@ interface AppRepository {
     suspend fun enableNotificationsForBox(boxId: Long)
 
     suspend fun disableNotificationsForBox(boxId: Long)
+
+    suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int): Int
 }

@@ -86,4 +86,7 @@ class OfflineAppRepository(
     override suspend fun enableNotificationsForBox(boxId: Long) = appDao.enableNotificationsForBox(boxId)
 
     override suspend fun disableNotificationsForBox(boxId: Long) = appDao.disableNotificationsForBox(boxId)
+
+    override suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int) =
+        appDao.getNumberOfCardsOfLevelInBox(boxId, level)
 }

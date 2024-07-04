@@ -25,39 +25,46 @@ class NotificationService(
     private val manager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    fun closeNotification(boxId: Long = -1, level: Int = -1) {
-        val intentId = getIntentId(boxId, level)
-        manager.cancel(intentId)
+    fun closeNotification(boxId: Long = -1, level: Int = -1, intentId: Int) {
+        val cancelIntentId = getIntentId(boxId, level, intentId)
+        manager.cancel(cancelIntentId)
     }
 
     fun showNotification(boxId: Long = -1, level: Int = -1) {
-        val intentId = getIntentId(boxId, level)
-        val activityIntent = Intent(context, MainActivity::class.java)
+        val intentId = getIntentId(boxId, level, 0)
 
-        val goToAppIntent = PendingIntent.getActivity(
+        /* TODO: very ugly code repetition */
+        val toAppIntent = Intent(context, MainActivity::class.java)
+            .putExtra("id", NotificationRequest.GO_TO_APP)
+            .putExtra("boxId", boxId)
+            .putExtra("level", level)
+        val toBoxIntent = Intent(context, MainActivity::class.java)
+            .putExtra("id", NotificationRequest.GO_TO_BOX)
+            .putExtra("boxId", boxId)
+            .putExtra("level", level)
+        val toTrainingIntent = Intent(context, MainActivity::class.java)
+            .putExtra("id", NotificationRequest.GO_TO_TRAINING)
+            .putExtra("boxId", boxId)
+            .putExtra("level", level)
+
+        val toAppPendingIntent = PendingIntent.getActivity(
             context,
-            intentId,
-            activityIntent
-                .putExtra("id", NotificationRequest.GO_TO_APP),
+            getIntentId(boxId, level, NotificationRequest.GO_TO_APP),
+            toAppIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val goToBoxIntent = PendingIntent.getActivity(
+        val toBoxPendingIntent = PendingIntent.getActivity(
             context,
-            intentId,
-            activityIntent
-                .putExtra("id", NotificationRequest.GO_TO_BOX)
-                .putExtra("boxId", boxId),
+            getIntentId(boxId, level, NotificationRequest.GO_TO_BOX),
+            toBoxIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val goToTrainingIntent = PendingIntent.getActivity(
+        val toTrainingPendingIntent = PendingIntent.getActivity(
             context,
-            intentId,
-            activityIntent
-                .putExtra("id", NotificationRequest.GO_TO_TRAINING)
-                .putExtra("boxId", boxId)
-                .putExtra("level", level),
+            getIntentId(boxId, level, NotificationRequest.GO_TO_TRAINING),
+            toTrainingIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
@@ -65,20 +72,20 @@ class NotificationService(
             context,
             CHANNEL_ID
         )
-            .setSmallIcon(R.drawable.app_icon)
+            .setSmallIcon(R.drawable.app_icon_notification)
             .setContentTitle("Training waits!")
             .setContentText("Cards of level ${level + 1} of box $boxId need to be trained")
             .setSilent(true)
-            .setContentIntent(goToAppIntent)
+            .setContentIntent(toAppPendingIntent)
             .addAction(
-                R.drawable.app_icon,
+                R.drawable.app_icon_notification,
                 "Train now",
-                goToTrainingIntent
+                toTrainingPendingIntent
             )
             .addAction(
-                R.drawable.app_icon,
+                R.drawable.app_icon_notification,
                 "Go to box",
-                goToBoxIntent
+                toBoxPendingIntent
             )
             .setAutoCancel(true)
             .build()
@@ -88,12 +95,11 @@ class NotificationService(
 
     fun scheduleNotification(boxId: Long = -1, level: Int = -1) {
 
-        val intentId = getIntentId(boxId, level)
         val intent = Intent(context, NotificationReceiver::class.java)
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            intentId,
+            getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER),
             intent
                 .putExtra("id", NotificationRequest.MAKE_REMINDER)
                 .putExtra("boxId", boxId)
@@ -122,9 +128,8 @@ class NotificationService(
         }
     }
 
-
     private fun getTime(): Long {
-        return (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) + 1000)
+        return LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
     }
 
     companion object {
@@ -132,4 +137,5 @@ class NotificationService(
     }
 }
 
-fun getIntentId(boxId: Long, level: Int) = 10 * boxId.toInt() + level
+fun getIntentId(boxId: Long, level: Int, intentId: Int) =
+    100 * boxId.toInt() + 10 * level + intentId

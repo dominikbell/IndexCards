@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -31,9 +32,25 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // All are needed for cancelling the old notification
         val requestId = intent.getIntExtra("id", -1)
         val boxId = intent.getLongExtra("boxId", -1)
         val level = intent.getIntExtra("level", -1)
+
+        val boxIdPass = if (requestId in listOf(
+                NotificationRequest.GO_TO_BOX,
+                NotificationRequest.GO_TO_TRAINING
+            )
+        ) {
+            boxId
+        } else {
+            (-1).toLong()
+        }
+        val levelPass = if (requestId == NotificationRequest.GO_TO_TRAINING) {
+            level
+        } else {
+            -1
+        }
 
         val notificationChannel = NotificationChannel(
             NotificationService.CHANNEL_ID,
@@ -50,9 +67,19 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val service = NotificationService(applicationContext)
 
+            /* TODO: this still doesn't close the notification after an action has been selected */
             when (requestId) {
-                NotificationRequest.GO_TO_APP -> { service.closeNotification(boxId, level) }
-                NotificationRequest.GO_TO_BOX -> { service.closeNotification(boxId, level) }
+                NotificationRequest.GO_TO_APP -> {
+                    service.closeNotification(boxId, level, 0)
+                }
+
+                NotificationRequest.GO_TO_BOX -> {
+                    service.closeNotification(boxId, level, 0)
+                }
+
+                NotificationRequest.GO_TO_TRAINING -> {
+                    service.closeNotification(boxId, level, 0)
+                }
             }
 
             val homeScreenViewModel: HomeScreenViewModel = viewModel(
@@ -97,8 +124,8 @@ class MainActivity : ComponentActivity() {
                                 boxId = 1, level = 0
                             )
                         },
-                        startBoxId = boxId,
-                        startLevel = level
+                        startBoxId = boxIdPass,
+                        startLevel = levelPass
                     )
                 }
             }

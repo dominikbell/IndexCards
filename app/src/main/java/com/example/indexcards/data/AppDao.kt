@@ -92,4 +92,7 @@ interface AppDao {
 
     @Query("UPDATE Box SET reminders = 0 WHERE boxId = :boxId")
     suspend fun disableNotificationsForBox(boxId: Long)
+
+    @Query("SELECT COUNT(*) FROM card WHERE boxId = :boxId AND level = :level")
+    suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int): Int
 }

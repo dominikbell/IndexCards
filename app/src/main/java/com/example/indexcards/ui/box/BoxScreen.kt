@@ -47,6 +47,7 @@ import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
 import com.example.indexcards.ui.card.NewCardDialog
+import com.example.indexcards.ui.card.NoCardsDialog
 import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
@@ -76,12 +77,14 @@ fun BoxScreen(
     val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
     val cardsWithTags = boxScreenViewModel.cardsWithTags.collectAsState()
 
-    LaunchedEffect(key1 = startLevel) {
-        if (startLevel != -1) {
-            boxScreenViewModel.updateSelectedLevel(startLevel)
-            boxScreenViewModel.changeBoxScreenState(BoxScreenState.TRAIN)
-        }
-    }
+    var cardDialog by remember { mutableStateOf(false) }
+    var noCardsDialog by remember { mutableStateOf(false) }
+    var newCardDialog by remember { mutableStateOf(false) }
+    var editCardDialog by remember { mutableStateOf(false) }
+    var deleteCardDialog by remember { mutableStateOf(false) }
+    var newTag by remember { mutableStateOf(true) }
+    var tagDialog by remember { mutableStateOf(false) }
+    var deleteDialog by remember { mutableStateOf(false) }
 
     val filteredCardWithTagList =
         if (levelSelected.value == -1) {
@@ -102,13 +105,19 @@ fun BoxScreen(
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
 
-    var cardDialog by remember { mutableStateOf(false) }
-    var newCardDialog by remember { mutableStateOf(false) }
-    var editCardDialog by remember { mutableStateOf(false) }
-    var deleteCardDialog by remember { mutableStateOf(false) }
-    var newTag by remember { mutableStateOf(true) }
-    var tagDialog by remember { mutableStateOf(false) }
-    var deleteDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = startLevel) {
+        if (startLevel != -1) {
+            boxScreenViewModel.updateSelectedLevel(startLevel)
+            if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level = startLevel) != 0) {
+                /* TODO: A bit hacky using this suspend function but without it the state is not
+                    updated yet and cardsWithTags is still empty */
+                boxScreenViewModel.changeTrainingCounts(true)
+                boxScreenViewModel.changeBoxScreenState(BoxScreenState.TRAIN)
+            } else {
+                noCardsDialog = true
+            }
+        }
+    }
 
     fun showEditTagDialog() {
         newTag = false; tagDialog = true
@@ -207,7 +216,12 @@ fun BoxScreen(
             BoxScreenState.TRAIN -> {
                 TrainingScreen(
                     modifier = modifier.padding(innerPadding),
-                    navigateToBoxScreen = { boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW) },
+                    navigateToBoxScreen = {
+                        /* TODO: Set reminder for next training */
+                        boxScreenViewModel.updateSelectedLevel(-1)
+                        boxScreenViewModel.resetTagSortedBy()
+                        boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+                    },
                     cardList = shuffledCardList,
                     onCardCorrect = {
                         boxScreenViewModel.viewModelScope.launch {
@@ -283,6 +297,16 @@ fun BoxScreen(
                 boxScreenViewModel.deleteBox()
             },
             boxToBeDeleted = boxWithTags.value.box
+        )
+    }
+
+    if (noCardsDialog) {
+        NoCardsDialog(
+            onDismiss = {
+                boxScreenViewModel.updateSelectedLevel(-1)
+                noCardsDialog = false
+            },
+            level = levelSelected.value
         )
     }
 }
