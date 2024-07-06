@@ -6,6 +6,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 
 @Composable
@@ -35,5 +36,13 @@ fun NoCardsDialog(
             }
         },
     )
+}
 
+@Preview
+@Composable
+fun NoCardsDialogPreview() {
+    NoCardsDialog(
+        onDismiss = {},
+        level = 0
+    )
 }

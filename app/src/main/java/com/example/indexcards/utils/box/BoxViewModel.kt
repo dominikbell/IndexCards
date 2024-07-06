@@ -19,6 +19,8 @@ open class BoxViewModel(
         viewModelScope.launch {
             if (boxUiState.isValid) {
                 appRepository.upsertBox(boxUiState.boxDetails.toBox())
+            } else {
+                /* TODO: implement what to do when entry is not valid */
             }
         }
     }

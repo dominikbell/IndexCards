@@ -11,6 +11,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,8 +52,8 @@ fun EditCardDialog(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val cardWithTags = editCardViewModel.cardWithTags.collectAsState()
-    val currentCard = editCardViewModel.currentCard.collectAsState()
+    val cardWithTags by editCardViewModel.cardWithTags.collectAsState()
+    val currentCard by editCardViewModel.currentCard.collectAsState()
 
     CardDialogBody(
         modifier = modifier,
@@ -66,7 +67,7 @@ fun EditCardDialog(
             cardViewModel.updateUiState(editCardViewModel.cardUiState.cardDetails)
             showCardDialog()
         },
-        titleText = stringResource(R.string.edit_card) + " '${currentCard.value.word}'",
+        titleText = stringResource(R.string.edit_card) + " '${currentCard.word}'",
         deleteButton = true,
         cardUiState = editCardViewModel.cardUiState,
         onWordChange = {
@@ -85,10 +86,10 @@ fun EditCardDialog(
             )
         },
         boxWithTags = boxWithTags,
-        tagList = cardWithTags.value.tagList,
+        tagList = cardWithTags.tagList,
         onTagClick = {
             editCardViewModel.viewModelScope.launch {
-                if (cardWithTags.value.tagList.contains(it)) {
+                if (cardWithTags.tagList.contains(it)) {
                     editCardViewModel.deleteTagFromCard(it.tagId)
                 } else {
                     editCardViewModel.saveTagToCard(it.tagId)

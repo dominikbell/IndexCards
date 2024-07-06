@@ -1,48 +1,24 @@
 package com.example.indexcards.ui.box
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.R
-import com.example.indexcards.data.Box
-import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.card.CardDialog
 import com.example.indexcards.ui.card.DeleteCardDialog
 import com.example.indexcards.ui.card.EditCardDialog
@@ -72,11 +48,11 @@ fun BoxScreen(
     scheduleNotification: (Long) -> Unit = {}
 ) {
     val boxScreenState = boxScreenViewModel.boxScreenState
-    val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
-    val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
-    val trainingCounts = boxScreenViewModel.trainingCounts.collectAsState()
-    val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
-    val cardsWithTags = boxScreenViewModel.cardsWithTags.collectAsState()
+    val tagSortedBy by boxScreenViewModel.tagSortedBy.collectAsState()
+    val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
+    val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
+    val boxWithTags by boxScreenViewModel.boxWithTags.collectAsState()
+    val cardsWithTags by boxScreenViewModel.cardsWithTags.collectAsState()
 
     var cardDialog by remember { mutableStateOf(false) }
     var noCardsDialog by remember { mutableStateOf(false) }
@@ -88,18 +64,18 @@ fun BoxScreen(
     var deleteDialog by remember { mutableStateOf(false) }
 
     val filteredCardWithTagList =
-        if (levelSelected.value == -1) {
-            if (tagSortedBy.value == emptyTag) {
-                cardsWithTags.value.cardWithTagList
+        if (levelSelected == -1) {
+            if (tagSortedBy == emptyTag) {
+                cardsWithTags.cardWithTagList
             } else {
-                cardsWithTags.value.cardWithTagList.filter { it.tags.contains(tagSortedBy.value) }
+                cardsWithTags.cardWithTagList.filter { it.tags.contains(tagSortedBy) }
             }
         } else {
-            if (tagSortedBy.value == emptyTag) {
-                cardsWithTags.value.cardWithTagList.filter { it.card.level == levelSelected.value }
+            if (tagSortedBy == emptyTag) {
+                cardsWithTags.cardWithTagList.filter { it.card.level == levelSelected }
             } else {
-                cardsWithTags.value.cardWithTagList.filter {
-                    it.card.level == levelSelected.value && it.tags.contains(tagSortedBy.value)
+                cardsWithTags.cardWithTagList.filter {
+                    it.card.level == levelSelected && it.tags.contains(tagSortedBy)
                 }
             }
         }
@@ -147,16 +123,16 @@ fun BoxScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            BoxTopBar(
+            BoxScreenTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
                 updateEditUiStatus = {
-                    boxScreenViewModel.updateUiState(boxWithTags.value.box.toBoxDetails())
+                    boxScreenViewModel.updateUiState(boxWithTags.box.toBoxDetails())
                 },
                 changeBoxScreenState = { boxScreenViewModel.changeBoxScreenState(it) },
                 boxScreenState = boxScreenState,
-                thisBox = boxWithTags.value.box,
+                thisBox = boxWithTags.box,
                 cancelEdit = { boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW) },
-                trainingCounts = trainingCounts.value,
+                trainingCounts = trainingCounts,
                 changeTrainingCounts = {
                     boxScreenViewModel.changeTrainingCounts()
                 }
@@ -193,9 +169,9 @@ fun BoxScreen(
                     showEditCardDialog = { editCardDialog = true },
                     showNewTagDialog = { showNewTagDialog() },
                     showEditTagDialog = { showEditTagDialog() },
-                    levelSelected = levelSelected.value,
-                    boxWithTags = boxWithTags.value,
-                    cardsWithTags = cardsWithTags.value,
+                    levelSelected = levelSelected,
+                    boxWithTags = boxWithTags,
+                    cardsWithTags = cardsWithTags,
                     filteredCardWithTagList = filteredCardWithTagList,
                     boxScreenViewModel = boxScreenViewModel,
                 )
@@ -234,7 +210,7 @@ fun BoxScreen(
                             boxScreenViewModel.onCardIncorrect(it)
                         }
                     },
-                    trainingCounts = trainingCounts.value
+                    trainingCounts = trainingCounts
                 )
             }
         }
@@ -257,7 +233,7 @@ fun BoxScreen(
     if (editCardDialog) {
         EditCardDialog(
             onDismiss = { editCardDialog = false },
-            boxWithTags = boxWithTags.value,
+            boxWithTags = boxWithTags,
             showCardDialog = { editCardDialog = false },
             onDeleteCard = {
                 deleteCardDialog = true
@@ -270,7 +246,7 @@ fun BoxScreen(
     if (newCardDialog) {
         NewCardDialog(
             onDismiss = { newCardDialog = false },
-            boxWithTags = boxWithTags.value,
+            boxWithTags = boxWithTags,
             showNewTagDialog = { showNewTagDialog() },
             showEditTagDialog = { showEditTagDialog() },
         )
@@ -297,7 +273,7 @@ fun BoxScreen(
                 navigateToBoxesOverview()
                 boxScreenViewModel.deleteBox()
             },
-            boxToBeDeleted = boxWithTags.value.box
+            boxToBeDeleted = boxWithTags.box
         )
     }
 
@@ -307,152 +283,7 @@ fun BoxScreen(
                 boxScreenViewModel.updateSelectedLevel(-1)
                 noCardsDialog = false
             },
-            level = levelSelected.value
+            level = levelSelected
         )
     }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BoxTopBar(
-    modifier: Modifier = Modifier,
-    navigateToBoxesOverview: () -> Unit,
-    updateEditUiStatus: () -> Unit,
-    changeBoxScreenState: (BoxScreenState) -> Unit,
-    boxScreenState: BoxScreenState,
-    thisBox: Box,
-    cancelEdit: () -> Unit,
-    trainingCounts: Boolean,
-    changeTrainingCounts: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val title: String =
-        when (boxScreenState) {
-            BoxScreenState.VIEW -> {
-                thisBox.name
-            }
-
-            BoxScreenState.EDIT -> {
-                "Editing " + thisBox.name
-            }
-
-            BoxScreenState.TRAIN -> {
-                "Training"
-            }
-        }
-
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        navigationIcon = {
-            if (boxScreenState == BoxScreenState.EDIT) {
-                IconButton(
-                    onClick = { cancelEdit() }
-                ) {
-                    Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
-                }
-            } else {
-                IconButton(onClick = {
-                    if (boxScreenState == BoxScreenState.TRAIN) {
-                        changeBoxScreenState(BoxScreenState.VIEW)
-                    } else {
-                        navigateToBoxesOverview()
-                    }
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back Arrow"
-                    )
-                }
-            }
-        },
-
-        title = {
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                modifier = modifier
-            )
-        },
-
-        actions = {
-            when (boxScreenState) {
-                BoxScreenState.VIEW -> {
-                    IconButton(onClick = {
-                        expanded = true
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "Menu"
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.edit_box))
-                            },
-                            onClick = {
-                                updateEditUiStatus()
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.EDIT)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Top
-                                ) {
-                                    Text(text = stringResource(id = R.string.sort_by))
-
-                                    Icon(
-                                        imageVector = Icons.Filled.ArrowDropDown,
-                                        modifier = Modifier.rotate(-90f),
-                                        contentDescription = "sort by"
-                                    )
-                                }
-                            },
-                            onClick = { /* TODO: implement sorting */ }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.train_all))
-                            },
-                            onClick = {
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.TRAIN)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.train_selection))
-                            },
-                            onClick = {
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.TRAIN)
-                            }
-                        )
-                    }
-                }
-
-                BoxScreenState.EDIT -> {}
-
-                BoxScreenState.TRAIN -> {
-                    Switch(
-                        checked = trainingCounts,
-                        onCheckedChange = { changeTrainingCounts() }
-                    )
-                }
-            }
-        },
-    )
 }

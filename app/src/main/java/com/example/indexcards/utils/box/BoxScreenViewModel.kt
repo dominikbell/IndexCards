@@ -11,6 +11,7 @@ import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagWithCards
+import com.example.indexcards.utils.UserPreferences
 import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoxScreenViewModel(
     appRepository: AppRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val userPreferences: UserPreferences
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {

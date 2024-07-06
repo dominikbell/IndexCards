@@ -1,6 +1,7 @@
 package com.example.indexcards.utils
 
 import android.content.Context
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -15,8 +16,10 @@ import com.example.indexcards.utils.card.NewCardViewModel
 import com.example.indexcards.utils.tag.EditTagViewModel
 
 class ViewModelProvider(
-    context: Context
+    context: Context,
 ) {
+    private val Context.dataStore by preferencesDataStore(USER_PREFERENCES_NAME)
+
     val factory = viewModelFactory {
         initializer {
             AppViewModel(
@@ -28,6 +31,7 @@ class ViewModelProvider(
         initializer {
             HomeScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+                UserPreferences(context.dataStore)
             )
         }
 
@@ -43,6 +47,7 @@ class ViewModelProvider(
             BoxScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
                 this.createSavedStateHandle(),
+                UserPreferences(context.dataStore)
             )
         }
 

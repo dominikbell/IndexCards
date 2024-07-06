@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -16,11 +19,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.tag.emptyTag
 
 @Composable
 fun LevelList(
@@ -34,32 +42,54 @@ fun LevelList(
             .fillMaxWidth()
     ) {
 
-        HorizontalDivider(
-            modifier = Modifier
-                .padding(bottom = 3.dp)
-                .fillMaxWidth()
-        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.Center
         ) {
-            for (level in 0 until 5) {
-                LevelListItem(
-                    level = level,
-                    numberOfItems = cardWithTagList.filter { it.card.level == level }.size,
-                    onClick = { selectLevel(level) },
-                    selected = (currentLevel == level)
-                )
+            LazyRow(
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                items(NUMBER_OF_LEVELS) { level ->
+                    LevelListItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(3.dp),
+                        level = level,
+                        numberOfItems = cardWithTagList.filter { it.card.level == level }.size,
+                        onClick = { selectLevel(level) },
+                        selected = (currentLevel == level)
+                    )
+                }
             }
         }
 
-        HorizontalDivider(
-            modifier = Modifier
-                .padding(top = 3.dp)
-                .fillMaxWidth()
-        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
+}
+
+@Preview
+@Composable
+fun LevelListPreview() {
+    LevelList(
+        cardWithTagList = listOf(
+            CardWithTags(
+                card = emptyCard.copy(level = 0),
+                tags = listOf()
+            ),
+            CardWithTags(
+                card = emptyCard.copy(level = 0),
+                tags = listOf()
+            ),
+            CardWithTags(
+                card = emptyCard.copy(level = 1),
+                tags = listOf()
+            ),
+        ),
+        currentLevel = -1,
+        selectLevel = { }
+    )
 }
 
 @Composable
@@ -76,11 +106,19 @@ fun LevelListItem(
         } else {
             0.dp
         }
+
     val borderColor =
         if (selected) {
             MaterialTheme.colorScheme.secondary
         } else {
             MaterialTheme.colorScheme.primaryContainer
+        }
+
+    val numberOfItemsText =
+        if (numberOfItems == 1) {
+            numberOfItems.toString() + " " + stringResource(id = R.string.item_in_level)
+        } else {
+            numberOfItems.toString() + " " + stringResource(id = R.string.items_in_level)
         }
 
     Column(
@@ -102,7 +140,7 @@ fun LevelListItem(
         )
 
         Text(
-            text = numberOfItems.toString() + " " + stringResource(id = R.string.items_in_level),
+            text = numberOfItemsText,
             fontSize = 12.sp
         )
     }

@@ -1,7 +1,6 @@
 package com.example.indexcards.ui.home
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
@@ -21,13 +20,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.R
-import com.example.indexcards.ui.box.BoxesOverviewTopBar
 import com.example.indexcards.ui.box.AddBoxDialog
 import com.example.indexcards.ui.box.DeleteBoxDialog
+import com.example.indexcards.ui.elements.AboutAppDialog
+import com.example.indexcards.utils.box.HomeScreenState
 import com.example.indexcards.utils.box.HomeScreenViewModel
-import com.example.indexcards.utils.notification.getTimeInTheFuture
 import kotlinx.coroutines.launch
-import java.time.Instant
 
 @Composable
 fun HomeScreen(
@@ -35,29 +33,43 @@ fun HomeScreen(
     navigateToBoxScreen: (Long) -> Unit,
     homeScreenViewModel: HomeScreenViewModel,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {},
-    scheduleNotification: (Long) -> Unit = {}
+    requestNotificationPermission: () -> Unit = {}
 ) {
-    val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
-    val currentBox = homeScreenViewModel.selectedBox.collectAsState()
+    val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
+    val homeScreenState = homeScreenViewModel.homeScreenState
+    val currentBox by homeScreenViewModel.selectedBox.collectAsState()
     val context = LocalContext.current
     val activity = (LocalContext.current as? Activity)
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
     var addDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
+    var showAboutApp by remember { mutableStateOf(false) }
     var backPressedTime: Long = 0
 
     BackHandler {
-        if (addDialog) {
-            addDialog = false
-        } else {
-            if (backPressedTime + 3000 > System.currentTimeMillis()) {
-                /* TODO: seems a bit hacky but works */
-                activity?.finish()
-            } else {
-                backPressedTime = System.currentTimeMillis()
-                Toast.makeText(context, backAgainString, Toast.LENGTH_SHORT).show()
+        when (homeScreenState) {
+            HomeScreenState.MAIN -> {
+                if (addDialog) {
+                    addDialog = false
+                } else {
+                    if (backPressedTime + 3000 > System.currentTimeMillis()) {
+                        /* TODO: seems a bit hacky but works */
+                        activity?.finish()
+                    } else {
+                        backPressedTime = System.currentTimeMillis()
+                        Toast.makeText(context, backAgainString, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            HomeScreenState.SETTINGS -> {
+                homeScreenViewModel.savePreferences()
+                homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
+            }
+
+            HomeScreenState.STATISTICS -> {
+                homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
             }
         }
     }
@@ -65,7 +77,19 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
 
-        topBar = { BoxesOverviewTopBar() },
+        topBar = {
+            HomeScreenTopBar(
+                homeScreenState = homeScreenState,
+                goToMainScreen = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN) },
+                goToSettings = {
+                    homeScreenViewModel.setCurrentUiPreferences()
+                    homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS)
+                },
+                goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
+                showAboutApp = { showAboutApp = true },
+                saveSettings = { homeScreenViewModel.savePreferences() }
+            )
+        },
 
         floatingActionButton = {
             FloatingActionButton(
@@ -76,18 +100,31 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        BoxList(
-            modifier = modifier
-                .padding(innerPadding),
-            boxList = homeScreenUiState.boxList,
-            onDelete = {
-                homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.setCurrentBox(it)
-                }
-                deleteDialog = true
-            },
-            navigateToBoxScreen = navigateToBoxScreen,
-        )
+        when (homeScreenState) {
+            HomeScreenState.MAIN -> {
+                BoxList(
+                    modifier = modifier
+                        .padding(innerPadding),
+                    boxList = uiBoxList.boxList,
+                    onDelete = {
+                        homeScreenViewModel.viewModelScope.launch {
+                            homeScreenViewModel.setCurrentBox(it)
+                        }
+                        deleteDialog = true
+                    },
+                    navigateToBoxScreen = navigateToBoxScreen,
+                )
+            }
+
+            HomeScreenState.SETTINGS -> {
+                SettingsScreen(
+                    modifier = modifier.padding(innerPadding),
+                    homeScreenViewModel = homeScreenViewModel
+                )
+            }
+
+            HomeScreenState.STATISTICS -> {}
+        }
     }
 
     if (addDialog) {
@@ -112,7 +149,14 @@ fun HomeScreen(
                     homeScreenViewModel.resetCurrentBox()
                 }
             },
-            boxToBeDeleted = currentBox.value
+            boxToBeDeleted = currentBox
+        )
+    }
+
+    if (showAboutApp) {
+        AboutAppDialog(
+            modifier = modifier,
+            onDismiss = { showAboutApp = false }
         )
     }
 }

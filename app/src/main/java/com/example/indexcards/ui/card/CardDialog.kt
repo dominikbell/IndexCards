@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -56,7 +57,7 @@ fun CardDialog(
     )
 ) {
     val cardUiState = cardViewModel.cardUiState
-    val cardWithTags = cardViewModel.cardWithTags.collectAsState()
+    val cardWithTags by cardViewModel.cardWithTags.collectAsState()
 
     Dialog(
         onDismissRequest = {
@@ -127,10 +128,10 @@ fun CardDialog(
                         Spacer(modifier = modifier.size(8.dp))
 
                         TagList(
-                            tagList = cardWithTags.value.tagList,
+                            tagList = cardWithTags.tagList,
                             onClick = {},
                             onLongClick = {},
-                            selectedTags = cardWithTags.value.tagList
+                            selectedTags = cardWithTags.tagList
                         )
 
                         Spacer(modifier = modifier.size(8.dp))
@@ -149,7 +150,7 @@ fun CardDialog(
                     modifier = modifier
                         .align(Alignment.End),
                     onClick = {
-                        showDelete(cardWithTags.value.card)
+                        showDelete(cardWithTags.card)
                     }
                 ) {
                     Icon(

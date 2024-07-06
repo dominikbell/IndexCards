@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -132,5 +133,17 @@ fun TagDialog(
                 }
             }
         }
+    )
+}
+
+@Preview
+@Composable
+fun TagDialogPreview() {
+    TagDialog(
+        newTag = true,
+        onDismiss = { },
+        editTagViewModel = viewModel(
+            factory = ViewModelProvider(context = LocalContext.current).factory
+            )
     )
 }

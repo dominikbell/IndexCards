@@ -10,8 +10,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
 import com.example.indexcards.ui.home.DescriptionField
 import com.example.indexcards.ui.home.IsLanguageCheckBox
@@ -20,6 +23,7 @@ import com.example.indexcards.ui.home.NameField
 import com.example.indexcards.ui.home.RemindersSwitch
 import com.example.indexcards.ui.home.RequiredFieldsText
 import com.example.indexcards.ui.home.TopicField
+import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
@@ -126,5 +130,16 @@ fun AddBoxDialog(
                 Text(text = stringResource(R.string.cancel))
             }
         }
+    )
+}
+
+@Preview
+@Composable
+fun AddBoxDialogPreview() {
+    AddBoxDialog(
+        hideDialog = { },
+        homeScreenViewModel = viewModel(
+            factory = ViewModelProvider(context = LocalContext.current).factory
+        )
     )
 }

@@ -34,10 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
+import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.CardState
 
 @Composable
@@ -209,8 +212,8 @@ fun LanguageDropDownMenu(
                 DropdownMenuItem(
                     text = {
                         Row(
-                            modifier = modifier
-                                .fillMaxWidth()
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
                                 painter = painterResource(
@@ -232,6 +235,15 @@ fun LanguageDropDownMenu(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun LanguageDropDownMenuPreview() {
+    LanguageDropDownMenu(
+        boxUiState = BoxState(boxDetails = emptyBox.toBoxDetails()),
+        onValueChange = { }
+    )
 }
 
 @Composable

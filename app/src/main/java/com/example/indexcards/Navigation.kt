@@ -52,8 +52,7 @@ fun Navigation(
                 },
                 homeScreenViewModel = homeScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
-                requestNotificationPermission = { requestNotificationPermission() },
-                scheduleNotification = { time -> scheduleNotification(time) }
+                requestNotificationPermission = { requestNotificationPermission() }
             )
         }
         composable(
