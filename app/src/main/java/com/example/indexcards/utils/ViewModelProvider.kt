@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.indexcards.data.AppDatabase
 import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.box.HomeScreenViewModel
+import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.box.BoxViewModel
 import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel

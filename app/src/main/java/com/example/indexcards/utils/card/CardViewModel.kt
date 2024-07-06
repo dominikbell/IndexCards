@@ -86,8 +86,3 @@ open class CardViewModel(
         }
     }
 }
-
-data class UiCardWithTags(
-    val card: Card = emptyCard,
-    val tagList: List<Tag> = listOf()
-)

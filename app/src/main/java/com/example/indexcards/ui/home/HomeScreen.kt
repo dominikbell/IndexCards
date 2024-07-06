@@ -19,27 +19,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
-import com.example.indexcards.ui.box.AddBoxDialog
-import com.example.indexcards.ui.box.DeleteBoxDialog
-import com.example.indexcards.ui.elements.AboutAppDialog
-import com.example.indexcards.utils.box.HomeScreenState
-import com.example.indexcards.utils.box.HomeScreenViewModel
+import com.example.indexcards.ui.dialogs.AddBoxDialog
+import com.example.indexcards.ui.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.dialogs.AboutAppDialog
+import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.home.HomeScreenState
+import com.example.indexcards.utils.home.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navigateToBoxScreen: (Long) -> Unit,
-    homeScreenViewModel: HomeScreenViewModel,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {}
+    requestNotificationPermission: () -> Unit = {},
+    navigateToBoxScreen: (Long) -> Unit = {},
+    homeScreenViewModel: HomeScreenViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
 ) {
-    val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
-    val homeScreenState = homeScreenViewModel.homeScreenState
-    val currentBox by homeScreenViewModel.selectedBox.collectAsState()
     val context = LocalContext.current
     val activity = (LocalContext.current as? Activity)
+    val boxUiState = homeScreenViewModel.boxUiState
+    val homeScreenState = homeScreenViewModel.homeScreenState
+    val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
+    val currentBox by homeScreenViewModel.currentBox.collectAsState()
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
     var addDialog by remember { mutableStateOf(false) }
@@ -129,10 +134,14 @@ fun HomeScreen(
 
     if (addDialog) {
         AddBoxDialog(
-            hideDialog = { addDialog = false },
-            homeScreenViewModel = homeScreenViewModel,
+            boxUiState = boxUiState,
             hasNotificationPermission = hasNotificationPermission,
-            requestNotificationPermission = { requestNotificationPermission() }
+            requestNotificationPermission = { requestNotificationPermission() },
+            onDismiss = {
+                addDialog = false
+                homeScreenViewModel.resetUiState()
+            },
+            onSave = { homeScreenViewModel.saveBox() }
         )
     }
 

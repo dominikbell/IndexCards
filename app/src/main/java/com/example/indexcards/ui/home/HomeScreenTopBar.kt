@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.home
 
-import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -20,12 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
-import com.example.indexcards.utils.box.HomeScreenState
+import com.example.indexcards.utils.home.HomeScreenState
 
 @Composable
 fun HomeScreenTopBar(
@@ -144,7 +142,6 @@ fun MainScreenTopBar(
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
 ) {
-    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
@@ -192,8 +189,6 @@ fun MainScreenTopBar(
                     onClick = {
                         expanded = false
                         goToStatistics()
-                        /* TODO: Implement this */
-                        Toast.makeText(context, R.string.not_implemented, Toast.LENGTH_SHORT).show()
                     }
                 )
 

@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.home
+package com.example.indexcards.ui.elements
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image

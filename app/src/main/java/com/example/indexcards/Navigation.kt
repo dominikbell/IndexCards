@@ -17,7 +17,7 @@ import com.example.indexcards.ui.box.BoxScreen
 import com.example.indexcards.ui.home.HomeScreen
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.box.HomeScreenViewModel
+import com.example.indexcards.utils.home.HomeScreenViewModel
 
 @Composable
 fun Navigation(

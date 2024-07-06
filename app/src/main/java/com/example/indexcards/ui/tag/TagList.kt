@@ -31,11 +31,8 @@ fun TagList(
     modifier: Modifier = Modifier,
     tagList: List<Tag>,
     onClick: (Tag) -> Unit = {},
-    onLongClick: (Long) -> Unit = {},
+    onLongClick: (Tag) -> Unit = {},
     selectedTags: List<Tag>,
-    editTagViewModel: EditTagViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
@@ -49,11 +46,7 @@ fun TagList(
                 modifier = modifier.padding(2.dp),
                 item = item,
                 onClick = { onClick(item) },
-                onLongClick = {
-                    editTagViewModel.setColor(item.color)
-                    editTagViewModel.updateUiState(item.toTagDetails())
-                    onLongClick(item.tagId)
-                },
+                onLongClick = { onLongClick(item) },
                 selectedTags = selectedTags
             )
         }

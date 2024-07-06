@@ -23,7 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.ui.theme.IndexCardsTheme
 import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.box.HomeScreenViewModel
+import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.notification.NotificationRequest
 import com.example.indexcards.utils.notification.NotificationService
 

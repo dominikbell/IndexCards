@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
-import com.example.indexcards.ui.home.RequiredFieldsText
+import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.tag.EditTagViewModel
 import com.example.indexcards.utils.tag.toColor

@@ -19,18 +19,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.ui.card.CardDialog
-import com.example.indexcards.ui.card.DeleteCardDialog
-import com.example.indexcards.ui.card.EditCardDialog
-import com.example.indexcards.ui.card.NewCardDialog
-import com.example.indexcards.ui.elements.NoCardsDialog
+import com.example.indexcards.data.Tag
+import com.example.indexcards.ui.dialogs.CardDialog
+import com.example.indexcards.ui.dialogs.DeleteCardDialog
+import com.example.indexcards.ui.dialogs.EditCardDialog
+import com.example.indexcards.ui.dialogs.NewCardDialog
+import com.example.indexcards.ui.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.dialogs.NoCardsDialog
 import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
+import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.card.toCardDetails
+import com.example.indexcards.utils.tag.EditTagViewModel
 import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,7 +46,13 @@ fun BoxScreen(
     boxId: Long, /* Is only here for boxScreenViewModel to work */
     startLevel: Int = -1,
     boxScreenViewModel: BoxScreenViewModel,
+    cardViewModel: CardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
     editCardViewModel: EditCardViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
+    editTagViewModel: EditTagViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
     hasNotificationPermission: Boolean = false,
@@ -48,11 +60,15 @@ fun BoxScreen(
     scheduleNotification: (Long) -> Unit = {}
 ) {
     val boxScreenState = boxScreenViewModel.boxScreenState
+    val cardUiState = cardViewModel.cardUiState
     val tagSortedBy by boxScreenViewModel.tagSortedBy.collectAsState()
     val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
     val boxWithTags by boxScreenViewModel.boxWithTags.collectAsState()
     val cardsWithTags by boxScreenViewModel.cardsWithTags.collectAsState()
+    val cardWithTags by cardViewModel.cardWithTags.collectAsState()
+    val tagWithCards by boxScreenViewModel.tagWithCards.collectAsState()
+    val currentCard by editCardViewModel.currentCard.collectAsState()
 
     var cardDialog by remember { mutableStateOf(false) }
     var noCardsDialog by remember { mutableStateOf(false) }
@@ -102,6 +118,11 @@ fun BoxScreen(
 
     fun showNewTagDialog() {
         newTag = true; tagDialog = true
+    }
+
+    fun onTagLongClick(item: Tag) {
+        editTagViewModel.setColor(item.color)
+        editTagViewModel.updateUiState(item.toTagDetails())
     }
 
     BackHandler {
@@ -165,15 +186,30 @@ fun BoxScreen(
             BoxScreenState.VIEW -> {
                 BoxScreenBody(
                     modifier = modifier.padding(innerPadding),
-                    showCard = { cardDialog = true },
-                    showEditCardDialog = { editCardDialog = true },
+                    showCardDialog = {
+                        cardViewModel.viewModelScope.launch {
+                            cardViewModel.setCurrentCard(it.cardId)
+                            cardViewModel.updateUiState(it.toCardDetails())
+                        }
+                        cardDialog = true
+                    },
+                    showEditCardDialog = {
+                        editCardViewModel.viewModelScope.launch {
+                            editCardViewModel.setCurrentCard(it.cardId)
+                            editCardViewModel.updateUiState(it.toCardDetails())
+                        }
+                        editCardDialog = true
+                    },
                     showNewTagDialog = { showNewTagDialog() },
-                    showEditTagDialog = { showEditTagDialog() },
+                    onTagLongClick = { onTagLongClick(it) },
                     levelSelected = levelSelected,
+                    selectLevel = { boxScreenViewModel.updateSelectedLevel(it) },
+                    setTagSortedBy = { boxScreenViewModel.setTagSortedBy(it) },
+                    resetTagSortedBy = { boxScreenViewModel.resetTagSortedBy() },
                     boxWithTags = boxWithTags,
                     cardsWithTags = cardsWithTags,
+                    tagWithCards = tagWithCards,
                     filteredCardWithTagList = filteredCardWithTagList,
-                    boxScreenViewModel = boxScreenViewModel,
                 )
             }
 
@@ -219,7 +255,14 @@ fun BoxScreen(
     if (cardDialog) {
         CardDialog(
             onDismiss = { cardDialog = false },
-            showEditCardDialog = { editCardDialog = true },
+            cardWithTags = cardWithTags,
+            showEditCardDialog = {
+                editCardViewModel.viewModelScope.launch {
+                    editCardViewModel.updateUiState(cardUiState.cardDetails)
+                    editCardViewModel.setCurrentCard(cardUiState.cardDetails.id)
+                }
+                editCardDialog = true
+            },
             isEditing = editCardDialog,
             showDelete = {
                 editCardViewModel.viewModelScope.launch {
@@ -232,8 +275,10 @@ fun BoxScreen(
 
     if (editCardDialog) {
         EditCardDialog(
-            onDismiss = { editCardDialog = false },
             boxWithTags = boxWithTags,
+            cardWithTags = cardWithTags,
+            currentCard = currentCard,
+            onDismiss = { editCardDialog = false },
             showCardDialog = { editCardDialog = false },
             onDeleteCard = {
                 deleteCardDialog = true
@@ -254,7 +299,13 @@ fun BoxScreen(
 
     if (deleteCardDialog) {
         DeleteCardDialog(
+            currentCard = currentCard,
             onDismiss = { deleteCardDialog = false },
+            deleteCard = {
+                editCardViewModel.viewModelScope.launch {
+                    editCardViewModel.deleteCard(currentCard.cardId)
+                }
+            }
         )
     }
 

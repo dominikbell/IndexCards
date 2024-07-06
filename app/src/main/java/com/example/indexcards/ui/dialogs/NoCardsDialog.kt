@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.elements
+package com.example.indexcards.ui.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text

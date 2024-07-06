@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.card
 
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Tag
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -50,4 +51,9 @@ fun Card.toCardDetails(): CardDetails = CardDetails(
     notes = notes,
     boxId = boxId,
     level = level
+)
+
+data class UiCardWithTags(
+    val card: Card = emptyCard,
+    val tagList: List<Tag> = listOf()
 )

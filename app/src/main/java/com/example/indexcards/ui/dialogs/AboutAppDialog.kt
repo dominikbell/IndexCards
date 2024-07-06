@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.elements
+package com.example.indexcards.ui.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

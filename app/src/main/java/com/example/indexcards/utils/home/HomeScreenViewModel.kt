@@ -1,4 +1,4 @@
-package com.example.indexcards.utils.box
+package com.example.indexcards.utils.home
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +9,8 @@ import com.example.indexcards.data.Box
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UiPreferences
 import com.example.indexcards.utils.UserPreferences
+import com.example.indexcards.utils.box.BoxViewModel
+import com.example.indexcards.utils.box.emptyBox
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,25 +21,32 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
+/**
+ * ViewModel for the HomeScreen
+ * - handles Preferences & Statistics (soon)
+ * - displays list of all boxes
+ * - adds and deletes boxes
+ */
 class HomeScreenViewModel(
     appRepository: AppRepository,
     private val userPreferences: UserPreferences
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
-    private val selectedBoxId = MutableStateFlow((-1).toLong())
+    /** homeScreenState
+     * used for navigating between main, preferences, statistics
+     */
     var homeScreenState: HomeScreenState by mutableStateOf(HomeScreenState.MAIN)
-    val selectedBox = MutableStateFlow(emptyBox)
-    var uiPreferences by mutableStateOf(UiPreferences())
 
-    private val userName: StateFlow<String> = userPreferences.currentUserName
-        .filterNotNull()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = DefaultPreferences.USER_NAME
-        )
+    fun updateHomeScreenState(newState: HomeScreenState) {
+        homeScreenState = newState
+    }
 
+
+    /** uiBoxList
+     * StateFlow from database which displays the boxes
+     */
     val uiBoxList: StateFlow<UiBoxList> =
         appRepository.getAllBoxesStream()
             .filterNotNull()
@@ -49,36 +58,44 @@ class HomeScreenViewModel(
                 initialValue = UiBoxList()
             )
 
-    fun setCurrentBox(boxId: Long) {
+    /** currentBox
+     * used to select a box to go to BoxScreen (via boxId) or to delete a box
+     */
+    val currentBox = MutableStateFlow(emptyBox)
+
+    fun setCurrentBox(box: Box) {
         viewModelScope.launch {
-            selectedBoxId.update {
-                boxId
-            }
-
-            selectedBox.update {
-                appRepository.getBox(selectedBoxId.value)
-                    .filterNotNull()
-                    .first()
-            }
+            currentBox.update { box }
         }
-    }
-
-    fun updateHomeScreenState(newState: HomeScreenState) {
-        homeScreenState = newState
     }
 
     fun resetCurrentBox() {
         viewModelScope.launch {
-            selectedBoxId.update { -1 }
-            selectedBox.update { emptyBox }
+            currentBox.update { emptyBox }
         }
     }
 
     fun deleteBox() {
-        viewModelScope.launch {
-            appRepository.deleteBox(selectedBoxId.value)
+        if (currentBox.value != emptyBox) {
+            viewModelScope.launch {
+                appRepository.deleteBox(currentBox.value.boxId)
+            }
         }
     }
+
+
+    /** uiPreferences
+     * Used for displaying and changing the preferences
+     */
+    var uiPreferences by mutableStateOf(UiPreferences())
+
+    private val userName: StateFlow<String> = userPreferences.currentUserName
+        .filterNotNull()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = DefaultPreferences.USER_NAME
+        )
 
     fun updateUiUserName(newName: String) {
         uiPreferences = uiPreferences.copy(userName = newName)
@@ -102,14 +119,4 @@ class HomeScreenViewModel(
             )
         }
     }
-}
-
-data class UiBoxList(
-    val boxList: List<Box> = listOf()
-)
-
-sealed interface HomeScreenState {
-    data object MAIN : HomeScreenState
-    data object SETTINGS : HomeScreenState
-    data object STATISTICS : HomeScreenState
 }

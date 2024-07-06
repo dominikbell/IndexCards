@@ -13,42 +13,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
+import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.elements.LevelList
-import com.example.indexcards.ui.home.NewTagButton
+import com.example.indexcards.ui.elements.NewTagButton
 import com.example.indexcards.ui.tag.TagList
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.UiCardsWithTags
+import com.example.indexcards.utils.box.UiTagWithCards
+import com.example.indexcards.utils.box.toBox
+import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.tag.emptyTag
 
 @Composable
 fun BoxScreenBody(
     modifier: Modifier = Modifier,
-    showCard: () -> Unit,
-    showEditCardDialog: () -> Unit,
-    showNewTagDialog: () -> Unit,
-    showEditTagDialog: () -> Unit,
+    showCardDialog: (Card) -> Unit = { },
+    showEditCardDialog: (Card) -> Unit = { },
+    showNewTagDialog: () -> Unit = { },
+    onTagLongClick: (Tag) -> Unit = { },
     levelSelected: Int,
-    boxWithTags: UiBoxWithTags = UiBoxWithTags(),
-    cardsWithTags: UiCardsWithTags = UiCardsWithTags(),
-    filteredCardWithTagList: List<CardWithTags> = listOf(),
-    boxScreenViewModel: BoxScreenViewModel,
+    selectLevel: (Int) -> Unit = { },
+    setTagSortedBy: (Tag) -> Unit = { },
+    resetTagSortedBy: () -> Unit = { },
+    boxWithTags: UiBoxWithTags,
+    cardsWithTags: UiCardsWithTags,
+    tagWithCards: UiTagWithCards,
+    filteredCardWithTagList: List<CardWithTags>,
 ) {
-    val tagWithCards by boxScreenViewModel.tagWithCards.collectAsState()
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -69,7 +71,7 @@ fun BoxScreenBody(
         LevelList(
             cardWithTagList = cardsWithTags.cardWithTagList,
             currentLevel = levelSelected,
-            selectLevel = { boxScreenViewModel.updateSelectedLevel(it) },
+            selectLevel = { selectLevel(it) },
         )
 
         Row(
@@ -83,12 +85,12 @@ fun BoxScreenBody(
                 tagList = boxWithTags.tagList,
                 onClick = {
                     if (tagWithCards.tag == it) {
-                        boxScreenViewModel.resetTagSortedBy()
+                        resetTagSortedBy()
                     } else {
-                        boxScreenViewModel.setTagSortedBy(it)
+                        setTagSortedBy(it)
                     }
                 },
-                onLongClick = { showEditTagDialog() },
+                onLongClick = { onTagLongClick(it) },
                 selectedTags = listOf(tagWithCards.tag)
             )
 
@@ -114,24 +116,41 @@ fun BoxScreenBody(
         } else {
             CardList(
                 cardWithTagList = filteredCardWithTagList,
-                showDialog = showCard,
-                showEditDialog = { showEditCardDialog() }
+                showCardDialog = { showCardDialog(it) },
+                showEditCardDialog = { showEditCardDialog(it) }
             )
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun BoxScreenBodyPreview() {
-    BoxScreenBody(
-        showCard = { },
-        showEditCardDialog = { },
-        showNewTagDialog = { },
-        showEditTagDialog = { },
-        levelSelected = -1,
-        boxScreenViewModel = viewModel(
-            factory = ViewModelProvider(context = LocalContext.current).factory
+    val tagList = listOf(
+        emptyTag.copy(tagId = 1, text = "Tag123"),
+        emptyTag.copy(tagId = 2, text = "Tag3"),
+        emptyTag.copy(tagId = 3, text = "Tag243"),
+    )
+    val cardWithTagsList = listOf(
+        CardWithTags(
+            emptyCard.copy(word = "Hello", meaning = "Oho"),
+            tags = tagList
         )
+    )
+    val cardsWithTags = UiCardsWithTags(
+        cardWithTagList = cardWithTagsList
+    )
+    val boxWithTags = UiBoxWithTags(
+        box = BoxDetails().copy(name = "Box 456").toBox(),
+        tagList = tagList
+    )
+    BoxScreenBody(
+        tagWithCards = UiTagWithCards(
+            tag = emptyTag.copy(text = "Tag123")
+        ),
+        levelSelected = -1,
+        boxWithTags = boxWithTags,
+        cardsWithTags = cardsWithTags,
+        filteredCardWithTagList = cardWithTagsList,
     )
 }

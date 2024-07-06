@@ -36,7 +36,7 @@ fun BoxList(
     modifier: Modifier = Modifier,
     navigateToBoxScreen: (Long) -> Unit,
     boxList: List<Box>,
-    onDelete: (Long) -> Unit,
+    onDelete: (Box) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -71,7 +71,7 @@ fun BoxList(
                         modifier = Modifier.padding(bottom = finalOffset),
                         item = item,
                         onClick = { navigateToBoxScreen(item.boxId) },
-                        showDelete = onDelete
+                        showDelete = { onDelete(it) }
                     )
                 }
             }
@@ -83,8 +83,8 @@ fun BoxList(
 fun BoxListItem(
     modifier: Modifier = Modifier,
     item: Box,
-    onClick: (Long) -> Unit,
-    showDelete: (Long) -> Unit,
+    onClick: (Box) -> Unit,
+    showDelete: (Box) -> Unit,
 ) {
     val text = item.name
 //    val text =
@@ -96,7 +96,7 @@ fun BoxListItem(
 
     Card(
         modifier = modifier
-            .clickable { onClick(item.boxId) }
+            .clickable { onClick(item) }
             .fillMaxWidth()
             .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -124,7 +124,7 @@ fun BoxListItem(
 
             IconButton(
                 onClick = {
-                    showDelete(item.boxId)
+                    showDelete(item)
                 }
             ) {
                 Icon(

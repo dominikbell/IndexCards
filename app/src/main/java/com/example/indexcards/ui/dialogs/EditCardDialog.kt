@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.card
+package com.example.indexcards.ui.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,12 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
+import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag
-import com.example.indexcards.ui.home.MeaningField
-import com.example.indexcards.ui.home.NewTagButton
-import com.example.indexcards.ui.home.NotesField
-import com.example.indexcards.ui.home.RequiredFieldsText
-import com.example.indexcards.ui.home.WordField
+import com.example.indexcards.ui.elements.MeaningField
+import com.example.indexcards.ui.elements.NewTagButton
+import com.example.indexcards.ui.elements.NotesField
+import com.example.indexcards.ui.elements.RequiredFieldsText
+import com.example.indexcards.ui.elements.WordField
 import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.UiBoxWithTags
@@ -34,17 +33,20 @@ import com.example.indexcards.utils.card.CardState
 import com.example.indexcards.utils.card.CardViewModel
 import com.example.indexcards.utils.card.EditCardViewModel
 import com.example.indexcards.utils.card.NewCardViewModel
+import com.example.indexcards.utils.card.UiCardWithTags
 import kotlinx.coroutines.launch
 
 @Composable
 fun EditCardDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    showCardDialog: () -> Unit,
-    onDeleteCard: () -> Unit,
     boxWithTags: UiBoxWithTags,
-    showNewTagDialog: () -> Unit,
-    showEditTagDialog: () -> Unit,
+    cardWithTags: UiCardWithTags,
+    currentCard: Card,
+    onDismiss: () -> Unit = {},
+    showCardDialog: () -> Unit = {},
+    onDeleteCard: () -> Unit = {},
+    showNewTagDialog: () -> Unit = {},
+    showEditTagDialog: () -> Unit = {},
     cardViewModel: CardViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -52,9 +54,6 @@ fun EditCardDialog(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
-    val cardWithTags by editCardViewModel.cardWithTags.collectAsState()
-    val currentCard by editCardViewModel.currentCard.collectAsState()
-
     CardDialogBody(
         modifier = modifier,
         onDismiss = onDismiss,

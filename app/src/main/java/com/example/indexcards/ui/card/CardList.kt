@@ -44,14 +44,8 @@ import kotlinx.coroutines.launch
 fun CardList(
     modifier: Modifier = Modifier,
     cardWithTagList: List<CardWithTags>,
-    showDialog: () -> Unit,
-    showEditDialog: () -> Unit,
-    cardViewModel: CardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    showCardDialog: (Card) -> Unit,
+    showEditCardDialog: (Card) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -72,18 +66,10 @@ fun CardList(
                 modifier = Modifier.padding(bottom = finalOffset),
                 item = item.card,
                 onClick = {
-                    cardViewModel.viewModelScope.launch {
-                        cardViewModel.setCurrentCard(it.cardId)
-                        cardViewModel.updateUiState(it.toCardDetails())
-                    }
-                    showDialog()
+                    showCardDialog(it)
                 },
                 onLongClick = {
-                    editCardViewModel.viewModelScope.launch {
-                        editCardViewModel.setCurrentCard(it.cardId)
-                        editCardViewModel.updateUiState(it.toCardDetails())
-                    }
-                    showEditDialog()
+                    showEditCardDialog(it)
                 },
                 tagList = item.tags
             )
