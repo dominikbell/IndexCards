@@ -6,12 +6,17 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
+import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.UserPreferences
+import com.example.indexcards.utils.card.CardDetails
+import com.example.indexcards.utils.card.CardState
+import com.example.indexcards.utils.card.UiCardWithTags
+import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.card.toCard
 import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +28,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
+
+/** ViewModel for the BoxScreen
+ * - views box and edits it (via parent class)
+ *
+ * - handles navigation between view, edit, and train
+ *
+ * - shows boxWithTags and cardsWithTags
+ *
+ * - enables filtering by levelSelected
+ * - enables filtering by tagSelected (-> tagWithCards)
+ *
+ * - has CardUiState to view and edit card
+ * - has TagUiState to view and edit tag
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoxScreenViewModel(
     appRepository: AppRepository,
@@ -33,13 +51,24 @@ class BoxScreenViewModel(
 ) : BoxViewModel(
     appRepository = appRepository,
 ) {
+    /** boxId from savedStateHandle to know which box it is */
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
-    val tagSortedBy = MutableStateFlow(emptyTag)
-    val levelSelected = MutableStateFlow(-1)
-    val trainingCounts = MutableStateFlow(false)
+
+
+    /** boxScreenState
+     * used for navigating between view, edit, and train
+     */
     var boxScreenState: BoxScreenState by mutableStateOf(BoxScreenState.VIEW)
 
-    val boxWithTags: StateFlow<UiBoxWithTags> =
+    fun updateBoxScreenState(newState: BoxScreenState) {
+        boxScreenState = newState
+    }
+
+
+    /** uiBoxWithTags
+     * contains box and all its tags
+     */
+    val uiBoxWithTags: StateFlow<UiBoxWithTags> =
         appRepository.getBoxWithTagsStream(boxId = boxId)
             .filterNotNull()
             .map {
@@ -53,7 +82,47 @@ class BoxScreenViewModel(
                 initialValue = UiBoxWithTags()
             )
 
-    val tagWithCards: StateFlow<UiTagWithCards> = tagSortedBy
+
+    /** uiCardWithTags
+     * contains all cards together with their tags
+     */
+    val uiCardsWithTags: StateFlow<UiCardsWithTags> =
+        appRepository.getAllCardsWithTagsOfBoxStream(boxId = boxId)
+            .filterNotNull()
+            .map {
+                UiCardsWithTags(it)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = UiCardsWithTags()
+            )
+
+
+    /** levelSelected
+     * used for filtering by level and for training
+     */
+    val levelSelected = MutableStateFlow(-1)
+
+    fun setLevelSelected(newLevel: Int) {
+        if (newLevel == levelSelected.value) {
+            levelSelected.update { -1 }
+        } else {
+            levelSelected.update { newLevel }
+        }
+    }
+
+    fun resetLevelSelected() {
+        levelSelected.update { -1 }
+    }
+
+
+    /** tagSelected
+     * used for filtering the cards by tag
+     * uiTagWithCards is a StateFlow that emits an empty list when the tagSelected
+     * is the emptyTag and a list of cards with this tag otherwise
+     */
+    val tagSelected = MutableStateFlow(emptyTag)
+    val uiTagWithCards: StateFlow<UiTagWithCards> = tagSelected
         .flatMapLatest {
             when (it) {
                 emptyTag -> flow {
@@ -65,7 +134,7 @@ class BoxScreenViewModel(
                     )
                 }
 
-                else -> appRepository.getTagWithCardsStream(tagSortedBy.value.tagId)
+                else -> appRepository.getTagWithCardsStream(tagSelected.value.tagId)
             }
         }
         .filterNotNull()
@@ -81,50 +150,22 @@ class BoxScreenViewModel(
             initialValue = UiTagWithCards()
         )
 
-    val cardsWithTags: StateFlow<UiCardsWithTags> =
-        appRepository.getAllCardsWithTagsOfBoxStream(boxId = boxId)
-            .filterNotNull()
-            .map {
-                UiCardsWithTags(it)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = UiCardsWithTags()
-            )
-
-    suspend fun getNumberOfCardsOfLevelInBox(level: Int): Int {
-        return appRepository.getNumberOfCardsOfLevelInBox(boxId, level)
-    }
-
-    fun changeBoxScreenState(newState: BoxScreenState) {
-        boxScreenState = newState
-    }
-
-    fun setTagSortedBy(newTag: Tag) {
-        tagSortedBy.update {
+    fun setTagSelected(newTag: Tag) {
+        tagSelected.update {
             newTag
         }
     }
 
-    fun resetTagSortedBy() {
-        tagSortedBy.update {
+    fun resetTagSelected() {
+        tagSelected.update {
             emptyTag
         }
     }
 
-    fun deleteBox() {
-        viewModelScope.launch {
-            appRepository.deleteBox(boxId = boxId)
-        }
-    }
-
-    fun updateSelectedLevel(newLevel: Int) {
-        if (newLevel == levelSelected.value) {
-            levelSelected.update { -1 }
-        } else {
-            levelSelected.update { newLevel }
-        }
-    }
+    /** trainingCounts
+     * maybe a temporary feature; changes if the training up-/downgrades cards during training
+     */
+    val trainingCounts = MutableStateFlow(false)
 
     fun changeTrainingCounts() {
         trainingCounts.update { !trainingCounts.value }
@@ -134,6 +175,16 @@ class BoxScreenViewModel(
         trainingCounts.update { newState }
     }
 
+    /** used for determining if cards of a level in a box exist when coming from a
+     * notification that passes a startLevel */
+    suspend fun getNumberOfCardsOfLevelInBox(level: Int): Int {
+        return appRepository.getNumberOfCardsOfLevelInBox(boxId, level)
+    }
+
+
+    /** functions that up-/downgrade the level on a card
+     *
+     */
     suspend fun onCardCorrect(card: Card) {
         if (card.level < 4) {
             appRepository.upgradeLevelOnCard(card.cardId)
@@ -145,24 +196,100 @@ class BoxScreenViewModel(
             appRepository.downgradeLevelOnCard(card.cardId)
         }
     }
-}
 
-data class UiTagWithCards(
-    val tag: Tag = emptyTag,
-    val cardList: List<Card> = listOf()
-)
 
-data class UiBoxWithTags(
-    val box: Box = emptyBox,
-    val tagList: List<Tag> = listOf()
-)
+    /** currentCard
+     * used to select a card to open the CardDialog
+     */
+    val currentCard = MutableStateFlow(emptyCard)
 
-data class UiCardsWithTags(
-    val cardWithTagList: List<CardWithTags> = listOf()
-)
+    fun setCurrentCard(card: Card) {
+        currentCard.update { card }
+    }
 
-sealed interface BoxScreenState {
-    data object VIEW: BoxScreenState
-    data object EDIT: BoxScreenState
-    data object TRAIN: BoxScreenState
+    fun resetCurrentCard() {
+        currentCard.update { emptyCard }
+    }
+
+    /** uiCardWithTags is a StateFlow that emits an empty list when the currentCard
+    * is the emptyCard and a list of tags of this card otherwise
+    */
+    val uiCardWithTags: StateFlow<UiCardWithTags> = currentCard
+        .flatMapLatest {
+            when (it) {
+                emptyCard -> flow {
+                    emit(
+                        CardWithTags(
+                            card = emptyCard,
+                            tags = listOf()
+                        )
+                    )
+                }
+
+                else -> appRepository.getCardWithTagsStream(currentCard.value.cardId)
+            }
+        }
+        .filterNotNull()
+        .map {
+            UiCardWithTags(
+                card = it.card,
+                tagList = it.tags,
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = UiCardWithTags()
+        )
+
+
+    /** cardUiState
+     * sets the Ui for viewing and editing a card
+     */
+    var cardUiState by mutableStateOf(CardState())
+
+    fun resetUiStatus() {
+        cardUiState = CardState()
+    }
+
+    fun updateUiState(cardDetails: CardDetails) {
+        cardUiState =
+            CardState(
+                cardDetails = cardDetails,
+                isValid = validateInput(cardDetails)
+            )
+    }
+
+    private fun validateInput(
+        uiState: CardDetails = cardUiState.cardDetails
+    ): Boolean {
+        return with(uiState) {
+            word.isNotBlank() && meaning.isNotBlank()
+        }
+    }
+
+
+    /** functions for saving and deleting a card */
+    suspend fun saveCard() {
+        updateUiState(cardUiState.cardDetails.copy(boxId = boxId))
+        if (validateInput(cardUiState.cardDetails)) {
+            appRepository.upsertCard(cardUiState.cardDetails.toCard())
+        }
+    }
+
+    suspend fun deleteCard(card: Card) {
+        appRepository.deleteCard(cardId = card.cardId)
+    }
+
+    /** functions for adding and deleting a tag to/from a card */
+    suspend fun saveTagToCard(tagId: Long) {
+        appRepository.upsertTagCardCrossRef(
+            TagCardCrossRef(cardId = cardUiState.cardDetails.id, tagId = tagId)
+        )
+    }
+
+    suspend fun deleteTagFromCard(tagId: Long) {
+        appRepository.deleteTagCardCrossRef(
+            cardId = cardUiState.cardDetails.id, tagId = tagId
+        )
+    }
 }

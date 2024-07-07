@@ -14,8 +14,8 @@ import com.example.indexcards.utils.box.emptyBox
 @Composable
 fun DeleteBoxDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit = { },
-    onDelete: () -> Unit = { },
+    onDismiss: () -> Unit = {},
+    onDelete: () -> Unit = {},
     boxToBeDeleted: Box,
 ) {
     AlertDialog(

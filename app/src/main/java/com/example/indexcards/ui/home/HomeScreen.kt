@@ -154,7 +154,7 @@ fun HomeScreen(
             onDelete = {
                 deleteDialog = false
                 homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.deleteBox()
+                    homeScreenViewModel.deleteBox(currentBox.boxId)
                     homeScreenViewModel.resetCurrentBox()
                 }
             },

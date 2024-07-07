@@ -58,6 +58,7 @@ class HomeScreenViewModel(
                 initialValue = UiBoxList()
             )
 
+
     /** currentBox
      * used to select a box to go to BoxScreen (via boxId) or to delete a box
      */
@@ -72,14 +73,6 @@ class HomeScreenViewModel(
     fun resetCurrentBox() {
         viewModelScope.launch {
             currentBox.update { emptyBox }
-        }
-    }
-
-    fun deleteBox() {
-        if (currentBox.value != emptyBox) {
-            viewModelScope.launch {
-                appRepository.deleteBox(currentBox.value.boxId)
-            }
         }
     }
 

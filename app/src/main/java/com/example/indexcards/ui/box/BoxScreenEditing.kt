@@ -30,10 +30,10 @@ import com.example.indexcards.utils.box.toBox
 @Composable
 fun BoxScreenEditing(
     modifier: Modifier = Modifier,
-    boxScreenViewModel: BoxScreenViewModel,
-    onSave: () -> Unit,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {}
+    requestNotificationPermission: () -> Unit = {},
+    onSave: () -> Unit = {},
+    boxScreenViewModel: BoxScreenViewModel,
 ) {
     val boxUiState = boxScreenViewModel.boxUiState
     val isLanguage = boxUiState.boxDetails.toBox().isLanguage()
