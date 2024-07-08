@@ -79,6 +79,10 @@ class OfflineAppRepository(
         return appDao.getBiggestCardId() ?: -1
     }
 
+    override suspend fun getBiggestTagId(): Long {
+        return appDao.getBiggestTagId() ?: -1
+    }
+
     override suspend fun upgradeLevelOnCard(cardId: Long) = appDao.upgradeLevelOnCard(cardId)
 
     override suspend fun downgradeLevelOnCard(cardId: Long) = appDao.downgradeLevelOnCard(cardId)

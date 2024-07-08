@@ -31,28 +31,24 @@ import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
-import com.example.indexcards.utils.card.toCardDetails
 import com.example.indexcards.utils.card.toCardState
-import com.example.indexcards.utils.tag.EditTagViewModel
 import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.tag.toColor
 import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
 
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
-    navigateToBoxesOverview: () -> Unit,
     boxId: Long, /* Is only here for boxScreenViewModel to work */
     startLevel: Int = -1,
+    hasNotificationPermission: Boolean = false,
+    navigateToBoxesOverview: () -> Unit = {},
+    requestNotificationPermission: () -> Unit = {},
+    scheduleNotification: (Long) -> Unit = {},
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
-    editTagViewModel: EditTagViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
-    hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {},
-    scheduleNotification: (Long) -> Unit = {}
 ) {
     /** Navigation on the BoxScreen */
     val boxScreenState = boxScreenViewModel.boxScreenState
@@ -60,6 +56,7 @@ fun BoxScreen(
     /** uiStates of Box (fixed) and Card (dynamic) */
     val boxUiState = boxScreenViewModel.boxUiState
     val cardUiState = boxScreenViewModel.cardUiState
+    val tagUiState = boxScreenViewModel.tagUiState
     val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
     val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
@@ -111,17 +108,14 @@ fun BoxScreen(
         }
     }
 
-    fun showEditTagDialog() {
+    fun showEditTagDialog(tag: Tag) {
         newTag = false; tagDialog = true
+        boxScreenViewModel.setColor(tag.color)
+        boxScreenViewModel.setTagUiState(tag.toTagDetails())
     }
 
     fun showNewTagDialog() {
         newTag = true; tagDialog = true
-    }
-
-    fun onTagLongClick(item: Tag) {
-        editTagViewModel.setColor(item.color)
-        editTagViewModel.updateUiState(item.toTagDetails())
     }
 
     BackHandler {
@@ -198,7 +192,7 @@ fun BoxScreen(
                         editCardDialog = true
                     },
                     showNewTagDialog = { showNewTagDialog() },
-                    onTagLongClick = { onTagLongClick(it) },
+                    onTagLongClick = { showEditTagDialog(it) },
                     levelSelected = levelSelected,
                     selectLevel = { boxScreenViewModel.setLevelSelected(it) },
                     setTagSortedBy = { boxScreenViewModel.setTagSelected(it) },
@@ -287,7 +281,7 @@ fun BoxScreen(
                 }
             },
             showNewTagDialog = { showNewTagDialog() },
-            showEditTagDialog = { showEditTagDialog() },
+            showEditTagDialog = { showEditTagDialog(it) },
         )
     }
 
@@ -302,7 +296,7 @@ fun BoxScreen(
             },
             onDeleteCard = { deleteDialog = true },
             showNewTagDialog = { showNewTagDialog() },
-            showEditTagDialog = { showEditTagDialog() },
+            showEditTagDialog = { showEditTagDialog(it) },
             updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             saveCard = {
                 boxScreenViewModel.saveCard()
@@ -336,8 +330,28 @@ fun BoxScreen(
     if (tagDialog) {
         TagDialog(
             modifier = Modifier,
-            onDismiss = { tagDialog = false },
-            newTag = newTag
+            newTag = newTag,
+            tagUiState = tagUiState,
+            initialColor = boxScreenViewModel.colorUiState.toColor(),
+            onDismiss = {
+                tagDialog = false
+                boxScreenViewModel.resetTagUiState()
+            },
+            updateUiState = { boxScreenViewModel.setTagUiState(it) },
+            saveTag = {
+                tagDialog = false
+                boxScreenViewModel.saveNewTag()
+            },
+            updateTag = {
+                tagDialog = false
+                boxScreenViewModel.updateTag()
+            },
+            setColor = { boxScreenViewModel.setColor(it) },
+            onDelete = {
+                tagDialog = false
+                boxScreenViewModel.deleteTag()
+                boxScreenViewModel.resetTagUiState()
+            }
         )
     }
 

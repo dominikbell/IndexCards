@@ -41,6 +41,8 @@ interface AppRepository {
 
     suspend fun getBiggestCardId(): Long
 
+    suspend fun getBiggestTagId(): Long
+
     suspend fun upgradeLevelOnCard(cardId: Long)
 
     suspend fun downgradeLevelOnCard(cardId: Long)

@@ -26,19 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.card.CardViewModel
-import com.example.indexcards.utils.card.EditCardViewModel
-import com.example.indexcards.utils.card.toCardDetails
-import kotlinx.coroutines.launch
 
 @Composable
 fun CardList(

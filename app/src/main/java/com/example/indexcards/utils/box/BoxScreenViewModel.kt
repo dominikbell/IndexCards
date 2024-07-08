@@ -1,5 +1,6 @@
 package com.example.indexcards.utils.box
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +12,7 @@ import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
+import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.UserPreferences
 import com.example.indexcards.utils.card.CardDetails
 import com.example.indexcards.utils.card.CardState
@@ -18,7 +20,11 @@ import com.example.indexcards.utils.card.UiCardWithTags
 import com.example.indexcards.utils.card.emptyCard
 import com.example.indexcards.utils.card.toCard
 import com.example.indexcards.utils.card.toCardDetails
+import com.example.indexcards.utils.tag.TagDetails
+import com.example.indexcards.utils.tag.TagState
+import com.example.indexcards.utils.tag.UiColorState
 import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.tag.toTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,7 +56,7 @@ class BoxScreenViewModel(
     appRepository: AppRepository,
     savedStateHandle: SavedStateHandle,
     private val userPreferences: UserPreferences
-) : BoxViewModel(
+) : AppViewModel(
     appRepository = appRepository,
 ) {
     /** boxId from savedStateHandle to know which box it is */
@@ -111,10 +117,6 @@ class BoxScreenViewModel(
         } else {
             levelSelected.update { newLevel }
         }
-    }
-
-    fun resetLevelSelected() {
-        levelSelected.update { -1 }
     }
 
 
@@ -297,8 +299,12 @@ class BoxScreenViewModel(
                     }
                 updateCardState(cardUiState.cardDetails.copy(id = cardId, boxId = boxId))
                 appRepository.upsertCard(cardUiState.cardDetails.toCard())
-                for (tag in cardUiState.tagList) {
-                    saveTagToCard(cardId = cardId, tagId = tag.tagId)
+                for (tag in uiBoxWithTags.value.tagList) {
+                    if (cardUiState.tagList.contains(tag)) {
+                        saveTagToCard(cardId = cardId, tagId = tag.tagId)
+                    } else {
+                        deleteTagFromCard(cardId = cardId, tagId = tag.tagId)
+                    }
                 }
 
                 if (doReset) {
@@ -309,26 +315,15 @@ class BoxScreenViewModel(
         }
     }
 
-//
-//    /** functions for saving and deleting an existing card */
-//    fun saveCard() {
-//        if (validateInput(cardUiState.cardDetails)) {
-//            viewModelScope.launch {
-//                updateCardState(cardUiState.cardDetails.copy(boxId = boxId))
-//                appRepository.upsertCard(cardUiState.cardDetails.toCard())
-//                resetCardUiState()
-//            }
-//        }
-//    }
-
     suspend fun deleteCard(card: Card) {
         appRepository.deleteCard(cardId = card.cardId)
     }
 
+
     /** functions for adding and deleting a tag to/from a card
      * are used upon saving a new card and immediately when clicking
      * on a tag when editing an existing card */
-    suspend fun saveTagToCard(
+    private suspend fun saveTagToCard(
         tagId: Long,
         cardId: Long = currentCard.value.cardId,
     ) {
@@ -337,9 +332,108 @@ class BoxScreenViewModel(
         )
     }
 
-    suspend fun deleteTagFromCard(tagId: Long) {
+    private suspend fun deleteTagFromCard(
+        tagId: Long,
+        cardId: Long = currentCard.value.cardId,
+    ) {
         appRepository.deleteTagCardCrossRef(
-            cardId = currentCard.value.cardId, tagId = tagId
+            cardId = cardId, tagId = tagId
         )
+    }
+
+
+    /** tagUiState
+     * used for the TagDialog where the tag is edited
+     */
+    var tagUiState by mutableStateOf(TagState())
+
+    fun setTagUiState(tagDetails: TagDetails) {
+        tagUiState = TagState(
+            tagDetails = tagDetails,
+            isValid = validateTagInput()
+        )
+    }
+
+    fun resetTagUiState() {
+        setTagUiState(TagDetails())
+    }
+
+    /** ColorUiState, needed since the ColorPicker is a bit picky */
+    var colorUiState by mutableStateOf(UiColorState())
+
+    fun setColor(color: String) {
+        colorUiState =
+            if (validateColor(color)) {
+                UiColorState(color = color)
+            } else {
+                UiColorState(
+//            "#000000"
+                )
+            }
+    }
+
+    private fun validateColor(color: String): Boolean {
+        return (color.first() == '#' && (color.length == 7 || color.length == 9))
+    }
+
+
+    /** Functions for saving, updating, and deleting tags
+     * are more complicated since a tag should be added automatically to the cardUiState
+     * when it is being created from a cardDialog. For this we need to know the new cardId
+     * to create the reference in the database.
+     */
+    fun saveNewTag() {
+        setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
+
+        if (validateTagInput(tagUiState.tagDetails)) {
+            viewModelScope.launch {
+                val tagId: Long = appRepository.getBiggestTagId() + 1
+                setTagUiState(
+                    tagUiState.tagDetails.copy(
+                        id = tagId,
+                        boxId = boxId,
+                    )
+                )
+                appRepository.insertTag(tagUiState.tagDetails.toTag())
+
+                /* If the tag was created when the cardDialog was open, it should be added to that card */
+                if (currentCard.value != emptyCard) {
+                    updateCardState(
+                        tagList = cardUiState.tagList.plus(tagUiState.tagDetails.toTag())
+                    )
+                }
+
+                resetTagUiState()
+            }
+        }
+    }
+
+    fun updateTag() {
+        setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
+        if (validateTagInput(tagUiState.tagDetails)) {
+            /* If the tag was in the cards tagList before, it should be there after updating */
+            if (cardUiState.tagList.map { it.tagId }.contains(tagUiState.tagDetails.id)) {
+                updateCardState(
+                    tagList = cardUiState.tagList.plus(tagUiState.tagDetails.toTag())
+                )
+            }
+            viewModelScope.launch {
+                appRepository.updateTag(tagUiState.tagDetails.toTag())
+            }
+        }
+    }
+
+    fun deleteTag() {
+        viewModelScope.launch {
+            appRepository.deleteTag(tagUiState.tagDetails.id)
+        }
+    }
+
+    private fun validateTagInput(
+        newTagUiState: TagDetails = tagUiState.tagDetails
+    ): Boolean {
+        return with(newTagUiState) {
+            text.isNotBlank() && color.isNotBlank()
+        }
     }
 }

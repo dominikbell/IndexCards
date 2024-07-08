@@ -11,35 +11,37 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
 import com.example.indexcards.ui.elements.RequiredFieldsText
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.tag.EditTagViewModel
-import com.example.indexcards.utils.tag.toColor
+import com.example.indexcards.utils.tag.TagDetails
+import com.example.indexcards.utils.tag.TagState
+import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.tag.toTagDetails
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import kotlinx.coroutines.launch
 
 @Composable
 fun TagDialog(
     modifier: Modifier = Modifier,
     newTag: Boolean,
-    onDismiss: () -> Unit,
-    editTagViewModel: EditTagViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    )
+    tagUiState: TagState,
+    initialColor: Color,
+    updateUiState: (TagDetails) -> Unit = {},
+    setColor: (String) -> Unit = {},
+    onDismiss: () -> Unit = {},
+    saveTag: () -> Unit = {},
+    updateTag: () -> Unit = {},
+    onDelete: () -> Unit = {},
 ) {
-    val tagUiState = editTagViewModel.tagUiState
     val controller = rememberColorPickerController()
     val titleText = if (newTag) {
         stringResource(R.string.new_tag)
@@ -47,16 +49,9 @@ fun TagDialog(
         stringResource(R.string.edit_tag)
     }
 
-    val initialColor = editTagViewModel.colorUiState.toColor()
-
-    fun newOnDismiss() {
-        onDismiss()
-        editTagViewModel.resetUiState()
-    }
-
     AlertDialog(
         modifier = modifier,
-        onDismissRequest = { newOnDismiss() },
+        onDismissRequest = { onDismiss() },
         title = { Text(text = titleText) },
         text = {
             Column(
@@ -66,7 +61,7 @@ fun TagDialog(
                     value = tagUiState.tagDetails.text,
                     label = { Text(text = stringResource(R.string.tag_name) + "*") },
                     onValueChange = {
-                        editTagViewModel.updateUiState(
+                        updateUiState(
                             tagUiState.tagDetails.copy(text = it)
                         )
                     }
@@ -92,7 +87,7 @@ fun TagDialog(
                     initialColor = initialColor,
                     onColorChanged = { colorEnvelope: ColorEnvelope ->
                         /* Hot fix for bug that resets text field */
-                        editTagViewModel.setColor('#' + colorEnvelope.hexCode)
+                        setColor('#' + colorEnvelope.hexCode)
                     },
                 )
             }
@@ -102,15 +97,10 @@ fun TagDialog(
             TextButton(
                 onClick = {
                     if (newTag) {
-                        editTagViewModel.viewModelScope.launch {
-                            editTagViewModel.saveTag()
-                        }
+                        saveTag()
                     } else {
-                        editTagViewModel.viewModelScope.launch {
-                            editTagViewModel.updateTag()
-                        }
+                        updateTag()
                     }
-                    newOnDismiss()
                 }) {
                 Text(text = stringResource(R.string.save))
             }
@@ -118,15 +108,12 @@ fun TagDialog(
 
         dismissButton = {
             Row {
-                TextButton(onClick = { newOnDismiss() }) {
+                TextButton(onClick = { onDismiss() }) {
                     Text(text = stringResource(R.string.cancel))
                 }
                 if (!newTag) {
                     TextButton(onClick = {
-                        newOnDismiss()
-                        editTagViewModel.viewModelScope.launch {
-                            editTagViewModel.deleteTag()
-                        }
+                        onDelete()
                     }) {
                         Text(text = stringResource(R.string.delete))
                     }
@@ -138,12 +125,20 @@ fun TagDialog(
 
 @Preview
 @Composable
-fun TagDialogPreview() {
+fun NewTagDialogPreview() {
     TagDialog(
         newTag = true,
-        onDismiss = { },
-        editTagViewModel = viewModel(
-            factory = ViewModelProvider(context = LocalContext.current).factory
-            )
+        initialColor = Color.Red,
+        tagUiState = TagState(emptyTag.copy(text = "Tag123").toTagDetails())
+    )
+}
+
+@Preview
+@Composable
+fun EditTagDialogPreview() {
+    TagDialog(
+        newTag = false,
+        initialColor = Color.Red,
+        tagUiState = TagState(emptyTag.copy(text = "Tag123").toTagDetails())
     )
 }

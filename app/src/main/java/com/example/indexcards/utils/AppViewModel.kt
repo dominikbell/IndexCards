@@ -1,13 +1,69 @@
 package com.example.indexcards.utils
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
+import com.example.indexcards.utils.box.BoxDetails
+import com.example.indexcards.utils.box.BoxState
+import com.example.indexcards.utils.box.toBox
+import kotlinx.coroutines.launch
 
+/** ParentClass for creating/editing a Box
+ * - displays a BoxUiState
+ * - upon saving, writes this BoxUiState to the database
+ */
 open class AppViewModel(
     val appRepository: AppRepository,
 ) : ViewModel() {
+    /** Companion object used for converting Flows to StateFlows
+     */
     companion object {
         const val TIMEOUT_MILLIS = 5_000L
+    }
+
+
+    /** boxUiState
+     * sets the Ui for viewing and editing a box
+     */
+    var boxUiState by mutableStateOf(BoxState())
+
+    fun resetBoxUiState() {
+        boxUiState = BoxState()
+    }
+
+    fun updateBoxUiState(boxDetails: BoxDetails) {
+        viewModelScope.launch {
+            boxUiState = BoxState(
+                boxDetails = boxDetails,
+                isValid = validateInput(boxDetails)
+            )
+        }
+    }
+
+    private fun validateInput(boxDetails: BoxDetails): Boolean {
+        return (boxDetails.name.isNotBlank() && boxDetails.topic.isNotBlank() && boxDetails.id != (-1).toLong())
+    }
+
+
+    /** functions for saving a box from the boxUiState and deleting a box using the boxId
+     */
+    fun saveBox() {
+        viewModelScope.launch {
+            if (boxUiState.isValid) {
+                appRepository.upsertBox(boxUiState.boxDetails.toBox())
+            } else {
+                /* TODO: implement what to do when entry is not valid */
+            }
+        }
+    }
+
+    fun deleteBox(boxId: Long) {
+        viewModelScope.launch {
+            appRepository.deleteBox(boxId = boxId)
+        }
     }
 }

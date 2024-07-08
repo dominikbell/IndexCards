@@ -6,10 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
+import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UiPreferences
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.box.BoxViewModel
 import com.example.indexcards.utils.box.emptyBox
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 class HomeScreenViewModel(
     appRepository: AppRepository,
     private val userPreferences: UserPreferences
-) : BoxViewModel(
+) : AppViewModel(
     appRepository = appRepository,
 ) {
     /** homeScreenState
