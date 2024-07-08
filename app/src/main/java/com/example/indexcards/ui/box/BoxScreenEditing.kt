@@ -10,11 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
 import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.DescriptionField
@@ -23,21 +21,23 @@ import com.example.indexcards.ui.elements.NameField
 import com.example.indexcards.ui.elements.RemindersSwitch
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.TopicField
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.box.BoxDetails
+import com.example.indexcards.utils.box.BoxState
+import com.example.indexcards.utils.box.emptyBox
 import com.example.indexcards.utils.box.toBox
+import com.example.indexcards.utils.box.toBoxDetails
 
 @Composable
 fun BoxScreenEditing(
     modifier: Modifier = Modifier,
+    boxUiState: BoxState,
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Unit = {},
     onSave: () -> Unit = {},
-    boxScreenViewModel: BoxScreenViewModel,
+    updateBoxUiState: (BoxDetails) -> Unit = {},
 ) {
-    val boxUiState = boxScreenViewModel.boxUiState
     val isLanguage = boxUiState.boxDetails.toBox().isLanguage()
-    val isEnabled = boxUiState.boxDetails.reminders
+    val remindersEnabled = boxUiState.boxDetails.reminders
 
     Column(
         modifier = modifier
@@ -48,32 +48,26 @@ fun BoxScreenEditing(
         NameField(
             modifier = Modifier.fillMaxWidth(),
             boxUiState = boxUiState,
-            onValueChange = { boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(name = it)) }
+            onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(name = it)) }
         )
         if (isLanguage) {
             LanguageDropDownMenu(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
-                onValueChange = {
-                    boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it))
-                }
+                onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(topic = it)) }
             )
         } else {
             TopicField(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
-                onValueChange = {
-                    boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it))
-                }
+                onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(topic = it)) }
             )
         }
 
         DescriptionField(
             modifier = Modifier.fillMaxWidth(),
             boxUiState = boxUiState,
-            onValueChange = {
-                boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(description = it))
-            }
+            onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(description = it)) }
         )
 
         RequiredFieldsText()
@@ -82,10 +76,8 @@ fun BoxScreenEditing(
 
         RemindersSwitch(
             modifier = modifier,
-            enabled = (isEnabled && hasNotificationPermission),
-            onCheckedChange = {
-                boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(reminders = !isEnabled))
-            },
+            enabled = (remindersEnabled && hasNotificationPermission),
+            onCheckedChange = { updateBoxUiState(boxUiState.boxDetails.copy(reminders = !remindersEnabled)) },
             hasNotificationPermission = hasNotificationPermission,
             requestNotificationPermission = { requestNotificationPermission() }
         )
@@ -101,13 +93,16 @@ fun BoxScreenEditing(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun BoxScreenEditingPreview() {
     BoxScreenEditing(
-        boxScreenViewModel = viewModel(
-            factory = ViewModelProvider(context = LocalContext.current).factory
-        ),
-        onSave = { }
+        boxUiState = BoxState(
+            emptyBox.copy(
+                name = "Box1234",
+                description = "This is a descreibung",
+                topic = "Holz"
+            ).toBoxDetails()
+        )
     )
 }

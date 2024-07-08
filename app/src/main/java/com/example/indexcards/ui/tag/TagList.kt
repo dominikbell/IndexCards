@@ -30,9 +30,9 @@ import com.example.indexcards.utils.tag.toTagDetails
 fun TagList(
     modifier: Modifier = Modifier,
     tagList: List<Tag>,
+    selectedTags: List<Tag>,
     onClick: (Tag) -> Unit = {},
     onLongClick: (Tag) -> Unit = {},
-    selectedTags: List<Tag>,
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
@@ -58,9 +58,9 @@ fun TagList(
 fun TagListItem(
     modifier: Modifier = Modifier,
     item: Tag,
+    selectedTags: List<Tag>,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
-    selectedTags: List<Tag>,
 ) {
     val selected = (selectedTags.contains(item))
 

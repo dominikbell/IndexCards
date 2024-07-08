@@ -139,7 +139,7 @@ fun HomeScreen(
             requestNotificationPermission = { requestNotificationPermission() },
             onDismiss = {
                 addDialog = false
-                homeScreenViewModel.resetUiState()
+                homeScreenViewModel.resetBoxUiState()
             },
             onSave = { homeScreenViewModel.saveBox() }
         )

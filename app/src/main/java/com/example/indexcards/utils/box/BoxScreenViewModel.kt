@@ -17,6 +17,7 @@ import com.example.indexcards.utils.card.CardState
 import com.example.indexcards.utils.card.UiCardWithTags
 import com.example.indexcards.utils.card.emptyCard
 import com.example.indexcards.utils.card.toCard
+import com.example.indexcards.utils.card.toCardDetails
 import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 /** ViewModel for the BoxScreen
@@ -182,7 +184,7 @@ class BoxScreenViewModel(
     }
 
 
-    /** functions that up-/downgrade the level on a card
+    /** functions for training that up-/downgrade the level on a card
      *
      */
     suspend fun onCardCorrect(card: Card) {
@@ -212,8 +214,8 @@ class BoxScreenViewModel(
     }
 
     /** uiCardWithTags is a StateFlow that emits an empty list when the currentCard
-    * is the emptyCard and a list of tags of this card otherwise
-    */
+     * is the emptyCard and a list of tags of this card otherwise
+     */
     val uiCardWithTags: StateFlow<UiCardWithTags> = currentCard
         .flatMapLatest {
             when (it) {
@@ -243,20 +245,35 @@ class BoxScreenViewModel(
 
 
     /** cardUiState
-     * sets the Ui for viewing and editing a card
+     * sets the Ui for creating and editing a card
      */
     var cardUiState by mutableStateOf(CardState())
 
-    fun resetUiStatus() {
+    fun setCardUiStateFromCurrentCard() {
+        cardUiState = CardState(
+            cardDetails = uiCardWithTags.value.card.toCardDetails(),
+            tagList = uiCardWithTags.value.tagList,
+        )
+    }
+
+    fun resetCardUiState() {
         cardUiState = CardState()
     }
 
-    fun updateUiState(cardDetails: CardDetails) {
+    fun updateCardState(
+        cardDetails: CardDetails = cardUiState.cardDetails,
+        tagList: List<Tag> = cardUiState.tagList
+    ) {
         cardUiState =
             CardState(
                 cardDetails = cardDetails,
+                tagList = tagList,
                 isValid = validateInput(cardDetails)
             )
+    }
+
+    fun updateCardState(cardState: CardState) {
+        cardUiState = cardState
     }
 
     private fun validateInput(
@@ -268,28 +285,61 @@ class BoxScreenViewModel(
     }
 
 
-    /** functions for saving and deleting a card */
-    suspend fun saveCard() {
-        updateUiState(cardUiState.cardDetails.copy(boxId = boxId))
+    /** functions for saving and deleting a new card */
+    fun saveCard(doReset: Boolean = false) {
         if (validateInput(cardUiState.cardDetails)) {
-            appRepository.upsertCard(cardUiState.cardDetails.toCard())
+            viewModelScope.launch {
+                val cardId =
+                    if (cardUiState.cardDetails.id == (-1).toLong()) {
+                        appRepository.getBiggestCardId() + 1
+                    } else {
+                        cardUiState.cardDetails.id
+                    }
+                updateCardState(cardUiState.cardDetails.copy(id = cardId, boxId = boxId))
+                appRepository.upsertCard(cardUiState.cardDetails.toCard())
+                for (tag in cardUiState.tagList) {
+                    saveTagToCard(cardId = cardId, tagId = tag.tagId)
+                }
+
+                if (doReset) {
+                    resetCurrentCard()
+                    resetCardUiState()
+                }
+            }
         }
     }
+
+//
+//    /** functions for saving and deleting an existing card */
+//    fun saveCard() {
+//        if (validateInput(cardUiState.cardDetails)) {
+//            viewModelScope.launch {
+//                updateCardState(cardUiState.cardDetails.copy(boxId = boxId))
+//                appRepository.upsertCard(cardUiState.cardDetails.toCard())
+//                resetCardUiState()
+//            }
+//        }
+//    }
 
     suspend fun deleteCard(card: Card) {
         appRepository.deleteCard(cardId = card.cardId)
     }
 
-    /** functions for adding and deleting a tag to/from a card */
-    suspend fun saveTagToCard(tagId: Long) {
+    /** functions for adding and deleting a tag to/from a card
+     * are used upon saving a new card and immediately when clicking
+     * on a tag when editing an existing card */
+    suspend fun saveTagToCard(
+        tagId: Long,
+        cardId: Long = currentCard.value.cardId,
+    ) {
         appRepository.upsertTagCardCrossRef(
-            TagCardCrossRef(cardId = cardUiState.cardDetails.id, tagId = tagId)
+            TagCardCrossRef(cardId = cardId, tagId = tagId)
         )
     }
 
     suspend fun deleteTagFromCard(tagId: Long) {
         appRepository.deleteTagCardCrossRef(
-            cardId = cardUiState.cardDetails.id, tagId = tagId
+            cardId = currentCard.value.cardId, tagId = tagId
         )
     }
 }

@@ -38,18 +38,18 @@ import com.example.indexcards.utils.tag.emptyTag
 @Composable
 fun BoxScreenBody(
     modifier: Modifier = Modifier,
-    showCardDialog: (Card) -> Unit = { },
-    showEditCardDialog: (Card) -> Unit = { },
-    showNewTagDialog: () -> Unit = { },
-    onTagLongClick: (Tag) -> Unit = { },
     levelSelected: Int,
-    selectLevel: (Int) -> Unit = { },
-    setTagSortedBy: (Tag) -> Unit = { },
-    resetTagSortedBy: () -> Unit = { },
     boxWithTags: UiBoxWithTags,
     cardsWithTags: UiCardsWithTags,
     tagWithCards: UiTagWithCards,
     filteredCardWithTagList: List<CardWithTags>,
+    showCardDialog: (Card) -> Unit = {},
+    showEditCardDialog: (Card) -> Unit = {},
+    showNewTagDialog: () -> Unit = {},
+    onTagLongClick: (Tag) -> Unit = {},
+    selectLevel: (Int) -> Unit = {},
+    setTagSortedBy: (Tag) -> Unit = {},
+    resetTagSortedBy: () -> Unit = {},
 ) {
     Column(
         modifier = modifier

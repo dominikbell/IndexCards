@@ -17,6 +17,7 @@ val emptyCard: Card = Card(
 
 data class CardState(
     val cardDetails: CardDetails = CardDetails(),
+    val tagList: List<Tag> = listOf(),
     val isValid: Boolean = false
 )
 
@@ -39,11 +40,6 @@ fun CardDetails.toCard(): Card = Card(
     dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
 )
 
-fun Card.toCardState(isValid: Boolean = false) : CardState = CardState(
-    cardDetails = this.toCardDetails(),
-    isValid = isValid
-)
-
 fun Card.toCardDetails(): CardDetails = CardDetails(
     id = cardId,
     word = word,
@@ -52,6 +48,13 @@ fun Card.toCardDetails(): CardDetails = CardDetails(
     boxId = boxId,
     level = level
 )
+
+fun UiCardWithTags.toCardState(isValid: Boolean): CardState =
+    CardState(
+        cardDetails = card.toCardDetails(),
+        tagList = tagList,
+        isValid = isValid
+    )
 
 data class UiCardWithTags(
     val card: Card = emptyCard,

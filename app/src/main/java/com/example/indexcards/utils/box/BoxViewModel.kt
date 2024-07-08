@@ -23,11 +23,11 @@ open class BoxViewModel(
      */
     var boxUiState by mutableStateOf(BoxState())
 
-    fun resetUiState() {
+    fun resetBoxUiState() {
         boxUiState = BoxState()
     }
 
-    fun updateUiState(boxDetails: BoxDetails) {
+    fun updateBoxUiState(boxDetails: BoxDetails) {
         viewModelScope.launch {
             boxUiState = BoxState(
                 boxDetails = boxDetails,

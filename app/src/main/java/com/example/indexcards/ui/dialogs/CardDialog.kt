@@ -40,10 +40,10 @@ import com.example.indexcards.utils.card.emptyCard
 fun CardDialog(
     modifier: Modifier = Modifier,
     cardWithTags: UiCardWithTags,
-    onDismiss: () -> Unit,
-    showEditCardDialog: () -> Unit,
     isEditing: Boolean,
-    showDelete: (Card) -> Unit,
+    onDismiss: () -> Unit = {},
+    showEditCardDialog: () -> Unit = {},
+    showDelete: (Card) -> Unit = {},
 ) {
     Dialog(
         onDismissRequest = {
@@ -152,23 +152,6 @@ fun CardDialogPreview() {
         cardWithTags = UiCardWithTags(
             card = emptyCard.copy(word = "Test123", meaning = "Meaning"),
         ),
-        onDismiss = { },
-        showEditCardDialog = { },
         isEditing = false,
-        showDelete = { }
-    )
-}
-
-@Preview
-@Composable
-fun EditCardDialogPreview() {
-    CardDialog(
-        onDismiss = { },
-        cardWithTags = UiCardWithTags(
-            card = emptyCard.copy(word = "Test123", meaning = "Meaning"),
-        ),
-        showEditCardDialog = { },
-        isEditing = true,
-        showDelete = { }
     )
 }
