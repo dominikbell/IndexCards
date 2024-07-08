@@ -141,7 +141,8 @@ fun HomeScreen(
                 addDialog = false
                 homeScreenViewModel.resetBoxUiState()
             },
-            onSave = { homeScreenViewModel.saveBox() }
+            onSave = { homeScreenViewModel.saveBox() },
+            updateUiState = { homeScreenViewModel.updateBoxUiState(it) }
         )
     }
 

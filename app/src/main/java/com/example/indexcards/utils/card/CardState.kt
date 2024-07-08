@@ -22,8 +22,8 @@ data class CardState(
 )
 
 data class CardDetails(
-    val id: Long = 0,
-    val boxId: Long = 0,
+    val id: Long = -1,
+    val boxId: Long = -1,
     val word: String = "",
     val meaning: String = "",
     val notes: String = "",

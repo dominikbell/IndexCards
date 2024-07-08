@@ -73,7 +73,7 @@ fun BoxScreen(
     var deleteCardDialog by remember { mutableStateOf(false) }
     var newTag by remember { mutableStateOf(true) }
     var tagDialog by remember { mutableStateOf(false) }
-    var deleteDialog by remember { mutableStateOf(false) }
+    var deleteBoxDialog by remember { mutableStateOf(false) }
 
     val filteredCardWithTagList =
         if (levelSelected == -1) {
@@ -109,9 +109,9 @@ fun BoxScreen(
     }
 
     fun showEditTagDialog(tag: Tag) {
-        newTag = false; tagDialog = true
         boxScreenViewModel.setColor(tag.color)
         boxScreenViewModel.setTagUiState(tag.toTagDetails())
+        newTag = false; tagDialog = true
     }
 
     fun showNewTagDialog() {
@@ -165,7 +165,7 @@ fun BoxScreen(
 
                 BoxScreenState.EDIT -> {
                     FloatingActionButton(
-                        onClick = { deleteDialog = true }
+                        onClick = { deleteBoxDialog = true }
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
@@ -180,15 +180,11 @@ fun BoxScreen(
                 BoxScreenBody(
                     modifier = modifier.padding(innerPadding),
                     showCardDialog = {
-                        boxScreenViewModel.viewModelScope.launch {
-                            boxScreenViewModel.setCurrentCard(it)
-                        }
+                        boxScreenViewModel.setCurrentCard(it)
                         cardDialog = true
                     },
                     showEditCardDialog = {
-                        boxScreenViewModel.viewModelScope.launch {
-                            boxScreenViewModel.setCardUiStateFromCurrentCard()
-                        }
+                        boxScreenViewModel.setCardUiStateFromCurrentCard()
                         editCardDialog = true
                     },
                     showNewTagDialog = { showNewTagDialog() },
@@ -267,7 +263,7 @@ fun BoxScreen(
             updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             onDismiss = {
                 newCardDialog = false
-                boxScreenViewModel.resetCardUiState()
+                boxScreenViewModel.resetCard()
             },
             saveCard = {
                 newCardDialog = false
@@ -290,17 +286,17 @@ fun BoxScreen(
             boxWithTags = boxWithTags,
             cardWithTags = cardWithTags,
             cardUiState = cardUiState,
+            updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             onDismiss = {
                 boxScreenViewModel.updateCardState(cardWithTags.toCardState(true))
                 editCardDialog = false
             },
-            onDeleteCard = { deleteDialog = true },
+            onDeleteCard = { deleteCardDialog = true },
             showNewTagDialog = { showNewTagDialog() },
             showEditTagDialog = { showEditTagDialog(it) },
-            updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             saveCard = {
-                boxScreenViewModel.saveCard()
                 editCardDialog = false
+                boxScreenViewModel.saveCard(doReset = false)
             },
             clickOnTag = {
                 if (cardUiState.tagList.contains(it)) {
@@ -317,12 +313,12 @@ fun BoxScreen(
             currentCard = currentCard,
             onDismiss = {
                 deleteCardDialog = false
-                boxScreenViewModel.resetCurrentCard()
             },
             deleteCard = {
-                boxScreenViewModel.viewModelScope.launch {
-                    boxScreenViewModel.deleteCard(currentCard)
-                }
+                cardDialog = false
+                editCardDialog = false
+                deleteCardDialog = false
+                boxScreenViewModel.deleteCard(currentCard)
             }
         )
     }
@@ -340,7 +336,9 @@ fun BoxScreen(
             updateUiState = { boxScreenViewModel.setTagUiState(it) },
             saveTag = {
                 tagDialog = false
-                boxScreenViewModel.saveNewTag()
+                boxScreenViewModel.saveNewTag(
+                    addToCard = (editCardDialog || newCardDialog)
+                )
             },
             updateTag = {
                 tagDialog = false
@@ -355,9 +353,9 @@ fun BoxScreen(
         )
     }
 
-    if (deleteDialog) {
+    if (deleteBoxDialog) {
         DeleteBoxDialog(
-            onDismiss = { deleteDialog = false },
+            onDismiss = { deleteBoxDialog = false },
             onDelete = {
                 navigateToBoxesOverview()
                 boxScreenViewModel.deleteBox(boxId = boxId)

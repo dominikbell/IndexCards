@@ -1,6 +1,5 @@
 package com.example.indexcards.utils.box
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -211,7 +210,7 @@ class BoxScreenViewModel(
         currentCard.update { card }
     }
 
-    fun resetCurrentCard() {
+    private fun resetCurrentCard() {
         currentCard.update { emptyCard }
     }
 
@@ -308,15 +307,22 @@ class BoxScreenViewModel(
                 }
 
                 if (doReset) {
-                    resetCurrentCard()
-                    resetCardUiState()
+                    resetCard()
                 }
             }
         }
     }
 
-    suspend fun deleteCard(card: Card) {
-        appRepository.deleteCard(cardId = card.cardId)
+    fun resetCard() {
+        resetCurrentCard()
+        resetCardUiState()
+    }
+
+    fun deleteCard(card: Card) {
+        viewModelScope.launch {
+            appRepository.deleteCard(cardId = card.cardId)
+        }
+        resetCard()
     }
 
 
@@ -382,7 +388,7 @@ class BoxScreenViewModel(
      * when it is being created from a cardDialog. For this we need to know the new cardId
      * to create the reference in the database.
      */
-    fun saveNewTag() {
+    fun saveNewTag(addToCard: Boolean) {
         setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
 
         if (validateTagInput(tagUiState.tagDetails)) {
@@ -397,7 +403,7 @@ class BoxScreenViewModel(
                 appRepository.insertTag(tagUiState.tagDetails.toTag())
 
                 /* If the tag was created when the cardDialog was open, it should be added to that card */
-                if (currentCard.value != emptyCard) {
+                if (addToCard) {
                     updateCardState(
                         tagList = cardUiState.tagList.plus(tagUiState.tagDetails.toTag())
                     )
