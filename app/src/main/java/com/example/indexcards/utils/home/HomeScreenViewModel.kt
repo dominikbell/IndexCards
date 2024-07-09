@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.home
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -8,14 +9,12 @@ import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
-import com.example.indexcards.utils.UiPreferences
 import com.example.indexcards.utils.UserPreferences
 import com.example.indexcards.utils.box.emptyBox
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -80,9 +79,18 @@ class HomeScreenViewModel(
     /** uiPreferences
      * Used for displaying and changing the preferences
      */
-    var uiPreferences by mutableStateOf(UiPreferences())
+    var uiSettings by mutableStateOf(UiSettings())
+    var currentLevel by mutableIntStateOf(-1)
 
-    private val userName: StateFlow<String> = userPreferences.currentUserName
+    fun updateCurrentLevel(newLevel: Int) {
+        currentLevel = newLevel
+    }
+
+    fun resetCurrentLevel() {
+        currentLevel = -1
+    }
+
+    val userName: StateFlow<String> = userPreferences.currentUserName
         .filterNotNull()
         .stateIn(
             scope = viewModelScope,
@@ -90,26 +98,48 @@ class HomeScreenViewModel(
             initialValue = DefaultPreferences.USER_NAME
         )
 
-    fun updateUiUserName(newName: String) {
-        uiPreferences = uiPreferences.copy(userName = newName)
+    val globalReminders: StateFlow<Boolean> = userPreferences.currentGlobalReminders
+        .filterNotNull()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = DefaultPreferences.GLOBAL_REMINDERS
+        )
+
+    val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
+        userPreferences.currentReminderIntervals
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = DefaultPreferences.REMINDER_INTERVALS
+            )
+
+    fun updateUiSettings(settingsDetails: SettingsDetails) {
+        uiSettings = UiSettings(
+            settingsDetails,
+            isValid = settingsDetails.isValid()
+        )
     }
 
-    fun setCurrentUiPreferences() {
-        viewModelScope.launch {
-            uiPreferences = uiPreferences.copy(
-                userName = userPreferences.currentUserName.first(),
-                globalReminders = userPreferences.currentGlobalReminders.first()
-            )
-        }
+    fun resetUiSettings() {
+        uiSettings = UiSettings()
     }
 
-    fun savePreferences() {
-        viewModelScope.launch {
-            userPreferences.saveNewPreferences(
-                userName = uiPreferences.userName,
-                globalReminders = uiPreferences.globalReminders,
-                reminderIntervals = uiPreferences.reminderIntervals
-            )
+    fun savePreferences(doReset: Boolean = false) {
+        if (uiSettings.isValid) {
+            viewModelScope.launch {
+                userPreferences.saveNewPreferences(
+                    userName = uiSettings.settingsDetails.userName,
+                    globalReminders = uiSettings.settingsDetails.globalReminders,
+                    reminderIntervals = uiSettings.settingsDetails.reminderIntervals
+                )
+
+                if (doReset) {
+                    resetUiSettings()
+                    resetCurrentLevel()
+                }
+            }
         }
     }
 }

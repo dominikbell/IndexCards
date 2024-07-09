@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.dialogs
+package com.example.indexcards.ui.box.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
-import com.example.indexcards.ui.tag.TagList
+import com.example.indexcards.ui.box.TagList
 import com.example.indexcards.utils.card.UiCardWithTags
 import com.example.indexcards.utils.card.emptyCard
 

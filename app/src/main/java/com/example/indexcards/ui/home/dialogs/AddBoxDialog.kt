@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.dialogs
+package com.example.indexcards.ui.home.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog

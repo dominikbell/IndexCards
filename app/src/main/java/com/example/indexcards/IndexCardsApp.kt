@@ -10,6 +10,8 @@ import com.example.indexcards.utils.UserPreferences
 
 const val NUMBER_OF_LEVELS: Int = 5
 
+val CHOICES_FOR_REMINDER_INTERVALS: List<String> = listOf("d", "w", "m")
+
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = USER_PREFERENCES_NAME
 )

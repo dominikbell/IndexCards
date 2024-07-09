@@ -103,10 +103,11 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
-            fun requestNotificationPermission() {
+            fun requestNotificationPermission(): Boolean {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
+                return true
             }
 
             IndexCardsTheme {

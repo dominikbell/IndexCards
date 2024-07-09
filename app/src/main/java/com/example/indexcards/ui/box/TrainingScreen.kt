@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.card.emptyCard
 import kotlin.math.min
 
