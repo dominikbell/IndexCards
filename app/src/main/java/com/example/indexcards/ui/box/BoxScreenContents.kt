@@ -1,78 +1,56 @@
 package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.data.LanguageData
+import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.card.CardList
 import com.example.indexcards.ui.elements.LevelList
-import com.example.indexcards.ui.home.DescriptionField
-import com.example.indexcards.ui.home.LanguageDropDownMenu
-import com.example.indexcards.ui.home.NameField
-import com.example.indexcards.ui.home.NewTagButton
-import com.example.indexcards.ui.home.RequiredFieldsText
-import com.example.indexcards.ui.home.TopicField
+import com.example.indexcards.ui.elements.NewTagButton
 import com.example.indexcards.ui.tag.TagList
-import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.UiCardsWithTags
-import kotlin.math.min
+import com.example.indexcards.utils.box.UiTagWithCards
+import com.example.indexcards.utils.box.toBox
+import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.tag.emptyTag
 
 @Composable
 fun BoxScreenBody(
     modifier: Modifier = Modifier,
-    showCard: () -> Unit,
-    showEditCardDialog: () -> Unit,
-    showNewTagDialog: () -> Unit,
-    showEditTagDialog: () -> Unit,
     levelSelected: Int,
-    boxWithTags: UiBoxWithTags = UiBoxWithTags(),
-    cardsWithTags: UiCardsWithTags = UiCardsWithTags(),
-    filteredCardWithTagList: List<CardWithTags> = listOf(),
-    boxScreenViewModel: BoxScreenViewModel,
+    boxWithTags: UiBoxWithTags,
+    cardsWithTags: UiCardsWithTags,
+    tagWithCards: UiTagWithCards,
+    filteredCardWithTagList: List<CardWithTags>,
+    showCardDialog: (Card) -> Unit = {},
+    showEditCardDialog: (Card) -> Unit = {},
+    showNewTagDialog: () -> Unit = {},
+    onTagLongClick: (Tag) -> Unit = {},
+    selectLevel: (Int) -> Unit = {},
+    setTagSortedBy: (Tag) -> Unit = {},
+    resetTagSortedBy: () -> Unit = {},
 ) {
-    val tagWithCards = boxScreenViewModel.tagWithCards.collectAsState()
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -93,7 +71,7 @@ fun BoxScreenBody(
         LevelList(
             cardWithTagList = cardsWithTags.cardWithTagList,
             currentLevel = levelSelected,
-            selectLevel = { boxScreenViewModel.updateSelectedLevel(it) },
+            selectLevel = { selectLevel(it) },
         )
 
         Row(
@@ -106,14 +84,14 @@ fun BoxScreenBody(
                 modifier = Modifier.weight(1f),
                 tagList = boxWithTags.tagList,
                 onClick = {
-                    if (tagWithCards.value.tag == it) {
-                        boxScreenViewModel.resetTagSortedBy()
+                    if (tagWithCards.tag == it) {
+                        resetTagSortedBy()
                     } else {
-                        boxScreenViewModel.setTagSortedBy(it)
+                        setTagSortedBy(it)
                     }
                 },
-                onLongClick = { showEditTagDialog() },
-                selectedTags = listOf(tagWithCards.value.tag)
+                onLongClick = { onTagLongClick(it) },
+                selectedTags = listOf(tagWithCards.tag)
             )
 
             VerticalDivider(
@@ -138,260 +116,41 @@ fun BoxScreenBody(
         } else {
             CardList(
                 cardWithTagList = filteredCardWithTagList,
-                showDialog = showCard,
-                showEditDialog = { showEditCardDialog() }
+                showCardDialog = { showCardDialog(it) },
+                showEditCardDialog = { showEditCardDialog(it) }
             )
         }
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun BoxScreenEditing(
-    modifier: Modifier = Modifier,
-    boxScreenViewModel: BoxScreenViewModel,
-    onSave: () -> Unit,
-) {
-    val boxUiState = boxScreenViewModel.boxUiState
-    val isLanguage = (boxUiState.boxDetails.topic in LanguageData.language.values)
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        NameField(
-            modifier = Modifier.fillMaxWidth(),
-            boxUiState = boxUiState,
-            onValueChange = { boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(name = it)) }
+fun BoxScreenBodyPreview() {
+    val tagList = listOf(
+        emptyTag.copy(tagId = 1, text = "Tag123"),
+        emptyTag.copy(tagId = 2, text = "Tag3"),
+        emptyTag.copy(tagId = 3, text = "Tag243"),
+    )
+    val cardWithTagsList = listOf(
+        CardWithTags(
+            emptyCard.copy(word = "Hello", meaning = "Oho"),
+            tags = tagList
         )
-        if (isLanguage) {
-            LanguageDropDownMenu(
-                modifier = Modifier.fillMaxWidth(),
-                boxUiState = boxUiState,
-                onValueChange = {
-                    boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it))
-                }
-            )
-        } else {
-            TopicField(
-                modifier = Modifier.fillMaxWidth(),
-                boxUiState = boxUiState,
-                onValueChange = {
-                    boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(topic = it))
-                }
-            )
-        }
-
-        DescriptionField(
-            modifier = Modifier.fillMaxWidth(),
-            boxUiState = boxUiState,
-            onValueChange = {
-                boxScreenViewModel.updateUiState(boxUiState.boxDetails.copy(description = it))
-            }
-        )
-
-        RequiredFieldsText()
-
-        Spacer(modifier = Modifier.size(8.dp))
-
-        Button(
-            onClick = {
-                /* TODO: Only save valid entries -> BoxState.isValid */
-                onSave()
-            }
-        ) {
-            Text(text = stringResource(R.string.save))
-        }
-    }
-}
-
-
-@Composable
-fun TrainingScreen(
-    modifier: Modifier = Modifier,
-    navigateToBoxScreen: () -> Unit,
-    cardList: List<CardWithTags>,
-    onCardCorrect: (Card) -> Unit,
-    onCardIncorrect: (Card) -> Unit,
-    trainingCounts: Boolean
-) {
-    var trainedCards by remember { mutableIntStateOf(0) }
-    var turnedOver by remember { mutableStateOf(false) }
-    val numberOfShadowCards = 4
-
-    fun goToNextCard() {
-        turnedOver = false
-        trainedCards += 1
-    }
-
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        val cardHeight = (0.5 * LocalConfiguration.current.screenHeightDp).dp
-        val cardWidth = (0.7 * LocalConfiguration.current.screenWidthDp).dp
-
-        for (k in 1..min(numberOfShadowCards, cardList.size - trainedCards - 1)) {
-            Card(
-                modifier = modifier
-                    .offset(x = (k * 10).dp, y = (-k * 10).dp)
-                    .height(cardHeight)
-                    .width(cardWidth),
-                colors = CardDefaults.cardColors().copy(
-                    containerColor = CardDefaults.cardColors().containerColor.copy(alpha = (0.8F - k * 0.15F))
-                )
-            ) { }
-        }
-
-        if (trainedCards < cardList.size) {
-            val currentCard = cardList[trainedCards]
-
-            CardCard(
-                modifier = modifier
-                    .height(cardHeight)
-                    .width(cardWidth),
-                currentCard = currentCard,
-                cardHeight = cardHeight,
-                cardWidth = cardWidth,
-                turnedOver = turnedOver,
-                turnOver = { turnedOver = !turnedOver },
-                goToNextCard = { goToNextCard() },
-                onCardCorrect = { onCardCorrect(currentCard.card) },
-                onCardIncorrect = { onCardIncorrect(currentCard.card) },
-                trainingCounts = trainingCounts
-            )
-
-        } else {
-            AlertDialog(
-                onDismissRequest = {
-                    navigateToBoxScreen()
-                },
-                title = { Text(text = "All done!") },
-                text = {
-                    Text(text = "There are no more cards to train.")
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = { navigateToBoxScreen() }
-                    ) {
-                        Text(text = "Go Back to box")
-                    }
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun CardCard(
-    modifier: Modifier,
-    currentCard: CardWithTags,
-    cardHeight: Dp,
-    cardWidth: Dp,
-    turnedOver: Boolean,
-    turnOver: () -> Unit,
-    goToNextCard: () -> Unit,
-    onCardCorrect: () -> Unit,
-    onCardIncorrect: () -> Unit,
-    trainingCounts: Boolean
-) {
-    Card(
-        modifier = modifier
-            .height(cardHeight)
-            .width(cardWidth)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(30.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-            ) {
-                SelectionContainer(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = currentCard.card.word,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-
-                Spacer(modifier = Modifier.size(8.dp))
-
-                if (!turnedOver) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(text = "X".repeat(min(10, currentCard.card.meaning.length)))
-                    }
-                } else {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        SelectionContainer {
-                            Text(
-                                text = currentCard.card.meaning,
-                                fontSize = MaterialTheme.typography.titleMedium.fontSize
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.size(8.dp))
-
-                        TagList(
-                            tagList = currentCard.tags,
-                            onClick = {},
-                            onLongClick = {},
-                            selectedTags = currentCard.tags
-                        )
-
-                        Spacer(modifier = Modifier.size(8.dp))
-
-                        if (currentCard.card.notes.isNotEmpty()) {
-                            Row {
-                                Text(
-                                    text = stringResource(R.string.notes) + ": ",
-                                    fontStyle = FontStyle.Italic
-                                )
-                                Text(text = currentCard.card.notes)
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!turnedOver) {
-                TextButton(
-                    onClick = { turnOver() }
-                ) {
-                    Text(text = "Show solution")
-                }
-            } else {
-                Row {
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            if (trainingCounts) {
-                                onCardIncorrect()
-                            }
-                        }
-                    ) {
-                        Text(text = "Incorrect")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            if (trainingCounts) {
-                                onCardCorrect()
-                            }
-                        }
-                    ) {
-                        Text(text = "Correct")
-                    }
-                }
-            }
-        }
-    }
+    )
+    val cardsWithTags = UiCardsWithTags(
+        cardWithTagList = cardWithTagsList
+    )
+    val boxWithTags = UiBoxWithTags(
+        box = BoxDetails().copy(name = "Box 456").toBox(),
+        tagList = tagList
+    )
+    BoxScreenBody(
+        tagWithCards = UiTagWithCards(
+            tag = emptyTag.copy(text = "Tag123")
+        ),
+        levelSelected = -1,
+        boxWithTags = boxWithTags,
+        cardsWithTags = cardsWithTags,
+        filteredCardWithTagList = cardWithTagsList,
+    )
 }

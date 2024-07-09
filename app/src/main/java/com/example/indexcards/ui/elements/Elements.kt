@@ -1,8 +1,9 @@
-package com.example.indexcards.ui.home
+package com.example.indexcards.ui.elements
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,13 +12,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,10 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
+import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.CardState
 
 @Composable
@@ -207,8 +212,8 @@ fun LanguageDropDownMenu(
                 DropdownMenuItem(
                     text = {
                         Row(
-                            modifier = modifier
-                                .fillMaxWidth()
+                            modifier = modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
                                 painter = painterResource(
@@ -232,8 +237,46 @@ fun LanguageDropDownMenu(
     }
 }
 
+@Preview
 @Composable
-fun IsLanguageRadioButton(
+fun LanguageDropDownMenuPreview() {
+    LanguageDropDownMenu(
+        boxUiState = BoxState(boxDetails = emptyBox.toBoxDetails()),
+        onValueChange = { }
+    )
+}
+
+@Composable
+fun RemindersSwitch(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = false,
+    onCheckedChange: () -> Unit,
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 4.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = stringResource(id = R.string.reminders))
+
+        Switch(
+            checked = enabled,
+            onCheckedChange = {
+                if (!hasNotificationPermission) {
+                    requestNotificationPermission()
+                }
+                onCheckedChange()
+            }
+        )
+    }
+}
+
+@Composable
+fun IsLanguageCheckBox(
     modifier: Modifier = Modifier,
     isLanguage: Boolean,
     changeIsLanguage: () -> Unit
@@ -241,21 +284,19 @@ fun IsLanguageRadioButton(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .selectable(
                 selected = isLanguage,
                 role = Role.RadioButton,
                 onClick = { changeIsLanguage() }
             ),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(
-            selected = isLanguage,
-            onClick = null
+        Checkbox(
+            checked = isLanguage,
+            onCheckedChange = { changeIsLanguage() }
         )
         Text(
-            modifier = modifier
-                .padding(6.dp),
+            modifier = modifier.padding(start = 6.dp),
             text = stringResource(R.string.is_language)
         )
     }

@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.card
+package com.example.indexcards.ui.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,43 +21,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.ui.tag.TagList
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.card.CardViewModel
-import com.example.indexcards.utils.card.EditCardViewModel
-import kotlinx.coroutines.launch
+import com.example.indexcards.utils.card.UiCardWithTags
+import com.example.indexcards.utils.card.emptyCard
 
 @Composable
 fun CardDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    showEditCardDialog: () -> Unit,
+    cardWithTags: UiCardWithTags,
     isEditing: Boolean,
-    showDelete: (Card) -> Unit,
-    cardViewModel: CardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    )
+    onDismiss: () -> Unit = {},
+    showEditCardDialog: () -> Unit = {},
+    showDelete: (Card) -> Unit = {},
 ) {
-    val cardUiState = cardViewModel.cardUiState
-    val cardWithTags = cardViewModel.cardWithTags.collectAsState()
-
     Dialog(
         onDismissRequest = {
             if (!isEditing) {
@@ -88,7 +75,7 @@ fun CardDialog(
                             modifier = modifier.weight(1f),
                         ) {
                             Text(
-                                text = cardUiState.cardDetails.word,
+                                text = cardWithTags.card.word,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleLarge
@@ -97,10 +84,6 @@ fun CardDialog(
 
                         IconButton(
                             onClick = {
-                                editCardViewModel.viewModelScope.launch {
-                                    editCardViewModel.updateUiState(cardUiState.cardDetails)
-                                    editCardViewModel.setCurrentCard(cardUiState.cardDetails.id)
-                                }
                                 showEditCardDialog()
                             }
                         ) {
@@ -119,7 +102,7 @@ fun CardDialog(
                         SelectionContainer {
                             Text(
                                 modifier = modifier.fillMaxWidth(),
-                                text = cardUiState.cardDetails.meaning,
+                                text = cardWithTags.card.meaning,
                                 fontSize = MaterialTheme.typography.titleMedium.fontSize
                             )
                         }
@@ -127,10 +110,10 @@ fun CardDialog(
                         Spacer(modifier = modifier.size(8.dp))
 
                         TagList(
-                            tagList = cardWithTags.value.tagList,
+                            tagList = cardWithTags.tagList,
                             onClick = {},
                             onLongClick = {},
-                            selectedTags = cardWithTags.value.tagList
+                            selectedTags = cardWithTags.tagList
                         )
 
                         Spacer(modifier = modifier.size(8.dp))
@@ -140,7 +123,7 @@ fun CardDialog(
                                 text = stringResource(R.string.notes) + ": ",
                                 fontStyle = FontStyle.Italic
                             )
-                            Text(text = cardUiState.cardDetails.notes)
+                            Text(text = cardWithTags.card.notes)
                         }
                     }
                 }
@@ -149,7 +132,7 @@ fun CardDialog(
                     modifier = modifier
                         .align(Alignment.End),
                     onClick = {
-                        showDelete(cardWithTags.value.card)
+                        showDelete(cardWithTags.card)
                     }
                 ) {
                     Icon(
@@ -160,4 +143,15 @@ fun CardDialog(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun CardDialogPreview() {
+    CardDialog(
+        cardWithTags = UiCardWithTags(
+            card = emptyCard.copy(word = "Test123", meaning = "Meaning"),
+        ),
+        isEditing = false,
+    )
 }

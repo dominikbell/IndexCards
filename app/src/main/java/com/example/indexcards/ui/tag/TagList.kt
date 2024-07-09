@@ -16,24 +16,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Tag
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.tag.EditTagViewModel
-import com.example.indexcards.utils.tag.toTagDetails
+import com.example.indexcards.utils.tag.emptyTag
 
 @Composable
 fun TagList(
     modifier: Modifier = Modifier,
     tagList: List<Tag>,
-    onClick: (Tag) -> Unit = {},
-    onLongClick: (Long) -> Unit = {},
     selectedTags: List<Tag>,
-    editTagViewModel: EditTagViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    onClick: (Tag) -> Unit = {},
+    onLongClick: (Tag) -> Unit = {},
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
@@ -47,11 +41,7 @@ fun TagList(
                 modifier = modifier.padding(2.dp),
                 item = item,
                 onClick = { onClick(item) },
-                onLongClick = {
-                    editTagViewModel.setColor(item.color)
-                    editTagViewModel.updateUiState(item.toTagDetails())
-                    onLongClick(item.tagId)
-                },
+                onLongClick = { onLongClick(item) },
                 selectedTags = selectedTags
             )
         }
@@ -63,9 +53,9 @@ fun TagList(
 fun TagListItem(
     modifier: Modifier = Modifier,
     item: Tag,
+    selectedTags: List<Tag>,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
-    selectedTags: List<Tag>,
 ) {
     val selected = (selectedTags.contains(item))
 
@@ -98,4 +88,13 @@ fun TagListItem(
         }
         Text(text = item.text)
     }
+}
+
+@Preview
+@Composable
+fun TagListItemPreview() {
+    TagListItem(
+        item = emptyTag.copy(),
+        selectedTags = listOf()
+    )
 }

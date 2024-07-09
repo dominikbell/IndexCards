@@ -1,5 +1,6 @@
 package com.example.indexcards.utils.tag
 
+import androidx.compose.ui.graphics.Color
 import com.example.indexcards.data.Tag
 
 val emptyTag: Tag = Tag(
@@ -39,3 +40,11 @@ fun Tag.toTagDetails(): TagDetails = TagDetails(
     color = color,
     boxId = boxId,
 )
+
+data class UiColorState(
+    val color: String = "#FFFFFF"
+)
+
+fun UiColorState.toColor(): Color {
+    return Color(android.graphics.Color.parseColor(color))
+}

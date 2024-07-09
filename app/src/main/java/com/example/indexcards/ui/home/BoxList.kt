@@ -25,18 +25,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.data.toFlag
+import com.example.indexcards.utils.box.emptyBox
 
 @Composable
 fun BoxList(
     modifier: Modifier = Modifier,
-    navigateToBoxScreen: (Long) -> Unit,
     boxList: List<Box>,
-    onDelete: (Long) -> Unit,
+    navigateToBoxScreen: (Long) -> Unit = {},
+    onDelete: (Box) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -71,7 +73,7 @@ fun BoxList(
                         modifier = Modifier.padding(bottom = finalOffset),
                         item = item,
                         onClick = { navigateToBoxScreen(item.boxId) },
-                        showDelete = onDelete
+                        showDelete = { onDelete(it) }
                     )
                 }
             }
@@ -83,8 +85,8 @@ fun BoxList(
 fun BoxListItem(
     modifier: Modifier = Modifier,
     item: Box,
-    onClick: (Long) -> Unit,
-    showDelete: (Long) -> Unit,
+    onClick: (Box) -> Unit = {},
+    showDelete: (Box) -> Unit = {},
 ) {
     val text = item.name
 //    val text =
@@ -96,7 +98,7 @@ fun BoxListItem(
 
     Card(
         modifier = modifier
-            .clickable { onClick(item.boxId) }
+            .clickable { onClick(item) }
             .fillMaxWidth()
             .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -124,7 +126,7 @@ fun BoxListItem(
 
             IconButton(
                 onClick = {
-                    showDelete(item.boxId)
+                    showDelete(item)
                 }
             ) {
                 Icon(
@@ -134,4 +136,26 @@ fun BoxListItem(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun BoxListItemPreview() {
+    BoxListItem(
+        item = emptyBox.copy(name = "Test Box", description = "beschreibung")
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BoxListPreview() {
+    BoxList(
+        boxList = listOf(
+            emptyBox.copy(name = "Box123", description = "descr"),
+            emptyBox.copy(
+                name = "Another Box",
+                description = "a longer description with more words"
+            ),
+        )
+    )
 }

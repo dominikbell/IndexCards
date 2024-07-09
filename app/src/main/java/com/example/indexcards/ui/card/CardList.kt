@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -27,32 +26,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.card.CardViewModel
-import com.example.indexcards.utils.card.EditCardViewModel
-import com.example.indexcards.utils.card.toCardDetails
-import kotlinx.coroutines.launch
 
 @Composable
 fun CardList(
     modifier: Modifier = Modifier,
     cardWithTagList: List<CardWithTags>,
-    showDialog: () -> Unit,
-    showEditDialog: () -> Unit,
-    cardViewModel: CardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    showCardDialog: (Card) -> Unit,
+    showEditCardDialog: (Card) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -73,18 +58,10 @@ fun CardList(
                 modifier = Modifier.padding(bottom = finalOffset),
                 item = item.card,
                 onClick = {
-                    cardViewModel.viewModelScope.launch {
-                        cardViewModel.setCurrentCard(it.cardId)
-                        cardViewModel.updateUiState(it.toCardDetails())
-                    }
-                    showDialog()
+                    showCardDialog(it)
                 },
                 onLongClick = {
-                    editCardViewModel.viewModelScope.launch {
-                        editCardViewModel.setCurrentCard(it.cardId)
-                        editCardViewModel.updateUiState(it.toCardDetails())
-                    }
-                    showEditDialog()
+                    showEditCardDialog(it)
                 },
                 tagList = item.tags
             )

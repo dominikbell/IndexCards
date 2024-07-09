@@ -4,6 +4,7 @@
     <string name="your_boxes">Deine Karteikästen</string>
     <string name="cancel">Abbrechen</string>
     <string name="save">Speichern</string>
+    <string name="close">Schließen</string>
     <string name="delete">Löschen</string>
     <string name="not_implemented">Diese Funktion gibt es leider noch nicht!</string>
     <string name="click_to_add_box">Drücke auf \'+\', um einen neuen Karteikasten anzulegen</string>
@@ -12,6 +13,9 @@
     <string name="language">Sprache</string>
     <string name="topic">Thema</string>
     <string name="description">Beschreibung</string>
+    <string name="level">Niveau</string>
+    <string name="item_in_level">Karte</string>
+    <string name="items_in_level">Karten</string>
     <string name="required_fields">* benötigte Felder</string>
     <string name="required_field">* benötigtes Feld</string>
     <string name="is_language">Karteikasten für eine Sprache</string>
@@ -20,6 +24,7 @@
     <string name="settings">Einstellungen</string>
     <string name="statistics">Statistiken</string>
     <string name="about_app">Über diese App</string>
+    <string name="about_app_text">Entwickelt in Kotlin von Dominik Bell</string>
     <string name="nr_card">Anzahl der Karten in diesem Kasten</string>
     <string name="edit_box">Karteikasten bearbeiten</string>
     <string name="click_to_add_card">Drücke auf \'+\', um eine neue Karte zu diesem Karteikasten hinzuzufügen</string>
@@ -36,6 +41,19 @@
     <string name="delete_card">Löschen von</string>
     <string name="delete_card_sure">Bist Du sicher, dass Du diese Karteikarte löschen möchtest?</string>
     <string name="editing_box">Bearbeiten von</string>
+    <string name="training">Üben</string>
     <string name="train_all">Alle trainieren</string>
     <string name="train_selection">Auswahl trainieren</string>
+    <string name="sort_by">Sortieren</string>
+    <string name="correct">Richtig</string>
+    <string name="incorrect">Falsch</string>
+    <string name="turn_over">Umdrehen</string>
+    <string name="reminders">Erinnere mich zu trainieren</string>
+    <string name="back_to_box">Zurück zum Kasten</string>
+    <string name="all_done">Fertig!</string>
+    <string name="no_more_cards">Es gibt keine weiteren Karten zu trainieren.</string>
+    <string name="oops_no_cards">Ups, keine Karten gefunden</string>
+    <string name="no_cards_of_level_1">In diesem Kasten gibt es keine Karten im Niveau</string>
+    <string name="no_cards_of_level_2">. Hier muss ein Fehler vorliegen.</string>
+    <string name="back_twice_to_close">Nochmaliges \'Zurück\'-Drücken schließt die App</string>
 </resources>

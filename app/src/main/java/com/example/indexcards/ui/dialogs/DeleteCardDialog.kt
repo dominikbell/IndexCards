@@ -1,30 +1,23 @@
-package com.example.indexcards.ui.card
+package com.example.indexcards.ui.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.card.EditCardViewModel
-import kotlinx.coroutines.launch
+import com.example.indexcards.data.Card
+import com.example.indexcards.utils.card.emptyCard
 
 @Composable
 fun DeleteCardDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    editCardViewModel: EditCardViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    ),
+    onDismiss: () -> Unit = { },
+    deleteCard: () -> Unit = { },
+    currentCard: Card,
 ) {
-    val currentCard = editCardViewModel.currentCard.collectAsState().value
-
     AlertDialog(
         modifier = modifier,
         text = { Text(text = stringResource(R.string.delete_card_sure)) },
@@ -34,9 +27,7 @@ fun DeleteCardDialog(
         {
             TextButton(
                 onClick = {
-                    editCardViewModel.viewModelScope.launch {
-                        editCardViewModel.deleteCard(currentCard.cardId)
-                    }
+                    deleteCard()
                     onDismiss()
                 }
             ) {
@@ -51,5 +42,13 @@ fun DeleteCardDialog(
                 Text(text = stringResource(R.string.cancel))
             }
         },
+    )
+}
+
+@Preview
+@Composable
+fun DeleteCardDialogPreview() {
+    DeleteCardDialog(
+        currentCard = emptyCard.copy(word = "Karte123")
     )
 }

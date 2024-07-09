@@ -1,105 +1,116 @@
 package com.example.indexcards.ui.box
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.R
-import com.example.indexcards.data.Box
 import com.example.indexcards.data.Tag
-import com.example.indexcards.ui.card.CardDialog
-import com.example.indexcards.ui.card.DeleteCardDialog
-import com.example.indexcards.ui.card.EditCardDialog
-import com.example.indexcards.ui.card.NewCardDialog
+import com.example.indexcards.ui.dialogs.CardDialog
+import com.example.indexcards.ui.dialogs.DeleteCardDialog
+import com.example.indexcards.ui.dialogs.EditCardDialog
+import com.example.indexcards.ui.dialogs.NewCardDialog
+import com.example.indexcards.ui.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.dialogs.NoCardsDialog
 import com.example.indexcards.ui.tag.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
-import com.example.indexcards.utils.card.EditCardViewModel
+import com.example.indexcards.utils.card.toCardState
 import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.tag.toColor
+import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
 
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
-    navigateToBoxesOverview: () -> Unit,
     boxId: Long, /* Is only here for boxScreenViewModel to work */
-    boxScreenViewModel: BoxScreenViewModel,
-    editCardViewModel: EditCardViewModel = viewModel(
+    startLevel: Int = -1,
+    hasNotificationPermission: Boolean = false,
+    navigateToBoxesOverview: () -> Unit = {},
+    requestNotificationPermission: () -> Unit = {},
+    scheduleNotification: (Long) -> Unit = {},
+    boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
+    /** Navigation on the BoxScreen */
     val boxScreenState = boxScreenViewModel.boxScreenState
-    val tagSortedBy: State<Tag> = boxScreenViewModel.tagSortedBy.collectAsState()
-    val levelSelected = boxScreenViewModel.levelSelected.collectAsState()
-    val trainingCounts = boxScreenViewModel.trainingCounts.collectAsState()
-    val boxWithTags = boxScreenViewModel.boxWithTags.collectAsState()
-    val cardsWithTags = boxScreenViewModel.cardsWithTags.collectAsState()
+
+    /** uiStates of Box (fixed) and Card (dynamic) */
+    val boxUiState = boxScreenViewModel.boxUiState
+    val cardUiState = boxScreenViewModel.cardUiState
+    val tagUiState = boxScreenViewModel.tagUiState
+    val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
+    val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
+    val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
+    val boxWithTags by boxScreenViewModel.uiBoxWithTags.collectAsState()
+    val cardsWithTags by boxScreenViewModel.uiCardsWithTags.collectAsState()
+    val cardWithTags by boxScreenViewModel.uiCardWithTags.collectAsState()
+    val tagWithCards by boxScreenViewModel.uiTagWithCards.collectAsState()
+    val currentCard by boxScreenViewModel.currentCard.collectAsState()
+
+    var cardDialog by remember { mutableStateOf(false) }
+    var noCardsDialog by remember { mutableStateOf(false) }
+    var newCardDialog by remember { mutableStateOf(false) }
+    var editCardDialog by remember { mutableStateOf(false) }
+    var deleteCardDialog by remember { mutableStateOf(false) }
+    var newTag by remember { mutableStateOf(true) }
+    var tagDialog by remember { mutableStateOf(false) }
+    var deleteBoxDialog by remember { mutableStateOf(false) }
 
     val filteredCardWithTagList =
-        if (levelSelected.value == -1) {
-            if (tagSortedBy.value == emptyTag) {
-                cardsWithTags.value.cardWithTagList
+        if (levelSelected == -1) {
+            if (tagSelected == emptyTag) {
+                cardsWithTags.cardWithTagList
             } else {
-                cardsWithTags.value.cardWithTagList.filter { it.tags.contains(tagSortedBy.value) }
+                cardsWithTags.cardWithTagList.filter { it.tags.contains(tagSelected) }
             }
         } else {
-            if (tagSortedBy.value == emptyTag) {
-                cardsWithTags.value.cardWithTagList.filter { it.card.level == levelSelected.value }
+            if (tagSelected == emptyTag) {
+                cardsWithTags.cardWithTagList.filter { it.card.level == levelSelected }
             } else {
-                cardsWithTags.value.cardWithTagList.filter {
-                    it.card.level == levelSelected.value && it.tags.contains(tagSortedBy.value)
+                cardsWithTags.cardWithTagList.filter {
+                    it.card.level == levelSelected && it.tags.contains(tagSelected)
                 }
             }
         }
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
 
-    var cardDialog by remember { mutableStateOf(false) }
-    var newCardDialog by remember { mutableStateOf(false) }
-    var editCardDialog by remember { mutableStateOf(false) }
-    var deleteCardDialog by remember { mutableStateOf(false) }
-    var newTag by remember { mutableStateOf(true) }
-    var tagDialog by remember { mutableStateOf(false) }
-    var deleteDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = startLevel) {
+        if (startLevel != -1) {
+            boxScreenViewModel.setLevelSelected(startLevel)
+            if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level = startLevel) != 0) {
+                /* TODO: A bit hacky using this suspend function but without it the state is not
+                    updated yet and cardsWithTags is still empty */
+                boxScreenViewModel.changeTrainingCounts(true)
+                boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
+            } else {
+                noCardsDialog = true
+            }
+        }
+    }
 
-    fun showEditTagDialog() {
+    fun showEditTagDialog(tag: Tag) {
+        boxScreenViewModel.setColor(tag.color)
+        boxScreenViewModel.setTagUiState(tag.toTagDetails())
         newTag = false; tagDialog = true
     }
 
@@ -114,11 +125,11 @@ fun BoxScreen(
             }
 
             BoxScreenState.EDIT -> {
-                boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+                boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
             }
 
             BoxScreenState.TRAIN -> {
-                boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+                boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
             }
         }
     }
@@ -126,16 +137,16 @@ fun BoxScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            BoxTopBar(
+            BoxScreenTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
                 updateEditUiStatus = {
-                    boxScreenViewModel.updateUiState(boxWithTags.value.box.toBoxDetails())
+                    boxScreenViewModel.updateBoxUiState(boxWithTags.box.toBoxDetails())
                 },
-                changeBoxScreenState = { boxScreenViewModel.changeBoxScreenState(it) },
+                changeBoxScreenState = { boxScreenViewModel.updateBoxScreenState(it) },
                 boxScreenState = boxScreenState,
-                thisBox = boxWithTags.value.box,
-                cancelEdit = { boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW) },
-                trainingCounts = trainingCounts.value,
+                thisBox = boxWithTags.box,
+                cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
+                trainingCounts = trainingCounts,
                 changeTrainingCounts = {
                     boxScreenViewModel.changeTrainingCounts()
                 }
@@ -154,7 +165,7 @@ fun BoxScreen(
 
                 BoxScreenState.EDIT -> {
                     FloatingActionButton(
-                        onClick = { deleteDialog = true }
+                        onClick = { deleteBoxDialog = true }
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
@@ -168,33 +179,50 @@ fun BoxScreen(
             BoxScreenState.VIEW -> {
                 BoxScreenBody(
                     modifier = modifier.padding(innerPadding),
-                    showCard = { cardDialog = true },
-                    showEditCardDialog = { editCardDialog = true },
+                    showCardDialog = {
+                        boxScreenViewModel.setCurrentCard(it)
+                        cardDialog = true
+                    },
+                    showEditCardDialog = {
+                        boxScreenViewModel.setCardUiStateFromCurrentCard()
+                        editCardDialog = true
+                    },
                     showNewTagDialog = { showNewTagDialog() },
-                    showEditTagDialog = { showEditTagDialog() },
-                    levelSelected = levelSelected.value,
-                    boxWithTags = boxWithTags.value,
-                    cardsWithTags = cardsWithTags.value,
+                    onTagLongClick = { showEditTagDialog(it) },
+                    levelSelected = levelSelected,
+                    selectLevel = { boxScreenViewModel.setLevelSelected(it) },
+                    setTagSortedBy = { boxScreenViewModel.setTagSelected(it) },
+                    resetTagSortedBy = { boxScreenViewModel.resetTagSelected() },
+                    boxWithTags = boxWithTags,
+                    cardsWithTags = cardsWithTags,
+                    tagWithCards = tagWithCards,
                     filteredCardWithTagList = filteredCardWithTagList,
-                    boxScreenViewModel = boxScreenViewModel,
                 )
             }
 
             BoxScreenState.EDIT -> {
                 BoxScreenEditing(
                     modifier = modifier.padding(innerPadding),
+                    boxUiState = boxUiState,
                     onSave = {
                         boxScreenViewModel.saveBox()
-                        boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW)
+                        boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
                     },
-                    boxScreenViewModel = boxScreenViewModel,
+                    hasNotificationPermission = hasNotificationPermission,
+                    requestNotificationPermission = { requestNotificationPermission() },
+                    updateBoxUiState = { boxScreenViewModel.updateBoxUiState(it) },
                 )
             }
 
             BoxScreenState.TRAIN -> {
                 TrainingScreen(
                     modifier = modifier.padding(innerPadding),
-                    navigateToBoxScreen = { boxScreenViewModel.changeBoxScreenState(BoxScreenState.VIEW) },
+                    navigateToBoxScreen = {
+                        /* TODO: Set reminder for next training */
+                        boxScreenViewModel.setLevelSelected(-1)
+                        boxScreenViewModel.resetTagSelected()
+                        boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
+                    },
                     cardList = shuffledCardList,
                     onCardCorrect = {
                         boxScreenViewModel.viewModelScope.launch {
@@ -206,7 +234,7 @@ fun BoxScreen(
                             boxScreenViewModel.onCardIncorrect(it)
                         }
                     },
-                    trainingCounts = trainingCounts.value
+                    trainingCounts = trainingCounts
                 )
             }
         }
@@ -214,207 +242,135 @@ fun BoxScreen(
 
     if (cardDialog) {
         CardDialog(
-            onDismiss = { cardDialog = false },
-            showEditCardDialog = { editCardDialog = true },
+            onDismiss = {
+                cardDialog = false
+                boxScreenViewModel.resetCardUiState()
+            },
+            cardWithTags = cardWithTags,
+            showEditCardDialog = {
+                boxScreenViewModel.setCardUiStateFromCurrentCard()
+                editCardDialog = true
+            },
             isEditing = editCardDialog,
-            showDelete = {
-                editCardViewModel.viewModelScope.launch {
-                    editCardViewModel.setCurrentCard(it.cardId)
-                }
-                deleteCardDialog = true
-            },
-        )
-    }
-
-    if (editCardDialog) {
-        EditCardDialog(
-            onDismiss = { editCardDialog = false },
-            boxWithTags = boxWithTags.value,
-            showCardDialog = { editCardDialog = false },
-            onDeleteCard = {
-                deleteCardDialog = true
-            },
-            showNewTagDialog = { showNewTagDialog() },
-            showEditTagDialog = { showEditTagDialog() },
+            showDelete = { deleteCardDialog = true },
         )
     }
 
     if (newCardDialog) {
         NewCardDialog(
-            onDismiss = { newCardDialog = false },
-            boxWithTags = boxWithTags.value,
+            cardUiState = cardUiState,
+            boxWithTags = boxWithTags,
+            updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
+            onDismiss = {
+                newCardDialog = false
+                boxScreenViewModel.resetCard()
+            },
+            saveCard = {
+                newCardDialog = false
+                boxScreenViewModel.saveCard(doReset = true)
+            },
+            onTagClick = {
+                if (cardUiState.tagList.contains(it)) {
+                    boxScreenViewModel.updateCardState(tagList = cardUiState.tagList.minus(it))
+                } else {
+                    boxScreenViewModel.updateCardState(tagList = cardUiState.tagList.plus(it))
+                }
+            },
             showNewTagDialog = { showNewTagDialog() },
-            showEditTagDialog = { showEditTagDialog() },
+            showEditTagDialog = { showEditTagDialog(it) },
+        )
+    }
+
+    if (editCardDialog) {
+        EditCardDialog(
+            boxWithTags = boxWithTags,
+            cardWithTags = cardWithTags,
+            cardUiState = cardUiState,
+            updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
+            onDismiss = {
+                boxScreenViewModel.updateCardState(cardWithTags.toCardState(true))
+                editCardDialog = false
+            },
+            onDeleteCard = { deleteCardDialog = true },
+            showNewTagDialog = { showNewTagDialog() },
+            showEditTagDialog = { showEditTagDialog(it) },
+            saveCard = {
+                editCardDialog = false
+                boxScreenViewModel.saveCard(doReset = false)
+            },
+            clickOnTag = {
+                if (cardUiState.tagList.contains(it)) {
+                    boxScreenViewModel.updateCardState(tagList = cardUiState.tagList.minus(it))
+                } else {
+                    boxScreenViewModel.updateCardState(tagList = cardUiState.tagList.plus(it))
+                }
+            }
         )
     }
 
     if (deleteCardDialog) {
         DeleteCardDialog(
-            onDismiss = { deleteCardDialog = false },
+            currentCard = currentCard,
+            onDismiss = {
+                deleteCardDialog = false
+            },
+            deleteCard = {
+                cardDialog = false
+                editCardDialog = false
+                deleteCardDialog = false
+                boxScreenViewModel.deleteCard(currentCard)
+            }
         )
     }
 
     if (tagDialog) {
         TagDialog(
             modifier = Modifier,
-            onDismiss = { tagDialog = false },
-            newTag = newTag
+            newTag = newTag,
+            tagUiState = tagUiState,
+            initialColor = boxScreenViewModel.colorUiState.toColor(),
+            onDismiss = {
+                tagDialog = false
+                boxScreenViewModel.resetTagUiState()
+            },
+            updateUiState = { boxScreenViewModel.setTagUiState(it) },
+            saveTag = {
+                tagDialog = false
+                boxScreenViewModel.saveNewTag(
+                    addToCard = (editCardDialog || newCardDialog)
+                )
+            },
+            updateTag = {
+                tagDialog = false
+                boxScreenViewModel.updateTag()
+            },
+            setColor = { boxScreenViewModel.setColor(it) },
+            onDelete = {
+                tagDialog = false
+                boxScreenViewModel.deleteTag()
+                boxScreenViewModel.resetTagUiState()
+            }
         )
     }
 
-    if (deleteDialog) {
+    if (deleteBoxDialog) {
         DeleteBoxDialog(
-            onDismiss = { deleteDialog = false },
+            onDismiss = { deleteBoxDialog = false },
             onDelete = {
                 navigateToBoxesOverview()
-                boxScreenViewModel.deleteBox()
+                boxScreenViewModel.deleteBox(boxId = boxId)
             },
-            boxToBeDeleted = boxWithTags.value.box
+            boxToBeDeleted = boxWithTags.box
         )
     }
-}
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BoxTopBar(
-    modifier: Modifier = Modifier,
-    navigateToBoxesOverview: () -> Unit,
-    updateEditUiStatus: () -> Unit,
-    changeBoxScreenState: (BoxScreenState) -> Unit,
-    boxScreenState: BoxScreenState,
-    thisBox: Box,
-    cancelEdit: () -> Unit,
-    trainingCounts: Boolean,
-    changeTrainingCounts: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val title: String =
-        when (boxScreenState) {
-            BoxScreenState.VIEW -> {
-                thisBox.name
-            }
-
-            BoxScreenState.EDIT -> {
-                "Editing " + thisBox.name
-            }
-
-            BoxScreenState.TRAIN -> {
-                "Training"
-            }
-        }
-
-    CenterAlignedTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        navigationIcon = {
-            if (boxScreenState == BoxScreenState.EDIT) {
-                IconButton(
-                    onClick = { cancelEdit() }
-                ) {
-                    Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
-                }
-            } else {
-                IconButton(onClick = {
-                    if (boxScreenState == BoxScreenState.TRAIN) {
-                        changeBoxScreenState(BoxScreenState.VIEW)
-                    } else {
-                        navigateToBoxesOverview()
-                    }
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back Arrow"
-                    )
-                }
-            }
-        },
-
-        title = {
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                modifier = modifier
-            )
-        },
-
-        actions = {
-            when (boxScreenState) {
-                BoxScreenState.VIEW -> {
-                    IconButton(onClick = {
-                        expanded = true
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "Menu"
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.edit_box))
-                            },
-                            onClick = {
-                                updateEditUiStatus()
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.EDIT)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Top
-                                ) {
-                                    Text(text = "Sort by")
-
-                                    Icon(
-                                        imageVector = Icons.Filled.ArrowDropDown,
-                                        modifier = Modifier.rotate(-90f),
-                                        contentDescription = "sort by"
-                                    )
-                                }
-                            },
-                            onClick = { /* TODO: implement sorting */ }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.train_all))
-                            },
-                            onClick = {
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.TRAIN)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.train_selection))
-                            },
-                            onClick = {
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.TRAIN)
-                            }
-                        )
-                    }
-                }
-
-                BoxScreenState.EDIT -> {}
-
-                BoxScreenState.TRAIN -> {
-                    Switch(
-                        checked = trainingCounts,
-                        onCheckedChange = { changeTrainingCounts() }
-                    )
-                }
-            }
-        },
-    )
+    if (noCardsDialog) {
+        NoCardsDialog(
+            onDismiss = {
+                boxScreenViewModel.setLevelSelected(-1)
+                noCardsDialog = false
+            },
+            level = levelSelected
+        )
+    }
 }

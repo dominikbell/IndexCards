@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.home
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
@@ -16,35 +17,84 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
-import com.example.indexcards.ui.box.BoxesOverviewTopBar
-import com.example.indexcards.ui.box.AddBoxDialog
-import com.example.indexcards.ui.box.DeleteBoxDialog
-import com.example.indexcards.utils.box.HomeScreenViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.R
+import com.example.indexcards.ui.dialogs.AddBoxDialog
+import com.example.indexcards.ui.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.dialogs.AboutAppDialog
+import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.home.HomeScreenState
+import com.example.indexcards.utils.home.HomeScreenViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navigateToBoxScreen: (Long) -> Unit,
-    homeScreenViewModel: HomeScreenViewModel
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {},
+    navigateToBoxScreen: (Long) -> Unit = {},
+    homeScreenViewModel: HomeScreenViewModel = viewModel(
+        factory = ViewModelProvider(context = LocalContext.current).factory
+    ),
 ) {
-    val homeScreenUiState by homeScreenViewModel.uiBoxList.collectAsState()
-    val currentBox = homeScreenViewModel.selectedBox.collectAsState()
     val context = LocalContext.current
+    val activity = (LocalContext.current as? Activity)
+    val boxUiState = homeScreenViewModel.boxUiState
+    val homeScreenState = homeScreenViewModel.homeScreenState
+    val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
+    val currentBox by homeScreenViewModel.currentBox.collectAsState()
+    val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
     var addDialog by remember { mutableStateOf(false) }
     var deleteDialog by remember { mutableStateOf(false) }
+    var showAboutApp by remember { mutableStateOf(false) }
+    var backPressedTime: Long = 0
 
     BackHandler {
-        // TODO: Close app after pressing back twice (within given time interval)
-        Toast.makeText(context, "Pressing 'Back' again will not! close the app.", Toast.LENGTH_SHORT).show()
+        when (homeScreenState) {
+            HomeScreenState.MAIN -> {
+                if (addDialog) {
+                    addDialog = false
+                } else {
+                    if (backPressedTime + 3000 > System.currentTimeMillis()) {
+                        /* TODO: seems a bit hacky but works */
+                        activity?.finish()
+                    } else {
+                        backPressedTime = System.currentTimeMillis()
+                        Toast.makeText(context, backAgainString, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            HomeScreenState.SETTINGS -> {
+                homeScreenViewModel.savePreferences()
+                homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
+            }
+
+            HomeScreenState.STATISTICS -> {
+                homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
+            }
+        }
     }
 
     Scaffold(
         modifier = modifier,
 
-        topBar = { BoxesOverviewTopBar() },
+        topBar = {
+            HomeScreenTopBar(
+                homeScreenState = homeScreenState,
+                goToMainScreen = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN) },
+                goToSettings = {
+                    homeScreenViewModel.setCurrentUiPreferences()
+                    homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS)
+                },
+                goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
+                showAboutApp = { showAboutApp = true },
+                saveSettings = { homeScreenViewModel.savePreferences() }
+            )
+        },
 
         floatingActionButton = {
             FloatingActionButton(
@@ -55,24 +105,44 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        BoxList(
-            modifier = modifier
-                .padding(innerPadding),
-            boxList = homeScreenUiState.boxList,
-            onDelete = {
-                homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.setCurrentBox(it)
-                }
-                deleteDialog = true
-            },
-            navigateToBoxScreen = navigateToBoxScreen,
-        )
+        when (homeScreenState) {
+            HomeScreenState.MAIN -> {
+                BoxList(
+                    modifier = modifier
+                        .padding(innerPadding),
+                    boxList = uiBoxList.boxList,
+                    onDelete = {
+                        homeScreenViewModel.viewModelScope.launch {
+                            homeScreenViewModel.setCurrentBox(it)
+                        }
+                        deleteDialog = true
+                    },
+                    navigateToBoxScreen = navigateToBoxScreen,
+                )
+            }
+
+            HomeScreenState.SETTINGS -> {
+                SettingsScreen(
+                    modifier = modifier.padding(innerPadding),
+                    homeScreenViewModel = homeScreenViewModel
+                )
+            }
+
+            HomeScreenState.STATISTICS -> {}
+        }
     }
 
     if (addDialog) {
         AddBoxDialog(
-            hideDialog = { addDialog = false },
-            homeScreenViewModel = homeScreenViewModel
+            boxUiState = boxUiState,
+            hasNotificationPermission = hasNotificationPermission,
+            requestNotificationPermission = { requestNotificationPermission() },
+            onDismiss = {
+                addDialog = false
+                homeScreenViewModel.resetBoxUiState()
+            },
+            onSave = { homeScreenViewModel.saveBox() },
+            updateUiState = { homeScreenViewModel.updateBoxUiState(it) }
         )
     }
 
@@ -85,11 +155,18 @@ fun HomeScreen(
             onDelete = {
                 deleteDialog = false
                 homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.deleteBox()
+                    homeScreenViewModel.deleteBox(currentBox.boxId)
                     homeScreenViewModel.resetCurrentBox()
                 }
             },
-            boxToBeDeleted = currentBox.value
+            boxToBeDeleted = currentBox
+        )
+    }
+
+    if (showAboutApp) {
+        AboutAppDialog(
+            modifier = modifier,
+            onDismiss = { showAboutApp = false }
         )
     }
 }

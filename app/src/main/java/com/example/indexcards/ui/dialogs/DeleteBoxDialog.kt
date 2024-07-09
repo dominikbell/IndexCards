@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.box
+package com.example.indexcards.ui.dialogs
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -6,14 +6,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
+import com.example.indexcards.utils.box.emptyBox
 
 @Composable
 fun DeleteBoxDialog(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    onDelete: () -> Unit,
+    onDismiss: () -> Unit = {},
+    onDelete: () -> Unit = {},
     boxToBeDeleted: Box,
 ) {
     AlertDialog(
@@ -37,5 +39,13 @@ fun DeleteBoxDialog(
                 Text(text = stringResource(R.string.delete))
             }
         },
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DeleteBoxDialogPreview() {
+    DeleteBoxDialog(
+        boxToBeDeleted = emptyBox.copy(name = "Box1234")
     )
 }

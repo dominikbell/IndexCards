@@ -1,6 +1,7 @@
 package com.example.indexcards.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -12,10 +13,13 @@ import androidx.room.RoomDatabase
         Tag::class,
         TagCardCrossRef::class,
     ],
-    version = 8
+    version = 9,
+    autoMigrations = [
+        AutoMigration(from = 8, to = 9)
+    ]
 )
-abstract class AppDatabase : RoomDatabase() {
 
+abstract class AppDatabase : RoomDatabase() {
     abstract fun appDao(): AppDao
 
     companion object {

@@ -79,7 +79,18 @@ class OfflineAppRepository(
         return appDao.getBiggestCardId() ?: -1
     }
 
+    override suspend fun getBiggestTagId(): Long {
+        return appDao.getBiggestTagId() ?: -1
+    }
+
     override suspend fun upgradeLevelOnCard(cardId: Long) = appDao.upgradeLevelOnCard(cardId)
 
     override suspend fun downgradeLevelOnCard(cardId: Long) = appDao.downgradeLevelOnCard(cardId)
+
+    override suspend fun enableNotificationsForBox(boxId: Long) = appDao.enableNotificationsForBox(boxId)
+
+    override suspend fun disableNotificationsForBox(boxId: Long) = appDao.disableNotificationsForBox(boxId)
+
+    override suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int) =
+        appDao.getNumberOfCardsOfLevelInBox(boxId, level)
 }

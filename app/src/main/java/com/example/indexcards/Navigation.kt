@@ -17,16 +17,19 @@ import com.example.indexcards.ui.box.BoxScreen
 import com.example.indexcards.ui.home.HomeScreen
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.box.HomeScreenViewModel
+import com.example.indexcards.utils.home.HomeScreenViewModel
 
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
+    homeScreenViewModel: HomeScreenViewModel,
+    startBoxId: Long = -1,
+    startLevel: Int = -1,
+    hasNotificationPermission: Boolean = false,
+    requestNotificationPermission: () -> Unit = {},
+    scheduleNotification: (Long) -> Unit = {}
 ) {
-    val homeScreenViewModel: HomeScreenViewModel = viewModel(
-        factory = ViewModelProvider(context = LocalContext.current).factory
-    )
-    var currentBoxId by remember { mutableLongStateOf(-1) }
+    var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
     fun setNewBoxId(newBoxId: Long) {
         currentBoxId = newBoxId
@@ -34,34 +37,51 @@ fun Navigation(
 
     NavHost(
         navController = navController,
-        startDestination = "homeScreen"
+        startDestination =
+        if (startBoxId == (-1).toLong()) {
+            "homeScreen"
+        } else {
+            "boxScreen/${startBoxId}/${startLevel}"
+        }
     ) {
         composable("homeScreen") {
             HomeScreen(
                 navigateToBoxScreen = { boxId ->
                     setNewBoxId(boxId)
-                    navController.navigate("boxScreen/${boxId}")
+                    navController.navigate("boxScreen/${boxId}/${-1}")
                 },
-                homeScreenViewModel = homeScreenViewModel
+                homeScreenViewModel = homeScreenViewModel,
+                hasNotificationPermission = hasNotificationPermission,
+                requestNotificationPermission = { requestNotificationPermission() }
             )
         }
         composable(
-            "boxScreen/{boxId}",
+            "boxScreen/{boxId}/{level}",
             arguments = listOf(
                 navArgument("boxId") {
                     type = NavType.LongType
+                    defaultValue = startBoxId
+                },
+                navArgument("level") {
+                    type = NavType.IntType
+                    defaultValue = startLevel
                 }
             )
         ) {
-            val boxId = it.arguments?.getLong("boxId") ?: 0
+            val boxId = it.arguments?.getLong("boxId") ?: -1
+            val level = it.arguments?.getInt("level") ?: -1
             BoxScreen(
                 navigateToBoxesOverview = {
                     navController.navigate("homeScreen")
                 },
                 boxId = boxId,
+                startLevel = level,
                 boxScreenViewModel = viewModel(
                     factory = ViewModelProvider(context = LocalContext.current).factory
-                ) as BoxScreenViewModel
+                ) as BoxScreenViewModel,
+                hasNotificationPermission = hasNotificationPermission,
+                requestNotificationPermission = { requestNotificationPermission() },
+                scheduleNotification = { time -> scheduleNotification(time) }
             )
         }
     }

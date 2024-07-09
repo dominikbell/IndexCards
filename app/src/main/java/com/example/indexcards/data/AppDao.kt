@@ -81,9 +81,21 @@ interface AppDao {
     @Query("SELECT MAX(cardId) FROM card")
     suspend fun getBiggestCardId(): Long?
 
+    @Query("SELECT MAX(tagId) FROM tag")
+    suspend fun getBiggestTagId(): Long?
+
     @Query("UPDATE Card SET level = level + 1 WHERE cardId = :cardId")
     suspend fun upgradeLevelOnCard(cardId: Long)
 
     @Query("UPDATE Card SET level = level - 1 WHERE cardId = :cardId")
     suspend fun downgradeLevelOnCard(cardId: Long)
+
+    @Query("UPDATE Box SET reminders = 1 WHERE boxId = :boxId")
+    suspend fun enableNotificationsForBox(boxId: Long)
+
+    @Query("UPDATE Box SET reminders = 0 WHERE boxId = :boxId")
+    suspend fun disableNotificationsForBox(boxId: Long)
+
+    @Query("SELECT COUNT(*) FROM card WHERE boxId = :boxId AND level = :level")
+    suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int): Int
 }

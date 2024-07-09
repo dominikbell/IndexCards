@@ -41,7 +41,15 @@ interface AppRepository {
 
     suspend fun getBiggestCardId(): Long
 
+    suspend fun getBiggestTagId(): Long
+
     suspend fun upgradeLevelOnCard(cardId: Long)
 
     suspend fun downgradeLevelOnCard(cardId: Long)
+
+    suspend fun enableNotificationsForBox(boxId: Long)
+
+    suspend fun disableNotificationsForBox(boxId: Long)
+
+    suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int): Int
 }

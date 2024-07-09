@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.card
 
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Tag
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -16,12 +17,13 @@ val emptyCard: Card = Card(
 
 data class CardState(
     val cardDetails: CardDetails = CardDetails(),
+    val tagList: List<Tag> = listOf(),
     val isValid: Boolean = false
 )
 
 data class CardDetails(
-    val id: Long = 0,
-    val boxId: Long = 0,
+    val id: Long = -1,
+    val boxId: Long = -1,
     val word: String = "",
     val meaning: String = "",
     val notes: String = "",
@@ -38,11 +40,6 @@ fun CardDetails.toCard(): Card = Card(
     dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
 )
 
-fun Card.toCardState(isValid: Boolean = false) : CardState = CardState(
-    cardDetails = this.toCardDetails(),
-    isValid = isValid
-)
-
 fun Card.toCardDetails(): CardDetails = CardDetails(
     id = cardId,
     word = word,
@@ -50,4 +47,16 @@ fun Card.toCardDetails(): CardDetails = CardDetails(
     notes = notes,
     boxId = boxId,
     level = level
+)
+
+fun UiCardWithTags.toCardState(isValid: Boolean): CardState =
+    CardState(
+        cardDetails = card.toCardDetails(),
+        tagList = tagList,
+        isValid = isValid
+    )
+
+data class UiCardWithTags(
+    val card: Card = emptyCard,
+    val tagList: List<Tag> = listOf()
 )
