@@ -27,7 +27,7 @@ class NotificationService(
         manager.cancel(cancelIntentId)
     }
 
-    fun showNotification(boxId: Long = -1, level: Int = -1) {
+    fun showNotification(boxId: Long = -1, level: Int = -1, boxName: String = "") {
         val intentId = getIntentId(boxId, level, 0)
 
         /* TODO: very ugly code repetition */
@@ -71,7 +71,7 @@ class NotificationService(
         )
             .setSmallIcon(R.drawable.app_icon_notification)
             .setContentTitle("Training waits!")
-            .setContentText("Cards of level ${level + 1} of box $boxId need to be trained")
+            .setContentText("Cards of level ${level + 1} in box $boxName need to be trained")
             .setSilent(true)
             .setContentIntent(toAppPendingIntent)
             .addAction(
@@ -90,7 +90,7 @@ class NotificationService(
         manager.notify(intentId, notification)
     }
 
-    fun scheduleNotification(boxId: Long = -1, level: Int = -1, time: Long) {
+    fun scheduleNotification(boxId: Long = -1, level: Int = -1, boxName: String = "", time: Long) {
 
         if (boxId != (-1).toLong() && level != -1) {
             val intent = Intent(context, NotificationReceiver::class.java)
@@ -101,7 +101,8 @@ class NotificationService(
                 intent
                     .putExtra("id", NotificationRequest.MAKE_REMINDER)
                     .putExtra("boxId", boxId)
-                    .putExtra("level", level),
+                    .putExtra("level", level)
+                    .putExtra("boxName", boxName),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 

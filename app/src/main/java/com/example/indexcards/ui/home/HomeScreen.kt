@@ -40,7 +40,7 @@ fun HomeScreen(
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     navigateToBoxScreen: (Long) -> Unit = {},
-    scheduleNotification: (Long, Int, Long) -> Unit = { _, _, _ -> },
+    scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
     homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -71,8 +71,10 @@ fun HomeScreen(
                 if (addBoxDialog) {
                     addBoxDialog = false
                 } else {
+                    /* TODO: when coming from a box from a notification toast gets created but
+                    *   pressing back again navigates back to the HomeScreenState.Main to itself */
                     if (backPressedTime + 3000 > System.currentTimeMillis()) {
-                        /* TODO: seems a bit hacky but works */
+                        /** seems a bit hacky but works */
                         activity?.finish()
                     } else {
                         backPressedTime = System.currentTimeMillis()
@@ -92,12 +94,12 @@ fun HomeScreen(
         }
     }
 
-    fun setReminder(boxId: Long, level: Int) {
+    fun setReminder(boxId: Long, boxName: String, level: Int) {
         val time = getTimeFromReminderIntervals(
             reminderIntervals = reminderIntervals.value,
             level = level
         )
-        scheduleNotification(boxId, level, time)
+        scheduleNotification(boxId, level, boxName, time)
     }
 
     fun setAllReminders() {
@@ -106,7 +108,11 @@ fun HomeScreen(
                 if (box.reminders) {
                     for (level in 0..<NUMBER_OF_LEVELS) {
                         if (homeScreenViewModel.getNumberOfCardsOfLevelInBox(box.boxId, level) != 0)
-                            setReminder(box.boxId, level)
+                            setReminder(
+                                boxId = box.boxId,
+                                boxName = box.name,
+                                level = level
+                            )
                     }
                 }
             }
@@ -129,11 +135,7 @@ fun HomeScreen(
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-//                    val time = getTimeInTheFuture(minutes = 2)
-//                    scheduleNotification(7.toLong(), 1, time)
-                    addBoxDialog = true
-                },
+                onClick = { addBoxDialog = true },
                 modifier = modifier
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")

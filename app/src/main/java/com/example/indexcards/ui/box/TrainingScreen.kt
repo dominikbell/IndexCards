@@ -49,7 +49,7 @@ fun TrainingScreen(
     navigateToBoxScreen: () -> Unit = {},
     onCardCorrect: (Card) -> Unit = {},
     onCardIncorrect: (Card) -> Unit = {},
-    setNextLevelReminder: () -> Unit = {},
+    setOtherLevelsReminder: () -> Unit = {},
 ) {
     var trainedCards by remember { mutableIntStateOf(0) }
     var turnedOver by remember { mutableStateOf(false) }
@@ -109,7 +109,7 @@ fun TrainingScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            setNextLevelReminder()
+                            setOtherLevelsReminder()
                             navigateToBoxScreen()
                         }
                     ) {

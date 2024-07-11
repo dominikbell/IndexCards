@@ -27,7 +27,7 @@ fun Navigation(
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
-    scheduleNotification: (Long, Int, Long) -> Unit = { _,_,_ -> }
+    scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> }
 ) {
     var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
@@ -82,7 +82,7 @@ fun Navigation(
                 ) as BoxScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
                 requestNotificationPermission = { requestNotificationPermission() },
-                scheduleNotification = { lvl, time -> scheduleNotification(boxId, lvl, time) }
+                scheduleNotification = { lvl, name, time -> scheduleNotification(boxId, lvl, name, time) }
             )
         }
     }
