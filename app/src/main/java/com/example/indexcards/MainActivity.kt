@@ -66,7 +66,6 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val service = NotificationService(applicationContext)
 
-            /* TODO: this still doesn't close the notification after an action has been selected */
             when (requestId) {
                 NotificationRequest.GO_TO_APP -> {
                     service.closeNotification(boxId, level, 0)
@@ -119,9 +118,9 @@ class MainActivity : ComponentActivity() {
                         homeScreenViewModel = homeScreenViewModel,
                         hasNotificationPermission = hasNotificationPermission,
                         requestNotificationPermission = { requestNotificationPermission() },
-                        scheduleNotification = { time ->
+                        scheduleNotification = { boxId, level, time ->
                             service.scheduleNotification(
-                                boxId = 1, level = 0,
+                                boxId = boxId, level = level,
                                 time = time
                             )
                         },

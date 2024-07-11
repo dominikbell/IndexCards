@@ -10,16 +10,21 @@ import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.home.HomeScreenViewModel
 
+private val Context.dataStore by preferencesDataStore(USER_PREFERENCES_NAME)
+
+/** ViewModelProvider
+ * created the viewmodels and provides them with the needed repository and preferences
+ */
 class ViewModelProvider(
     context: Context,
 ) {
-    private val Context.dataStore by preferencesDataStore(USER_PREFERENCES_NAME)
 
     val factory = viewModelFactory {
         /** ParentClass for the other two ViewModels **/
         initializer {
             AppViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
+                userPreferences = UserPreferences(context.dataStore),
             )
         }
 
@@ -27,7 +32,7 @@ class ViewModelProvider(
         initializer {
             HomeScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
-                UserPreferences(context.dataStore)
+                userPreferences = UserPreferences(context.dataStore),
             )
         }
 
@@ -36,7 +41,7 @@ class ViewModelProvider(
             BoxScreenViewModel(
                 OfflineAppRepository(AppDatabase.getDatabase(context).appDao()),
                 this.createSavedStateHandle(),
-                UserPreferences(context.dataStore)
+                userPreferences = UserPreferences(context.dataStore),
             )
         }
     }

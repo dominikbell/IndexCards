@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
@@ -29,6 +30,8 @@ import com.example.indexcards.ui.home.dialogs.UserNameDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
+import com.example.indexcards.utils.notification.getTimeFromReminderIntervals
+import com.example.indexcards.utils.notification.getTimeInTheFuture
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,6 +40,7 @@ fun HomeScreen(
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     navigateToBoxScreen: (Long) -> Unit = {},
+    scheduleNotification: (Long, Int, Long) -> Unit = { _, _, _ -> },
     homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -88,6 +92,27 @@ fun HomeScreen(
         }
     }
 
+    fun setReminder(boxId: Long, level: Int) {
+        val time = getTimeFromReminderIntervals(
+            reminderIntervals = reminderIntervals.value,
+            level = level
+        )
+        scheduleNotification(boxId, level, time)
+    }
+
+    fun setAllReminders() {
+        homeScreenViewModel.viewModelScope.launch {
+            for (box in uiBoxList.boxList) {
+                if (box.reminders) {
+                    for (level in 0..<NUMBER_OF_LEVELS) {
+                        if (homeScreenViewModel.getNumberOfCardsOfLevelInBox(box.boxId, level) != 0)
+                            setReminder(box.boxId, level)
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier,
 
@@ -104,7 +129,11 @@ fun HomeScreen(
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { addBoxDialog = true },
+                onClick = {
+//                    val time = getTimeInTheFuture(minutes = 2)
+//                    scheduleNotification(7.toLong(), 1, time)
+                    addBoxDialog = true
+                },
                 modifier = modifier
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -165,7 +194,8 @@ fun HomeScreen(
                             )
                         )
                         homeScreenViewModel.savePreferences(doReset = true)
-                    }
+                    },
+                    setAllReminders = { setAllReminders() }
                 )
             }
 
@@ -177,7 +207,7 @@ fun HomeScreen(
         AddBoxDialog(
             boxUiState = boxUiState,
             hasNotificationPermission = hasNotificationPermission,
-            requestNotificationPermission = { requestNotificationPermission() },
+            requestNotificationPermission = requestNotificationPermission,
             onDismiss = {
                 addBoxDialog = false
                 homeScreenViewModel.resetBoxUiState()

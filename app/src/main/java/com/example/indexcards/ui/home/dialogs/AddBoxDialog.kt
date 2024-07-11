@@ -30,7 +30,7 @@ fun AddBoxDialog(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {},
+    requestNotificationPermission: () -> Boolean = { false },
     onDismiss: () -> Unit = {},
     updateUiState: (BoxDetails) -> Unit = {},
     onSave: () -> Unit = {},
@@ -100,7 +100,7 @@ fun AddBoxDialog(
                         updateUiState(boxUiState.boxDetails.copy(reminders = !isEnabled))
                     },
                     hasNotificationPermission = hasNotificationPermission,
-                    requestNotificationPermission = { requestNotificationPermission() }
+                    requestNotificationPermission = requestNotificationPermission
                 )
             }
         },

@@ -32,6 +32,7 @@ class HomeScreenViewModel(
     private val userPreferences: UserPreferences
 ) : AppViewModel(
     appRepository = appRepository,
+    userPreferences = userPreferences
 ) {
     /** homeScreenState
      * used for navigating between main, preferences, statistics
@@ -58,6 +59,13 @@ class HomeScreenViewModel(
             )
 
 
+    /** Get the number of cards in a box of a level to only create a notification
+     * if the level has any cards in it */
+    suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int): Int {
+        return appRepository.getNumberOfCardsOfLevelInBox(boxId, level)
+    }
+
+
     /** currentBox
      * used to select a box to go to BoxScreen (via boxId) or to delete a box
      */
@@ -80,7 +88,6 @@ class HomeScreenViewModel(
      * Used for displaying and changing the preferences
      */
     var uiSettings by mutableStateOf(UiSettings())
-    var currentLevel by mutableIntStateOf(-1)
 
     fun updateCurrentLevel(newLevel: Int) {
         currentLevel = newLevel
@@ -90,30 +97,11 @@ class HomeScreenViewModel(
         currentLevel = -1
     }
 
-    val userName: StateFlow<String> = userPreferences.currentUserName
-        .filterNotNull()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = DefaultPreferences.USER_NAME
-        )
 
-    val globalReminders: StateFlow<Boolean> = userPreferences.currentGlobalReminders
-        .filterNotNull()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = DefaultPreferences.GLOBAL_REMINDERS
-        )
-
-    val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
-        userPreferences.currentReminderIntervals
-            .filterNotNull()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = DefaultPreferences.REMINDER_INTERVALS
-            )
+    /** CurrentLevel
+     * used for setting the reminder interval for a specific level
+     */
+    var currentLevel by mutableIntStateOf(-1)
 
     fun updateUiSettings(settingsDetails: SettingsDetails) {
         uiSettings = UiSettings(
@@ -126,6 +114,18 @@ class HomeScreenViewModel(
         uiSettings = UiSettings()
     }
 
+    /** Flow of the username, just a gimmick feature */
+    val userName: StateFlow<String> = userPreferences.currentUserName
+        .filterNotNull()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = DefaultPreferences.USER_NAME
+        )
+
+
+    /** save the Preferences from the current UiSettings
+     */
     fun savePreferences(doReset: Boolean = false) {
         if (uiSettings.isValid) {
             viewModelScope.launch {

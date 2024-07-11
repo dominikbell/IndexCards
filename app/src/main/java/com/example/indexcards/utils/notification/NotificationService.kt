@@ -92,42 +92,27 @@ class NotificationService(
 
     fun scheduleNotification(boxId: Long = -1, level: Int = -1, time: Long) {
 
-        val intent = Intent(context, NotificationReceiver::class.java)
+        if (boxId != (-1).toLong() && level != -1) {
+            val intent = Intent(context, NotificationReceiver::class.java)
 
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER),
-            intent
-                .putExtra("id", NotificationRequest.MAKE_REMINDER)
-                .putExtra("boxId", boxId)
-                .putExtra("level", level),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER),
+                intent
+                    .putExtra("id", NotificationRequest.MAKE_REMINDER)
+                    .putExtra("boxId", boxId)
+                    .putExtra("level", level),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        /* Works but is much more imprecise. But I guess for orders of days it doesn't matter */
-        alarmManager.setAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            time,
-            pendingIntent
-        )
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            if (alarmManager.canScheduleExactAlarms()) {
-//                alarmManager.setExactAndAllowWhileIdle(
-//                    AlarmManager.RTC_WAKEUP,
-//                    time,
-//                    pendingIntent
-//                )
-//            }
-//        } else {
-//            alarmManager.setExactAndAllowWhileIdle(
-//                AlarmManager.RTC_WAKEUP,
-//                time,
-//                pendingIntent
-//            )
-//        }
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                time,
+                pendingIntent
+            )
+        }
     }
 
     companion object {

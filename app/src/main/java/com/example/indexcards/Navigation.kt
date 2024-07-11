@@ -27,7 +27,7 @@ fun Navigation(
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
-    scheduleNotification: (Long) -> Unit = {}
+    scheduleNotification: (Long, Int, Long) -> Unit = { _,_,_ -> }
 ) {
     var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
@@ -52,7 +52,8 @@ fun Navigation(
                 },
                 homeScreenViewModel = homeScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
-                requestNotificationPermission = requestNotificationPermission
+                requestNotificationPermission = requestNotificationPermission,
+                scheduleNotification = scheduleNotification
             )
         }
         composable(
@@ -81,7 +82,7 @@ fun Navigation(
                 ) as BoxScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
                 requestNotificationPermission = { requestNotificationPermission() },
-                scheduleNotification = { time -> scheduleNotification(time) }
+                scheduleNotification = { lvl, time -> scheduleNotification(boxId, lvl, time) }
             )
         }
     }

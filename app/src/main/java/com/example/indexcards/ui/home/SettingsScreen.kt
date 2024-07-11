@@ -32,6 +32,7 @@ fun SettingsScreen(
     openRemindersDialog: (Int) -> Unit = {},
     changeGlobalReminders: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false },
+    setAllReminders: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -76,6 +77,7 @@ fun SettingsScreen(
                     } else {
                         changeGlobalReminders()
                     }
+                    setAllReminders()
                 }
             )
         }

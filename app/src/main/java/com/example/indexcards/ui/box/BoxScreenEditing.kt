@@ -32,9 +32,10 @@ fun BoxScreenEditing(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {},
+    requestNotificationPermission: () -> Boolean = { false },
     onSave: () -> Unit = {},
     updateBoxUiState: (BoxDetails) -> Unit = {},
+    setAllReminders: () -> Unit = {},
 ) {
     val isLanguage = boxUiState.boxDetails.toBox().isLanguage()
     val remindersEnabled = boxUiState.boxDetails.reminders
@@ -77,9 +78,14 @@ fun BoxScreenEditing(
         RemindersSwitch(
             modifier = modifier,
             enabled = (remindersEnabled && hasNotificationPermission),
-            onCheckedChange = { updateBoxUiState(boxUiState.boxDetails.copy(reminders = !remindersEnabled)) },
+            onCheckedChange = {
+                if (!remindersEnabled) {
+                    setAllReminders()
+                }
+                updateBoxUiState(boxUiState.boxDetails.copy(reminders = !remindersEnabled))
+            },
             hasNotificationPermission = hasNotificationPermission,
-            requestNotificationPermission = { requestNotificationPermission() }
+            requestNotificationPermission = requestNotificationPermission
         )
 
         Button(

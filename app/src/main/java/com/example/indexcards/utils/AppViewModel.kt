@@ -10,6 +10,10 @@ import com.example.indexcards.data.Box
 import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.toBox
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** ParentClass for creating/editing a Box
@@ -18,6 +22,7 @@ import kotlinx.coroutines.launch
  */
 open class AppViewModel(
     val appRepository: AppRepository,
+    userPreferences: UserPreferences
 ) : ViewModel() {
     /** Companion object used for converting Flows to StateFlows
      */
@@ -66,4 +71,23 @@ open class AppViewModel(
             appRepository.deleteBox(boxId = boxId)
         }
     }
+
+
+    val globalReminders: StateFlow<Boolean> = userPreferences.currentGlobalReminders
+        .filterNotNull()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = DefaultPreferences.GLOBAL_REMINDERS
+        )
+
+    val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
+        userPreferences.currentReminderIntervals
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = DefaultPreferences.REMINDER_INTERVALS
+            )
+
 }
