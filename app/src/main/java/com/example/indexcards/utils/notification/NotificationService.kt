@@ -9,6 +9,8 @@ import androidx.core.app.NotificationCompat
 import com.example.indexcards.MainActivity
 import com.example.indexcards.R
 
+val NOTIFICATION_REQUEST_CODES = 1..4
+
 object NotificationRequest {
     const val MAKE_REMINDER: Int = 1
     const val GO_TO_APP: Int = 2

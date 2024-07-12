@@ -72,6 +72,7 @@
     <string name="username">Username</string>
     <string name="receive_reminders">Receive reminders</string>
     <string name="reminders_for">Reminders for</string>
+    <string name="level_pronoun">the</string>
     <string name="set_reminders">Set reminders for level</string>
     <string name="enter_name">Enter your name</string>
     <string name="my_name">My name is</string>
@@ -80,4 +81,5 @@
     <string name="set_reminder_time">Set a reminder time</string>
     <string name="do_not_use">Do Not Use</string>
     <string name="global_reminders_set">Global reminders have been set!</string>
+    <string name="global_reminders_cancelled">All notifications have been cancelled!</string>
 </resources>

@@ -36,11 +36,13 @@ fun SettingsScreen(
     openRemindersDialog: (Int) -> Unit = {},
     openRemindersTimeDialog: () -> Unit = {},
     changeGlobalReminders: () -> Unit = {},
+    cancelAllNotifications: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false },
     setAllReminders: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val notificationText = stringResource(id = R.string.global_reminders_set)
+    val remindersSetText = stringResource(id = R.string.global_reminders_set)
+    val remindersCancelledText = stringResource(id = R.string.global_reminders_cancelled)
 
     val reminderTimeText =
         if (reminderTime.first == -1) {
@@ -52,7 +54,10 @@ fun SettingsScreen(
     fun enableGlobalReminders() {
         if (!globalReminders) {
             setAllReminders()
-            Toast.makeText(context, notificationText, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, remindersSetText, Toast.LENGTH_SHORT).show()
+        } else {
+            cancelAllNotifications()
+            Toast.makeText(context, remindersCancelledText, Toast.LENGTH_SHORT).show()
         }
         changeGlobalReminders()
     }
@@ -121,15 +126,17 @@ fun SettingsScreen(
 
         HorizontalDivider()
 
+        Text(text = stringResource(id = R.string.reminders_for) + " ..")
+        
         reminderIntervals.forEachIndexed { index, interval ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(id = R.string.reminders_for) + " "
-                            + (index + 1).toWord() + " "
+                    text = ".. " + stringResource(R.string.level_pronoun) + " " +
+                            (index + 1).toWord() + " "
                             + stringResource(id = R.string.level) + ":"
                 )
 

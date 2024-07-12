@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
@@ -40,6 +41,7 @@ fun HomeScreen(
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     navigateToBoxScreen: (Long) -> Unit = {},
+    cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
     homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -178,6 +180,7 @@ fun HomeScreen(
                         reminderIntervalsDialog = true
                     },
                     openRemindersTimeDialog = { reminderTimeDialog = true },
+                    cancelAllNotifications = cancelAllNotifications,
                     requestNotificationPermission = requestNotificationPermission,
                     changeGlobalReminders = { homeScreenViewModel.changeGlobalReminders() },
                     setAllReminders = { setAllReminders() }
@@ -277,4 +280,10 @@ fun HomeScreen(
             }
         )
     }
+}
+
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen()
 }

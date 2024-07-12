@@ -20,12 +20,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.data.AppDatabase
+import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.ui.theme.IndexCardsTheme
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenViewModel
+import com.example.indexcards.utils.notification.NOTIFICATION_REQUEST_CODES
 import com.example.indexcards.utils.notification.NotificationRequest
 import com.example.indexcards.utils.notification.NotificationService
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,17 +72,20 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val service = NotificationService(applicationContext)
 
-            when (requestId) {
-                NotificationRequest.GO_TO_APP -> {
-                    service.closeNotification(boxId, level, 0)
-                }
+            if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
+                service.closeNotification(boxId, level, 0)
+            }
 
-                NotificationRequest.GO_TO_BOX -> {
-                    service.closeNotification(boxId, level, 0)
-                }
+            val appRepository = OfflineAppRepository(AppDatabase.getDatabase(context).appDao())
 
-                NotificationRequest.GO_TO_TRAINING -> {
-                    service.closeNotification(boxId, level, 0)
+            fun cancelAllNotifications() {
+                lifecycleScope.launch {
+                    val boxList = appRepository.getAllBoxesStream().first()
+                    for (box in boxList) {
+                        for (lvl in 0..4) {
+                            service.closeNotification(boxId = box.boxId, level = lvl, 0)
+                        }
+                    }
                 }
             }
 
@@ -116,6 +125,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Navigation(
                         homeScreenViewModel = homeScreenViewModel,
+                        startBoxId = boxIdPass,
+                        startLevel = levelPass,
+                        cancelAllNotifications = { cancelAllNotifications() },
                         hasNotificationPermission = hasNotificationPermission,
                         requestNotificationPermission = { requestNotificationPermission() },
                         scheduleNotification = { boxId, level, name, time ->
@@ -124,8 +136,6 @@ class MainActivity : ComponentActivity() {
                                 boxName = name, time = time
                             )
                         },
-                        startBoxId = boxIdPass,
-                        startLevel = levelPass
                     )
                 }
             }
