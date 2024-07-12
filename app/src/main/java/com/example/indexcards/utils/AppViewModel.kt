@@ -6,10 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
 import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.toBox
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** ParentClass for creating/editing a Box
@@ -18,6 +21,7 @@ import kotlinx.coroutines.launch
  */
 open class AppViewModel(
     val appRepository: AppRepository,
+    val userPreferences: UserPreferences
 ) : ViewModel() {
     /** Companion object used for converting Flows to StateFlows
      */
@@ -66,4 +70,44 @@ open class AppViewModel(
             appRepository.deleteBox(boxId = boxId)
         }
     }
+
+
+    /** globalReminders, reminderIntervals, reminderTime
+     * are used (both on the homeScreen and on the BoxScreen) to schedule reminders
+     */
+    val globalReminders: StateFlow<Boolean> = userPreferences.currentGlobalReminders
+        .filterNotNull()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = DefaultPreferences.GLOBAL_REMINDERS
+        )
+
+    fun changeGlobalReminders() {
+        viewModelScope.launch {
+            val currentGlobalReminders = globalReminders.value
+            userPreferences.saveGlobalReminders(
+                globalReminders = !currentGlobalReminders
+            )
+        }
+    }
+
+    val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
+        userPreferences.currentReminderIntervals
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = DefaultPreferences.REMINDER_INTERVALS
+            )
+
+    val reminderTime: StateFlow<Pair<Int, Int>> =
+        userPreferences.currentReminderTime
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = DefaultPreferences.REMINDER_TIME
+
+            )
 }

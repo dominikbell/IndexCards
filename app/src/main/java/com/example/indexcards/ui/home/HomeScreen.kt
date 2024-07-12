@@ -18,48 +18,68 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
-import com.example.indexcards.ui.dialogs.AddBoxDialog
-import com.example.indexcards.ui.dialogs.DeleteBoxDialog
-import com.example.indexcards.ui.dialogs.AboutAppDialog
+import com.example.indexcards.ui.home.dialogs.AddBoxDialog
+import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.home.dialogs.AboutAppDialog
+import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
+import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
+import com.example.indexcards.ui.home.dialogs.UserNameDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
+import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {},
+    requestNotificationPermission: () -> Boolean = { false },
     navigateToBoxScreen: (Long) -> Unit = {},
+    cancelAllNotifications: () -> Unit = {},
+    scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
     homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
     val context = LocalContext.current
     val activity = (LocalContext.current as? Activity)
+    val uiUserName = homeScreenViewModel.uiUserName
+    val uiReminderIntervals = homeScreenViewModel.uiReminderIntervals
+    val currentLevel = homeScreenViewModel.currentLevel
     val boxUiState = homeScreenViewModel.boxUiState
     val homeScreenState = homeScreenViewModel.homeScreenState
+    val userName = homeScreenViewModel.userName.collectAsState()
+    val globalReminders = homeScreenViewModel.globalReminders.collectAsState()
+    val reminderIntervals = homeScreenViewModel.reminderIntervals.collectAsState()
+    val reminderTime = homeScreenViewModel.reminderTime.collectAsState()
     val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox by homeScreenViewModel.currentBox.collectAsState()
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
-    var addDialog by remember { mutableStateOf(false) }
-    var deleteDialog by remember { mutableStateOf(false) }
+    var addBoxDialog by remember { mutableStateOf(false) }
+    var deleteBoxDialog by remember { mutableStateOf(false) }
+    var userNameDialog by remember { mutableStateOf(false) }
+    var reminderIntervalsDialog by remember { mutableStateOf(false) }
+    var reminderTimeDialog by remember { mutableStateOf(false) }
     var showAboutApp by remember { mutableStateOf(false) }
     var backPressedTime: Long = 0
 
     BackHandler {
         when (homeScreenState) {
             HomeScreenState.MAIN -> {
-                if (addDialog) {
-                    addDialog = false
+                if (addBoxDialog) {
+                    addBoxDialog = false
                 } else {
+                    /* TODO: when coming from a box from a notification toast gets created but
+                    *   pressing back again navigates back to the HomeScreenState.Main to itself */
                     if (backPressedTime + 3000 > System.currentTimeMillis()) {
-                        /* TODO: seems a bit hacky but works */
+                        /** seems a bit hacky but works */
                         activity?.finish()
                     } else {
                         backPressedTime = System.currentTimeMillis()
@@ -69,12 +89,37 @@ fun HomeScreen(
             }
 
             HomeScreenState.SETTINGS -> {
-                homeScreenViewModel.savePreferences()
                 homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
             }
 
             HomeScreenState.STATISTICS -> {
                 homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
+            }
+        }
+    }
+
+    fun setReminder(boxId: Long, boxName: String, level: Int) {
+        val time = getTimeFromReminderSettings(
+            reminderIntervals = reminderIntervals.value,
+            reminderTime = reminderTime.value,
+            level = level,
+        )
+        scheduleNotification(boxId, level, boxName, time)
+    }
+
+    fun setAllReminders() {
+        homeScreenViewModel.viewModelScope.launch {
+            for (box in uiBoxList.boxList) {
+                if (box.reminders) {
+                    for (level in 0..<NUMBER_OF_LEVELS) {
+                        if (homeScreenViewModel.getNumberOfCardsOfLevelInBox(box.boxId, level) != 0)
+                            setReminder(
+                                boxId = box.boxId,
+                                boxName = box.name,
+                                level = level
+                            )
+                    }
+                }
             }
         }
     }
@@ -86,19 +131,15 @@ fun HomeScreen(
             HomeScreenTopBar(
                 homeScreenState = homeScreenState,
                 goToMainScreen = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN) },
-                goToSettings = {
-                    homeScreenViewModel.setCurrentUiPreferences()
-                    homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS)
-                },
+                goToSettings = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS) },
                 goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
                 showAboutApp = { showAboutApp = true },
-                saveSettings = { homeScreenViewModel.savePreferences() }
             )
         },
 
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { addDialog = true },
+                onClick = { addBoxDialog = true },
                 modifier = modifier
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -115,7 +156,7 @@ fun HomeScreen(
                         homeScreenViewModel.viewModelScope.launch {
                             homeScreenViewModel.setCurrentBox(it)
                         }
-                        deleteDialog = true
+                        deleteBoxDialog = true
                     },
                     navigateToBoxScreen = navigateToBoxScreen,
                 )
@@ -124,7 +165,25 @@ fun HomeScreen(
             HomeScreenState.SETTINGS -> {
                 SettingsScreen(
                     modifier = modifier.padding(innerPadding),
-                    homeScreenViewModel = homeScreenViewModel
+                    hasNotificationPermission = hasNotificationPermission,
+                    userName = userName.value,
+                    globalReminders = globalReminders.value,
+                    reminderIntervals = reminderIntervals.value,
+                    reminderTime = reminderTime.value,
+                    openUserNameDialog = {
+                        homeScreenViewModel.updateUiUserName(userName.value)
+                        userNameDialog = true
+                    },
+                    openRemindersDialog = {
+                        homeScreenViewModel.updateCurrentLevel(it)
+                        homeScreenViewModel.updateUiReminderIntervals(reminderIntervals.value)
+                        reminderIntervalsDialog = true
+                    },
+                    openRemindersTimeDialog = { reminderTimeDialog = true },
+                    cancelAllNotifications = cancelAllNotifications,
+                    requestNotificationPermission = requestNotificationPermission,
+                    changeGlobalReminders = { homeScreenViewModel.changeGlobalReminders() },
+                    setAllReminders = { setAllReminders() }
                 )
             }
 
@@ -132,13 +191,13 @@ fun HomeScreen(
         }
     }
 
-    if (addDialog) {
+    if (addBoxDialog) {
         AddBoxDialog(
             boxUiState = boxUiState,
             hasNotificationPermission = hasNotificationPermission,
-            requestNotificationPermission = { requestNotificationPermission() },
+            requestNotificationPermission = requestNotificationPermission,
             onDismiss = {
-                addDialog = false
+                addBoxDialog = false
                 homeScreenViewModel.resetBoxUiState()
             },
             onSave = { homeScreenViewModel.saveBox() },
@@ -146,14 +205,14 @@ fun HomeScreen(
         )
     }
 
-    if (deleteDialog) {
+    if (deleteBoxDialog) {
         DeleteBoxDialog(
             onDismiss = {
-                deleteDialog = false
+                deleteBoxDialog = false
                 homeScreenViewModel.resetCurrentBox()
             },
             onDelete = {
-                deleteDialog = false
+                deleteBoxDialog = false
                 homeScreenViewModel.viewModelScope.launch {
                     homeScreenViewModel.deleteBox(currentBox.boxId)
                     homeScreenViewModel.resetCurrentBox()
@@ -169,4 +228,62 @@ fun HomeScreen(
             onDismiss = { showAboutApp = false }
         )
     }
+
+    if (userNameDialog) {
+        UserNameDialog(
+            uiUserName = uiUserName,
+            onDismiss = {
+                userNameDialog = false
+                homeScreenViewModel.resetUiUserName()
+            },
+            updateUiUserName = { homeScreenViewModel.updateUiUserName(it) },
+            applyChanges = {
+                userNameDialog = false
+                homeScreenViewModel.saveUserName(doReset = true)
+            }
+        )
+    }
+
+    if (reminderIntervalsDialog) {
+        ReminderIntervalsDialog(
+            currentLevel = currentLevel,
+            uiReminderIntervals = uiReminderIntervals,
+            onDismiss = {
+                reminderIntervalsDialog = false
+                homeScreenViewModel.resetUiReminderIntervals()
+                homeScreenViewModel.resetCurrentLevel()
+            },
+            updateUiReminderIntervals = { int, str ->
+                /** is a bit ugly but cannot do copy and replace one item in-place */
+                val copy = uiReminderIntervals.reminderIntervals.toMutableList()
+                copy[currentLevel] = Pair(int, str)
+
+                homeScreenViewModel.updateUiReminderIntervals(intervals = copy)
+            },
+            applyChanges = {
+                reminderIntervalsDialog = false
+                homeScreenViewModel.saveReminderIntervals(doReset = true)
+            }
+        )
+    }
+
+    if (reminderTimeDialog) {
+        ReminderTimeDialog(
+            initialHour = reminderTime.value.first,
+            initialMinute = reminderTime.value.second,
+            onDismiss = {
+                reminderTimeDialog = false
+            },
+            applyChanges = { hour, minute ->
+                reminderTimeDialog = false
+                homeScreenViewModel.saveReminderTime(hour, minute)
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen()
 }

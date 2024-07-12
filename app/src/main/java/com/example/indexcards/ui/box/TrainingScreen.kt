@@ -38,18 +38,18 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.ui.tag.TagList
 import com.example.indexcards.utils.card.emptyCard
 import kotlin.math.min
 
 @Composable
 fun TrainingScreen(
     modifier: Modifier = Modifier,
-    navigateToBoxScreen: () -> Unit,
     cardList: List<CardWithTags>,
-    onCardCorrect: (Card) -> Unit,
-    onCardIncorrect: (Card) -> Unit,
-    trainingCounts: Boolean
+    trainingCounts: Boolean,
+    navigateToBoxScreen: () -> Unit = {},
+    onCardCorrect: (Card) -> Unit = {},
+    onCardIncorrect: (Card) -> Unit = {},
+    setOtherLevelsReminder: () -> Unit = {},
 ) {
     var trainedCards by remember { mutableIntStateOf(0) }
     var turnedOver by remember { mutableStateOf(false) }
@@ -108,7 +108,10 @@ fun TrainingScreen(
                 },
                 confirmButton = {
                     TextButton(
-                        onClick = { navigateToBoxScreen() }
+                        onClick = {
+                            setOtherLevelsReminder()
+                            navigateToBoxScreen()
+                        }
                     ) {
                         Text(text = stringResource(id = R.string.back_to_box))
                     }
@@ -122,7 +125,6 @@ fun TrainingScreen(
 @Composable
 fun TrainingScreenPreview() {
     TrainingScreen(
-        navigateToBoxScreen = { },
         cardList = listOf(
             CardWithTags(
                 card = emptyCard.copy(word = "Hallo", meaning = "Hello"),
@@ -132,8 +134,6 @@ fun TrainingScreenPreview() {
             CardWithTags(card = emptyCard, tags = listOf()),
             CardWithTags(card = emptyCard, tags = listOf()),
         ),
-        onCardCorrect = {},
-        onCardIncorrect = {},
         trainingCounts = true
     )
 }
@@ -145,11 +145,11 @@ fun CardCard(
     cardHeight: Dp,
     cardWidth: Dp,
     turnedOver: Boolean,
-    turnOver: () -> Unit,
-    goToNextCard: () -> Unit,
-    onCardCorrect: () -> Unit,
-    onCardIncorrect: () -> Unit,
-    trainingCounts: Boolean
+    trainingCounts: Boolean,
+    turnOver: () -> Unit = {},
+    goToNextCard: () -> Unit = {},
+    onCardCorrect: () -> Unit = {},
+    onCardIncorrect: () -> Unit = {},
 ) {
     Card(
         modifier = modifier
@@ -264,10 +264,6 @@ fun CardCardPreview() {
         cardHeight = 200.dp,
         cardWidth = 200.dp,
         turnedOver = true,
-        turnOver = { },
-        goToNextCard = { },
-        onCardCorrect = { },
-        onCardIncorrect = { },
         trainingCounts = true
     )
 }

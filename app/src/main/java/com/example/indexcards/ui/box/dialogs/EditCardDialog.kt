@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.dialogs
+package com.example.indexcards.ui.box.dialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +22,7 @@ import com.example.indexcards.ui.elements.NewTagButton
 import com.example.indexcards.ui.elements.NotesField
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.WordField
-import com.example.indexcards.ui.tag.TagList
+import com.example.indexcards.ui.box.TagList
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.emptyBox
 import com.example.indexcards.utils.card.CardDetails

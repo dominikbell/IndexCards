@@ -26,8 +26,9 @@ fun Navigation(
     startBoxId: Long = -1,
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {},
-    scheduleNotification: (Long) -> Unit = {}
+    requestNotificationPermission: () -> Boolean = { false },
+    cancelAllNotifications: () -> Unit = {},
+    scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> }
 ) {
     var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
@@ -50,9 +51,11 @@ fun Navigation(
                     setNewBoxId(boxId)
                     navController.navigate("boxScreen/${boxId}/${-1}")
                 },
-                homeScreenViewModel = homeScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
-                requestNotificationPermission = { requestNotificationPermission() }
+                requestNotificationPermission = requestNotificationPermission,
+                cancelAllNotifications = cancelAllNotifications,
+                scheduleNotification = scheduleNotification,
+                homeScreenViewModel = homeScreenViewModel,
             )
         }
         composable(
@@ -81,7 +84,7 @@ fun Navigation(
                 ) as BoxScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
                 requestNotificationPermission = { requestNotificationPermission() },
-                scheduleNotification = { time -> scheduleNotification(time) }
+                scheduleNotification = { lvl, name, time -> scheduleNotification(boxId, lvl, name, time) }
             )
         }
     }

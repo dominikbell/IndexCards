@@ -1,36 +1,72 @@
 package com.example.indexcards.ui.home
 
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.indexcards.utils.ViewModelProvider
-import com.example.indexcards.utils.home.HomeScreenViewModel
+import com.example.indexcards.R
+import com.example.indexcards.utils.DefaultPreferences
+import com.example.indexcards.utils.home.toAtLeast2DigitString
+import com.example.indexcards.utils.home.toReminderText
+import com.example.indexcards.utils.home.toWord
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    homeScreenViewModel: HomeScreenViewModel,
+    hasNotificationPermission: Boolean,
+    userName: String,
+    globalReminders: Boolean,
+    reminderIntervals: List<Pair<Int, String>>,
+    reminderTime: Pair<Int, Int>,
+    openUserNameDialog: () -> Unit = {},
+    openRemindersDialog: (Int) -> Unit = {},
+    openRemindersTimeDialog: () -> Unit = {},
+    changeGlobalReminders: () -> Unit = {},
+    cancelAllNotifications: () -> Unit = {},
+    requestNotificationPermission: () -> Boolean = { false },
+    setAllReminders: () -> Unit = {},
 ) {
-    val uiUserName = homeScreenViewModel.uiPreferences
+    val context = LocalContext.current
+    val remindersSetText = stringResource(id = R.string.global_reminders_set)
+    val remindersCancelledText = stringResource(id = R.string.global_reminders_cancelled)
+
+    val reminderTimeText =
+        if (reminderTime.first == -1) {
+            stringResource(id = R.string.not_set1)
+        } else {
+            reminderTime.first.toAtLeast2DigitString() + ":" + reminderTime.second.toAtLeast2DigitString()
+        }
+
+    fun enableGlobalReminders() {
+        if (!globalReminders) {
+            setAllReminders()
+            Toast.makeText(context, remindersSetText, Toast.LENGTH_SHORT).show()
+        } else {
+            cancelAllNotifications()
+            Toast.makeText(context, remindersCancelledText, Toast.LENGTH_SHORT).show()
+        }
+        changeGlobalReminders()
+    }
 
     Column(
         modifier = modifier
-            .padding(start = 12.dp, end = 12.dp)
+            .padding(20.dp)
             .fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(
             modifier = Modifier
@@ -39,11 +75,13 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "User Name"
+                text = stringResource(id = R.string.username)
             )
-            TextField(
-                value = uiUserName.userName,
-                onValueChange = { it: String -> homeScreenViewModel.updateUiUserName(it) }
+            Text(
+                modifier = Modifier.clickable {
+                    openUserNameDialog()
+                },
+                text = userName
             )
         }
 
@@ -54,14 +92,62 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Receive Reminders"
+                text = stringResource(id = R.string.receive_reminders)
             )
             Switch(
-                checked = true,
-                onCheckedChange = {}
+                checked = (hasNotificationPermission && globalReminders),
+                onCheckedChange = {
+                    if (!hasNotificationPermission) {
+                        val success = requestNotificationPermission()
+                        if (success) {
+                            enableGlobalReminders()
+                        }
+                    } else {
+                        enableGlobalReminders()
+                    }
+                }
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = stringResource(id = R.string.default_notification_time))
+
+            Text(
+                modifier = Modifier.clickable {
+                    openRemindersTimeDialog()
+                },
+                text = reminderTimeText
+            )
+        }
+
+        HorizontalDivider()
+
+        Text(text = stringResource(id = R.string.reminders_for) + " ..")
+        
+        reminderIntervals.forEachIndexed { index, interval ->
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = ".. " + stringResource(R.string.level_pronoun) + " " +
+                            (index + 1).toWord() + " "
+                            + stringResource(id = R.string.level) + ":"
+                )
+
+                Text(
+                    modifier = Modifier.clickable {
+                        openRemindersDialog(index)
+                    },
+                    text = interval.second.toReminderText(interval.first)
+                )
+            }
+        }
     }
 }
 
@@ -70,8 +156,10 @@ fun SettingsScreen(
 fun SettingsScreenPreview() {
     SettingsScreen(
         modifier = Modifier,
-        homeScreenViewModel = viewModel(
-            factory = ViewModelProvider(context = LocalContext.current).factory
-            )
+        userName = "Herbert",
+        globalReminders = false,
+        reminderTime = DefaultPreferences.REMINDER_TIME,
+        reminderIntervals = DefaultPreferences.REMINDER_INTERVALS,
+        hasNotificationPermission = true
     )
 }

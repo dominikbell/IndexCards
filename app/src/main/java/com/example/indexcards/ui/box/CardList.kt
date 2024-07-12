@@ -1,4 +1,4 @@
-package com.example.indexcards.ui.card
+package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi

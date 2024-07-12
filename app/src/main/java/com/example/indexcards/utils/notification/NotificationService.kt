@@ -9,6 +9,8 @@ import androidx.core.app.NotificationCompat
 import com.example.indexcards.MainActivity
 import com.example.indexcards.R
 
+val NOTIFICATION_REQUEST_CODES = 1..4
+
 object NotificationRequest {
     const val MAKE_REMINDER: Int = 1
     const val GO_TO_APP: Int = 2
@@ -27,7 +29,7 @@ class NotificationService(
         manager.cancel(cancelIntentId)
     }
 
-    fun showNotification(boxId: Long = -1, level: Int = -1) {
+    fun showNotification(boxId: Long = -1, level: Int = -1, boxName: String = "") {
         val intentId = getIntentId(boxId, level, 0)
 
         /* TODO: very ugly code repetition */
@@ -71,7 +73,7 @@ class NotificationService(
         )
             .setSmallIcon(R.drawable.app_icon_notification)
             .setContentTitle("Training waits!")
-            .setContentText("Cards of level ${level + 1} of box $boxId need to be trained")
+            .setContentText("Cards of level ${level + 1} in box $boxName need to be trained")
             .setSilent(true)
             .setContentIntent(toAppPendingIntent)
             .addAction(
@@ -90,44 +92,30 @@ class NotificationService(
         manager.notify(intentId, notification)
     }
 
-    fun scheduleNotification(boxId: Long = -1, level: Int = -1, time: Long) {
+    fun scheduleNotification(boxId: Long = -1, level: Int = -1, boxName: String = "", time: Long) {
 
-        val intent = Intent(context, NotificationReceiver::class.java)
+        if (boxId != (-1).toLong() && level != -1) {
+            val intent = Intent(context, NotificationReceiver::class.java)
 
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER),
-            intent
-                .putExtra("id", NotificationRequest.MAKE_REMINDER)
-                .putExtra("boxId", boxId)
-                .putExtra("level", level),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER),
+                intent
+                    .putExtra("id", NotificationRequest.MAKE_REMINDER)
+                    .putExtra("boxId", boxId)
+                    .putExtra("level", level)
+                    .putExtra("boxName", boxName),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        /* Works but is much more imprecise. But I guess for orders of days it doesn't matter */
-        alarmManager.setAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            time,
-            pendingIntent
-        )
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            if (alarmManager.canScheduleExactAlarms()) {
-//                alarmManager.setExactAndAllowWhileIdle(
-//                    AlarmManager.RTC_WAKEUP,
-//                    time,
-//                    pendingIntent
-//                )
-//            }
-//        } else {
-//            alarmManager.setExactAndAllowWhileIdle(
-//                AlarmManager.RTC_WAKEUP,
-//                time,
-//                pendingIntent
-//            )
-//        }
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                time,
+                pendingIntent
+            )
+        }
     }
 
     companion object {

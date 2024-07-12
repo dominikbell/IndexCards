@@ -54,9 +54,10 @@ import kotlinx.coroutines.launch
 class BoxScreenViewModel(
     appRepository: AppRepository,
     savedStateHandle: SavedStateHandle,
-    private val userPreferences: UserPreferences
+    userPreferences: UserPreferences
 ) : AppViewModel(
     appRepository = appRepository,
+    userPreferences = userPreferences
 ) {
     /** boxId from savedStateHandle to know which box it is */
     val boxId: Long = checkNotNull(savedStateHandle["boxId"])
@@ -116,6 +117,10 @@ class BoxScreenViewModel(
         } else {
             levelSelected.update { newLevel }
         }
+    }
+
+    fun resetLevelSelected() {
+        levelSelected.update { -1 }
     }
 
 

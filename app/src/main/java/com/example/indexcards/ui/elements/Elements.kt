@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.elements
 
 import android.annotation.SuppressLint
+import android.provider.CalendarContract.Reminders
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -250,9 +251,9 @@ fun LanguageDropDownMenuPreview() {
 fun RemindersSwitch(
     modifier: Modifier = Modifier,
     enabled: Boolean = false,
-    onCheckedChange: () -> Unit,
     hasNotificationPermission: Boolean = false,
-    requestNotificationPermission: () -> Unit = {}
+    onCheckedChange: () -> Unit = {},
+    requestNotificationPermission: () -> Boolean = { false }
 ) {
     Row(
         modifier = Modifier
@@ -267,12 +268,22 @@ fun RemindersSwitch(
             checked = enabled,
             onCheckedChange = {
                 if (!hasNotificationPermission) {
-                    requestNotificationPermission()
+                    val success = requestNotificationPermission()
+                    if (success) {
+                        onCheckedChange()
+                    }
+                } else {
+                    onCheckedChange()
                 }
-                onCheckedChange()
             }
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RemindersSwitchPreview() {
+    RemindersSwitch()
 }
 
 @Composable

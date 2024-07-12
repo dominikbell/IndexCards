@@ -19,19 +19,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.Tag
-import com.example.indexcards.ui.dialogs.CardDialog
-import com.example.indexcards.ui.dialogs.DeleteCardDialog
-import com.example.indexcards.ui.dialogs.EditCardDialog
-import com.example.indexcards.ui.dialogs.NewCardDialog
-import com.example.indexcards.ui.dialogs.DeleteBoxDialog
-import com.example.indexcards.ui.dialogs.NoCardsDialog
-import com.example.indexcards.ui.tag.TagDialog
+import com.example.indexcards.ui.box.dialogs.CardDialog
+import com.example.indexcards.ui.box.dialogs.DeleteCardDialog
+import com.example.indexcards.ui.box.dialogs.EditCardDialog
+import com.example.indexcards.ui.box.dialogs.NewCardDialog
+import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.box.dialogs.NoCardsDialog
+import com.example.indexcards.ui.box.dialogs.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.toCardState
+import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.tag.emptyTag
 import com.example.indexcards.utils.tag.toColor
 import com.example.indexcards.utils.tag.toTagDetails
@@ -40,12 +42,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
-    boxId: Long, /* Is only here for boxScreenViewModel to work */
+    boxId: Long, /* Is also here for boxScreenViewModel to work */
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
     navigateToBoxesOverview: () -> Unit = {},
-    requestNotificationPermission: () -> Unit = {},
-    scheduleNotification: (Long) -> Unit = {},
+    requestNotificationPermission: () -> Boolean = { false },
+    scheduleNotification: (Int, String, Long) -> Unit = { _, _, _ -> },
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -65,6 +67,10 @@ fun BoxScreen(
     val cardWithTags by boxScreenViewModel.uiCardWithTags.collectAsState()
     val tagWithCards by boxScreenViewModel.uiTagWithCards.collectAsState()
     val currentCard by boxScreenViewModel.currentCard.collectAsState()
+
+    val globalReminders = boxScreenViewModel.globalReminders.collectAsState()
+    val reminderIntervals = boxScreenViewModel.reminderIntervals.collectAsState()
+    val reminderTime = boxScreenViewModel.reminderTime.collectAsState()
 
     var cardDialog by remember { mutableStateOf(false) }
     var noCardsDialog by remember { mutableStateOf(false) }
@@ -98,12 +104,30 @@ fun BoxScreen(
         if (startLevel != -1) {
             boxScreenViewModel.setLevelSelected(startLevel)
             if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level = startLevel) != 0) {
-                /* TODO: A bit hacky using this suspend function but without it the state is not
-                    updated yet and cardsWithTags is still empty */
+                /** A bit hacky using this suspend function but without it the state is not
+                 * updated yet and cardsWithTags is still empty */
                 boxScreenViewModel.changeTrainingCounts(true)
                 boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
             } else {
                 noCardsDialog = true
+            }
+        }
+    }
+
+    fun setReminder(level: Int) {
+        val time = getTimeFromReminderSettings(
+            reminderIntervals = reminderIntervals.value,
+            reminderTime = reminderTime.value,
+            level = level
+        )
+        scheduleNotification(level, boxUiState.boxDetails.name, time)
+    }
+
+    fun setAllReminders() {
+        boxScreenViewModel.viewModelScope.launch {
+            for (level in 0..<NUMBER_OF_LEVELS) {
+                if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level) != 0)
+                    setReminder(level)
             }
         }
     }
@@ -204,13 +228,16 @@ fun BoxScreen(
                 BoxScreenEditing(
                     modifier = modifier.padding(innerPadding),
                     boxUiState = boxUiState,
+                    globalReminders = globalReminders.value,
                     onSave = {
                         boxScreenViewModel.saveBox()
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
                     },
+                    changeGlobalReminders = { boxScreenViewModel.changeGlobalReminders() },
                     hasNotificationPermission = hasNotificationPermission,
-                    requestNotificationPermission = { requestNotificationPermission() },
+                    requestNotificationPermission = requestNotificationPermission,
                     updateBoxUiState = { boxScreenViewModel.updateBoxUiState(it) },
+                    setAllReminders = { setAllReminders() }
                 )
             }
 
@@ -218,8 +245,7 @@ fun BoxScreen(
                 TrainingScreen(
                     modifier = modifier.padding(innerPadding),
                     navigateToBoxScreen = {
-                        /* TODO: Set reminder for next training */
-                        boxScreenViewModel.setLevelSelected(-1)
+                        boxScreenViewModel.resetLevelSelected()
                         boxScreenViewModel.resetTagSelected()
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
                     },
@@ -234,7 +260,21 @@ fun BoxScreen(
                             boxScreenViewModel.onCardIncorrect(it)
                         }
                     },
-                    trainingCounts = trainingCounts
+                    trainingCounts = trainingCounts,
+                    setOtherLevelsReminder = {
+                        if (trainingCounts && boxWithTags.box.reminders) {
+                            boxScreenViewModel.viewModelScope.launch {
+                                val nextLevel = levelSelected + 1
+                                val previousLevel = levelSelected - 1
+                                if (levelSelected != 4 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(nextLevel) != 0) {
+                                    setReminder(nextLevel)
+                                }
+                                if (levelSelected != 0 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(previousLevel) != 0) {
+                                    setReminder(previousLevel)
+                                }
+                            }
+                        }
+                    }
                 )
             }
         }
