@@ -31,7 +31,9 @@ import com.example.indexcards.utils.box.toBoxDetails
 fun BoxScreenEditing(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
-    hasNotificationPermission: Boolean = false,
+    globalReminders: Boolean,
+    hasNotificationPermission: Boolean,
+    changeGlobalReminders: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false },
     onSave: () -> Unit = {},
     updateBoxUiState: (BoxDetails) -> Unit = {},
@@ -39,6 +41,16 @@ fun BoxScreenEditing(
 ) {
     val isLanguage = boxUiState.boxDetails.toBox().isLanguage()
     val remindersEnabled = boxUiState.boxDetails.reminders
+
+    fun onSwitchChanged() {
+        if (!globalReminders) {
+            changeGlobalReminders()
+        }
+        if (!remindersEnabled) {
+            setAllReminders()
+        }
+        updateBoxUiState(boxUiState.boxDetails.copy(reminders = !remindersEnabled))
+    }
 
     Column(
         modifier = modifier
@@ -79,10 +91,15 @@ fun BoxScreenEditing(
             modifier = modifier,
             enabled = (remindersEnabled && hasNotificationPermission),
             onCheckedChange = {
-                if (!remindersEnabled) {
-                    setAllReminders()
+                if (!hasNotificationPermission) {
+                    val success = requestNotificationPermission()
+                    if (success) {
+                        onSwitchChanged()
+                    }
+                } else {
+                    onSwitchChanged()
+
                 }
-                updateBoxUiState(boxUiState.boxDetails.copy(reminders = !remindersEnabled))
             },
             hasNotificationPermission = hasNotificationPermission,
             requestNotificationPermission = requestNotificationPermission
@@ -107,8 +124,11 @@ fun BoxScreenEditingPreview() {
             emptyBox.copy(
                 name = "Box1234",
                 description = "This is a descreibung",
-                topic = "Holz"
+                topic = "Holz",
+                reminders = true
             ).toBoxDetails()
-        )
+        ),
+        globalReminders = true,
+        hasNotificationPermission = true
     )
 }

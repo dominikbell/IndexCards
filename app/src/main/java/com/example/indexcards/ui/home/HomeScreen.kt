@@ -25,13 +25,13 @@ import com.example.indexcards.R
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
-import com.example.indexcards.ui.home.dialogs.ReminderDialog
+import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
+import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
 import com.example.indexcards.ui.home.dialogs.UserNameDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
-import com.example.indexcards.utils.notification.getTimeFromReminderIntervals
-import com.example.indexcards.utils.notification.getTimeInTheFuture
+import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,21 +47,24 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val activity = (LocalContext.current as? Activity)
-    val uiSettings = homeScreenViewModel.uiSettings
+    val uiUserName = homeScreenViewModel.uiUserName
+    val uiReminderIntervals = homeScreenViewModel.uiReminderIntervals
     val currentLevel = homeScreenViewModel.currentLevel
     val boxUiState = homeScreenViewModel.boxUiState
     val homeScreenState = homeScreenViewModel.homeScreenState
     val userName = homeScreenViewModel.userName.collectAsState()
     val globalReminders = homeScreenViewModel.globalReminders.collectAsState()
     val reminderIntervals = homeScreenViewModel.reminderIntervals.collectAsState()
+    val reminderTime = homeScreenViewModel.reminderTime.collectAsState()
     val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox by homeScreenViewModel.currentBox.collectAsState()
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
     var addBoxDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
-    var editUserNameDialog by remember { mutableStateOf(false) }
-    var editRemindersDialog by remember { mutableStateOf(false) }
+    var userNameDialog by remember { mutableStateOf(false) }
+    var reminderIntervalsDialog by remember { mutableStateOf(false) }
+    var reminderTimeDialog by remember { mutableStateOf(false) }
     var showAboutApp by remember { mutableStateOf(false) }
     var backPressedTime: Long = 0
 
@@ -84,7 +87,6 @@ fun HomeScreen(
             }
 
             HomeScreenState.SETTINGS -> {
-                homeScreenViewModel.savePreferences(doReset = true)
                 homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
             }
 
@@ -95,9 +97,10 @@ fun HomeScreen(
     }
 
     fun setReminder(boxId: Long, boxName: String, level: Int) {
-        val time = getTimeFromReminderIntervals(
+        val time = getTimeFromReminderSettings(
             reminderIntervals = reminderIntervals.value,
-            level = level
+            reminderTime = reminderTime.value,
+            level = level,
         )
         scheduleNotification(boxId, level, boxName, time)
     }
@@ -129,7 +132,6 @@ fun HomeScreen(
                 goToSettings = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS) },
                 goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
                 showAboutApp = { showAboutApp = true },
-                saveSettings = { homeScreenViewModel.savePreferences(doReset = true) }
             )
         },
 
@@ -165,38 +167,19 @@ fun HomeScreen(
                     userName = userName.value,
                     globalReminders = globalReminders.value,
                     reminderIntervals = reminderIntervals.value,
+                    reminderTime = reminderTime.value,
                     openUserNameDialog = {
-                        homeScreenViewModel.updateUiSettings(
-                            uiSettings.settingsDetails.copy(
-                                userName = userName.value,
-                                globalReminders = globalReminders.value,
-                                reminderIntervals = reminderIntervals.value
-                            )
-                        )
-                        editUserNameDialog = true
+                        homeScreenViewModel.updateUiUserName(userName.value)
+                        userNameDialog = true
                     },
                     openRemindersDialog = {
                         homeScreenViewModel.updateCurrentLevel(it)
-                        homeScreenViewModel.updateUiSettings(
-                            uiSettings.settingsDetails.copy(
-                                userName = userName.value,
-                                globalReminders = globalReminders.value,
-                                reminderIntervals = reminderIntervals.value
-                            )
-                        )
-                        editRemindersDialog = true
+                        homeScreenViewModel.updateUiReminderIntervals(reminderIntervals.value)
+                        reminderIntervalsDialog = true
                     },
+                    openRemindersTimeDialog = { reminderTimeDialog = true },
                     requestNotificationPermission = requestNotificationPermission,
-                    changeGlobalReminders = {
-                        homeScreenViewModel.updateUiSettings(
-                            uiSettings.settingsDetails.copy(
-                                userName = userName.value,
-                                globalReminders = !globalReminders.value,
-                                reminderIntervals = reminderIntervals.value
-                            )
-                        )
-                        homeScreenViewModel.savePreferences(doReset = true)
-                    },
+                    changeGlobalReminders = { homeScreenViewModel.changeGlobalReminders() },
                     setAllReminders = { setAllReminders() }
                 )
             }
@@ -243,47 +226,54 @@ fun HomeScreen(
         )
     }
 
-    if (editUserNameDialog) {
+    if (userNameDialog) {
         UserNameDialog(
-            uiSettings = uiSettings,
+            uiUserName = uiUserName,
             onDismiss = {
-                editUserNameDialog = false
-                homeScreenViewModel.resetUiSettings()
+                userNameDialog = false
+                homeScreenViewModel.resetUiUserName()
             },
-            updateUiState = {
-                homeScreenViewModel.updateUiSettings(
-                    uiSettings.settingsDetails.copy(userName = it)
-                )
-            },
+            updateUiUserName = { homeScreenViewModel.updateUiUserName(it) },
             applyChanges = {
-                editUserNameDialog = false
-                homeScreenViewModel.savePreferences(doReset = true)
+                userNameDialog = false
+                homeScreenViewModel.saveUserName(doReset = true)
             }
         )
     }
 
-    if (editRemindersDialog) {
-        ReminderDialog(
+    if (reminderIntervalsDialog) {
+        ReminderIntervalsDialog(
             currentLevel = currentLevel,
+            uiReminderIntervals = uiReminderIntervals,
             onDismiss = {
-                editRemindersDialog = false
-                homeScreenViewModel.resetUiSettings()
+                reminderIntervalsDialog = false
+                homeScreenViewModel.resetUiReminderIntervals()
                 homeScreenViewModel.resetCurrentLevel()
             },
-            uiSettings = uiSettings,
-            updateUiState = { int, str ->
-                /* TODO: is a bit ugly but cannot do copy and replace one item */
-                val copy = uiSettings.settingsDetails.reminderIntervals.toMutableList()
+            updateUiReminderIntervals = { int, str ->
+                /** is a bit ugly but cannot do copy and replace one item in-place */
+                val copy = uiReminderIntervals.reminderIntervals.toMutableList()
                 copy[currentLevel] = Pair(int, str)
-                homeScreenViewModel.updateUiSettings(
-                    uiSettings.settingsDetails.copy(
-                        reminderIntervals = copy
-                    )
-                )
+
+                homeScreenViewModel.updateUiReminderIntervals(intervals = copy)
             },
             applyChanges = {
-                editRemindersDialog = false
-                homeScreenViewModel.savePreferences(doReset = true)
+                reminderIntervalsDialog = false
+                homeScreenViewModel.saveReminderIntervals(doReset = true)
+            }
+        )
+    }
+
+    if (reminderTimeDialog) {
+        ReminderTimeDialog(
+            initialHour = reminderTime.value.first,
+            initialMinute = reminderTime.value.second,
+            onDismiss = {
+                reminderTimeDialog = false
+            },
+            applyChanges = { hour, minute ->
+                reminderTimeDialog = false
+                homeScreenViewModel.saveReminderTime(hour, minute)
             }
         )
     }

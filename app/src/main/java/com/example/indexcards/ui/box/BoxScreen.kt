@@ -33,7 +33,7 @@ import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.toCardState
-import com.example.indexcards.utils.notification.getTimeFromReminderIntervals
+import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.tag.emptyTag
 import com.example.indexcards.utils.tag.toColor
 import com.example.indexcards.utils.tag.toTagDetails
@@ -70,6 +70,7 @@ fun BoxScreen(
 
     val globalReminders = boxScreenViewModel.globalReminders.collectAsState()
     val reminderIntervals = boxScreenViewModel.reminderIntervals.collectAsState()
+    val reminderTime = boxScreenViewModel.reminderTime.collectAsState()
 
     var cardDialog by remember { mutableStateOf(false) }
     var noCardsDialog by remember { mutableStateOf(false) }
@@ -114,8 +115,9 @@ fun BoxScreen(
     }
 
     fun setReminder(level: Int) {
-        val time = getTimeFromReminderIntervals(
+        val time = getTimeFromReminderSettings(
             reminderIntervals = reminderIntervals.value,
+            reminderTime = reminderTime.value,
             level = level
         )
         scheduleNotification(level, boxUiState.boxDetails.name, time)
@@ -226,10 +228,12 @@ fun BoxScreen(
                 BoxScreenEditing(
                     modifier = modifier.padding(innerPadding),
                     boxUiState = boxUiState,
+                    globalReminders = globalReminders.value,
                     onSave = {
                         boxScreenViewModel.saveBox()
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
                     },
+                    changeGlobalReminders = { boxScreenViewModel.changeGlobalReminders() },
                     hasNotificationPermission = hasNotificationPermission,
                     requestNotificationPermission = requestNotificationPermission,
                     updateBoxUiState = { boxScreenViewModel.updateBoxUiState(it) },

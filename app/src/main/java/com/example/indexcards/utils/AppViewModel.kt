@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
 import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.toBox
@@ -22,7 +21,7 @@ import kotlinx.coroutines.launch
  */
 open class AppViewModel(
     val appRepository: AppRepository,
-    userPreferences: UserPreferences
+    val userPreferences: UserPreferences
 ) : ViewModel() {
     /** Companion object used for converting Flows to StateFlows
      */
@@ -73,6 +72,9 @@ open class AppViewModel(
     }
 
 
+    /** globalReminders, reminderIntervals, reminderTime
+     * are used (both on the homeScreen and on the BoxScreen) to schedule reminders
+     */
     val globalReminders: StateFlow<Boolean> = userPreferences.currentGlobalReminders
         .filterNotNull()
         .stateIn(
@@ -80,6 +82,15 @@ open class AppViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = DefaultPreferences.GLOBAL_REMINDERS
         )
+
+    fun changeGlobalReminders() {
+        viewModelScope.launch {
+            val currentGlobalReminders = globalReminders.value
+            userPreferences.saveGlobalReminders(
+                globalReminders = !currentGlobalReminders
+            )
+        }
+    }
 
     val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
         userPreferences.currentReminderIntervals
@@ -90,4 +101,13 @@ open class AppViewModel(
                 initialValue = DefaultPreferences.REMINDER_INTERVALS
             )
 
+    val reminderTime: StateFlow<Pair<Int, Int>> =
+        userPreferences.currentReminderTime
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = DefaultPreferences.REMINDER_TIME
+
+            )
 }

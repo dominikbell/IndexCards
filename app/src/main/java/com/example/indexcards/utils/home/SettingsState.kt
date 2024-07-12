@@ -2,30 +2,18 @@ package com.example.indexcards.utils.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.example.indexcards.CHOICES_FOR_REMINDER_INTERVALS
-import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.utils.DefaultPreferences
 
-data class UiSettings(
-    val settingsDetails: SettingsDetails = SettingsDetails(),
-    val isValid: Boolean = false,
+data class UiUserName(
+    val userName: String = DefaultPreferences.USER_NAME,
+    val isValid: Boolean = false
 )
 
-data class SettingsDetails(
-    val userName: String = "",
-    val globalReminders: Boolean = false,
-    val reminderIntervals: List<Pair<Int, String>> = DefaultPreferences.REMINDER_INTERVALS
+data class UiReminderIntervals(
+    val reminderIntervals: List<Pair<Int, String>> = DefaultPreferences.REMINDER_INTERVALS,
+    val isValid: Boolean = false
 )
-
-fun SettingsDetails.isValid(): Boolean {
-    return (
-            this.userName.isNotBlank() &&
-                    this.reminderIntervals.size == NUMBER_OF_LEVELS &&
-                    this.reminderIntervals.all { it.first > 0 } &&
-                    this.reminderIntervals.all { CHOICES_FOR_REMINDER_INTERVALS.contains(it.second) }
-            )
-}
 
 @Composable
 fun String.toReminderText(interval: Int): String {
@@ -54,16 +42,6 @@ fun String.toReminderText(interval: Int): String {
             }
 
         return stringResource(id = R.string.every_plural) + " " + interval + " " + period
-    }
-}
-
-@Composable
-fun String.toWord(): String {
-    return when (this) {
-        "d" -> stringResource(id = R.string.day)
-        "w" -> stringResource(id = R.string.week)
-        "m" -> stringResource(id = R.string.month)
-        else -> stringResource(id = R.string.error)
     }
 }
 
@@ -100,5 +78,13 @@ fun Int.toWord(): String {
         4 -> stringResource(id = R.string.fourth)
         5 -> stringResource(id = R.string.fifth)
         else -> stringResource(id = R.string.error)
+    }
+}
+
+fun Int.toAtLeast2DigitString(): String {
+    return if (this < 10) {
+        "0$this"
+    } else {
+        this.toString()
     }
 }

@@ -33,7 +33,6 @@ fun HomeScreenTopBar(
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
     showAboutApp: () -> Unit = {},
-    saveSettings: () -> Unit,
 ) {
     when (homeScreenState) {
         HomeScreenState.MAIN -> {
@@ -49,7 +48,6 @@ fun HomeScreenTopBar(
             SettingsStatisticsTopBar(
                 homeScreenState = homeScreenState,
                 goBack = goToMainScreen,
-                saveSettings = saveSettings
             )
         }
     }
@@ -60,8 +58,7 @@ fun HomeScreenTopBar(
 fun SettingsStatisticsTopBar(
     modifier: Modifier = Modifier,
     homeScreenState: HomeScreenState,
-    goBack: () -> Unit,
-    saveSettings: () -> Unit,
+    goBack: () -> Unit = {},
 ) {
     val title = when (homeScreenState) {
         HomeScreenState.SETTINGS -> {
@@ -74,19 +71,6 @@ fun SettingsStatisticsTopBar(
 
         else -> {
             "This is a bug"
-        }
-    }
-
-    fun saveAndGoBack() {
-        when (homeScreenState) {
-            HomeScreenState.SETTINGS -> {
-                saveSettings()
-                goBack()
-            }
-
-            else -> {
-                goBack()
-            }
         }
     }
 
@@ -103,7 +87,7 @@ fun SettingsStatisticsTopBar(
         },
         navigationIcon = {
             IconButton(
-                onClick = { saveAndGoBack() }
+                onClick = { goBack() }
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -119,8 +103,6 @@ fun SettingsStatisticsTopBar(
 fun SettingsTopBarPreview() {
     SettingsStatisticsTopBar(
         homeScreenState = HomeScreenState.SETTINGS,
-        goBack = { },
-        saveSettings = { }
     )
 }
 
@@ -129,8 +111,6 @@ fun SettingsTopBarPreview() {
 fun StatisticsTopBarPreview() {
     SettingsStatisticsTopBar(
         homeScreenState = HomeScreenState.STATISTICS,
-        goBack = { },
-        saveSettings = { }
     )
 }
 
@@ -138,7 +118,7 @@ fun StatisticsTopBarPreview() {
 @Composable
 fun MainScreenTopBar(
     modifier: Modifier,
-    showAboutApp: () -> Unit,
+    showAboutApp: () -> Unit = {},
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
 ) {
@@ -211,6 +191,5 @@ fun MainScreenTopBar(
 fun MainScreenTopBarPreview() {
     MainScreenTopBar(
         modifier = Modifier,
-        showAboutApp = { }
     )
 }

@@ -76,4 +76,9 @@
     <string name="set_reminders">Benachrichtigungen für Niveau</string>
     <string name="enter_name">Gib Deinen Name ein</string>
     <string name="my_name">Mein Name ist</string>
+    <string name="not_set1">Nicht festgelegt</string>
+    <string name="default_notification_time">Standard Benachrichtigungszeit</string>
+    <string name="set_reminder_time">Wähle einen Benachrichtigunszeitpunkt</string>
+    <string name="do_not_use">Nicht Benutzen</string>
+    <string name="global_reminders_set">Globale Benachrichtigungen wurden eingestellt!</string>
 </resources>

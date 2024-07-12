@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.AppViewModel
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
  */
 class HomeScreenViewModel(
     appRepository: AppRepository,
-    private val userPreferences: UserPreferences
+    userPreferences: UserPreferences
 ) : AppViewModel(
     appRepository = appRepository,
     userPreferences = userPreferences
@@ -85,33 +86,67 @@ class HomeScreenViewModel(
 
 
     /** uiPreferences
+     * (userName, reminderIntervals, reminderTime)
      * Used for displaying and changing the preferences
+     * each has their own update, reset, and save function
      */
-    var uiSettings by mutableStateOf(UiSettings())
 
-    fun updateCurrentLevel(newLevel: Int) {
-        currentLevel = newLevel
-    }
+    /** uiUserName */
+    var uiUserName by mutableStateOf(UiUserName())
 
-    fun resetCurrentLevel() {
-        currentLevel = -1
-    }
-
-
-    /** CurrentLevel
-     * used for setting the reminder interval for a specific level
-     */
-    var currentLevel by mutableIntStateOf(-1)
-
-    fun updateUiSettings(settingsDetails: SettingsDetails) {
-        uiSettings = UiSettings(
-            settingsDetails,
-            isValid = settingsDetails.isValid()
+    fun updateUiUserName(newName: String) {
+        uiUserName = UiUserName(
+            userName = newName,
+            isValid = newName.isNotBlank()
         )
     }
 
-    fun resetUiSettings() {
-        uiSettings = UiSettings()
+    fun resetUiUserName() {
+        uiUserName = UiUserName()
+    }
+
+    fun saveUserName(doReset: Boolean = false) {
+        viewModelScope.launch {
+            if (uiUserName.isValid) {
+                userPreferences.saveNewUserName(uiUserName.userName)
+            }
+            if (doReset) {
+                resetUiUserName()
+            }
+        }
+    }
+
+    /** uiReminderIntervals */
+    var uiReminderIntervals by mutableStateOf(UiReminderIntervals())
+
+    fun updateUiReminderIntervals(intervals: List<Pair<Int, String>>) {
+        uiReminderIntervals = UiReminderIntervals(
+            reminderIntervals = intervals,
+            isValid = (intervals.size == NUMBER_OF_LEVELS && intervals.all { it.first > 0 })
+        )
+    }
+
+    fun resetUiReminderIntervals() {
+        uiReminderIntervals = UiReminderIntervals()
+    }
+
+    fun saveReminderIntervals(doReset: Boolean = false) {
+        viewModelScope.launch {
+            if (uiReminderIntervals.isValid) {
+                userPreferences.saveReminderIntervals(uiReminderIntervals.reminderIntervals)
+            }
+            if (doReset) {
+                resetUiReminderIntervals()
+            }
+        }
+    }
+
+    /** The UiState for ReminderTime is handled by the android widget, so we only need
+     * the function to save it to the preferences file */
+    fun saveReminderTime(hour: Int, minute: Int) {
+        viewModelScope.launch {
+            userPreferences.saveReminderTime(Pair(hour, minute))
+        }
     }
 
     /** Flow of the username, just a gimmick feature */
@@ -124,22 +159,17 @@ class HomeScreenViewModel(
         )
 
 
-    /** save the Preferences from the current UiSettings
+    /** CurrentLevel
+     * used for setting the reminder interval for a specific level
      */
-    fun savePreferences(doReset: Boolean = false) {
-        if (uiSettings.isValid) {
-            viewModelScope.launch {
-                userPreferences.saveNewPreferences(
-                    userName = uiSettings.settingsDetails.userName,
-                    globalReminders = uiSettings.settingsDetails.globalReminders,
-                    reminderIntervals = uiSettings.settingsDetails.reminderIntervals
-                )
+    var currentLevel by mutableIntStateOf(-1)
 
-                if (doReset) {
-                    resetUiSettings()
-                    resetCurrentLevel()
-                }
-            }
-        }
+    fun updateCurrentLevel(newLevel: Int) {
+        currentLevel = newLevel
     }
+
+    fun resetCurrentLevel() {
+        currentLevel = -1
+    }
+
 }

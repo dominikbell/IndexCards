@@ -2,11 +2,16 @@ package com.example.indexcards.ui.home.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerLayoutType
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,15 +23,17 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.example.indexcards.R
 import com.example.indexcards.ui.elements.PeriodSelect
-import com.example.indexcards.utils.home.SettingsDetails
-import com.example.indexcards.utils.home.UiSettings
+import com.example.indexcards.utils.DefaultPreferences
+import com.example.indexcards.utils.home.UiReminderIntervals
+import com.example.indexcards.utils.home.UiUserName
+import kotlin.math.max
 
 @Composable
 fun UserNameDialog(
     modifier: Modifier = Modifier,
-    uiSettings: UiSettings,
+    uiUserName: UiUserName,
     onDismiss: () -> Unit = {},
-    updateUiState: (String) -> Unit = {},
+    updateUiUserName: (String) -> Unit = {},
     applyChanges: () -> Unit = {},
 ) {
     AlertDialog(
@@ -51,8 +58,8 @@ fun UserNameDialog(
                             text = stringResource(id = R.string.username),
                         )
                     },
-                    value = uiSettings.settingsDetails.userName,
-                    onValueChange = { updateUiState(it) }
+                    value = uiUserName.userName,
+                    onValueChange = { updateUiUserName(it) }
                 )
             }
         },
@@ -78,9 +85,7 @@ fun UserNameDialog(
 @Composable
 fun EmptyUserNameDialogPreview() {
     UserNameDialog(
-        uiSettings = UiSettings(
-            SettingsDetails(userName = "")
-        )
+        uiUserName = UiUserName(userName = "")
     )
 }
 
@@ -88,26 +93,24 @@ fun EmptyUserNameDialogPreview() {
 @Composable
 fun UserNameDialogPreview() {
     UserNameDialog(
-        uiSettings = UiSettings(
-            SettingsDetails(userName = "Herbert")
-        )
+        uiUserName = UiUserName(userName = "Herbert")
     )
 }
 
 @Composable
-fun ReminderDialog(
+fun ReminderIntervalsDialog(
     modifier: Modifier = Modifier,
     currentLevel: Int,
-    uiSettings: UiSettings,
+    uiReminderIntervals: UiReminderIntervals,
     onDismiss: () -> Unit = {},
-    updateUiState: (Int, String) -> Unit = { int, str -> },
+    updateUiReminderIntervals: (Int, String) -> Unit = { _, _ -> },
     applyChanges: () -> Unit = {},
 ) {
     val text: String =
-        if (uiSettings.settingsDetails.reminderIntervals[currentLevel].first == -1) {
+        if (uiReminderIntervals.reminderIntervals[currentLevel].first == -1) {
             ""
         } else {
-            uiSettings.settingsDetails.reminderIntervals[currentLevel].first.toString()
+            uiReminderIntervals.reminderIntervals[currentLevel].first.toString()
         }
 
     AlertDialog(
@@ -124,15 +127,15 @@ fun ReminderDialog(
                     value = text,
                     onValueChange = {
                         if (it.isBlank()) {
-                            updateUiState(
+                            updateUiReminderIntervals(
                                 -1,
-                                uiSettings.settingsDetails.reminderIntervals[currentLevel].second
+                                uiReminderIntervals.reminderIntervals[currentLevel].second
                             )
                         } else {
                             if (it.isDigitsOnly()) {
-                                updateUiState(
+                                updateUiReminderIntervals(
                                     it.toInt(),
-                                    uiSettings.settingsDetails.reminderIntervals[currentLevel].second
+                                    uiReminderIntervals.reminderIntervals[currentLevel].second
                                 )
                             }
                         }
@@ -141,11 +144,11 @@ fun ReminderDialog(
                 )
 
                 PeriodSelect(
-                    selectedAmount = uiSettings.settingsDetails.reminderIntervals[currentLevel].first,
-                    selectedPeriod = uiSettings.settingsDetails.reminderIntervals[currentLevel].second,
+                    selectedAmount = uiReminderIntervals.reminderIntervals[currentLevel].first,
+                    selectedPeriod = uiReminderIntervals.reminderIntervals[currentLevel].second,
                     onClick = {
-                        updateUiState(
-                            uiSettings.settingsDetails.reminderIntervals[currentLevel].first, it
+                        updateUiReminderIntervals(
+                            uiReminderIntervals.reminderIntervals[currentLevel].first, it
                         )
                     }
                 )
@@ -172,17 +175,102 @@ fun ReminderDialog(
 @Preview
 @Composable
 fun SingularReminderDialogPreview() {
-    ReminderDialog(
+    ReminderIntervalsDialog(
         currentLevel = 2,
-        uiSettings = UiSettings()
+        uiReminderIntervals = UiReminderIntervals(
+            reminderIntervals = DefaultPreferences.REMINDER_INTERVALS
+        )
     )
 }
 
 @Preview
 @Composable
 fun PluralReminderDialogPreview() {
-    ReminderDialog(
+    ReminderIntervalsDialog(
         currentLevel = 1,
-        uiSettings = UiSettings()
+        uiReminderIntervals = UiReminderIntervals(
+            reminderIntervals = DefaultPreferences.REMINDER_INTERVALS
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderTimeDialog(
+    modifier: Modifier = Modifier,
+    initialHour: Int,
+    initialMinute: Int,
+    onDismiss: () -> Unit = {},
+    applyChanges: (Int, Int) -> Unit = { _, _ -> },
+) {
+    val timeState = rememberTimePickerState(
+        initialHour = max(0, initialHour),
+        initialMinute = max(0, initialMinute),
+        is24Hour = true
+    )
+
+    AlertDialog(
+        title = { Text(text = stringResource(id = R.string.set_reminder_time)) },
+        text = {
+
+            TimePicker(
+                state = timeState,
+                layoutType = TimePickerLayoutType.Vertical
+            )
+        },
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(
+                    onClick = onDismiss
+                ) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+
+                TextButton(
+                    onClick = {
+                        applyChanges(
+                            DefaultPreferences.REMINDER_TIME.first,
+                            DefaultPreferences.REMINDER_TIME.second,
+                        )
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.do_not_use))
+                }
+
+                TextButton(
+                    onClick = {
+                        applyChanges(
+                            timeState.hour,
+                            timeState.minute
+                        )
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.save))
+                }
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun ReminderTimeDialogPreview() {
+    ReminderTimeDialog(
+        initialHour = 3,
+        initialMinute = 2
+    )
+}
+
+@Preview
+@Composable
+fun EmptyReminderTimeDialogPreview() {
+    ReminderTimeDialog(
+        initialHour = -1,
+        initialMinute = -1
     )
 }
