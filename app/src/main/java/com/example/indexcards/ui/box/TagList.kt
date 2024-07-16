@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.indexcards.R
 import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.tag.emptyTag
 
@@ -46,6 +47,19 @@ fun TagList(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TagListPreview() {
+    TagList(
+        tagList = listOf(
+            emptyTag.copy(tagId = 1, text = "Tag1"),
+            emptyTag.copy(tagId = 2, text = "nächster Tag"),
+            emptyTag.copy(tagId = 3, text = "übermorgen"),
+        ),
+        selectedTags = listOf(emptyTag.copy(tagId = 3, text = "übermorgen")),
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -90,7 +104,7 @@ fun TagListItem(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun TagListItemPreview() {
     TagListItem(

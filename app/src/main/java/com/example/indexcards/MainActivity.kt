@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -104,17 +106,38 @@ class MainActivity : ComponentActivity() {
                 } else mutableStateOf(true)
             }
 
-            val launcher = rememberLauncherForActivityResult(
+            var hasRecordingPermission by remember {
+                mutableStateOf(
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.RECORD_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED
+                )
+            }
+
+            val notificationLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = { isGranted ->
                     hasNotificationPermission = isGranted
                 }
             )
 
+            val recordingLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { isGranted ->
+                    hasRecordingPermission = isGranted
+                }
+            )
+
             fun requestNotificationPermission(): Boolean {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
+                return true
+            }
+
+            fun requestRecordingPermission(): Boolean {
+                recordingLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 return true
             }
 
@@ -129,7 +152,9 @@ class MainActivity : ComponentActivity() {
                         startLevel = levelPass,
                         cancelAllNotifications = { cancelAllNotifications() },
                         hasNotificationPermission = hasNotificationPermission,
+                        hasRecordingPermission = hasRecordingPermission,
                         requestNotificationPermission = { requestNotificationPermission() },
+                        requestRecordingPermission = { requestRecordingPermission() },
                         scheduleNotification = { boxId, level, name, time ->
                             service.scheduleNotification(
                                 boxId = boxId, level = level,

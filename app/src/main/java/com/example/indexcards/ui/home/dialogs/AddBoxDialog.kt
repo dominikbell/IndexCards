@@ -38,6 +38,7 @@ fun AddBoxDialog(
     val isEnabled = boxUiState.boxDetails.reminders
 
     var isLanguage by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
 
     fun changeIsLanguage() {
         isLanguage = !isLanguage
@@ -45,7 +46,11 @@ fun AddBoxDialog(
 
     AlertDialog(
         modifier = modifier,
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = {
+            if (!expanded) {
+                onDismiss()
+            }
+        },
         title = {
             Text(
                 text = stringResource(R.string.add_new_box),
@@ -73,9 +78,11 @@ fun AddBoxDialog(
                     LanguageDropDownMenu(
                         modifier = Modifier,
                         boxUiState = boxUiState,
+                        expanded = expanded,
+                        changeExpanded = { expanded = !expanded },
                         onValueChange = {
                             updateUiState(boxUiState.boxDetails.copy(topic = it))
-                        }
+                        },
                     )
                 }
 

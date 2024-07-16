@@ -1,5 +1,6 @@
 package com.example.indexcards.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -13,4 +14,6 @@ data class Card(
     val dateAdded: Long,
     val level: Int,
     val boxId: Long,
+    @ColumnInfo(name = "memoURI", defaultValue = "")
+    val memoURI: String,
 )
