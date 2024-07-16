@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.box.dialogs
 
 import android.media.MediaMetadataRetriever
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +62,8 @@ fun NewCardDialog(
     boxWithTags: UiBoxWithTags,
     audioPlayer: AndroidAudioPlayer,
     audioRecorder: AndroidAudioRecorder,
+    hasRecordingPermission: Boolean = false,
+    requestRecordingPermission: () -> Boolean = { false },
     updateUiState: (CardDetails) -> Unit = {},
     onDismiss: () -> Unit = {},
     saveCard: () -> Unit = {},
@@ -73,11 +76,13 @@ fun NewCardDialog(
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
         cardWithTags = cardWithTags,
-        onDismiss = onDismiss,
-        onSave = saveCard,
         deleteButton = false,
+        hasRecordingPermission = hasRecordingPermission,
+        requestRecordingPermission = requestRecordingPermission,
         audioPlayer = audioPlayer,
         audioRecorder = audioRecorder,
+        onDismiss = onDismiss,
+        onSave = saveCard,
         updateUiState = updateUiState,
         onTagClick = onTagClick,
         showNewTagDialog = showNewTagDialog,
@@ -117,6 +122,8 @@ fun EditCardDialog(
     cardUiState: CardState,
     audioPlayer: AndroidAudioPlayer,
     audioRecorder: AndroidAudioRecorder,
+    hasRecordingPermission: Boolean = false,
+    requestRecordingPermission: () -> Boolean = { false },
     onDismiss: () -> Unit = {},
     onDeleteCard: () -> Unit = {},
     showNewTagDialog: () -> Unit = {},
@@ -135,6 +142,8 @@ fun EditCardDialog(
         deleteButton = true,
         audioPlayer = audioPlayer,
         audioRecorder = audioRecorder,
+        hasRecordingPermission = hasRecordingPermission,
+        requestRecordingPermission = requestRecordingPermission,
         onDismiss = onDismiss,
         onSave = saveCard,
         onDelete = onDeleteCard,
@@ -182,6 +191,8 @@ fun CardDialogBody(
     deleteButton: Boolean,
     audioPlayer: AndroidAudioPlayer,
     audioRecorder: AndroidAudioRecorder,
+    hasRecordingPermission: Boolean = false,
+    requestRecordingPermission: () -> Boolean = { false },
     onDismiss: () -> Unit = {},
     onSave: () -> Unit = {},
     onDelete: () -> Unit = {},
@@ -224,15 +235,17 @@ fun CardDialogBody(
     }
 
     fun onRecord() {
-        File(
-            applicationContext.filesDir,
-            "memo_temp.mp3"
-        ).also {
-            audioRecorder.start(it)
-            audioFile = it
-        }
+        if (hasRecordingPermission) {
+            File(
+                applicationContext.filesDir,
+                "memo_temp.mp3"
+            ).also {
+                audioRecorder.start(it)
+                audioFile = it
+            }
 
-        isRecording = true
+            isRecording = true
+        }
     }
 
     fun onStopRecording() {
@@ -356,7 +369,21 @@ fun CardDialogBody(
                         ) { Icon(imageVector = Icons.Default.Stop, contentDescription = "stop") }
                     } else {
                         IconButton(
-                            onClick = { onRecord() }
+                            onClick = {
+                                Log.d("has Recording permission", hasRecordingPermission.toString())
+                                if (!hasRecordingPermission) {
+                                    Log.d("in the loop", "yes")
+                                    val success = requestRecordingPermission()
+                                    Log.d("in the loop", success.toString())
+                                    if (success) {
+                                        Log.d("starting to record", "here")
+                                        onRecord()
+                                        Log.d("starting to record", "oh yeah recording started")
+                                    }
+                                } else {
+                                    onRecord()
+                                }
+                            }
                         ) { Icon(imageVector = Icons.Default.Mic, contentDescription = "record") }
                     }
 

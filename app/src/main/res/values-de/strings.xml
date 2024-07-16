@@ -83,4 +83,6 @@
     <string name="do_not_use">Nicht Benutzen</string>
     <string name="global_reminders_set">Globale Benachrichtigungen wurden eingestellt!</string>
     <string name="global_reminders_cancelled">Alle ausstehenden Benachrichtigungen wurden gelöscht!</string>
+    <string name="memo">Memo</string>
+    <string name="no_memo">Für diese Karte gibt es keine Memo</string>
 </resources>

@@ -4,10 +4,8 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -22,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,22 +31,13 @@ import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.notification.NOTIFICATION_REQUEST_CODES
 import com.example.indexcards.utils.notification.NotificationRequest
 import com.example.indexcards.utils.notification.NotificationService
-import com.example.indexcards.utils.recording.AndroidAudioPlayer
-import com.example.indexcards.utils.recording.AndroidAudioRecorder
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.RECORD_AUDIO),
-            0
-        )
 
         // All are needed for cancelling the old notification
         val requestId = intent.getIntExtra("id", -1)
@@ -118,17 +106,38 @@ class MainActivity : ComponentActivity() {
                 } else mutableStateOf(true)
             }
 
-            val launcher = rememberLauncherForActivityResult(
+            var hasRecordingPermission by remember {
+                mutableStateOf(
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.RECORD_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED
+                )
+            }
+
+            val notificationLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = { isGranted ->
                     hasNotificationPermission = isGranted
                 }
             )
 
+            val recordingLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { isGranted ->
+                    hasRecordingPermission = isGranted
+                }
+            )
+
             fun requestNotificationPermission(): Boolean {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
+                return true
+            }
+
+            fun requestRecordingPermission(): Boolean {
+                recordingLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 return true
             }
 
@@ -143,7 +152,9 @@ class MainActivity : ComponentActivity() {
                         startLevel = levelPass,
                         cancelAllNotifications = { cancelAllNotifications() },
                         hasNotificationPermission = hasNotificationPermission,
+                        hasRecordingPermission = hasRecordingPermission,
                         requestNotificationPermission = { requestNotificationPermission() },
+                        requestRecordingPermission = { requestRecordingPermission() },
                         scheduleNotification = { boxId, level, name, time ->
                             service.scheduleNotification(
                                 boxId = boxId, level = level,

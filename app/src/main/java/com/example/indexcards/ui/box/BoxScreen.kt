@@ -52,8 +52,10 @@ fun BoxScreen(
     boxId: Long, /* Is also here for boxScreenViewModel to work */
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
+    hasRecordingPermission: Boolean = false,
     navigateToBoxesOverview: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false },
+    requestRecordingPermission: () -> Boolean = { false },
     scheduleNotification: (Int, String, Long) -> Unit = { _, _, _ -> },
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -326,6 +328,8 @@ fun BoxScreen(
             cardWithTags = cardWithTags,
             audioPlayer = player,
             audioRecorder = recorder,
+            hasRecordingPermission = hasRecordingPermission,
+            requestRecordingPermission = requestRecordingPermission,
             updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             onDismiss = {
                 newCardDialog = false
@@ -354,6 +358,8 @@ fun BoxScreen(
             cardUiState = cardUiState,
             audioPlayer = player,
             audioRecorder = recorder,
+            hasRecordingPermission = hasRecordingPermission,
+            requestRecordingPermission = requestRecordingPermission,
             updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             onDismiss = {
                 boxScreenViewModel.updateCardState(cardWithTags.toCardState(true))

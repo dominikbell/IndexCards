@@ -29,7 +29,9 @@ fun Navigation(
     startBoxId: Long = -1,
     startLevel: Int = -1,
     hasNotificationPermission: Boolean = false,
+    hasRecordingPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
+    requestRecordingPermission: () -> Boolean = { false },
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
 ) {
@@ -86,7 +88,9 @@ fun Navigation(
                     factory = ViewModelProvider(context = LocalContext.current).factory
                 ) as BoxScreenViewModel,
                 hasNotificationPermission = hasNotificationPermission,
+                hasRecordingPermission = hasRecordingPermission,
                 requestNotificationPermission = { requestNotificationPermission() },
+                requestRecordingPermission = { requestRecordingPermission() },
                 scheduleNotification = { lvl, name, time -> scheduleNotification(boxId, lvl, name, time) },
             )
         }
