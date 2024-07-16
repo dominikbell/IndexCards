@@ -13,6 +13,7 @@ val emptyCard: Card = Card(
     notes = "EMPTY CARD",
     level = -1,
     dateAdded = 0,
+    memoURI = "",
 )
 
 data class CardState(
@@ -28,6 +29,7 @@ data class CardDetails(
     val meaning: String = "",
     val notes: String = "",
     val level: Int = 0,
+    val memoURI: String = "",
 )
 
 fun CardDetails.toCard(): Card = Card(
@@ -38,6 +40,7 @@ fun CardDetails.toCard(): Card = Card(
     notes = notes,
     level = level,
     dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
+    memoURI = memoURI,
 )
 
 fun Card.toCardDetails(): CardDetails = CardDetails(
@@ -46,7 +49,8 @@ fun Card.toCardDetails(): CardDetails = CardDetails(
     meaning = meaning,
     notes = notes,
     boxId = boxId,
-    level = level
+    level = level,
+    memoURI = memoURI
 )
 
 fun UiCardWithTags.toCardState(isValid: Boolean): CardState =

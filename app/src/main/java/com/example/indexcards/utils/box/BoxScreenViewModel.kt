@@ -318,6 +318,13 @@ class BoxScreenViewModel(
         }
     }
 
+    fun setBiggestCardId() {
+        viewModelScope.launch {
+            val newCardId = appRepository.getBiggestCardId() + 1
+            currentCard.update { emptyCard.copy(cardId = newCardId) }
+        }
+    }
+
     fun resetCard() {
         resetCurrentCard()
         resetCardUiState()

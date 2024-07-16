@@ -13,9 +13,10 @@ import androidx.room.RoomDatabase
         Tag::class,
         TagCardCrossRef::class,
     ],
-    version = 9,
+    version = 10,
     autoMigrations = [
-        AutoMigration(from = 8, to = 9)
+        AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10),
     ]
 )
 

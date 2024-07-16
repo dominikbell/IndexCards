@@ -1,6 +1,8 @@
 package com.example.indexcards.ui.box
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
@@ -34,11 +37,15 @@ import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.toCardState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
+import com.example.indexcards.utils.recording.AndroidAudioPlayer
+import com.example.indexcards.utils.recording.AndroidAudioRecorder
 import com.example.indexcards.utils.tag.emptyTag
 import com.example.indexcards.utils.tag.toColor
 import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
+import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
@@ -52,6 +59,8 @@ fun BoxScreen(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
 ) {
+    val applicationContext = LocalContext.current.applicationContext
+
     /** Navigation on the BoxScreen */
     val boxScreenState = boxScreenViewModel.boxScreenState
 
@@ -99,6 +108,10 @@ fun BoxScreen(
         }
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
+
+    /** Stuff for the voice memos */
+    val recorder by lazy { AndroidAudioRecorder(applicationContext) }
+    val player by lazy { AndroidAudioPlayer(applicationContext) }
 
     LaunchedEffect(key1 = startLevel) {
         if (startLevel != -1) {
@@ -181,7 +194,10 @@ fun BoxScreen(
             when (boxScreenState) {
                 BoxScreenState.VIEW -> {
                     FloatingActionButton(
-                        onClick = { newCardDialog = true }
+                        onClick = {
+                            boxScreenViewModel.setBiggestCardId()
+                            newCardDialog = true
+                        }
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Add")
                     }
@@ -266,10 +282,16 @@ fun BoxScreen(
                             boxScreenViewModel.viewModelScope.launch {
                                 val nextLevel = levelSelected + 1
                                 val previousLevel = levelSelected - 1
-                                if (levelSelected != 4 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(nextLevel) != 0) {
+                                if (levelSelected != 4 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(
+                                        nextLevel
+                                    ) != 0
+                                ) {
                                     setReminder(nextLevel)
                                 }
-                                if (levelSelected != 0 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(previousLevel) != 0) {
+                                if (levelSelected != 0 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(
+                                        previousLevel
+                                    ) != 0
+                                ) {
                                     setReminder(previousLevel)
                                 }
                             }
@@ -282,6 +304,7 @@ fun BoxScreen(
 
     if (cardDialog) {
         CardDialog(
+            audioPlayer = player,
             onDismiss = {
                 cardDialog = false
                 boxScreenViewModel.resetCardUiState()
@@ -300,6 +323,9 @@ fun BoxScreen(
         NewCardDialog(
             cardUiState = cardUiState,
             boxWithTags = boxWithTags,
+            cardWithTags = cardWithTags,
+            audioPlayer = player,
+            audioRecorder = recorder,
             updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             onDismiss = {
                 newCardDialog = false
@@ -326,6 +352,8 @@ fun BoxScreen(
             boxWithTags = boxWithTags,
             cardWithTags = cardWithTags,
             cardUiState = cardUiState,
+            audioPlayer = player,
+            audioRecorder = recorder,
             updateUiState = { boxScreenViewModel.updateCardState(cardDetails = it) },
             onDismiss = {
                 boxScreenViewModel.updateCardState(cardWithTags.toCardState(true))
@@ -358,6 +386,13 @@ fun BoxScreen(
                 cardDialog = false
                 editCardDialog = false
                 deleteCardDialog = false
+                if (currentCard.memoURI.isNotBlank()) {
+                    currentCard.memoURI.toUri().path?.let { path ->
+                        File(path).also { file ->
+                            file.delete()
+                        }
+                    }
+                }
                 boxScreenViewModel.deleteCard(currentCard)
             }
         )

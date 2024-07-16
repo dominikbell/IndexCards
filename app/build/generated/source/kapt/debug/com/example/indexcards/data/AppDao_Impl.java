@@ -250,7 +250,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -275,12 +275,17 @@ public final class AppDao_Impl implements AppDao {
         statement.bindLong(5, entity.getDateAdded());
         statement.bindLong(6, entity.getLevel());
         statement.bindLong(7, entity.getBoxId());
+        if (entity.getMemoURI() == null) {
+          statement.bindNull(8);
+        } else {
+          statement.bindString(8, entity.getMemoURI());
+        }
       }
     }, new EntityDeletionOrUpdateAdapter<Card>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`notes` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ? WHERE `cardId` = ?";
+        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`notes` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ?,`memoURI` = ? WHERE `cardId` = ?";
       }
 
       @Override
@@ -305,7 +310,12 @@ public final class AppDao_Impl implements AppDao {
         statement.bindLong(5, entity.getDateAdded());
         statement.bindLong(6, entity.getLevel());
         statement.bindLong(7, entity.getBoxId());
-        statement.bindLong(8, entity.getCardId());
+        if (entity.getMemoURI() == null) {
+          statement.bindNull(8);
+        } else {
+          statement.bindString(8, entity.getMemoURI());
+        }
+        statement.bindLong(9, entity.getCardId());
       }
     });
     this.__upsertionAdapterOfTag = new EntityUpsertionAdapter<Tag>(new EntityInsertionAdapter<Tag>(__db) {
@@ -940,6 +950,7 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
           final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+          final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
           final Card _result;
           if (_cursor.moveToFirst()) {
             final long _tmpCardId;
@@ -968,7 +979,13 @@ public final class AppDao_Impl implements AppDao {
             _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
             final long _tmpBoxId;
             _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+            final String _tmpMemoURI;
+            if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+              _tmpMemoURI = null;
+            } else {
+              _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+            }
+            _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
           } else {
             _result = null;
           }
@@ -1292,6 +1309,7 @@ public final class AppDao_Impl implements AppDao {
             final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
             final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
             final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+            final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
             final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
             while (_cursor.moveToNext()) {
               final long _tmpKey;
@@ -1331,7 +1349,13 @@ public final class AppDao_Impl implements AppDao {
               _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
               final long _tmpBoxId;
               _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+              final String _tmpMemoURI;
+              if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+                _tmpMemoURI = null;
+              } else {
+                _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+              }
+              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
               final ArrayList<Tag> _tmpTagsCollection;
               final long _tmpKey_1;
               _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
@@ -1379,6 +1403,7 @@ public final class AppDao_Impl implements AppDao {
             final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
             final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
             final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+            final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
             final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
             while (_cursor.moveToNext()) {
               final long _tmpKey;
@@ -1419,7 +1444,13 @@ public final class AppDao_Impl implements AppDao {
               _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
               final long _tmpBoxId;
               _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+              final String _tmpMemoURI;
+              if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+                _tmpMemoURI = null;
+              } else {
+                _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+              }
+              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
               final ArrayList<Tag> _tmpTagsCollection;
               final long _tmpKey_1;
               _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
@@ -1563,7 +1594,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId` FROM `Card` WHERE `boxId` IN (");
+    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI` FROM `Card` WHERE `boxId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -1589,6 +1620,7 @@ public final class AppDao_Impl implements AppDao {
       final int _cursorIndexOfDateAdded = 4;
       final int _cursorIndexOfLevel = 5;
       final int _cursorIndexOfBoxId = 6;
+      final int _cursorIndexOfMemoURI = 7;
       while (_cursor.moveToNext()) {
         final long _tmpKey;
         _tmpKey = _cursor.getLong(_itemKeyIndex);
@@ -1621,7 +1653,13 @@ public final class AppDao_Impl implements AppDao {
           _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
           final long _tmpBoxId;
           _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+          final String _tmpMemoURI;
+          if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+            _tmpMemoURI = null;
+          } else {
+            _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+          }
+          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
           _tmpRelation.add(_item_1);
         }
       }
@@ -1710,7 +1748,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,_junction.`tagId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
+    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,`Card`.`memoURI` AS `memoURI`,_junction.`tagId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -1726,7 +1764,7 @@ public final class AppDao_Impl implements AppDao {
     final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
       // _junction.tagId;
-      final int _itemKeyIndex = 7;
+      final int _itemKeyIndex = 8;
       if (_itemKeyIndex == -1) {
         return;
       }
@@ -1737,6 +1775,7 @@ public final class AppDao_Impl implements AppDao {
       final int _cursorIndexOfDateAdded = 4;
       final int _cursorIndexOfLevel = 5;
       final int _cursorIndexOfBoxId = 6;
+      final int _cursorIndexOfMemoURI = 7;
       while (_cursor.moveToNext()) {
         final long _tmpKey;
         _tmpKey = _cursor.getLong(_itemKeyIndex);
@@ -1769,7 +1808,13 @@ public final class AppDao_Impl implements AppDao {
           _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
           final long _tmpBoxId;
           _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId);
+          final String _tmpMemoURI;
+          if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+            _tmpMemoURI = null;
+          } else {
+            _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+          }
+          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
           _tmpRelation.add(_item_1);
         }
       }

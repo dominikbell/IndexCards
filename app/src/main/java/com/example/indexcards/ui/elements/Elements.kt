@@ -1,7 +1,6 @@
 package com.example.indexcards.ui.elements
 
 import android.annotation.SuppressLint
-import android.provider.CalendarContract.Reminders
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -171,14 +171,11 @@ fun TopicField(
 fun LanguageDropDownMenu(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
-    onValueChange: (String) -> Unit,
+    expanded: Boolean,
+    changeExpanded: () -> Unit = {},
+    onValueChange: (String) -> Unit = {},
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
-    fun changeExpanded() {
-        expanded = !expanded
-    }
 
     @SuppressLint("DiscouragedApi")
     fun getImageId(nameBase: String): Int {
@@ -238,12 +235,12 @@ fun LanguageDropDownMenu(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun LanguageDropDownMenuPreview() {
     LanguageDropDownMenu(
-        boxUiState = BoxState(boxDetails = emptyBox.toBoxDetails()),
-        onValueChange = { }
+        expanded = true,
+        boxUiState = BoxState(boxDetails = emptyBox.copy(topic = "English").toBoxDetails()),
     )
 }
 

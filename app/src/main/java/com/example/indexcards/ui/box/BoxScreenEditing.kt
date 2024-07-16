@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,6 +46,8 @@ fun BoxScreenEditing(
     val isLanguage = boxUiState.boxDetails.toBox().isLanguage()
     val remindersEnabled = boxUiState.boxDetails.reminders
 
+    var expanded by remember { mutableStateOf(false) }
+
     fun onSwitchChanged() {
         if (!globalReminders) {
             changeGlobalReminders()
@@ -67,6 +73,8 @@ fun BoxScreenEditing(
             LanguageDropDownMenu(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
+                expanded = expanded,
+                changeExpanded = { expanded = !expanded },
                 onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(topic = it)) }
             )
         } else {

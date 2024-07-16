@@ -82,4 +82,6 @@
     <string name="do_not_use">Do Not Use</string>
     <string name="global_reminders_set">Global reminders have been set!</string>
     <string name="global_reminders_cancelled">All notifications have been cancelled!</string>
+    <string name="memo">Memo</string>
+    <string name="no_memo">No memo was saved for this card</string>
 </resources>

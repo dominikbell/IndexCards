@@ -49,11 +49,15 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val activity = (LocalContext.current as? Activity)
+
+    var backPressedTime: Long = 0
+
     val uiUserName = homeScreenViewModel.uiUserName
     val uiReminderIntervals = homeScreenViewModel.uiReminderIntervals
     val currentLevel = homeScreenViewModel.currentLevel
     val boxUiState = homeScreenViewModel.boxUiState
     val homeScreenState = homeScreenViewModel.homeScreenState
+
     val userName = homeScreenViewModel.userName.collectAsState()
     val globalReminders = homeScreenViewModel.globalReminders.collectAsState()
     val reminderIntervals = homeScreenViewModel.reminderIntervals.collectAsState()
@@ -68,7 +72,6 @@ fun HomeScreen(
     var reminderIntervalsDialog by remember { mutableStateOf(false) }
     var reminderTimeDialog by remember { mutableStateOf(false) }
     var showAboutApp by remember { mutableStateOf(false) }
-    var backPressedTime: Long = 0
 
     BackHandler {
         when (homeScreenState) {
