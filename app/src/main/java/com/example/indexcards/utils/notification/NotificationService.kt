@@ -115,6 +115,8 @@ class NotificationService(
                 time,
                 pendingIntent
             )
+//
+//            val isActive = (PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_NO_CREATE) != null)
         }
     }
 

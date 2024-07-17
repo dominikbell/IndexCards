@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
+import com.example.indexcards.data.Card
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
@@ -40,6 +41,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
+    deleteAllMemos: (List<Card>) -> Unit = {},
     navigateToBoxScreen: (Long) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
@@ -62,6 +64,7 @@ fun HomeScreen(
     val globalReminders = homeScreenViewModel.globalReminders.collectAsState()
     val reminderIntervals = homeScreenViewModel.reminderIntervals.collectAsState()
     val reminderTime = homeScreenViewModel.reminderTime.collectAsState()
+    val uiBoxWithCards = homeScreenViewModel.boxWithCards.collectAsState()
     val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox by homeScreenViewModel.currentBox.collectAsState()
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
@@ -216,10 +219,9 @@ fun HomeScreen(
             },
             onDelete = {
                 deleteBoxDialog = false
-                homeScreenViewModel.viewModelScope.launch {
-                    homeScreenViewModel.deleteBox(currentBox.boxId)
-                    homeScreenViewModel.resetCurrentBox()
-                }
+                deleteAllMemos(uiBoxWithCards.value.cardList)
+                homeScreenViewModel.deleteBox(currentBox.boxId)
+                homeScreenViewModel.resetCurrentBox()
             },
             boxToBeDeleted = currentBox
         )

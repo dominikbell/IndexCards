@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.box
 
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.Card
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -46,4 +47,9 @@ fun Box.toBoxDetails(): BoxDetails = BoxDetails(
     topic = topic,
     reminders = reminders,
     description = description
+)
+
+data class UiBoxWithCards(
+    val box: Box = emptyBox,
+    val cardList: List<Card> = listOf()
 )

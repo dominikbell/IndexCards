@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.indexcards.data.Card
 import com.example.indexcards.ui.box.BoxScreen
 import com.example.indexcards.ui.home.HomeScreen
 import com.example.indexcards.utils.ViewModelProvider
@@ -32,6 +33,7 @@ fun Navigation(
     hasRecordingPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     requestRecordingPermission: () -> Boolean = { false },
+    deleteAllMemos: (List<Card>) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
 ) {

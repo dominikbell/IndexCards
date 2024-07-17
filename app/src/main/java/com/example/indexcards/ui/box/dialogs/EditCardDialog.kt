@@ -58,8 +58,8 @@ import java.io.File
 fun NewCardDialog(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
-    cardWithTags: UiCardWithTags, /* Is only used to get a new cardId for storing the recording */
     boxWithTags: UiBoxWithTags,
+    cardId: Long,
     audioPlayer: AndroidAudioPlayer,
     audioRecorder: AndroidAudioRecorder,
     hasRecordingPermission: Boolean = false,
@@ -75,7 +75,7 @@ fun NewCardDialog(
         titleText = stringResource(id = R.string.add_new_card),
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
-        cardWithTags = cardWithTags,
+        cardId = cardId,
         deleteButton = false,
         hasRecordingPermission = hasRecordingPermission,
         requestRecordingPermission = requestRecordingPermission,
@@ -108,7 +108,7 @@ fun NewCardDialogPreview() {
                 emptyTag.copy(tagId = 2, text = "Tag2"),
             )
         ),
-        cardWithTags = UiCardWithTags(),
+        cardId = -1,
         audioPlayer = AndroidAudioPlayer(LocalContext.current),
         audioRecorder = AndroidAudioRecorder(LocalContext.current),
     )
@@ -138,7 +138,7 @@ fun EditCardDialog(
         titleText = titleText,
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
-        cardWithTags = cardWithTags,
+        cardId = cardWithTags.card.cardId,
         deleteButton = true,
         audioPlayer = audioPlayer,
         audioRecorder = audioRecorder,
@@ -187,7 +187,7 @@ fun CardDialogBody(
     titleText: String,
     cardUiState: CardState,
     boxWithTags: UiBoxWithTags,
-    cardWithTags: UiCardWithTags, /* Is only used to get cardId for storing the recording */
+    cardId: Long,
     deleteButton: Boolean,
     audioPlayer: AndroidAudioPlayer,
     audioRecorder: AndroidAudioRecorder,
@@ -212,9 +212,9 @@ fun CardDialogBody(
 
     var duration by remember { mutableLongStateOf(0) }
 
-    LaunchedEffect(key1 = cardWithTags.card.memoURI) {
-        if (cardWithTags.card.memoURI.isNotBlank()) {
-            audioFile = cardWithTags.card.memoURI.toUri().path?.let { File(it) }
+    LaunchedEffect(key1 = cardUiState.cardDetails.memoURI) {
+        if (cardUiState.cardDetails.memoURI.isNotBlank()) {
+            audioFile = cardUiState.cardDetails.memoURI.toUri().path?.let { File(it) }
 
             duration =
                 audioFile?.let {
@@ -295,7 +295,7 @@ fun CardDialogBody(
         audioFile?.let { temp ->
             File(
                 applicationContext.filesDir,
-                "memo${cardWithTags.card.cardId}.mp3"
+                "memo$cardId.mp3"
             ).also {
                 if (it.exists()) {
                     it.delete()
@@ -370,15 +370,11 @@ fun CardDialogBody(
                     } else {
                         IconButton(
                             onClick = {
-                                Log.d("has Recording permission", hasRecordingPermission.toString())
+                                Log.d("cardId", cardId.toString())
                                 if (!hasRecordingPermission) {
-                                    Log.d("in the loop", "yes")
                                     val success = requestRecordingPermission()
-                                    Log.d("in the loop", success.toString())
                                     if (success) {
-                                        Log.d("starting to record", "here")
                                         onRecord()
-                                        Log.d("starting to record", "oh yeah recording started")
                                     }
                                 } else {
                                     onRecord()
