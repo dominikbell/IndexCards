@@ -1,9 +1,6 @@
 package com.example.indexcards.ui.box
 
-import android.os.Build
-import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -47,7 +44,6 @@ import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
 import java.io.File
 
-@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,

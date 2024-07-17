@@ -1,7 +1,5 @@
 package com.example.indexcards
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -22,7 +20,6 @@ import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.home.HomeScreenViewModel
 
-@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
@@ -60,6 +57,7 @@ fun Navigation(
                 },
                 hasNotificationPermission = hasNotificationPermission,
                 requestNotificationPermission = requestNotificationPermission,
+                deleteAllMemos = deleteAllMemos,
                 cancelAllNotifications = cancelAllNotifications,
                 scheduleNotification = scheduleNotification,
                 homeScreenViewModel = homeScreenViewModel,
@@ -93,6 +91,7 @@ fun Navigation(
                 hasRecordingPermission = hasRecordingPermission,
                 requestNotificationPermission = { requestNotificationPermission() },
                 requestRecordingPermission = { requestRecordingPermission() },
+                deleteAllMemos = deleteAllMemos,
                 scheduleNotification = { lvl, name, time -> scheduleNotification(boxId, lvl, name, time) },
             )
         }
