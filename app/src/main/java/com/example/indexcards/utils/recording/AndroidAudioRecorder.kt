@@ -23,7 +23,11 @@ class AndroidAudioRecorder(
         createRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+//            setAudioEncoder(MediaRecorder.getAudioSourceMax())
+//            setAudioSource(MediaRecorder.getAudioSourceMax())
+            setAudioEncodingBitRate(16 * 44100)
+            setAudioSamplingRate(44100)
             setOutputFile(FileOutputStream(outputFile).fd)
 
             prepare()

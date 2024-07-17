@@ -1,8 +1,12 @@
 package com.example.indexcards.data
 
+import android.app.Application
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import java.io.File
+import kotlin.coroutines.coroutineContext
 
 class OfflineAppRepository(
     private val appDao: AppDao
@@ -87,9 +91,11 @@ class OfflineAppRepository(
 
     override suspend fun downgradeLevelOnCard(cardId: Long) = appDao.downgradeLevelOnCard(cardId)
 
-    override suspend fun enableNotificationsForBox(boxId: Long) = appDao.enableNotificationsForBox(boxId)
+    override suspend fun enableNotificationsForBox(boxId: Long) =
+        appDao.enableNotificationsForBox(boxId)
 
-    override suspend fun disableNotificationsForBox(boxId: Long) = appDao.disableNotificationsForBox(boxId)
+    override suspend fun disableNotificationsForBox(boxId: Long) =
+        appDao.disableNotificationsForBox(boxId)
 
     override suspend fun getNumberOfCardsOfLevelInBox(boxId: Long, level: Int) =
         appDao.getNumberOfCardsOfLevelInBox(boxId, level)

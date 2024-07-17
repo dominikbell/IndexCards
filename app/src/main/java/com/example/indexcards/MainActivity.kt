@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.data.AppDatabase
+import com.example.indexcards.data.Card
 import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.ui.theme.IndexCardsTheme
 import com.example.indexcards.utils.ViewModelProvider
@@ -33,6 +34,7 @@ import com.example.indexcards.utils.notification.NotificationRequest
 import com.example.indexcards.utils.notification.NotificationService
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
@@ -139,6 +141,18 @@ class MainActivity : ComponentActivity() {
             fun requestRecordingPermission(): Boolean {
                 recordingLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 return true
+            }
+
+            fun deleteAllMemos(cards: List<Card>) {
+                cards.forEach {
+                    val audioFile = File(
+                        applicationContext.filesDir,
+                        "memo${it.cardId}.mp3"
+                    )
+                    if (audioFile.exists()) {
+                        audioFile.delete()
+                    }
+                }
             }
 
             IndexCardsTheme {

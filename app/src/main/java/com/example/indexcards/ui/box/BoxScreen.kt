@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.box
 
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
+import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.dialogs.CardDialog
 import com.example.indexcards.ui.box.dialogs.DeleteCardDialog
@@ -56,6 +58,7 @@ fun BoxScreen(
     navigateToBoxesOverview: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false },
     requestRecordingPermission: () -> Boolean = { false },
+    deleteAllMemos: (List<Card>) -> Unit = {},
     scheduleNotification: (Int, String, Long) -> Unit = { _, _, _ -> },
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -70,6 +73,7 @@ fun BoxScreen(
     val boxUiState = boxScreenViewModel.boxUiState
     val cardUiState = boxScreenViewModel.cardUiState
     val tagUiState = boxScreenViewModel.tagUiState
+    val newCardId = boxScreenViewModel.newCardId
     val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
     val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
@@ -110,6 +114,10 @@ fun BoxScreen(
         }
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
+
+    LaunchedEffect(key1 = cardsWithTags.cardWithTagList.size) {
+        boxScreenViewModel.setBiggestCardId()
+    }
 
     /** Stuff for the voice memos */
     val recorder by lazy { AndroidAudioRecorder(applicationContext) }
@@ -325,7 +333,7 @@ fun BoxScreen(
         NewCardDialog(
             cardUiState = cardUiState,
             boxWithTags = boxWithTags,
-            cardWithTags = cardWithTags,
+            cardId = newCardId,
             audioPlayer = player,
             audioRecorder = recorder,
             hasRecordingPermission = hasRecordingPermission,
@@ -439,6 +447,7 @@ fun BoxScreen(
             onDismiss = { deleteBoxDialog = false },
             onDelete = {
                 navigateToBoxesOverview()
+                deleteAllMemos(cardsWithTags.cardWithTagList.map { it.card })
                 boxScreenViewModel.deleteBox(boxId = boxId)
             },
             boxToBeDeleted = boxWithTags.box

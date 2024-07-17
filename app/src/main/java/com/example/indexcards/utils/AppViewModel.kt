@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
+import com.example.indexcards.data.BoxWithCards
 import com.example.indexcards.utils.box.BoxDetails
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.toBox

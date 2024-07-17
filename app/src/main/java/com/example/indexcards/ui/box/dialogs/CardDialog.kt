@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.box.dialogs
 
 import android.media.MediaMetadataRetriever
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -196,7 +197,10 @@ fun CardDialog(
                                     }
                                 } else {
                                     IconButton(
-                                        onClick = { playAudio() }
+                                        onClick = {
+                                            Log.d("cardId in CardDialog", cardWithTags.card.cardId.toString())
+                                            playAudio()
+                                        }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.PlayArrow,

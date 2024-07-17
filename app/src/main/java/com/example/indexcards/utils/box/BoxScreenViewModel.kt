@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.box
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -291,6 +292,10 @@ class BoxScreenViewModel(
     }
 
 
+    /** newCardId is the id a new card will get
+     * is needed to save tags and memo before saving the actual card */
+    var newCardId by mutableLongStateOf(-1)
+
     /** functions for saving and deleting a new card */
     fun saveCard(doReset: Boolean = false) {
         if (validateInput(cardUiState.cardDetails)) {
@@ -320,8 +325,7 @@ class BoxScreenViewModel(
 
     fun setBiggestCardId() {
         viewModelScope.launch {
-            val newCardId = appRepository.getBiggestCardId() + 1
-            currentCard.update { emptyCard.copy(cardId = newCardId) }
+            newCardId = appRepository.getBiggestCardId() + 1
         }
     }
 

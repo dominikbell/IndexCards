@@ -8,14 +8,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.BoxWithCards
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UserPreferences
+import com.example.indexcards.utils.box.UiBoxWithCards
 import com.example.indexcards.utils.box.emptyBox
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -28,6 +33,7 @@ import kotlinx.coroutines.launch
  * - displays list of all boxes
  * - adds and deletes boxes
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class HomeScreenViewModel(
     appRepository: AppRepository,
     userPreferences: UserPreferences
@@ -83,6 +89,38 @@ class HomeScreenViewModel(
             currentBox.update { emptyBox }
         }
     }
+
+
+    /** Have this here to delete all the memos */
+    val boxWithCards: StateFlow<UiBoxWithCards> =
+        currentBox.flatMapLatest {
+            when (it) {
+                emptyBox -> flow {
+                    emit(
+                        UiBoxWithCards(
+                            box = emptyBox,
+                            cardList = listOf()
+                        )
+                    )
+                }
+
+                else -> {
+                    appRepository.getBoxWithCardsStream(it.boxId)
+                        .filterNotNull()
+                        .map {
+                            UiBoxWithCards(
+                                box = it.box,
+                                cardList = it.cards
+                            )
+                        }
+                }
+            }
+        }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = UiBoxWithCards()
+            )
 
 
     /** uiPreferences
