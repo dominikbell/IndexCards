@@ -144,11 +144,13 @@ fun HomeScreen(
         },
 
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { addBoxDialog = true },
-                modifier = modifier
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+            if (homeScreenState is HomeScreenState.MAIN) {
+                FloatingActionButton(
+                    onClick = { addBoxDialog = true },
+                    modifier = modifier
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                }
             }
         }
     ) { innerPadding ->

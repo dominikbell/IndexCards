@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,12 +44,13 @@ import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.emptyBox
 import com.example.indexcards.utils.box.toBoxDetails
+import com.example.indexcards.utils.box.toBoxState
 import com.example.indexcards.utils.card.CardState
 
 @Composable
 fun NewTagButton(
-    onClick: () -> Unit,
-    short: Boolean = false
+    short: Boolean = false,
+    onClick: () -> Unit = {},
 ) {
     val text = if (short) {
         stringResource(R.string.new_tag_short)
@@ -64,7 +67,7 @@ fun NewTagButton(
 fun WordField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         value = cardUiState.cardDetails.word,
@@ -78,7 +81,7 @@ fun WordField(
 fun MeaningField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         value = cardUiState.cardDetails.meaning,
@@ -92,7 +95,7 @@ fun MeaningField(
 fun NotesField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         value = cardUiState.cardDetails.notes,
@@ -125,7 +128,7 @@ fun RequiredFieldsText(
 fun NameField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -136,11 +139,19 @@ fun NameField(
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun NameFieldPreview() {
+    NameField(
+        boxUiState = emptyBox.copy(name = "Herbert").toBoxState()
+    )
+}
+
 @Composable
 fun DescriptionField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -155,7 +166,7 @@ fun DescriptionField(
 fun TopicField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -287,7 +298,7 @@ fun RemindersSwitchPreview() {
 fun IsLanguageCheckBox(
     modifier: Modifier = Modifier,
     isLanguage: Boolean,
-    changeIsLanguage: () -> Unit
+    changeIsLanguage: () -> Unit = {},
 ) {
     Row(
         modifier = modifier

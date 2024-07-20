@@ -39,6 +39,7 @@ fun AddBoxDialog(
 
     var isLanguage by remember { mutableStateOf(true) }
     var expanded by remember { mutableStateOf(false) }
+    var collapseDialog by remember { mutableStateOf(true) }
 
     fun changeIsLanguage() {
         isLanguage = !isLanguage
@@ -47,8 +48,10 @@ fun AddBoxDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = {
-            if (!expanded) {
+            if (collapseDialog) {
                 onDismiss()
+            } else {
+                collapseDialog = true
             }
         },
         title = {
@@ -79,7 +82,10 @@ fun AddBoxDialog(
                         modifier = Modifier,
                         boxUiState = boxUiState,
                         expanded = expanded,
-                        changeExpanded = { expanded = !expanded },
+                        changeExpanded = {
+                            expanded = !expanded
+                            collapseDialog = false
+                        },
                         onValueChange = {
                             updateUiState(boxUiState.boxDetails.copy(topic = it))
                         },
@@ -139,7 +145,8 @@ fun AddBoxDialogPreview() {
         boxUiState = BoxState(
             emptyBox.copy(
                 name = "Box123",
-                topic = "Birdwatching"
+                topic = "Birdwatching",
+                description = "schrebeibung"
             ).toBoxDetails()
         )
     )
