@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
@@ -46,6 +48,7 @@ fun TrainingScreen(
     modifier: Modifier = Modifier,
     cardList: List<CardWithTags>,
     trainingCounts: Boolean,
+    trainingDirection: Boolean,
     navigateToBoxScreen: () -> Unit = {},
     onCardCorrect: (Card) -> Unit = {},
     onCardIncorrect: (Card) -> Unit = {},
@@ -89,12 +92,13 @@ fun TrainingScreen(
                 currentCard = currentCard,
                 cardHeight = cardHeight,
                 cardWidth = cardWidth,
+                trainingCounts = trainingCounts,
+                trainingDirection = trainingDirection,
                 turnedOver = turnedOver,
                 turnOver = { turnedOver = !turnedOver },
                 goToNextCard = { goToNextCard() },
                 onCardCorrect = { onCardCorrect(currentCard.card) },
                 onCardIncorrect = { onCardIncorrect(currentCard.card) },
-                trainingCounts = trainingCounts
             )
 
         } else {
@@ -134,7 +138,8 @@ fun TrainingScreenPreview() {
             CardWithTags(card = emptyCard, tags = listOf()),
             CardWithTags(card = emptyCard, tags = listOf()),
         ),
-        trainingCounts = true
+        trainingCounts = true,
+        trainingDirection = true,
     )
 }
 
@@ -146,15 +151,35 @@ fun CardCard(
     cardWidth: Dp,
     turnedOver: Boolean,
     trainingCounts: Boolean,
+    trainingDirection: Boolean,
     turnOver: () -> Unit = {},
     goToNextCard: () -> Unit = {},
     onCardCorrect: () -> Unit = {},
     onCardIncorrect: () -> Unit = {},
 ) {
+    val wordSearched =
+        if (trainingDirection) {
+            currentCard.card.word
+        } else {
+            currentCard.card.meaning
+        }
+
+    val wordSolution =
+        if (trainingDirection) {
+            currentCard.card.meaning
+        } else {
+            currentCard.card.word
+        }
+
     Card(
         modifier = modifier
             .height(cardHeight)
             .width(cardWidth)
+            .clickable {
+                if (!turnedOver) {
+                    turnOver()
+                }
+            }
     ) {
         Column(
             modifier = Modifier
@@ -164,13 +189,13 @@ fun CardCard(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.weight(1f),
             ) {
                 SelectionContainer(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = currentCard.card.word,
+                        text = wordSearched,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
@@ -180,14 +205,26 @@ fun CardCard(
                 Spacer(modifier = Modifier.size(8.dp))
 
                 if (!turnedOver) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(text = "X".repeat(min(10, currentCard.card.meaning.length)))
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            text = "?",
+                            fontSize = 100.sp,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                        )
                     }
                 } else {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        SelectionContainer {
+                        SelectionContainer(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Text(
-                                text = currentCard.card.meaning,
+                                modifier = Modifier.fillMaxWidth(),
+                                text = wordSolution,
                                 fontSize = MaterialTheme.typography.titleMedium.fontSize
                             )
                         }
@@ -217,11 +254,7 @@ fun CardCard(
             }
 
             if (!turnedOver) {
-                TextButton(
-                    onClick = { turnOver() }
-                ) {
-                    Text(text = stringResource(id = R.string.turn_over))
-                }
+                Text(text = stringResource(id = R.string.turn_over))
             } else {
                 Row {
                     TextButton(
@@ -253,7 +286,7 @@ fun CardCard(
 
 @Preview
 @Composable
-fun CardCardPreview() {
+fun CardCardPreviewHidden() {
     CardCard(
         modifier = Modifier,
         currentCard =
@@ -261,9 +294,28 @@ fun CardCardPreview() {
             card = emptyCard.copy(word = "Hallo", meaning = "Hello"),
             tags = listOf()
         ),
-        cardHeight = 200.dp,
-        cardWidth = 200.dp,
+        cardHeight = 400.dp,
+        cardWidth = 300.dp,
+        turnedOver = false,
+        trainingCounts = true,
+        trainingDirection = true,
+    )
+}
+
+@Preview
+@Composable
+fun CardCardPreviewRevealed() {
+    CardCard(
+        modifier = Modifier,
+        currentCard =
+        CardWithTags(
+            card = emptyCard.copy(word = "Hallo", meaning = "Hello", notes = "Very important card"),
+            tags = listOf()
+        ),
+        cardHeight = 400.dp,
+        cardWidth = 300.dp,
         turnedOver = true,
-        trainingCounts = true
+        trainingCounts = true,
+        trainingDirection = true,
     )
 }

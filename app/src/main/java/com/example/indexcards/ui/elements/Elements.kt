@@ -81,12 +81,19 @@ fun WordField(
 fun MeaningField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
+    isLanguage: Boolean,
     onValueChange: (String) -> Unit = {},
 ) {
+    val label =
+        if (isLanguage) {
+            stringResource(R.string.meaning)
+        } else {
+            stringResource(R.string.backside)
+        }
     OutlinedTextField(
         value = cardUiState.cardDetails.meaning,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = stringResource(R.string.meaning) + "*") },
+        label = { Text(text = "$label*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }

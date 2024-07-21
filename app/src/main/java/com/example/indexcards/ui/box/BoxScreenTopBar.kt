@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,16 +10,17 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,11 +28,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.LanguageData
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.emptyBox
 
@@ -38,16 +42,24 @@ import com.example.indexcards.utils.box.emptyBox
 @Composable
 fun BoxScreenTopBar(
     modifier: Modifier = Modifier,
-    navigateToBoxesOverview: () -> Unit,
-    updateEditUiStatus: () -> Unit,
-    changeBoxScreenState: (BoxScreenState) -> Unit,
-    boxScreenState: BoxScreenState,
     thisBox: Box,
-    cancelEdit: () -> Unit,
+    boxScreenState: BoxScreenState,
     trainingCounts: Boolean,
-    changeTrainingCounts: () -> Unit
+    navigateToBoxesOverview: () -> Unit = {},
+    updateEditUiStatus: () -> Unit = {},
+    changeBoxScreenState: (BoxScreenState) -> Unit = {},
+    cancelEdit: () -> Unit = {},
+    changeTrainingCounts: () -> Unit = {},
+    changeTrainingDirection: () -> Unit = {},
+    changeTrainingDirectionToValue: (Boolean) -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val notImplementedText = stringResource(id = R.string.not_implemented)
     var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = boxScreenState) {
+        expanded = false
+    }
 
     val title: String =
         when (boxScreenState) {
@@ -142,7 +154,11 @@ fun BoxScreenTopBar(
                                     )
                                 }
                             },
-                            onClick = { /* TODO: implement sorting */ }
+                            onClick = {
+                                /* TODO: implement sorting */
+                                Toast.makeText(context, notImplementedText, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
                         )
                         DropdownMenuItem(
                             text = {
@@ -150,6 +166,7 @@ fun BoxScreenTopBar(
                             },
                             onClick = {
                                 expanded = false
+                                changeTrainingDirectionToValue(true)
                                 changeBoxScreenState(BoxScreenState.TRAIN)
                             }
                         )
@@ -159,6 +176,7 @@ fun BoxScreenTopBar(
                             },
                             onClick = {
                                 expanded = false
+                                changeTrainingDirectionToValue(true)
                                 changeBoxScreenState(BoxScreenState.TRAIN)
                             }
                         )
@@ -168,10 +186,47 @@ fun BoxScreenTopBar(
                 BoxScreenState.EDIT -> {}
 
                 BoxScreenState.TRAIN -> {
-                    Switch(
-                        checked = trainingCounts,
-                        onCheckedChange = { changeTrainingCounts() }
-                    )
+                    IconButton(onClick = {
+                        expanded = true
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "Menu"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(text = stringResource(id = R.string.training_counts))
+                                    Checkbox(
+                                        checked = trainingCounts,
+                                        onCheckedChange = { changeTrainingCounts() }
+                                    )
+                                }
+                            },
+                            onClick = { changeTrainingCounts() }
+                        )
+                        if (LanguageData.language.values.contains(thisBox.topic)) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = stringResource(id = R.string.reverse_sides))
+                                },
+                                onClick = {
+                                    expanded = false
+                                    changeTrainingDirection()
+                                }
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -182,14 +237,9 @@ fun BoxScreenTopBar(
 @Composable
 fun BoxTopBarPreviewView() {
     BoxScreenTopBar(
-        navigateToBoxesOverview = { },
-        updateEditUiStatus = { },
-        changeBoxScreenState = { },
         boxScreenState = BoxScreenState.VIEW,
         thisBox = emptyBox.copy(name = "Test123"),
-        cancelEdit = { },
         trainingCounts = false,
-        changeTrainingCounts = { }
     )
 }
 
@@ -197,14 +247,9 @@ fun BoxTopBarPreviewView() {
 @Composable
 fun BoxTopBarPreviewTrain() {
     BoxScreenTopBar(
-        navigateToBoxesOverview = { },
-        updateEditUiStatus = { },
-        changeBoxScreenState = { },
         boxScreenState = BoxScreenState.TRAIN,
         thisBox = emptyBox.copy(name = "Test123"),
-        cancelEdit = { },
         trainingCounts = true,
-        changeTrainingCounts = { }
     )
 }
 
@@ -212,13 +257,8 @@ fun BoxTopBarPreviewTrain() {
 @Composable
 fun BoxTopBarPreviewEdit() {
     BoxScreenTopBar(
-        navigateToBoxesOverview = { },
-        updateEditUiStatus = { },
-        changeBoxScreenState = { },
         boxScreenState = BoxScreenState.EDIT,
         thisBox = emptyBox.copy(name = "Test123"),
-        cancelEdit = { },
         trainingCounts = false,
-        changeTrainingCounts = { }
     )
 }

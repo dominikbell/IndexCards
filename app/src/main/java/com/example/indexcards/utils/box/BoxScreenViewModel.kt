@@ -184,6 +184,20 @@ class BoxScreenViewModel(
         trainingCounts.update { newState }
     }
 
+    /** trainingDirection
+     * maybe a temporary feature; changes which side of the card is shown when training
+     * true = original order (word is shown, meaning is revealed after turning over)
+     */
+    val trainingDirection = MutableStateFlow(true)
+
+    fun changeTrainingDirection() {
+        trainingDirection.update { !trainingDirection.value }
+    }
+
+    fun changeTrainingDirection(newState: Boolean) {
+        trainingDirection.update { newState }
+    }
+
     /** used for determining if cards of a level in a box exist when coming from a
      * notification that passes a startLevel */
     suspend fun getNumberOfCardsOfLevelInBox(level: Int): Int {
