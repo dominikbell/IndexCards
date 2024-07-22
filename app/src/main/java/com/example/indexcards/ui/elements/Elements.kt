@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.elements
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,35 +16,74 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
+import com.example.indexcards.data.Box
 import com.example.indexcards.data.LanguageData
+import com.example.indexcards.data.getImageId
 import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.emptyBox
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.box.toBoxState
 import com.example.indexcards.utils.card.CardState
+
+@Composable
+fun BoxNameWithFlag(
+    box: Box,
+    doBold: Boolean,
+    isTitle: Boolean
+) {
+    val context = LocalContext.current
+    val fontWeight = if (doBold) {
+        FontWeight.Bold
+    } else {
+        FontWeight.Normal
+    }
+
+    val style = if(isTitle) {
+        MaterialTheme.typography.titleLarge
+    } else {
+        LocalTextStyle.current
+    }
+
+    val imageId = box.getImageId(context)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = box.name,
+            fontWeight = fontWeight,
+            style = style
+        )
+
+        if (imageId != -1) {
+            Image(
+                painter = painterResource(id = imageId),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 10.dp)
+                    .size(AssistChipDefaults.IconSize * 1.4F),
+            )
+        }
+    }
+}
 
 @Composable
 fun NewTagButton(
@@ -195,15 +233,6 @@ fun LanguageDropDownMenu(
 ) {
     val context = LocalContext.current
 
-    @SuppressLint("DiscouragedApi")
-    fun getImageId(nameBase: String): Int {
-        return context.resources.getIdentifier(
-            "flag$nameBase",
-            "drawable",
-            context.packageName
-        )
-    }
-
     ExposedDropdownMenuBox(
         modifier = modifier,
         expanded = expanded,
@@ -232,19 +261,17 @@ fun LanguageDropDownMenu(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
-                                painter = painterResource(
-                                    id = getImageId(option.key)
-                                ),
+                                painter = painterResource(id = getImageId(context, option.key)),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(AssistChipDefaults.IconSize),
                             )
                             Spacer(modifier = Modifier.size(6.dp))
-                            Text(text = option.value)
+                            Text(text = option.value.first)
                         }
                     },
                     onClick = {
-                        onValueChange(option.value)
+                        onValueChange(option.value.first)
                         changeExpanded()
                     }
                 )

@@ -34,7 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.data.LanguageData
+import com.example.indexcards.data.isLanguage
+import com.example.indexcards.ui.elements.BoxNameWithFlag
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.emptyBox
 
@@ -60,21 +61,6 @@ fun BoxScreenTopBar(
     LaunchedEffect(key1 = boxScreenState) {
         expanded = false
     }
-
-    val title: String =
-        when (boxScreenState) {
-            BoxScreenState.VIEW -> {
-                thisBox.name
-            }
-
-            BoxScreenState.EDIT -> {
-                stringResource(id = R.string.editing_box) + " " + thisBox.name
-            }
-
-            BoxScreenState.TRAIN -> {
-                stringResource(id = R.string.training)
-            }
-        }
 
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -105,11 +91,27 @@ fun BoxScreenTopBar(
         },
 
         title = {
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                modifier = modifier
-            )
+            when (boxScreenState) {
+                BoxScreenState.VIEW -> {
+                    BoxNameWithFlag(box = thisBox, doBold = true, isTitle = false)
+                }
+
+                BoxScreenState.EDIT -> {
+                    Text(
+                        text = stringResource(id = R.string.editing_box) + " " + thisBox.name,
+                        fontWeight = FontWeight.Bold,
+                        modifier = modifier
+                    )
+                }
+
+                BoxScreenState.TRAIN -> {
+                    Text(
+                        text = stringResource(id = R.string.training),
+                        fontWeight = FontWeight.Bold,
+                        modifier = modifier
+                    )
+                }
+            }
         },
 
         actions = {
@@ -215,7 +217,7 @@ fun BoxScreenTopBar(
                             },
                             onClick = { changeTrainingCounts() }
                         )
-                        if (LanguageData.language.values.contains(thisBox.topic)) {
+                        if (thisBox.isLanguage()) {
                             DropdownMenuItem(
                                 text = {
                                     Text(text = stringResource(id = R.string.reverse_sides))
@@ -238,7 +240,7 @@ fun BoxScreenTopBar(
 fun BoxTopBarPreviewView() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.VIEW,
-        thisBox = emptyBox.copy(name = "Test123"),
+        thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
     )
 }

@@ -34,8 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.indexcards.R
-import com.example.indexcards.data.LanguageData
 import com.example.indexcards.data.Tag
+import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.box.TagList
 import com.example.indexcards.ui.elements.MeaningField
 import com.example.indexcards.ui.elements.NewTagButton
@@ -328,7 +328,7 @@ fun CardDialogBody(
                 MeaningField(
                     cardUiState = cardUiState,
                     onValueChange = { updateUiState(cardUiState.cardDetails.copy(meaning = it)) },
-                    isLanguage = (LanguageData.language.values.contains(boxWithTags.box.topic))
+                    isLanguage = (boxWithTags.box.isLanguage())
                 )
 
                 RequiredFieldsText()

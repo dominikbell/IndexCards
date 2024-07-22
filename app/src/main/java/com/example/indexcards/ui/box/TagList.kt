@@ -72,6 +72,7 @@ fun TagListItem(
     onLongClick: () -> Unit = {},
 ) {
     val selected = (selectedTags.contains(item))
+    val strokeWidth = 6F
 
     Row(
         modifier = modifier
@@ -92,11 +93,13 @@ fun TagListItem(
             if (selected) {
                 drawCircle(
                     color = Color(android.graphics.Color.parseColor(item.color)),
+                    radius = size. minDimension / 2.0f + 1f
                 )
             } else {
                 drawCircle(
                     color = Color(android.graphics.Color.parseColor(item.color)),
-                    style = Stroke(width = 6F)
+                    style = Stroke(width = strokeWidth),
+                    radius = (size. minDimension - strokeWidth) / 2.0f + 1f
                 )
             }
         }

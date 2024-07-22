@@ -119,19 +119,21 @@ fun AddBoxDialog(
         },
 
         confirmButton = {
-            TextButton(onClick = {
-                /* TODO: When text fields are empty, don't discard but make fields red */
-                onSave()
-                onDismiss()
-            }) {
+            TextButton(
+                onClick = {
+                    /* TODO: When text fields are empty, don't discard but make fields red */
+                    onSave()
+                    onDismiss()
+                }
+            ) {
                 Text(text = stringResource(R.string.save))
             }
         },
 
         dismissButton = {
-            TextButton(onClick = {
-                onDismiss()
-            }) {
+            TextButton(
+                onClick = { onDismiss() }
+            ) {
                 Text(text = stringResource(R.string.cancel))
             }
         }
