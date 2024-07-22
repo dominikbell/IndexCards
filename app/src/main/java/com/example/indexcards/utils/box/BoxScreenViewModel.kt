@@ -205,9 +205,7 @@ class BoxScreenViewModel(
     }
 
 
-    /** functions for training that up-/downgrade the level on a card
-     *
-     */
+    /** functions for training that up-/downgrade the level on a card */
     suspend fun onCardCorrect(card: Card) {
         if (card.level < 4) {
             appRepository.upgradeLevelOnCard(card.cardId)
@@ -289,7 +287,9 @@ class BoxScreenViewModel(
             CardState(
                 cardDetails = cardDetails,
                 tagList = tagList,
-                isValid = validateInput(cardDetails)
+                isValid = validateInput(cardDetails),
+                validWord = cardDetails.word.isNotBlank(),
+                validMeaning = cardDetails.meaning.isNotBlank(),
             )
     }
 
@@ -312,7 +312,7 @@ class BoxScreenViewModel(
 
     /** functions for saving and deleting a new card */
     fun saveCard(doReset: Boolean = false) {
-        if (validateInput(cardUiState.cardDetails)) {
+        if (cardUiState.isValid) {
             viewModelScope.launch {
                 val cardId =
                     if (cardUiState.cardDetails.id == (-1).toLong()) {

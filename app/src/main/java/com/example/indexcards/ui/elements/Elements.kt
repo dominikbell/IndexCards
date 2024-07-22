@@ -105,12 +105,14 @@ fun NewTagButton(
 fun WordField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
+    isError: Boolean,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
         value = cardUiState.cardDetails.word,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.word) + "*") },
+        isError = isError,
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
@@ -120,6 +122,7 @@ fun MeaningField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
     isLanguage: Boolean,
+    isError: Boolean,
     onValueChange: (String) -> Unit = {},
 ) {
     val label =
@@ -132,6 +135,7 @@ fun MeaningField(
         value = cardUiState.cardDetails.meaning,
         onValueChange = { onValueChange(it) },
         label = { Text(text = "$label*") },
+        isError = isError,
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
     )
 }
@@ -173,6 +177,7 @@ fun RequiredFieldsText(
 fun NameField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
+    isError: Boolean,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -181,6 +186,7 @@ fun NameField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.name) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+        isError = isError
     )
 }
 
@@ -188,7 +194,8 @@ fun NameField(
 @Composable
 fun NameFieldPreview() {
     NameField(
-        boxUiState = emptyBox.copy(name = "Herbert").toBoxState()
+        boxUiState = emptyBox.copy(name = "Herbert").toBoxState(),
+        isError = false
     )
 }
 
@@ -211,6 +218,7 @@ fun DescriptionField(
 fun TopicField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
+    isError: Boolean,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -219,6 +227,7 @@ fun TopicField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.topic) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+        isError = isError
     )
 }
 
@@ -228,6 +237,7 @@ fun LanguageDropDownMenu(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     expanded: Boolean,
+    isError: Boolean,
     changeExpanded: () -> Unit = {},
     onValueChange: (String) -> Unit = {},
 ) {
@@ -248,6 +258,7 @@ fun LanguageDropDownMenu(
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            isError = isError
         )
         ExposedDropdownMenu(
             modifier = modifier.fillMaxWidth(),
@@ -285,6 +296,7 @@ fun LanguageDropDownMenu(
 fun LanguageDropDownMenuPreview() {
     LanguageDropDownMenu(
         expanded = true,
+        isError = false,
         boxUiState = BoxState(boxDetails = emptyBox.copy(topic = "English").toBoxDetails()),
     )
 }

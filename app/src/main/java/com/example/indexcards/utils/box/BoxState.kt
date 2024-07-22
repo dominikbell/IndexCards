@@ -17,6 +17,8 @@ val emptyBox: Box = Box(
 data class BoxState(
     val boxDetails: BoxDetails = BoxDetails(),
     val isValid: Boolean = false,
+    val validName: Boolean = false,
+    val validTopic: Boolean = false,
 )
 
 data class BoxDetails(

@@ -35,11 +35,14 @@ fun AddBoxDialog(
     updateUiState: (BoxDetails) -> Unit = {},
     onSave: () -> Unit = {},
 ) {
-    val isEnabled = boxUiState.boxDetails.reminders
+    val reminders = boxUiState.boxDetails.reminders
 
     var isLanguage by remember { mutableStateOf(true) }
     var expanded by remember { mutableStateOf(false) }
     var collapseDialog by remember { mutableStateOf(true) }
+
+    var validName by remember { mutableStateOf(true) }
+    var validTopic by remember { mutableStateOf(true) }
 
     fun changeIsLanguage() {
         isLanguage = !isLanguage
@@ -65,7 +68,9 @@ fun AddBoxDialog(
             ) {
                 NameField(
                     boxUiState = boxUiState,
+                    isError = !validName,
                     onValueChange = {
+                        validName = true
                         updateUiState(boxUiState.boxDetails.copy(name = it))
                     }
                 )
@@ -73,7 +78,9 @@ fun AddBoxDialog(
                 if (!isLanguage) {
                     TopicField(
                         boxUiState = boxUiState,
+                        isError = !validTopic,
                         onValueChange = {
+                            validTopic = true
                             updateUiState(boxUiState.boxDetails.copy(topic = it))
                         }
                     )
@@ -82,11 +89,13 @@ fun AddBoxDialog(
                         modifier = Modifier,
                         boxUiState = boxUiState,
                         expanded = expanded,
+                        isError = !validTopic,
                         changeExpanded = {
                             expanded = !expanded
                             collapseDialog = false
                         },
                         onValueChange = {
+                            validTopic = true
                             updateUiState(boxUiState.boxDetails.copy(topic = it))
                         },
                     )
@@ -99,19 +108,15 @@ fun AddBoxDialog(
 
                 DescriptionField(
                     boxUiState = boxUiState,
-                    onValueChange = {
-                        updateUiState(boxUiState.boxDetails.copy(description = it))
-                    }
+                    onValueChange = { updateUiState(boxUiState.boxDetails.copy(description = it)) }
                 )
 
                 RequiredFieldsText()
 
                 RemindersSwitch(
                     modifier = modifier,
-                    enabled = (isEnabled && hasNotificationPermission),
-                    onCheckedChange = {
-                        updateUiState(boxUiState.boxDetails.copy(reminders = !isEnabled))
-                    },
+                    enabled = (reminders && hasNotificationPermission),
+                    onCheckedChange = { updateUiState(boxUiState.boxDetails.copy(reminders = !reminders)) },
                     hasNotificationPermission = hasNotificationPermission,
                     requestNotificationPermission = requestNotificationPermission
                 )
@@ -121,9 +126,17 @@ fun AddBoxDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    /* TODO: When text fields are empty, don't discard but make fields red */
-                    onSave()
-                    onDismiss()
+                    if (boxUiState.isValid) {
+                        onSave()
+                        onDismiss()
+                    } else {
+                        if (!boxUiState.validName) {
+                            validName = false
+                        }
+                        if (!boxUiState.validTopic) {
+                            validTopic = false
+                        }
+                    }
                 }
             ) {
                 Text(text = stringResource(R.string.save))

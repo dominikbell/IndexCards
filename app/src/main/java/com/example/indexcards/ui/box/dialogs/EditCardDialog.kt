@@ -204,14 +204,16 @@ fun CardDialogBody(
 ) {
     val applicationContext = LocalContext.current.applicationContext
 
+    /** stuff for audio memos*/
     val mmr = MediaMetadataRetriever()
-
     var isRecording by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }
-
     var audioFile: File? by remember { mutableStateOf(null) }
-
     var duration by remember { mutableLongStateOf(0) }
+
+    /** for only accepting valid card edits */
+    var validWord by remember { mutableStateOf(true) }
+    var validMeaning by remember { mutableStateOf(true) }
 
     LaunchedEffect(key1 = cardUiState.cardDetails.memoURI) {
         if (cardUiState.cardDetails.memoURI.isNotBlank()) {
@@ -322,17 +324,26 @@ fun CardDialogBody(
             ) {
                 WordField(
                     cardUiState = cardUiState,
-                    onValueChange = { updateUiState(cardUiState.cardDetails.copy(word = it)) }
+                    isError = !validWord,
+                    onValueChange = {
+                        validWord = true
+                        updateUiState(cardUiState.cardDetails.copy(word = it))
+                    }
                 )
 
                 MeaningField(
                     cardUiState = cardUiState,
-                    onValueChange = { updateUiState(cardUiState.cardDetails.copy(meaning = it)) },
+                    isError = !validMeaning,
+                    onValueChange = {
+                        validMeaning = true
+                        updateUiState(cardUiState.cardDetails.copy(meaning = it))
+                    },
                     isLanguage = (boxWithTags.box.isLanguage())
                 )
 
                 RequiredFieldsText()
 
+                /** TagList */
                 Row(
                     modifier = modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -360,6 +371,7 @@ fun CardDialogBody(
                     )
                 }
 
+                /** Voice memo */
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -432,7 +444,18 @@ fun CardDialogBody(
 
         confirmButton = {
             TextButton(
-                onClick = { onClickSave() }
+                onClick = {
+                    if (cardUiState.isValid) {
+                        onClickSave()
+                    } else {
+                        if (!cardUiState.validWord) {
+                            validWord = false
+                        }
+                        if (!cardUiState.validMeaning) {
+                            validMeaning = false
+                        }
+                    }
+                }
             ) {
                 Text(text = stringResource(R.string.save))
             }
