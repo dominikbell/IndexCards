@@ -11,6 +11,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -48,6 +52,8 @@ fun TagDialog(
         stringResource(R.string.edit_tag)
     }
 
+    var validText by remember { mutableStateOf(true) }
+
     AlertDialog(
         modifier = modifier,
         onDismissRequest = { onDismiss() },
@@ -59,10 +65,10 @@ fun TagDialog(
                 OutlinedTextField(
                     value = tagUiState.tagDetails.text,
                     label = { Text(text = stringResource(R.string.tag_name) + "*") },
+                    isError = !validText,
                     onValueChange = {
-                        updateUiState(
-                            tagUiState.tagDetails.copy(text = it)
-                        )
+                        validText = true
+                        updateUiState(tagUiState.tagDetails.copy(text = it))
                     }
                 )
 
@@ -95,10 +101,16 @@ fun TagDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (newTag) {
-                        saveTag()
+                    if (tagUiState.isValid) {
+                        if (newTag) {
+                            saveTag()
+                        } else {
+                            updateTag()
+                        }
                     } else {
-                        updateTag()
+                        if (!tagUiState.validText) {
+                            validText = false
+                        }
                     }
                 }) {
                 Text(text = stringResource(R.string.save))

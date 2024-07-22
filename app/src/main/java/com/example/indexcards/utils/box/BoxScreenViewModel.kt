@@ -386,7 +386,8 @@ class BoxScreenViewModel(
     fun setTagUiState(tagDetails: TagDetails) {
         tagUiState = TagState(
             tagDetails = tagDetails,
-            isValid = validateTagInput()
+            isValid = validateTagInput(tagDetails),
+            validText = tagDetails.text.isNotBlank()
         )
     }
 
@@ -402,9 +403,7 @@ class BoxScreenViewModel(
             if (validateColor(color)) {
                 UiColorState(color = color)
             } else {
-                UiColorState(
-//            "#000000"
-                )
+                UiColorState()
             }
     }
 
@@ -421,7 +420,7 @@ class BoxScreenViewModel(
     fun saveNewTag(addToCard: Boolean) {
         setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
 
-        if (validateTagInput(tagUiState.tagDetails)) {
+        if (tagUiState.isValid) {
             viewModelScope.launch {
                 val tagId: Long = appRepository.getBiggestTagId() + 1
                 setTagUiState(
@@ -446,7 +445,7 @@ class BoxScreenViewModel(
 
     fun updateTag() {
         setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
-        if (validateTagInput(tagUiState.tagDetails)) {
+        if (tagUiState.isValid) {
             /* If the tag was in the cards tagList before, it should be there after updating */
             if (cardUiState.tagList.map { it.tagId }.contains(tagUiState.tagDetails.id)) {
                 updateCardState(

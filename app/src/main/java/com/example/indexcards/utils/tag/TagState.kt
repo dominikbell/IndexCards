@@ -12,7 +12,8 @@ val emptyTag: Tag = Tag(
 
 data class TagState(
     val tagDetails: TagDetails = TagDetails(),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val validText: Boolean = false,
 )
 
 data class TagDetails(
