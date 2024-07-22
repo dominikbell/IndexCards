@@ -44,13 +44,15 @@ open class AppViewModel(
         viewModelScope.launch {
             boxUiState = BoxState(
                 boxDetails = boxDetails,
-                isValid = validateInput(boxDetails)
+                isValid = validateInput(boxDetails),
+                validName = boxDetails.name.isNotBlank(),
+                validTopic = boxDetails.topic.isNotBlank(),
             )
         }
     }
 
     private fun validateInput(boxDetails: BoxDetails): Boolean {
-        return (boxDetails.name.isNotBlank() && boxDetails.topic.isNotBlank() && boxDetails.id != (-1).toLong())
+        return (boxDetails.name.isNotBlank() && boxDetails.topic.isNotBlank())
     }
 
 
@@ -60,8 +62,6 @@ open class AppViewModel(
         viewModelScope.launch {
             if (boxUiState.isValid) {
                 appRepository.upsertBox(boxUiState.boxDetails.toBox())
-            } else {
-                /* TODO: implement what to do when entry is not valid */
             }
         }
     }

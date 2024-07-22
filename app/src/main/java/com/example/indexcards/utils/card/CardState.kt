@@ -19,7 +19,9 @@ val emptyCard: Card = Card(
 data class CardState(
     val cardDetails: CardDetails = CardDetails(),
     val tagList: List<Tag> = listOf(),
-    val isValid: Boolean = false
+    val isValid: Boolean = false,
+    val validWord: Boolean = false,
+    val validMeaning: Boolean = false,
 )
 
 data class CardDetails(

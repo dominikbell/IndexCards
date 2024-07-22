@@ -29,8 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.data.LanguageData
-import com.example.indexcards.data.toFlag
+import com.example.indexcards.ui.elements.BoxNameWithFlag
 import com.example.indexcards.utils.box.emptyBox
 
 @Composable
@@ -71,7 +70,7 @@ fun BoxList(
 
                     BoxListItem(
                         modifier = Modifier.padding(bottom = finalOffset),
-                        item = item,
+                        box = item,
                         onClick = { navigateToBoxScreen(item.boxId) },
                         showDelete = { onDelete(it) }
                     )
@@ -84,21 +83,13 @@ fun BoxList(
 @Composable
 fun BoxListItem(
     modifier: Modifier = Modifier,
-    item: Box,
+    box: Box,
     onClick: (Box) -> Unit = {},
     showDelete: (Box) -> Unit = {},
 ) {
-    val text = item.name
-//    val text =
-//        if (LanguageData.language.values.contains(item.topic)) {
-//            item.name + " (" + item.topic.toFlag() + ")"
-//        } else {
-//            item.name
-//        }
-
     Card(
         modifier = modifier
-            .clickable { onClick(item) }
+            .clickable { onClick(box) }
             .fillMaxWidth()
             .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -112,21 +103,19 @@ fun BoxListItem(
                     .padding(10.dp),
                 verticalArrangement = Arrangement.Top
             ) {
-                Text(
-                    text = text,
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.titleLarge,
+                BoxNameWithFlag(
+                    box = box, doBold = false, isTitle = true
                 )
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
-                    text = item.description,
+                    text = box.description,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
             IconButton(
                 onClick = {
-                    showDelete(item)
+                    showDelete(box)
                 }
             ) {
                 Icon(
@@ -142,7 +131,7 @@ fun BoxListItem(
 @Composable
 fun BoxListItemPreview() {
     BoxListItem(
-        item = emptyBox.copy(name = "Test Box", description = "beschreibung")
+        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung")
     )
 }
 
@@ -151,9 +140,10 @@ fun BoxListItemPreview() {
 fun BoxListPreview() {
     BoxList(
         boxList = listOf(
-            emptyBox.copy(name = "Box123", description = "descr"),
+            emptyBox.copy(name = "Box123", description = "descr", topic = "English"),
             emptyBox.copy(
                 name = "Another Box",
+                topic = "Chinese",
                 description = "a longer description with more words"
             ),
         )

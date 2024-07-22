@@ -184,6 +184,20 @@ class BoxScreenViewModel(
         trainingCounts.update { newState }
     }
 
+    /** trainingDirection
+     * maybe a temporary feature; changes which side of the card is shown when training
+     * true = original order (word is shown, meaning is revealed after turning over)
+     */
+    val trainingDirection = MutableStateFlow(true)
+
+    fun changeTrainingDirection() {
+        trainingDirection.update { !trainingDirection.value }
+    }
+
+    fun changeTrainingDirection(newState: Boolean) {
+        trainingDirection.update { newState }
+    }
+
     /** used for determining if cards of a level in a box exist when coming from a
      * notification that passes a startLevel */
     suspend fun getNumberOfCardsOfLevelInBox(level: Int): Int {
@@ -191,9 +205,7 @@ class BoxScreenViewModel(
     }
 
 
-    /** functions for training that up-/downgrade the level on a card
-     *
-     */
+    /** functions for training that up-/downgrade the level on a card */
     suspend fun onCardCorrect(card: Card) {
         if (card.level < 4) {
             appRepository.upgradeLevelOnCard(card.cardId)
@@ -275,7 +287,9 @@ class BoxScreenViewModel(
             CardState(
                 cardDetails = cardDetails,
                 tagList = tagList,
-                isValid = validateInput(cardDetails)
+                isValid = validateInput(cardDetails),
+                validWord = cardDetails.word.isNotBlank(),
+                validMeaning = cardDetails.meaning.isNotBlank(),
             )
     }
 
@@ -298,7 +312,7 @@ class BoxScreenViewModel(
 
     /** functions for saving and deleting a new card */
     fun saveCard(doReset: Boolean = false) {
-        if (validateInput(cardUiState.cardDetails)) {
+        if (cardUiState.isValid) {
             viewModelScope.launch {
                 val cardId =
                     if (cardUiState.cardDetails.id == (-1).toLong()) {
@@ -372,7 +386,8 @@ class BoxScreenViewModel(
     fun setTagUiState(tagDetails: TagDetails) {
         tagUiState = TagState(
             tagDetails = tagDetails,
-            isValid = validateTagInput()
+            isValid = validateTagInput(tagDetails),
+            validText = tagDetails.text.isNotBlank()
         )
     }
 
@@ -388,9 +403,7 @@ class BoxScreenViewModel(
             if (validateColor(color)) {
                 UiColorState(color = color)
             } else {
-                UiColorState(
-//            "#000000"
-                )
+                UiColorState()
             }
     }
 
@@ -407,7 +420,7 @@ class BoxScreenViewModel(
     fun saveNewTag(addToCard: Boolean) {
         setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
 
-        if (validateTagInput(tagUiState.tagDetails)) {
+        if (tagUiState.isValid) {
             viewModelScope.launch {
                 val tagId: Long = appRepository.getBiggestTagId() + 1
                 setTagUiState(
@@ -432,7 +445,7 @@ class BoxScreenViewModel(
 
     fun updateTag() {
         setTagUiState(tagUiState.tagDetails.copy(color = colorUiState.color))
-        if (validateTagInput(tagUiState.tagDetails)) {
+        if (tagUiState.isValid) {
             /* If the tag was in the cards tagList before, it should be there after updating */
             if (cardUiState.tagList.map { it.tagId }.contains(tagUiState.tagDetails.id)) {
                 updateCardState(

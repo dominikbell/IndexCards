@@ -1,9 +1,6 @@
 package com.example.indexcards.ui.box
 
-import android.os.Build
-import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -47,7 +44,6 @@ import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
 import java.io.File
 
-@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
@@ -77,6 +73,7 @@ fun BoxScreen(
     val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
     val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
+    val trainingDirection by boxScreenViewModel.trainingDirection.collectAsState()
     val boxWithTags by boxScreenViewModel.uiBoxWithTags.collectAsState()
     val cardsWithTags by boxScreenViewModel.uiCardsWithTags.collectAsState()
     val cardWithTags by boxScreenViewModel.uiCardWithTags.collectAsState()
@@ -186,17 +183,15 @@ fun BoxScreen(
         topBar = {
             BoxScreenTopBar(
                 navigateToBoxesOverview = navigateToBoxesOverview,
-                updateEditUiStatus = {
-                    boxScreenViewModel.updateBoxUiState(boxWithTags.box.toBoxDetails())
-                },
+                updateEditUiStatus = { boxScreenViewModel.updateBoxUiState(boxWithTags.box.toBoxDetails()) },
                 changeBoxScreenState = { boxScreenViewModel.updateBoxScreenState(it) },
                 boxScreenState = boxScreenState,
                 thisBox = boxWithTags.box,
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
                 trainingCounts = trainingCounts,
-                changeTrainingCounts = {
-                    boxScreenViewModel.changeTrainingCounts()
-                }
+                changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
+                changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
+                changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) }
             )
         },
 
@@ -270,12 +265,14 @@ fun BoxScreen(
             BoxScreenState.TRAIN -> {
                 TrainingScreen(
                     modifier = modifier.padding(innerPadding),
+                    trainingCounts = trainingCounts,
+                    trainingDirection = trainingDirection,
+                    cardList = shuffledCardList,
                     navigateToBoxScreen = {
                         boxScreenViewModel.resetLevelSelected()
                         boxScreenViewModel.resetTagSelected()
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
                     },
-                    cardList = shuffledCardList,
                     onCardCorrect = {
                         boxScreenViewModel.viewModelScope.launch {
                             boxScreenViewModel.onCardCorrect(it)
@@ -286,7 +283,6 @@ fun BoxScreen(
                             boxScreenViewModel.onCardIncorrect(it)
                         }
                     },
-                    trainingCounts = trainingCounts,
                     setOtherLevelsReminder = {
                         if (trainingCounts && boxWithTags.box.reminders) {
                             boxScreenViewModel.viewModelScope.launch {

@@ -23,6 +23,7 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
+import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.elements.NewTagButton
 import com.example.indexcards.utils.box.BoxDetails
@@ -56,11 +57,19 @@ fun BoxScreenBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        Text(
-            text = stringResource(R.string.description) + ": ${boxWithTags.box.description}",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleLarge,
-        )
+        if (!boxWithTags.box.isLanguage()) {
+            Text(
+                text = stringResource(id = R.string.topic) + ": ${boxWithTags.box.topic}",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        if (boxWithTags.box.description.isNotBlank()) {
+            Text(
+                modifier = Modifier.padding(top = 2.dp, bottom = 4.dp),
+                text = stringResource(R.string.description) + ": ${boxWithTags.box.description}",
+                textAlign = TextAlign.Start,
+            )
+        }
 
         Text(text = stringResource(R.string.nr_card) + ": ${cardsWithTags.cardWithTagList.size}")
 
@@ -131,7 +140,7 @@ fun BoxScreenBodyPreview() {
     )
     val cardWithTagsList = listOf(
         CardWithTags(
-            emptyCard.copy(word = "Hello", meaning = "Oho"),
+            emptyCard.copy(word = "Hello", meaning = "Oho", level = 1),
             tags = tagList
         )
     )
@@ -139,7 +148,11 @@ fun BoxScreenBodyPreview() {
         cardWithTagList = cardWithTagsList
     )
     val boxWithTags = UiBoxWithTags(
-        box = BoxDetails().copy(name = "Box 456").toBox(),
+        box = BoxDetails().copy(
+            name = "Box 456",
+            topic = "Maschinenbau",
+            description = "Schreibebiung mit seeeehr langem Text"
+        ).toBox(),
         tagList = tagList
     )
     BoxScreenBody(

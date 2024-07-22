@@ -47,6 +47,9 @@ fun BoxScreenEditing(
     val remindersEnabled = boxUiState.boxDetails.reminders
 
     var expanded by remember { mutableStateOf(false) }
+    var validName by remember { mutableStateOf(true) }
+    var validTopic by remember { mutableStateOf(true) }
+
 
     fun onSwitchChanged() {
         if (!globalReminders) {
@@ -67,7 +70,11 @@ fun BoxScreenEditing(
         NameField(
             modifier = Modifier.fillMaxWidth(),
             boxUiState = boxUiState,
-            onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(name = it)) }
+            isError = !validName,
+            onValueChange = {
+                validName = true
+                updateBoxUiState(boxUiState.boxDetails.copy(name = it))
+            }
         )
         if (isLanguage) {
             LanguageDropDownMenu(
@@ -75,13 +82,21 @@ fun BoxScreenEditing(
                 boxUiState = boxUiState,
                 expanded = expanded,
                 changeExpanded = { expanded = !expanded },
-                onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(topic = it)) }
+                isError = !validTopic,
+                onValueChange = {
+                    validTopic = true
+                    updateBoxUiState(boxUiState.boxDetails.copy(topic = it))
+                }
             )
         } else {
             TopicField(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
-                onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(topic = it)) }
+                isError = !validTopic,
+                onValueChange = {
+                    validTopic = true
+                    updateBoxUiState(boxUiState.boxDetails.copy(topic = it))
+                }
             )
         }
 
@@ -115,8 +130,16 @@ fun BoxScreenEditing(
 
         Button(
             onClick = {
-                /* TODO: Only save valid entries -> BoxState.isValid */
-                onSave()
+                if (boxUiState.isValid) {
+                    onSave()
+                } else {
+                    if (!boxUiState.validName) {
+                        validName = false
+                    }
+                    if (!boxUiState.validTopic) {
+                        validTopic = false
+                    }
+                }
             }
         ) {
             Text(text = stringResource(R.string.save))
