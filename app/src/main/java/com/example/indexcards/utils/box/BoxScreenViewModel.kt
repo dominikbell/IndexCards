@@ -399,12 +399,13 @@ class BoxScreenViewModel(
     var colorUiState by mutableStateOf(UiColorState())
 
     fun setColor(color: String) {
-        colorUiState =
-            if (validateColor(color)) {
-                UiColorState(color = color)
-            } else {
-                UiColorState()
-            }
+        if (validateColor(color)) {
+            colorUiState = UiColorState(color = color)
+            setTagUiState(tagUiState.tagDetails.copy(color = color))
+        } else {
+            colorUiState = UiColorState()
+            setTagUiState(tagUiState.tagDetails.copy(color = ""))
+        }
     }
 
     private fun validateColor(color: String): Boolean {
@@ -464,11 +465,7 @@ class BoxScreenViewModel(
         }
     }
 
-    private fun validateTagInput(
-        newTagUiState: TagDetails = tagUiState.tagDetails
-    ): Boolean {
-        return with(newTagUiState) {
-            text.isNotBlank() && color.isNotBlank()
-        }
+    private fun validateTagInput(tagDetails: TagDetails): Boolean {
+        return (tagDetails.text.isNotBlank() && tagDetails.color.isNotBlank())
     }
 }
