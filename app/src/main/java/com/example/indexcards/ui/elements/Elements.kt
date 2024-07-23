@@ -131,6 +131,7 @@ fun MeaningField(
         } else {
             stringResource(R.string.backside)
         }
+
     OutlinedTextField(
         value = cardUiState.cardDetails.meaning,
         onValueChange = { onValueChange(it) },
