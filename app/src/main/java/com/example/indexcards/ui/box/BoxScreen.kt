@@ -21,6 +21,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
+import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.dialogs.CardDialog
@@ -33,6 +34,7 @@ import com.example.indexcards.ui.box.dialogs.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.box.emptyBox
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.toCardState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
@@ -55,6 +57,7 @@ fun BoxScreen(
     requestNotificationPermission: () -> Boolean = { false },
     requestRecordingPermission: () -> Boolean = { false },
     deleteAllMemos: (List<Card>) -> Unit = {},
+    saveFile: (ByteArray, String) -> Unit = { _, _ -> },
     scheduleNotification: (Int, String, Long) -> Unit = { _, _, _ -> },
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -93,6 +96,9 @@ fun BoxScreen(
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
 
+    val doneCollecting = boxScreenViewModel.doneCollectingData
+    val csvString = boxScreenViewModel.csvString
+
     val filteredCardWithTagList =
         if (levelSelected == -1) {
             if (tagSelected == emptyTag) {
@@ -111,6 +117,18 @@ fun BoxScreen(
         }
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
+
+    val fileName = "${boxWithTags.box.name}.csv"
+
+    LaunchedEffect(key1 = doneCollecting) {
+        if (doneCollecting) {
+            saveFile(csvString.toByteArray(Charsets.UTF_8), fileName)
+        }
+    }
+
+    fun exportBox() {
+        boxScreenViewModel.collectCSVString()
+    }
 
     LaunchedEffect(key1 = cardsWithTags.cardWithTagList.size) {
         boxScreenViewModel.setBiggestCardId()
@@ -191,7 +209,8 @@ fun BoxScreen(
                 trainingCounts = trainingCounts,
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
-                changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) }
+                changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
+                exportBox = { exportBox() }
             )
         },
 

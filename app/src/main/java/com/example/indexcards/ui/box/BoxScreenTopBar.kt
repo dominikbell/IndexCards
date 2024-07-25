@@ -53,6 +53,7 @@ fun BoxScreenTopBar(
     changeTrainingCounts: () -> Unit = {},
     changeTrainingDirection: () -> Unit = {},
     changeTrainingDirectionToValue: (Boolean) -> Unit = {},
+    exportBox: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val notImplementedText = stringResource(id = R.string.not_implemented)
@@ -117,9 +118,9 @@ fun BoxScreenTopBar(
         actions = {
             when (boxScreenState) {
                 BoxScreenState.VIEW -> {
-                    IconButton(onClick = {
-                        expanded = true
-                    }) {
+                    IconButton(
+                        onClick = { expanded = true }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = "Menu"
@@ -131,14 +132,16 @@ fun BoxScreenTopBar(
                         onDismissRequest = { expanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.edit_box))
-                            },
+                            text = { Text(text = stringResource(R.string.edit_box)) },
                             onClick = {
                                 updateEditUiStatus()
                                 expanded = false
                                 changeBoxScreenState(BoxScreenState.EDIT)
                             }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.export_box)) },
+                            onClick = { exportBox() }
                         )
                         DropdownMenuItem(
                             text = {
@@ -163,9 +166,7 @@ fun BoxScreenTopBar(
                             }
                         )
                         DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.train_all))
-                            },
+                            text = { Text(text = stringResource(R.string.train_all)) },
                             onClick = {
                                 expanded = false
                                 changeTrainingDirectionToValue(true)
@@ -173,9 +174,7 @@ fun BoxScreenTopBar(
                             }
                         )
                         DropdownMenuItem(
-                            text = {
-                                Text(text = stringResource(R.string.train_selection))
-                            },
+                            text = { Text(text = stringResource(R.string.train_selection)) },
                             onClick = {
                                 expanded = false
                                 changeTrainingDirectionToValue(true)

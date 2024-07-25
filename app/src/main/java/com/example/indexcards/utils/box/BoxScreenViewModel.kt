@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
+import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -467,5 +469,57 @@ class BoxScreenViewModel(
 
     private fun validateTagInput(tagDetails: TagDetails): Boolean {
         return (tagDetails.text.isNotBlank() && tagDetails.color.isNotBlank())
+    }
+
+    /** For exporting to a CSV file
+     * returns a string in which the first line holds the box name, topic, description, and tags (text and color)
+     * and in the following lines each one card, their meaning and their tags separated by a comma
+     * Warning: This only takes the first value emitted by the database, changes during
+     * the process are not taken into consideration */
+    var doneCollectingData by mutableStateOf(false)
+    var csvString by mutableStateOf("")
+
+    fun collectCSVString() {
+        viewModelScope.launch {
+            doneCollectingData = false
+            var res = ""
+
+            appRepository.getBoxWithTagsStream(boxId = boxId)
+                .filterNotNull()
+                .first()
+                .also { boxWithTags ->
+                    res += "Box:,"
+                    res += boxWithTags.box.name + ","
+                    res += boxWithTags.box.topic + ","
+                    res += boxWithTags.box.description + ","
+
+                    res += "\n"
+                    res += "Tags:,"
+
+                    boxWithTags.tags.forEach { tag ->
+                        res += tag.text + ","
+                        res += tag.color + ","
+                    }
+                }
+
+            res += "\n"
+
+            appRepository.getAllCardsWithTagsOfBoxStream(boxId = boxId)
+                .filterNotNull()
+                .first()
+                .forEach { cardWithTags ->
+                    res += cardWithTags.card.word + ","
+                    res += cardWithTags.card.meaning + ","
+                    res += cardWithTags.card.notes + ","
+                    cardWithTags.tags.forEach { tag ->
+                        res += tag.text + ","
+                    }
+
+                    res += "\n"
+                }
+
+            doneCollectingData = true
+            csvString = res
+        }
     }
 }

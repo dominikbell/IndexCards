@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +76,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val service = NotificationService(applicationContext)
+            var doneReading = false
+            var csvBytes = ByteArray(0)
 
             if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
                 service.closeNotification(boxId, level, 0)
@@ -143,6 +146,41 @@ class MainActivity : ComponentActivity() {
                 return true
             }
 
+            val createFileLauncher = rememberLauncherForActivityResult(
+                contract = CreateDocument(mimeType = "document/csv"),
+                onResult = { uri ->
+                    uri?.let {
+                        contentResolver.openOutputStream(uri).use {
+                            it?.write(csvBytes)
+                        }
+                    }
+                }
+            )
+
+            val readFileLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.OpenDocument(),
+                onResult = { uri ->
+                    doneReading = false
+                    uri?.let {
+                        contentResolver.openInputStream(uri).use { inputStream ->
+                            inputStream?.let {
+                                csvBytes = inputStream.readBytes()
+                                doneReading = true
+                            }
+                        }
+                    }
+                }
+            )
+
+            fun createFile(file: ByteArray, name: String) {
+                csvBytes = file
+                createFileLauncher.launch(name)
+            }
+
+            fun readFile() {
+                readFileLauncher.launch(arrayOf("document/csv"))
+            }
+
             fun deleteAllMemos(cards: List<Card>) {
                 cards.forEach {
                     val audioFile = File(
@@ -164,11 +202,13 @@ class MainActivity : ComponentActivity() {
                         homeScreenViewModel = homeScreenViewModel,
                         startBoxId = boxIdPass,
                         startLevel = levelPass,
-                        cancelAllNotifications = { cancelAllNotifications() },
                         hasNotificationPermission = hasNotificationPermission,
                         hasRecordingPermission = hasRecordingPermission,
+                        saveFile = { file, name -> createFile(file, name) },
                         requestNotificationPermission = { requestNotificationPermission() },
                         requestRecordingPermission = { requestRecordingPermission() },
+                        deleteAllMemos = { deleteAllMemos(it) },
+                        cancelAllNotifications = { cancelAllNotifications() },
                         scheduleNotification = { boxId, level, name, time ->
                             service.scheduleNotification(
                                 boxId = boxId, level = level,
@@ -181,4 +221,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-

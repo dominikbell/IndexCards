@@ -42,6 +42,7 @@ fun HomeScreen(
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     deleteAllMemos: (List<Card>) -> Unit = {},
+    readFile: () -> ByteArray = { ByteArray(0) },
     navigateToBoxScreen: (Long) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
@@ -160,12 +161,7 @@ fun HomeScreen(
                     modifier = modifier
                         .padding(innerPadding),
                     boxList = uiBoxList.boxList,
-                    onDelete = {
-                        homeScreenViewModel.viewModelScope.launch {
-                            homeScreenViewModel.setCurrentBox(it)
-                        }
-                        deleteBoxDialog = true
-                    },
+                    onDelete = { deleteBoxDialog = true },
                     navigateToBoxScreen = navigateToBoxScreen,
                 )
             }

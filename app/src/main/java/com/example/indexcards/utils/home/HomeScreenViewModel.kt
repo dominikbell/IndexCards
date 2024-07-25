@@ -3,6 +3,7 @@ package com.example.indexcards.utils.home
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.NUMBER_OF_LEVELS
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -93,8 +95,8 @@ class HomeScreenViewModel(
 
     /** Have this here to delete all the memos */
     val boxWithCards: StateFlow<UiBoxWithCards> =
-        currentBox.flatMapLatest {
-            when (it) {
+        currentBox.flatMapLatest { box ->
+            when (box) {
                 emptyBox -> flow {
                     emit(
                         UiBoxWithCards(
@@ -105,12 +107,12 @@ class HomeScreenViewModel(
                 }
 
                 else -> {
-                    appRepository.getBoxWithCardsStream(it.boxId)
+                    appRepository.getBoxWithCardsStream(box.boxId)
                         .filterNotNull()
-                        .map {
+                        .map { boxStream ->
                             UiBoxWithCards(
-                                box = it.box,
-                                cardList = it.cards
+                                box = boxStream.box,
+                                cardList = boxStream.cards
                             )
                         }
                 }
@@ -209,5 +211,4 @@ class HomeScreenViewModel(
     fun resetCurrentLevel() {
         currentLevel = -1
     }
-
 }
