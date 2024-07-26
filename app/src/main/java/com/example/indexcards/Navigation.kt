@@ -31,6 +31,7 @@ fun Navigation(
     hasRecordingPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     requestRecordingPermission: () -> Boolean = { false },
+    importBox: () -> Unit = {},
     saveFile: (ByteArray, String) -> Unit = { _, _ -> },
     deleteAllMemos: (List<Card>) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
@@ -63,6 +64,7 @@ fun Navigation(
                 cancelAllNotifications = cancelAllNotifications,
                 scheduleNotification = scheduleNotification,
                 homeScreenViewModel = homeScreenViewModel,
+                importBox = importBox,
             )
         }
         composable(

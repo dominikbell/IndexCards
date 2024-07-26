@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -15,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,8 +78,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val service = NotificationService(applicationContext)
-            var doneReading = false
+            var doneReading by remember { mutableStateOf(false) }
             var csvBytes = ByteArray(0)
+            var fileString by remember { mutableStateOf("") }
 
             if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
                 service.closeNotification(boxId, level, 0)
@@ -164,7 +167,11 @@ class MainActivity : ComponentActivity() {
                     uri?.let {
                         contentResolver.openInputStream(uri).use { inputStream ->
                             inputStream?.let {
-                                csvBytes = inputStream.readBytes()
+                                fileString = ""
+                                inputStream.bufferedReader(Charsets.UTF_8).forEachLine {
+                                    fileString += it
+                                    fileString += "\n"
+                                }
                                 doneReading = true
                             }
                         }
@@ -172,13 +179,19 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
-            fun createFile(file: ByteArray, name: String) {
+            fun saveFile(file: ByteArray, name: String) {
                 csvBytes = file
                 createFileLauncher.launch(name)
             }
 
-            fun readFile() {
-                readFileLauncher.launch(arrayOf("document/csv"))
+            fun importBox() {
+                readFileLauncher.launch(arrayOf("*/*"))
+            }
+
+            LaunchedEffect(key1 = doneReading) {
+                if (doneReading) {
+                    homeScreenViewModel.importBox(fileString)
+                }
             }
 
             fun deleteAllMemos(cards: List<Card>) {
@@ -204,7 +217,8 @@ class MainActivity : ComponentActivity() {
                         startLevel = levelPass,
                         hasNotificationPermission = hasNotificationPermission,
                         hasRecordingPermission = hasRecordingPermission,
-                        saveFile = { file, name -> createFile(file, name) },
+                        saveFile = { file, name -> saveFile(file, name) },
+                        importBox = { importBox() },
                         requestNotificationPermission = { requestNotificationPermission() },
                         requestRecordingPermission = { requestRecordingPermission() },
                         deleteAllMemos = { deleteAllMemos(it) },

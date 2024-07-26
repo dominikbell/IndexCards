@@ -1,5 +1,6 @@
 package com.example.indexcards.utils
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,14 +42,12 @@ open class AppViewModel(
     }
 
     fun updateBoxUiState(boxDetails: BoxDetails) {
-        viewModelScope.launch {
-            boxUiState = BoxState(
-                boxDetails = boxDetails,
-                isValid = validateInput(boxDetails),
-                validName = boxDetails.name.isNotBlank(),
-                validTopic = boxDetails.topic.isNotBlank(),
-            )
-        }
+        boxUiState = BoxState(
+            boxDetails = boxDetails,
+            isValid = validateInput(boxDetails),
+            validName = boxDetails.name.isNotBlank(),
+            validTopic = boxDetails.topic.isNotBlank(),
+        )
     }
 
     private fun validateInput(boxDetails: BoxDetails): Boolean {

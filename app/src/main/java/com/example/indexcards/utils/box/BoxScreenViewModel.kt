@@ -488,17 +488,17 @@ class BoxScreenViewModel(
                 .filterNotNull()
                 .first()
                 .also { boxWithTags ->
-                    res += "Box:,"
-                    res += boxWithTags.box.name + ","
-                    res += boxWithTags.box.topic + ","
-                    res += boxWithTags.box.description + ","
+                    res += "Box:;"
+                    res += boxWithTags.box.name + ";"
+                    res += boxWithTags.box.topic + ";"
+                    res += boxWithTags.box.description + ";"
 
                     res += "\n"
-                    res += "Tags:,"
+                    res += "Tags:;"
 
                     boxWithTags.tags.forEach { tag ->
-                        res += tag.text + ","
-                        res += tag.color + ","
+                        res += tag.text + ";"
+                        res += tag.color + ";"
                     }
                 }
 
@@ -508,11 +508,11 @@ class BoxScreenViewModel(
                 .filterNotNull()
                 .first()
                 .forEach { cardWithTags ->
-                    res += cardWithTags.card.word + ","
-                    res += cardWithTags.card.meaning + ","
-                    res += cardWithTags.card.notes + ","
+                    res += cardWithTags.card.word + ";"
+                    res += cardWithTags.card.meaning + ";"
+                    res += cardWithTags.card.notes + ";"
                     cardWithTags.tags.forEach { tag ->
-                        res += tag.text + ","
+                        res += tag.text + ";"
                     }
 
                     res += "\n"

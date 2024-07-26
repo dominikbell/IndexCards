@@ -1,12 +1,8 @@
 package com.example.indexcards.data
 
-import android.app.Application
-import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import java.io.File
-import kotlin.coroutines.coroutineContext
 
 class OfflineAppRepository(
     private val appDao: AppDao
@@ -78,6 +74,10 @@ class OfflineAppRepository(
 
     override fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards> =
         appDao.getTagWithCards(tagId)
+
+    override suspend fun getBiggestBoxId(): Long {
+        return appDao.getBiggestBoxId() ?: -1
+    }
 
     override suspend fun getBiggestCardId(): Long {
         return appDao.getBiggestCardId() ?: -1

@@ -1,26 +1,34 @@
 package com.example.indexcards.utils.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
-import com.example.indexcards.data.BoxWithCards
+import com.example.indexcards.data.Card
+import com.example.indexcards.data.Tag
+import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UserPreferences
+import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.UiBoxWithCards
+import com.example.indexcards.utils.box.UiBoxWithTags
+import com.example.indexcards.utils.box.UiCardsWithTags
 import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.box.toBox
+import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.tag.TagState
+import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -210,5 +218,145 @@ class HomeScreenViewModel(
 
     fun resetCurrentLevel() {
         currentLevel = -1
+    }
+
+
+    /** functionality for importing a box from a CSV */
+    var loadingFromCsv by mutableStateOf(false)
+    var loadingSuccessful by mutableStateOf(true)
+
+    fun importBox(fileString: String) {
+        viewModelScope.launch {
+            loadingFromCsv = true
+
+            val newBoxId = appRepository.getBiggestBoxId() + 1
+            val newTagId = appRepository.getBiggestTagId() + 1
+            val newCardId = appRepository.getBiggestCardId() + 1
+
+            val splitText = fileString.split("\n")
+            val tagList = mutableListOf<Tag>()
+            val cardList = mutableListOf<Card>()
+            val cardTagCrossRefs = mutableListOf<TagCardCrossRef>()
+
+            splitText.forEachIndexed { ind, line ->
+                val splitLine = line.split(";")
+
+                when (ind) {
+                    /** Box */
+                    0 -> {
+                        splitLine.forEachIndexed { cellInd, cell ->
+                            when (cellInd) {
+                                0 -> {}
+                                1 -> {
+                                    updateBoxUiState(
+                                        boxDetails = boxUiState.boxDetails.copy(name = cell)
+                                    )
+                                }
+
+                                2 -> {
+                                    updateBoxUiState(
+                                        boxDetails = boxUiState.boxDetails.copy(topic = cell)
+                                    )
+                                }
+
+                                3 -> {
+                                    updateBoxUiState(
+                                        boxDetails = boxUiState.boxDetails.copy(description = cell)
+                                    )
+                                }
+
+                                else -> {}
+                            }
+                        }
+                    }
+
+                    /** TagList */
+                    1 -> {
+                        var newTag = emptyTag
+
+                        splitLine.forEachIndexed { cellInd, cell ->
+
+                            when (cellInd) {
+                                0 -> {}
+
+                                else -> {
+                                    if (cell.isNotBlank()) {
+                                        if (cellInd % 2 == 1) {
+                                            newTag =
+                                                emptyTag.copy(
+                                                    tagId = newTagId + cellInd.toLong(),
+                                                    boxId = newBoxId,
+                                                    text = cell
+                                                )
+                                        }
+                                        if (cellInd % 2 == 0) {
+                                            newTag = newTag.copy(color = cell)
+                                            tagList.add(newTag)
+                                            newTag = emptyTag
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    /** Card */
+                    else -> {
+                        var newCard = emptyCard
+                        val cardId = newCardId + ind.toLong()
+
+                        splitLine.forEachIndexed { cellInd, cell ->
+
+                            when (cellInd) {
+                                0 -> {
+                                    newCard =
+                                        newCard.copy(cardId = cardId, boxId = newBoxId, word = cell)
+                                }
+
+                                1 -> {
+                                    newCard = newCard.copy(meaning = cell)
+                                }
+
+                                2 -> {
+                                    newCard = newCard.copy(notes = cell)
+                                    cardList.add(newCard)
+                                    newCard = emptyCard
+                                }
+
+                                else -> {
+                                    if (cell.isNotBlank()) {
+                                        val tagId = tagList.first { tag -> tag.text == cell }.tagId
+                                        cardTagCrossRefs.add(
+                                            TagCardCrossRef(
+                                                tagId = tagId,
+                                                cardId = cardId
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            updateBoxUiState(boxUiState.boxDetails.copy(id = newBoxId))
+            saveBox()
+
+            tagList.forEach {
+                appRepository.insertTag(it)
+            }
+
+            cardList.forEach {
+                appRepository.upsertCard(it)
+            }
+
+            cardTagCrossRefs.forEach {
+                appRepository.upsertTagCardCrossRef(it)
+            }
+
+            loadingFromCsv = false
+            loadingSuccessful = true
+        }
     }
 }
