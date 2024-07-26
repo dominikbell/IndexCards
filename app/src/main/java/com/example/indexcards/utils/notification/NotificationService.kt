@@ -1,5 +1,6 @@
 package com.example.indexcards.utils.notification
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -92,7 +93,13 @@ class NotificationService(
         manager.notify(intentId, notification)
     }
 
-    fun scheduleNotification(boxId: Long = -1, level: Int = -1, boxName: String = "", time: Long) {
+    fun scheduleNotification(
+        boxId: Long = -1,
+        level: Int = -1,
+        boxName: String = "",
+        triggerTime: Long,
+        repeatingTime: Long,
+    ) {
 
         if (boxId != (-1).toLong() && level != -1) {
             val intent = Intent(context, NotificationReceiver::class.java)
@@ -110,13 +117,12 @@ class NotificationService(
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-            alarmManager.setAndAllowWhileIdle(
+            alarmManager.setRepeating(
                 AlarmManager.RTC_WAKEUP,
-                time,
+                triggerTime,
+                repeatingTime,
                 pendingIntent
             )
-//
-//            val isActive = (PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_NO_CREATE) != null)
         }
     }
 

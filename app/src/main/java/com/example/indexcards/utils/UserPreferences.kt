@@ -75,24 +75,6 @@ class UserPreferences(
         }
     }
 
-    suspend fun saveNewPreferences(
-        userName: String,
-        globalReminders: Boolean,
-        reminderIntervals: List<Pair<Int, String>>,
-        reminderTime: Pair<Int, Int>
-    ) {
-        dataStore.edit { preferences ->
-            preferences[USER_NAME] = userName
-            preferences[GLOBAL_REMINDERS] = globalReminders
-            (0..<NUMBER_OF_LEVELS).map { k ->
-                preferences[REMINDER_INTERVALS[k].first] = reminderIntervals[k].first
-                preferences[REMINDER_INTERVALS[k].second] = reminderIntervals[k].second
-            }
-            preferences[REMINDER_TIME.first] = reminderTime.first
-            preferences[REMINDER_TIME.second] = reminderTime.second
-        }
-    }
-
     val currentUserName: Flow<String> =
         dataStore.data.map { preferences ->
             preferences[USER_NAME] ?: DefaultPreferences.USER_NAME

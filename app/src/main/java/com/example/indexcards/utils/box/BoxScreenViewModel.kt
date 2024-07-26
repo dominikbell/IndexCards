@@ -126,6 +126,17 @@ class BoxScreenViewModel(
         levelSelected.update { -1 }
     }
 
+    val searchTerm = MutableStateFlow("")
+
+    fun setSearchTerm(newTerm: String) {
+        searchTerm.update { newTerm }
+    }
+
+    fun resetSearchTerm() {
+        searchTerm.update { "" }
+    }
+
+
 
     /** tagSelected
      * used for filtering the cards by tag

@@ -34,6 +34,7 @@ import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
+import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
 import kotlinx.coroutines.launch
 
 @Composable
@@ -45,7 +46,7 @@ fun HomeScreen(
     importBox: () -> Unit = {},
     navigateToBoxScreen: (Long) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
-    scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
+    scheduleNotification: (Long, Int, String, Long, Long) -> Unit = { _, _, _, _, _ -> },
     homeScreenViewModel: HomeScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -111,7 +112,11 @@ fun HomeScreen(
             reminderTime = reminderTime.value,
             level = level,
         )
-        scheduleNotification(boxId, level, boxName, time)
+        val period = getTimeIntervalFromReminderIntervals(
+            reminderIntervals = reminderIntervals.value,
+            level = level,
+        )
+        scheduleNotification(boxId, level, boxName, time, period)
     }
 
     fun setAllReminders() {

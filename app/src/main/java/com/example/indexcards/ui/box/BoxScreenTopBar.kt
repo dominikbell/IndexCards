@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -54,6 +55,7 @@ fun BoxScreenTopBar(
     changeTrainingDirection: () -> Unit = {},
     changeTrainingDirectionToValue: (Boolean) -> Unit = {},
     exportBox: () -> Unit = {},
+    showSearch: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val notImplementedText = stringResource(id = R.string.not_implemented)
@@ -140,8 +142,31 @@ fun BoxScreenTopBar(
                             }
                         )
                         DropdownMenuItem(
+                            text = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(text = stringResource(R.string.search))
+
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "search"
+                                    )
+                                }
+                            },
+                            onClick = {
+                                expanded = false
+                                showSearch()
+                            }
+                        )
+                        DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.export_box)) },
-                            onClick = { exportBox() }
+                            onClick = {
+                                expanded = false
+                                exportBox()
+                            }
                         )
                         DropdownMenuItem(
                             text = {
@@ -160,6 +185,7 @@ fun BoxScreenTopBar(
                                 }
                             },
                             onClick = {
+                                expanded = false
                                 /* TODO: implement sorting */
                                 Toast.makeText(context, notImplementedText, Toast.LENGTH_SHORT)
                                     .show()

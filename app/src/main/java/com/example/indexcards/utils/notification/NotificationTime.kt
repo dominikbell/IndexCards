@@ -38,30 +38,60 @@ fun getTimeInTheFuture(
         .toEpochMilli()
 }
 
-/** Get time in epoch milliseconds of a level from reminderIntervals at reminderTime */
-fun getTimeFromReminderSettings(
+fun getMonthsWeeksDays(
     reminderIntervals: List<Pair<Int, String>>,
-    reminderTime: Pair<Int, Int>,
-    level: Int
-): Long {
+    level: Int,
+): Triple<Int, Int, Int> {
     val months =
         if (reminderIntervals[level].second == "m") {
             reminderIntervals[level].first
         } else {
             0
         }
+
     val weeks =
         if (reminderIntervals[level].second == "w") {
             reminderIntervals[level].first
         } else {
             0
         }
+
     val days =
         if (reminderIntervals[level].second == "d") {
             reminderIntervals[level].first
         } else {
             0
         }
+
+    return Triple(months, weeks, days)
+}
+
+/** Get time interval in epoch milliseconds of a level from reminderInterval */
+fun getTimeIntervalFromReminderIntervals(
+    reminderIntervals: List<Pair<Int, String>>,
+    level: Int,
+): Long {
+    val times = getMonthsWeeksDays(reminderIntervals = reminderIntervals, level = level)
+
+    val months = times.first
+    val weeks = times.second
+    val days = times.third
+
+    return getTimeInTheFuture(months = months, weeks = weeks, days = days) -
+            ZonedDateTime.now().toInstant().toEpochMilli()
+}
+
+/** Get time in epoch milliseconds of a level from reminderIntervals at reminderTime */
+fun getTimeFromReminderSettings(
+    reminderIntervals: List<Pair<Int, String>>,
+    reminderTime: Pair<Int, Int>,
+    level: Int,
+): Long {
+    val times = getMonthsWeeksDays(reminderIntervals = reminderIntervals, level = level)
+
+    val months = times.first
+    val weeks = times.second
+    val days = times.third
 
     return if (reminderTime.first == -1) {
         getTimeInTheFuture(months = months, weeks = weeks, days = days)

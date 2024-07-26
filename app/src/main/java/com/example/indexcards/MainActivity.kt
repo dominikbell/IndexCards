@@ -238,10 +238,13 @@ class MainActivity : ComponentActivity() {
                         requestRecordingPermission = { requestRecordingPermission() },
                         deleteAllMemos = { deleteAllMemos(it) },
                         cancelAllNotifications = { cancelAllNotifications() },
-                        scheduleNotification = { boxId, level, name, time ->
+                        cancelNotification = { boxId, level ->
+                            service.closeNotification(boxId, level, 0)
+                        },
+                        scheduleNotification = { boxId, level, name, trigger, repeat ->
                             service.scheduleNotification(
-                                boxId = boxId, level = level,
-                                boxName = name, time = time
+                                boxId = boxId, level = level, boxName = name,
+                                triggerTime = trigger, repeatingTime = repeat
                             )
                         },
                     )
