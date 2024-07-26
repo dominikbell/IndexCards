@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.toLowerCase
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,6 +45,7 @@ import com.example.indexcards.utils.tag.toColor
 import com.example.indexcards.utils.tag.toTagDetails
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Locale
 
 @Composable
 fun BoxScreen(
@@ -103,7 +105,10 @@ fun BoxScreen(
 
     val filteredCardWithTagList =
         cardsWithTags.cardWithTagList.filter {
-            (it.card.word.contains(searchTerm) || it.card.meaning.contains(searchTerm) || searchTerm.isBlank()) &&
+            (it.card.word.lowercase(Locale.ROOT).contains(searchTerm.lowercase(Locale.ROOT)) ||
+                    it.card.meaning.lowercase(Locale.ROOT)
+                        .contains(searchTerm.lowercase(Locale.ROOT)) ||
+                    searchTerm.isBlank()) &&
                     (it.card.level == levelSelected || levelSelected == -1) &&
                     (it.tags.contains(tagSelected) || tagSelected == emptyTag)
         }
