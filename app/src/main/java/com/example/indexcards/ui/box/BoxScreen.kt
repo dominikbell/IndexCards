@@ -55,6 +55,7 @@ fun BoxScreen(
     requestNotificationPermission: () -> Boolean = { false },
     requestRecordingPermission: () -> Boolean = { false },
     deleteAllMemos: (List<Card>) -> Unit = {},
+    saveFile: (ByteArray, String) -> Unit = { _, _ -> },
     scheduleNotification: (Int, String, Long) -> Unit = { _, _, _ -> },
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
@@ -93,6 +94,9 @@ fun BoxScreen(
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
 
+    val doneCollecting = boxScreenViewModel.doneCollectingData
+    val csvString = boxScreenViewModel.csvString
+
     val filteredCardWithTagList =
         if (levelSelected == -1) {
             if (tagSelected == emptyTag) {
@@ -111,6 +115,18 @@ fun BoxScreen(
         }
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
+
+    val fileName = "${boxWithTags.box.name}.csv"
+
+    LaunchedEffect(key1 = doneCollecting) {
+        if (doneCollecting) {
+            saveFile(csvString.toByteArray(Charsets.UTF_8), fileName)
+        }
+    }
+
+    fun exportBox() {
+        boxScreenViewModel.collectCSVString()
+    }
 
     LaunchedEffect(key1 = cardsWithTags.cardWithTagList.size) {
         boxScreenViewModel.setBiggestCardId()
@@ -191,7 +207,8 @@ fun BoxScreen(
                 trainingCounts = trainingCounts,
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
-                changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) }
+                changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
+                exportBox = { exportBox() }
             )
         },
 

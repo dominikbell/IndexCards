@@ -19,6 +19,7 @@ import com.example.indexcards.ui.home.HomeScreen
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.home.HomeScreenViewModel
+import java.io.File
 
 @Composable
 fun Navigation(
@@ -30,6 +31,8 @@ fun Navigation(
     hasRecordingPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     requestRecordingPermission: () -> Boolean = { false },
+    importBox: () -> Unit = {},
+    saveFile: (ByteArray, String) -> Unit = { _, _ -> },
     deleteAllMemos: (List<Card>) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
@@ -61,6 +64,7 @@ fun Navigation(
                 cancelAllNotifications = cancelAllNotifications,
                 scheduleNotification = scheduleNotification,
                 homeScreenViewModel = homeScreenViewModel,
+                importBox = importBox,
             )
         }
         composable(
@@ -93,6 +97,7 @@ fun Navigation(
                 requestRecordingPermission = { requestRecordingPermission() },
                 deleteAllMemos = deleteAllMemos,
                 scheduleNotification = { lvl, name, time -> scheduleNotification(boxId, lvl, name, time) },
+                saveFile = saveFile,
             )
         }
     }

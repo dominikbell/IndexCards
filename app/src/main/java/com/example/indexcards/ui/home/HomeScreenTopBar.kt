@@ -33,6 +33,7 @@ fun HomeScreenTopBar(
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
     showAboutApp: () -> Unit = {},
+    importBox: () -> Unit = {},
 ) {
     when (homeScreenState) {
         HomeScreenState.MAIN -> {
@@ -40,7 +41,8 @@ fun HomeScreenTopBar(
                 modifier = modifier,
                 showAboutApp = showAboutApp,
                 goToSettings = goToSettings,
-                goToStatistics = goToStatistics
+                goToStatistics = goToStatistics,
+                importBox = importBox,
             )
         }
 
@@ -121,6 +123,7 @@ fun MainScreenTopBar(
     showAboutApp: () -> Unit = {},
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
+    importBox: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -138,9 +141,8 @@ fun MainScreenTopBar(
         },
         actions = {
             IconButton(
-                onClick = {
-                    expanded = true
-                }) {
+                onClick = { expanded = true }
+            ) {
                 Icon(
                     imageVector = Icons.Filled.MoreVert,
                     contentDescription = "Menu"
@@ -153,9 +155,7 @@ fun MainScreenTopBar(
                 modifier = modifier
             ) {
                 DropdownMenuItem(
-                    text = {
-                        Text(text = stringResource(R.string.settings))
-                    },
+                    text = { Text(text = stringResource(R.string.settings)) },
                     onClick = {
                         expanded = false
                         goToSettings()
@@ -163,9 +163,7 @@ fun MainScreenTopBar(
                 )
 
                 DropdownMenuItem(
-                    text = {
-                        Text(text = stringResource(R.string.statistics))
-                    },
+                    text = { Text(text = stringResource(R.string.statistics)) },
                     onClick = {
                         expanded = false
                         goToStatistics()
@@ -173,9 +171,15 @@ fun MainScreenTopBar(
                 )
 
                 DropdownMenuItem(
-                    text = {
-                        Text(text = stringResource(R.string.about_app))
-                    },
+                    text = { Text(text = stringResource(R.string.import_box)) },
+                    onClick = {
+                        expanded = false
+                        importBox()
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.about_app)) },
                     onClick = {
                         expanded = false
                         showAboutApp()

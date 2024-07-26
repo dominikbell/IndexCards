@@ -27,6 +27,9 @@
     <string name="about_app_text">Entwickelt in Kotlin von Dominik Bell</string>
     <string name="nr_card">Anzahl der Karten in diesem Kasten</string>
     <string name="edit_box">Karteikasten bearbeiten</string>
+    <string name="export_box">Zu CSV exportieren</string>
+    <string name="import_box">Aus CSV importieren</string>
+    <string name="must_be_csv">Importieren ist nur aus .csv Dateien möglich!</string>
     <string name="click_to_add_card">Drücke auf \'+\', um eine neue Karte zu diesem Karteikasten hinzuzufügen</string>
     <string name="new_tag">Neues Stichwort</string>
     <string name="new_tag_short">Neu</string>

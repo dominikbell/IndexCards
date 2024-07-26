@@ -42,6 +42,7 @@ fun HomeScreen(
     hasNotificationPermission: Boolean = false,
     requestNotificationPermission: () -> Boolean = { false },
     deleteAllMemos: (List<Card>) -> Unit = {},
+    importBox: () -> Unit = {},
     navigateToBoxScreen: (Long) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
@@ -140,6 +141,7 @@ fun HomeScreen(
                 goToSettings = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS) },
                 goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
                 showAboutApp = { showAboutApp = true },
+                importBox = importBox,
             )
         },
 
@@ -161,9 +163,7 @@ fun HomeScreen(
                         .padding(innerPadding),
                     boxList = uiBoxList.boxList,
                     onDelete = {
-                        homeScreenViewModel.viewModelScope.launch {
-                            homeScreenViewModel.setCurrentBox(it)
-                        }
+                        homeScreenViewModel.setCurrentBox(it)
                         deleteBoxDialog = true
                     },
                     navigateToBoxScreen = navigateToBoxScreen,
@@ -215,6 +215,7 @@ fun HomeScreen(
 
     if (deleteBoxDialog) {
         DeleteBoxDialog(
+            boxToBeDeleted = currentBox,
             onDismiss = {
                 deleteBoxDialog = false
                 homeScreenViewModel.resetCurrentBox()
@@ -225,7 +226,6 @@ fun HomeScreen(
                 homeScreenViewModel.deleteBox(currentBox.boxId)
                 homeScreenViewModel.resetCurrentBox()
             },
-            boxToBeDeleted = currentBox
         )
     }
 
@@ -288,6 +288,7 @@ fun HomeScreen(
         )
     }
 }
+
 
 @Preview
 @Composable

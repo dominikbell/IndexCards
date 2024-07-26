@@ -6,20 +6,24 @@ import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,7 +41,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -75,6 +78,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val service = NotificationService(applicationContext)
+            var doneReading by remember { mutableStateOf(false) }
+            var csvBytes = ByteArray(0)
+            var fileString by remember { mutableStateOf("") }
+            var isCSVFile by remember { mutableStateOf(false) }
+            val mustBeCSVToast = stringResource(id = R.string.must_be_csv)
 
             if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
                 service.closeNotification(boxId, level, 0)
@@ -143,6 +151,64 @@ class MainActivity : ComponentActivity() {
                 return true
             }
 
+            val createFileLauncher = rememberLauncherForActivityResult(
+                contract = CreateDocument(mimeType = "document/csv"),
+                onResult = { uri ->
+                    uri?.let {
+                        contentResolver.openOutputStream(uri).use {
+                            it?.write(csvBytes)
+                        }
+                    }
+                }
+            )
+
+            val readFileLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.OpenDocument(),
+                onResult = { uri ->
+                    doneReading = false
+                    uri?.let {
+                        contentResolver.query(uri, null, null, null, null)
+                            ?.use { cursor ->
+                                val fileNameIndex =
+                                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                                cursor.moveToFirst()
+                                val fileName = cursor.getString(fileNameIndex)
+                                isCSVFile = fileName.split(".").last() == "csv"
+                            }
+                        contentResolver.openInputStream(uri).use { inputStream ->
+                            inputStream?.let {
+                                fileString = ""
+                                inputStream.bufferedReader(Charsets.UTF_8).forEachLine {
+                                    fileString += it
+                                    fileString += "\n"
+                                }
+                                doneReading = true
+                            }
+                        }
+                    }
+                }
+            )
+
+            fun saveFile(file: ByteArray, name: String) {
+                csvBytes = file
+                createFileLauncher.launch(name)
+            }
+
+            fun importBox() {
+                readFileLauncher.launch(arrayOf("*/*"))
+            }
+
+            LaunchedEffect(key1 = doneReading) {
+                if (doneReading) {
+                    if (isCSVFile) {
+                        homeScreenViewModel.importBox(fileString)
+                        isCSVFile = false
+                    } else {
+                        Toast.makeText(context, mustBeCSVToast, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
             fun deleteAllMemos(cards: List<Card>) {
                 cards.forEach {
                     val audioFile = File(
@@ -164,11 +230,14 @@ class MainActivity : ComponentActivity() {
                         homeScreenViewModel = homeScreenViewModel,
                         startBoxId = boxIdPass,
                         startLevel = levelPass,
-                        cancelAllNotifications = { cancelAllNotifications() },
                         hasNotificationPermission = hasNotificationPermission,
                         hasRecordingPermission = hasRecordingPermission,
+                        saveFile = { file, name -> saveFile(file, name) },
+                        importBox = { importBox() },
                         requestNotificationPermission = { requestNotificationPermission() },
                         requestRecordingPermission = { requestRecordingPermission() },
+                        deleteAllMemos = { deleteAllMemos(it) },
+                        cancelAllNotifications = { cancelAllNotifications() },
                         scheduleNotification = { boxId, level, name, time ->
                             service.scheduleNotification(
                                 boxId = boxId, level = level,
@@ -181,4 +250,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
