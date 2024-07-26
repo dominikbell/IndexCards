@@ -484,6 +484,7 @@ class BoxScreenViewModel(
             doneCollectingData = false
             var res = ""
 
+            /** Write Box and tags */
             appRepository.getBoxWithTagsStream(boxId = boxId)
                 .filterNotNull()
                 .first()
@@ -504,6 +505,7 @@ class BoxScreenViewModel(
 
             res += "\n"
 
+            /** Write Cards */
             appRepository.getAllCardsWithTagsOfBoxStream(boxId = boxId)
                 .filterNotNull()
                 .first()

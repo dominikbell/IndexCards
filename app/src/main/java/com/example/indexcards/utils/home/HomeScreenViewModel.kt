@@ -1,6 +1,5 @@
 package com.example.indexcards.utils.home
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,14 +14,9 @@ import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.box.BoxState
 import com.example.indexcards.utils.box.UiBoxWithCards
-import com.example.indexcards.utils.box.UiBoxWithTags
-import com.example.indexcards.utils.box.UiCardsWithTags
 import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.box.toBox
 import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.tag.TagState
 import com.example.indexcards.utils.tag.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +29,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 
 /**
  * ViewModel for the HomeScreen
@@ -222,13 +215,8 @@ class HomeScreenViewModel(
 
 
     /** functionality for importing a box from a CSV */
-    var loadingFromCsv by mutableStateOf(false)
-    var loadingSuccessful by mutableStateOf(true)
-
     fun importBox(fileString: String) {
         viewModelScope.launch {
-            loadingFromCsv = true
-
             val newBoxId = appRepository.getBiggestBoxId() + 1
             val newTagId = appRepository.getBiggestTagId() + 1
             val newCardId = appRepository.getBiggestCardId() + 1
@@ -310,7 +298,12 @@ class HomeScreenViewModel(
                             when (cellInd) {
                                 0 -> {
                                     newCard =
-                                        newCard.copy(cardId = cardId, boxId = newBoxId, word = cell)
+                                        newCard.copy(
+                                            cardId = cardId,
+                                            boxId = newBoxId,
+                                            word = cell,
+                                            level = 0
+                                        )
                                 }
 
                                 1 -> {
@@ -341,22 +334,22 @@ class HomeScreenViewModel(
             }
 
             updateBoxUiState(boxUiState.boxDetails.copy(id = newBoxId))
-            saveBox()
 
-            tagList.forEach {
-                appRepository.insertTag(it)
+            if (boxUiState.isValid) {
+                saveBox()
+
+                tagList.forEach {
+                    appRepository.insertTag(it)
+                }
+
+                cardList.forEach {
+                    appRepository.upsertCard(it)
+                }
+
+                cardTagCrossRefs.forEach {
+                    appRepository.upsertTagCardCrossRef(it)
+                }
             }
-
-            cardList.forEach {
-                appRepository.upsertCard(it)
-            }
-
-            cardTagCrossRefs.forEach {
-                appRepository.upsertTagCardCrossRef(it)
-            }
-
-            loadingFromCsv = false
-            loadingSuccessful = true
         }
     }
 }

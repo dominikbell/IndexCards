@@ -21,7 +21,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
-import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.dialogs.CardDialog
@@ -34,7 +33,6 @@ import com.example.indexcards.ui.box.dialogs.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.box.emptyBox
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.toCardState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings

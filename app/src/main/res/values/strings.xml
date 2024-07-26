@@ -28,6 +28,7 @@
     <string name="edit_box">Edit Box Details</string>
     <string name="export_box">Export Box to CSV</string>
     <string name="import_box">Import Box from CSV</string>
+    <string name="must_be_csv">Importing is only possible from a .csv file!</string>
     <string name="click_to_add_card">Click \'+\' to add a new card to this box</string>
     <string name="new_tag">New Tag</string>
     <string name="new_tag_short">New</string>
