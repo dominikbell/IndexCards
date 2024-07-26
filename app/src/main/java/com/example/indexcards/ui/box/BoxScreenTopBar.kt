@@ -141,7 +141,10 @@ fun BoxScreenTopBar(
                         )
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.export_box)) },
-                            onClick = { exportBox() }
+                            onClick = {
+                                expanded = false
+                                exportBox()
+                            }
                         )
                         DropdownMenuItem(
                             text = {

@@ -36,6 +36,7 @@ import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.box.toBoxDetails
 import com.example.indexcards.utils.card.toCardState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
+import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
 import com.example.indexcards.utils.tag.emptyTag
@@ -56,7 +57,8 @@ fun BoxScreen(
     requestRecordingPermission: () -> Boolean = { false },
     deleteAllMemos: (List<Card>) -> Unit = {},
     saveFile: (ByteArray, String) -> Unit = { _, _ -> },
-    scheduleNotification: (Int, String, Long) -> Unit = { _, _, _ -> },
+    cancelNotification: (Int) -> Unit = {},
+    scheduleNotification: (Int, String, Long, Long) -> Unit = { _, _, _, _ -> },
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -156,7 +158,11 @@ fun BoxScreen(
             reminderTime = reminderTime.value,
             level = level
         )
-        scheduleNotification(level, boxUiState.boxDetails.name, time)
+        val period = getTimeIntervalFromReminderIntervals(
+            reminderIntervals = reminderIntervals.value,
+            level = level,
+        )
+        scheduleNotification(level, boxUiState.boxDetails.name, time, period)
     }
 
     fun setAllReminders() {
@@ -305,6 +311,9 @@ fun BoxScreen(
                             boxScreenViewModel.viewModelScope.launch {
                                 val nextLevel = levelSelected + 1
                                 val previousLevel = levelSelected - 1
+                                if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(levelSelected) == 0) {
+                                    cancelNotification(levelSelected)
+                                }
                                 if (levelSelected != 4 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(
                                         nextLevel
                                     ) != 0

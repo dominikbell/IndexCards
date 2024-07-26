@@ -35,7 +35,8 @@ fun Navigation(
     saveFile: (ByteArray, String) -> Unit = { _, _ -> },
     deleteAllMemos: (List<Card>) -> Unit = {},
     cancelAllNotifications: () -> Unit = {},
-    scheduleNotification: (Long, Int, String, Long) -> Unit = { _, _, _, _ -> },
+    cancelNotification: (Long, Int) -> Unit = { _, _ -> },
+    scheduleNotification: (Long, Int, String, Long, Long) -> Unit = { _, _, _, _, _ -> },
 ) {
     var currentBoxId by remember { mutableLongStateOf(startBoxId) }
 
@@ -96,7 +97,10 @@ fun Navigation(
                 requestNotificationPermission = { requestNotificationPermission() },
                 requestRecordingPermission = { requestRecordingPermission() },
                 deleteAllMemos = deleteAllMemos,
-                scheduleNotification = { lvl, name, time -> scheduleNotification(boxId, lvl, name, time) },
+                cancelNotification = { lvl -> cancelNotification(boxId, lvl) },
+                scheduleNotification = { lvl, name, trigger, repeat ->
+                    scheduleNotification(boxId, lvl, name, trigger, repeat)
+                },
                 saveFile = saveFile,
             )
         }
