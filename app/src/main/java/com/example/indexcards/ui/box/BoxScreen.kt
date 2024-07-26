@@ -75,6 +75,7 @@ fun BoxScreen(
     val newCardId = boxScreenViewModel.newCardId
     val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
     val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
+    val searchTerm by boxScreenViewModel.searchTerm.collectAsState()
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
     val trainingDirection by boxScreenViewModel.trainingDirection.collectAsState()
     val boxWithTags by boxScreenViewModel.uiBoxWithTags.collectAsState()
@@ -95,29 +96,23 @@ fun BoxScreen(
     var newTag by remember { mutableStateOf(true) }
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(false) }
 
     val doneCollecting = boxScreenViewModel.doneCollectingData
     val csvString = boxScreenViewModel.csvString
 
     val filteredCardWithTagList =
-        if (levelSelected == -1) {
-            if (tagSelected == emptyTag) {
-                cardsWithTags.cardWithTagList
-            } else {
-                cardsWithTags.cardWithTagList.filter { it.tags.contains(tagSelected) }
-            }
-        } else {
-            if (tagSelected == emptyTag) {
-                cardsWithTags.cardWithTagList.filter { it.card.level == levelSelected }
-            } else {
-                cardsWithTags.cardWithTagList.filter {
-                    it.card.level == levelSelected && it.tags.contains(tagSelected)
-                }
-            }
+        cardsWithTags.cardWithTagList.filter {
+            (it.card.word.contains(searchTerm) || it.card.meaning.contains(searchTerm) || searchTerm.isBlank()) &&
+                    (it.card.level == levelSelected || levelSelected == -1) &&
+                    (it.tags.contains(tagSelected) || tagSelected == emptyTag)
         }
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
 
+    /** Stuff for the voice memos */
+    val recorder by lazy { AndroidAudioRecorder(applicationContext) }
+    val player by lazy { AndroidAudioPlayer(applicationContext) }
     val fileName = "${boxWithTags.box.name}.csv"
 
     LaunchedEffect(key1 = doneCollecting) {
@@ -133,10 +128,6 @@ fun BoxScreen(
     LaunchedEffect(key1 = cardsWithTags.cardWithTagList.size) {
         boxScreenViewModel.setBiggestCardId()
     }
-
-    /** Stuff for the voice memos */
-    val recorder by lazy { AndroidAudioRecorder(applicationContext) }
-    val player by lazy { AndroidAudioPlayer(applicationContext) }
 
     LaunchedEffect(key1 = startLevel) {
         if (startLevel != -1) {
@@ -214,7 +205,8 @@ fun BoxScreen(
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
                 changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
-                exportBox = { exportBox() }
+                exportBox = { exportBox() },
+                showSearch = { isSearching = true }
             )
         },
 
@@ -258,6 +250,8 @@ fun BoxScreen(
                     showNewTagDialog = { showNewTagDialog() },
                     onTagLongClick = { showEditTagDialog(it) },
                     levelSelected = levelSelected,
+                    isSearching = isSearching,
+                    searchText = searchTerm,
                     selectLevel = { boxScreenViewModel.setLevelSelected(it) },
                     setTagSortedBy = { boxScreenViewModel.setTagSelected(it) },
                     resetTagSortedBy = { boxScreenViewModel.resetTagSelected() },
@@ -265,6 +259,11 @@ fun BoxScreen(
                     cardsWithTags = cardsWithTags,
                     tagWithCards = tagWithCards,
                     filteredCardWithTagList = filteredCardWithTagList,
+                    onCloseSearch = {
+                        isSearching = false
+                        boxScreenViewModel.resetSearchTerm()
+                    },
+                    updateSearchText = { boxScreenViewModel.setSearchTerm(it) }
                 )
             }
 
