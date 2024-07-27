@@ -1,4 +1,4 @@
-package com.example.indexcards.utils.box
+package com.example.indexcards.utils.state
 
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card

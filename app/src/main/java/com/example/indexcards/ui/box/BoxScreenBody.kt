@@ -31,13 +31,13 @@ import com.example.indexcards.data.Tag
 import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.elements.NewTagButton
-import com.example.indexcards.utils.box.BoxDetails
+import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.UiCardsWithTags
 import com.example.indexcards.utils.box.UiTagWithCards
-import com.example.indexcards.utils.box.toBox
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
 
 @Composable
 fun BoxScreenBody(

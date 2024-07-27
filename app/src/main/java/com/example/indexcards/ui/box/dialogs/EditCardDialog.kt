@@ -43,15 +43,15 @@ import com.example.indexcards.ui.elements.NotesField
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.WordField
 import com.example.indexcards.utils.box.UiBoxWithTags
-import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.card.CardDetails
-import com.example.indexcards.utils.card.CardState
-import com.example.indexcards.utils.card.UiCardWithTags
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.card.toCardDetails
+import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.CardDetails
+import com.example.indexcards.utils.state.CardState
+import com.example.indexcards.utils.state.UiCardWithTags
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.toCardDetails
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.state.emptyTag
 import kotlinx.coroutines.delay
 import java.io.File
 

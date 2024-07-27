@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.box
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,8 +36,10 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.BoxNameWithFlag
+import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
-import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.box.boxScreenSorting
+import com.example.indexcards.utils.state.emptyBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,10 +57,10 @@ fun BoxScreenTopBar(
     changeTrainingDirectionToValue: (Boolean) -> Unit = {},
     exportBox: () -> Unit = {},
     showSearch: () -> Unit = {},
+    onSortBy: (BoxScreenSorting) -> Unit = {},
 ) {
-    val context = LocalContext.current
-    val notImplementedText = stringResource(id = R.string.not_implemented)
     var expanded by remember { mutableStateOf(false) }
+    var sortExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = boxScreenState) {
         expanded = false
@@ -186,9 +187,7 @@ fun BoxScreenTopBar(
                             },
                             onClick = {
                                 expanded = false
-                                /* TODO: implement sorting */
-                                Toast.makeText(context, notImplementedText, Toast.LENGTH_SHORT)
-                                    .show()
+                                sortExpanded = true
                             }
                         )
                         DropdownMenuItem(
@@ -207,6 +206,21 @@ fun BoxScreenTopBar(
                                 changeBoxScreenState(BoxScreenState.TRAIN)
                             }
                         )
+                    }
+
+                    DropdownMenu(
+                        expanded = sortExpanded,
+                        onDismissRequest = { sortExpanded = false }
+                    ) {
+                        boxScreenSorting.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(option.second)) },
+                                onClick = {
+                                    sortExpanded = false
+                                    onSortBy(option.first)
+                                }
+                            )
+                        }
                     }
                 }
 

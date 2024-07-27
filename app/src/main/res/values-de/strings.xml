@@ -52,6 +52,12 @@
     <string name="train_selection">Auswahl trainieren</string>
     <string name="reverse_sides">Seiten vertauschen</string>
     <string name="sort_by">Sortieren</string>
+    <string name="date_asc">Newest first</string>
+    <string name="date_desc">Oldest first</string>
+    <string name="word_asc">A..Z</string>
+    <string name="word_desc">Z..A</string>
+    <string name="level_asc">Level ascending</string>
+    <string name="level_desc">Level descending</string>
     <string name="correct">Richtig</string>
     <string name="incorrect">Falsch</string>
     <string name="turn_over">Zum Umdrehen Karte antippen</string>

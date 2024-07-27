@@ -15,9 +15,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -27,10 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
 
 @Composable
 fun CardList(
@@ -56,14 +62,13 @@ fun CardList(
 
             CardListItem(
                 modifier = Modifier.padding(bottom = finalOffset),
-                item = item.card,
+                cardWithTags = item,
                 onClick = {
                     showCardDialog(it)
                 },
                 onLongClick = {
                     showEditCardDialog(it)
                 },
-                tagList = item.tags
             )
         }
     }
@@ -73,18 +78,17 @@ fun CardList(
 @Composable
 fun CardListItem(
     modifier: Modifier = Modifier,
-    item: Card,
-    onClick: (Card) -> Unit,
-    onLongClick: (Card) -> Unit,
-    tagList: List<Tag>
+    cardWithTags: CardWithTags,
+    onClick: (Card) -> Unit = {},
+    onLongClick: (Card) -> Unit = {},
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(4.dp)
             .combinedClickable(
-                onClick = { onClick(item) },
-                onLongClick = { onLongClick(item) }
+                onClick = { onClick(cardWithTags.card) },
+                onLongClick = { onLongClick(cardWithTags.card) }
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -96,27 +100,62 @@ fun CardListItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = item.word,
+                text = cardWithTags.card.word,
                 textAlign = TextAlign.Start,
             )
 
-            Row {
-                if (tagList.size <= 3) {
-                    TagCircleRow(tagList = tagList)
-                } else {
-                    CompactTagCircleRow(tagList = tagList)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (cardWithTags.card.memoURI.isNotBlank()) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                            .size(22.dp),
+                        imageVector = Icons.Default.Mic,
+                        contentDescription = "micIcon"
+                    )
+
+                    VerticalDivider(
+                        modifier = Modifier
+                            .height(30.dp)
+                            .padding(start = 3.dp, end = 3.dp)
+                    )
                 }
 
-                VerticalDivider(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(3.dp)
-                )
+                if (cardWithTags.tags.isNotEmpty()) {
+                    if (cardWithTags.tags.size <= 3) {
+                        TagCircleRow(tagList = cardWithTags.tags)
+                    } else {
+                        CompactTagCircleRow(tagList = cardWithTags.tags)
+                    }
 
-                LevelIndicator(level = item.level)
+                    VerticalDivider(
+                        modifier = Modifier
+                            .height(30.dp)
+                            .padding(start = 3.dp, end = 6.dp)
+                    )
+                }
+
+                LevelIndicator(level = cardWithTags.card.level)
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun CardListItemPreview() {
+    CardListItem(
+        cardWithTags = CardWithTags(
+            card = emptyCard.copy(word = "Vorderseite", memoURI = "nonzero", level = 1),
+            tags = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+                emptyTag.copy(tagId = 3, text = "Tag3"),
+            )
+        )
+    )
 }
 
 @Composable

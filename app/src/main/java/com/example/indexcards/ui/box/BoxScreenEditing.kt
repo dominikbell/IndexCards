@@ -25,11 +25,11 @@ import com.example.indexcards.ui.elements.NameField
 import com.example.indexcards.ui.elements.RemindersSwitch
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.TopicField
-import com.example.indexcards.utils.box.BoxDetails
-import com.example.indexcards.utils.box.BoxState
-import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.box.toBox
-import com.example.indexcards.utils.box.toBoxDetails
+import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.BoxState
+import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.toBoxDetails
 
 @Composable
 fun BoxScreenEditing(

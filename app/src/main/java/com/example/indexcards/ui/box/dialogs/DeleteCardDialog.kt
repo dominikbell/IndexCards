@@ -9,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
-import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.state.emptyCard
 
 @Composable
 fun DeleteCardDialog(

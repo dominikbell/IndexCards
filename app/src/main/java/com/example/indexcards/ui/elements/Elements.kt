@@ -37,11 +37,11 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.LanguageData
 import com.example.indexcards.data.getImageId
-import com.example.indexcards.utils.box.BoxState
-import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.box.toBoxDetails
-import com.example.indexcards.utils.box.toBoxState
-import com.example.indexcards.utils.card.CardState
+import com.example.indexcards.utils.state.BoxState
+import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.toBoxDetails
+import com.example.indexcards.utils.state.toBoxState
+import com.example.indexcards.utils.state.CardState
 
 @Composable
 fun BoxNameWithFlag(

@@ -14,10 +14,10 @@ import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.box.UiBoxWithCards
-import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.state.UiBoxWithCards
+import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

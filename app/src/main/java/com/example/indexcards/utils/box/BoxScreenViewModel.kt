@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
@@ -15,17 +14,17 @@ import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.card.CardDetails
-import com.example.indexcards.utils.card.CardState
-import com.example.indexcards.utils.card.UiCardWithTags
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.card.toCard
-import com.example.indexcards.utils.card.toCardDetails
-import com.example.indexcards.utils.tag.TagDetails
-import com.example.indexcards.utils.tag.TagState
-import com.example.indexcards.utils.tag.UiColorState
-import com.example.indexcards.utils.tag.emptyTag
-import com.example.indexcards.utils.tag.toTag
+import com.example.indexcards.utils.state.CardDetails
+import com.example.indexcards.utils.state.CardState
+import com.example.indexcards.utils.state.UiCardWithTags
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.toCard
+import com.example.indexcards.utils.state.toCardDetails
+import com.example.indexcards.utils.state.TagDetails
+import com.example.indexcards.utils.state.TagState
+import com.example.indexcards.utils.state.UiColorState
+import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -136,6 +135,17 @@ class BoxScreenViewModel(
         searchTerm.update { "" }
     }
 
+
+    /** For sorting */
+    val sortedBy = MutableStateFlow<BoxScreenSorting>(BoxScreenSorting.DATE_DESC)
+
+    fun setSortedBy(newSorting: BoxScreenSorting) {
+        sortedBy.update { newSorting }
+    }
+
+    fun resetSortedBy() {
+        sortedBy.update { BoxScreenSorting.DATE_DESC }
+    }
 
 
     /** tagSelected

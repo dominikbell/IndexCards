@@ -9,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.state.emptyBox
 
 @Composable
 fun DeleteBoxDialog(

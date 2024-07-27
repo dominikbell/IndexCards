@@ -12,3 +12,12 @@ sealed interface HomeScreenState {
     data object SETTINGS : HomeScreenState
     data object STATISTICS : HomeScreenState
 }
+
+sealed interface HomeScreenSorting {
+    data object MODIFIED_ASC: HomeScreenSorting
+    data object MODIFIED_DESC: HomeScreenSorting
+    data object CREATED_ASC: HomeScreenSorting
+    data object CREATED_DESC: HomeScreenSorting
+    data object NAME_ASC: HomeScreenSorting
+    data object NAME_DESC: HomeScreenSorting
+}

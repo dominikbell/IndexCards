@@ -44,10 +44,10 @@ import androidx.core.net.toUri
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.ui.box.TagList
-import com.example.indexcards.utils.card.UiCardWithTags
-import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.state.UiCardWithTags
+import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.state.emptyTag
 import kotlinx.coroutines.delay
 import java.io.File
 

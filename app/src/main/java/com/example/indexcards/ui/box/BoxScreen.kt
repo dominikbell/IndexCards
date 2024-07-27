@@ -17,12 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.toLowerCase
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.dialogs.CardDialog
 import com.example.indexcards.ui.box.dialogs.DeleteCardDialog
@@ -32,17 +32,18 @@ import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.box.dialogs.NoCardsDialog
 import com.example.indexcards.ui.box.dialogs.TagDialog
 import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
-import com.example.indexcards.utils.box.toBoxDetails
-import com.example.indexcards.utils.card.toCardState
+import com.example.indexcards.utils.state.toBoxDetails
+import com.example.indexcards.utils.state.toCardState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
-import com.example.indexcards.utils.tag.emptyTag
-import com.example.indexcards.utils.tag.toColor
-import com.example.indexcards.utils.tag.toTagDetails
+import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toColor
+import com.example.indexcards.utils.state.toTagDetails
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Locale
@@ -77,6 +78,7 @@ fun BoxScreen(
     val newCardId = boxScreenViewModel.newCardId
     val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
     val levelSelected by boxScreenViewModel.levelSelected.collectAsState()
+    val sortedBy by boxScreenViewModel.sortedBy.collectAsState()
     val searchTerm by boxScreenViewModel.searchTerm.collectAsState()
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
     val trainingDirection by boxScreenViewModel.trainingDirection.collectAsState()
@@ -111,7 +113,33 @@ fun BoxScreen(
                     searchTerm.isBlank()) &&
                     (it.card.level == levelSelected || levelSelected == -1) &&
                     (it.tags.contains(tagSelected) || tagSelected == emptyTag)
-        }
+        }.sortedWith(
+            when (sortedBy) {
+                BoxScreenSorting.DATE_DESC -> {
+                    compareBy<CardWithTags> { it.card.dateAdded }
+                }
+
+                BoxScreenSorting.DATE_ASC -> {
+                    compareBy<CardWithTags> { it.card.dateAdded }.reversed()
+                }
+
+                BoxScreenSorting.LEVEL_ASC -> {
+                    compareBy<CardWithTags> { it.card.level }
+                }
+
+                BoxScreenSorting.LEVEL_DESC -> {
+                    compareBy<CardWithTags> { it.card.level }.reversed()
+                }
+
+                BoxScreenSorting.WORD_ASC -> {
+                    compareBy<CardWithTags> { it.card.word }
+                }
+
+                BoxScreenSorting.WORD_DESC -> {
+                    compareBy<CardWithTags> { it.card.word }.reversed()
+                }
+            }
+        )
 
     val shuffledCardList = filteredCardWithTagList.shuffled()
 
@@ -124,10 +152,6 @@ fun BoxScreen(
         if (doneCollecting) {
             saveFile(csvString.toByteArray(Charsets.UTF_8), fileName)
         }
-    }
-
-    fun exportBox() {
-        boxScreenViewModel.collectCSVString()
     }
 
     LaunchedEffect(key1 = cardsWithTags.cardWithTagList.size) {
@@ -210,8 +234,9 @@ fun BoxScreen(
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
                 changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
-                exportBox = { exportBox() },
-                showSearch = { isSearching = true }
+                exportBox = { boxScreenViewModel.collectCSVString() },
+                showSearch = { isSearching = true },
+                onSortBy = { boxScreenViewModel.setSortedBy(it) }
             )
         },
 

@@ -1,16 +1,14 @@
 package com.example.indexcards.utils
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.BoxWithCards
-import com.example.indexcards.utils.box.BoxDetails
-import com.example.indexcards.utils.box.BoxState
-import com.example.indexcards.utils.box.toBox
+import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.BoxState
+import com.example.indexcards.utils.state.toBox
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull

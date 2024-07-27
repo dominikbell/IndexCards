@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.state.emptyCard
 
 @Composable
 fun LevelList(

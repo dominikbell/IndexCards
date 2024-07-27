@@ -1,4 +1,4 @@
-package com.example.indexcards.utils.card
+package com.example.indexcards.utils.state
 
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.Tag

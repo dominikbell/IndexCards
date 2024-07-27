@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.ui.elements.BoxNameWithFlag
-import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.state.emptyBox
 
 @Composable
 fun BoxList(
