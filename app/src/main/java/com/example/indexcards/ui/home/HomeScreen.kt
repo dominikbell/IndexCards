@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
+import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
@@ -31,6 +32,7 @@ import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
 import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
 import com.example.indexcards.ui.home.dialogs.UserNameDialog
 import com.example.indexcards.utils.ViewModelProvider
+import com.example.indexcards.utils.home.HomeScreenSorting
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
@@ -62,11 +64,12 @@ fun HomeScreen(
     val boxUiState = homeScreenViewModel.boxUiState
     val homeScreenState = homeScreenViewModel.homeScreenState
 
-    val userName = homeScreenViewModel.userName.collectAsState()
-    val globalReminders = homeScreenViewModel.globalReminders.collectAsState()
-    val reminderIntervals = homeScreenViewModel.reminderIntervals.collectAsState()
-    val reminderTime = homeScreenViewModel.reminderTime.collectAsState()
-    val uiBoxWithCards = homeScreenViewModel.boxWithCards.collectAsState()
+    val sortedBy by homeScreenViewModel.sortedBy.collectAsState()
+    val userName by homeScreenViewModel.userName.collectAsState()
+    val globalReminders by homeScreenViewModel.globalReminders.collectAsState()
+    val reminderIntervals by homeScreenViewModel.reminderIntervals.collectAsState()
+    val reminderTime by homeScreenViewModel.reminderTime.collectAsState()
+    val uiBoxWithCards by homeScreenViewModel.boxWithCards.collectAsState()
     val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox by homeScreenViewModel.currentBox.collectAsState()
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
@@ -108,12 +111,12 @@ fun HomeScreen(
 
     fun setReminder(boxId: Long, boxName: String, level: Int) {
         val time = getTimeFromReminderSettings(
-            reminderIntervals = reminderIntervals.value,
-            reminderTime = reminderTime.value,
+            reminderIntervals = reminderIntervals,
+            reminderTime = reminderTime,
             level = level,
         )
         val period = getTimeIntervalFromReminderIntervals(
-            reminderIntervals = reminderIntervals.value,
+            reminderIntervals = reminderIntervals,
             level = level,
         )
         scheduleNotification(boxId, level, boxName, time, period)
@@ -136,6 +139,29 @@ fun HomeScreen(
         }
     }
 
+    val boxList =
+        uiBoxList.boxList.sortedWith(
+            when (sortedBy) {
+                HomeScreenSorting.CREATED_DESC -> {
+                    compareBy<Box> { it.dateAdded }
+                }
+
+                HomeScreenSorting.CREATED_ASC -> {
+                    compareBy<Box> { it.dateAdded }.reversed()
+                }
+
+                HomeScreenSorting.NAME_ASC -> {
+                    compareBy<Box> { it.name }
+                }
+                HomeScreenSorting.NAME_DESC -> {
+                    compareBy<Box> { it.name }.reversed()
+                }
+                HomeScreenSorting.TOPIC -> {
+                    compareBy<Box> { it.topic }
+                }
+            }
+        )
+
     Scaffold(
         modifier = modifier,
 
@@ -147,6 +173,7 @@ fun HomeScreen(
                 goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
                 showAboutApp = { showAboutApp = true },
                 importBox = importBox,
+                onSortBy = { homeScreenViewModel.setSortedBy(it) }
             )
         },
 
@@ -166,7 +193,7 @@ fun HomeScreen(
                 BoxList(
                     modifier = modifier
                         .padding(innerPadding),
-                    boxList = uiBoxList.boxList,
+                    boxList = boxList,
                     onDelete = {
                         homeScreenViewModel.setCurrentBox(it)
                         deleteBoxDialog = true
@@ -179,17 +206,17 @@ fun HomeScreen(
                 SettingsScreen(
                     modifier = modifier.padding(innerPadding),
                     hasNotificationPermission = hasNotificationPermission,
-                    userName = userName.value,
-                    globalReminders = globalReminders.value,
-                    reminderIntervals = reminderIntervals.value,
-                    reminderTime = reminderTime.value,
+                    userName = userName,
+                    globalReminders = globalReminders,
+                    reminderIntervals = reminderIntervals,
+                    reminderTime = reminderTime,
                     openUserNameDialog = {
-                        homeScreenViewModel.updateUiUserName(userName.value)
+                        homeScreenViewModel.updateUiUserName(userName)
                         userNameDialog = true
                     },
                     openRemindersDialog = {
                         homeScreenViewModel.updateCurrentLevel(it)
-                        homeScreenViewModel.updateUiReminderIntervals(reminderIntervals.value)
+                        homeScreenViewModel.updateUiReminderIntervals(reminderIntervals)
                         reminderIntervalsDialog = true
                     },
                     openRemindersTimeDialog = { reminderTimeDialog = true },
@@ -227,7 +254,7 @@ fun HomeScreen(
             },
             onDelete = {
                 deleteBoxDialog = false
-                deleteAllMemos(uiBoxWithCards.value.cardList)
+                deleteAllMemos(uiBoxWithCards.cardList)
                 homeScreenViewModel.deleteBox(currentBox.boxId)
                 homeScreenViewModel.resetCurrentBox()
             },
@@ -281,8 +308,8 @@ fun HomeScreen(
 
     if (reminderTimeDialog) {
         ReminderTimeDialog(
-            initialHour = reminderTime.value.first,
-            initialMinute = reminderTime.value.second,
+            initialHour = reminderTime.first,
+            initialMinute = reminderTime.second,
             onDismiss = {
                 reminderTimeDialog = false
             },

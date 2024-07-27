@@ -14,6 +14,7 @@ import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UserPreferences
+import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.state.UiBoxWithCards
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.emptyCard
@@ -51,6 +52,17 @@ class HomeScreenViewModel(
 
     fun updateHomeScreenState(newState: HomeScreenState) {
         homeScreenState = newState
+    }
+
+    /** For sorting */
+    val sortedBy = MutableStateFlow<HomeScreenSorting>(HomeScreenSorting.CREATED_DESC)
+
+    fun setSortedBy(newSorting: HomeScreenSorting) {
+        sortedBy.update { newSorting }
+    }
+
+    fun resetSortedBy() {
+        sortedBy.update { HomeScreenSorting.CREATED_DESC }
     }
 
 

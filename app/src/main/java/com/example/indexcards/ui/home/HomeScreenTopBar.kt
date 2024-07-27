@@ -1,7 +1,11 @@
 package com.example.indexcards.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
@@ -18,12 +22,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
+import com.example.indexcards.utils.box.boxScreenSorting
+import com.example.indexcards.utils.home.HomeScreenSorting
 import com.example.indexcards.utils.home.HomeScreenState
+import com.example.indexcards.utils.home.homeScreenSorting
 
 @Composable
 fun HomeScreenTopBar(
@@ -34,6 +43,7 @@ fun HomeScreenTopBar(
     goToStatistics: () -> Unit = {},
     showAboutApp: () -> Unit = {},
     importBox: () -> Unit = {},
+    onSortBy: (HomeScreenSorting) -> Unit = {},
 ) {
     when (homeScreenState) {
         HomeScreenState.MAIN -> {
@@ -43,6 +53,7 @@ fun HomeScreenTopBar(
                 goToSettings = goToSettings,
                 goToStatistics = goToStatistics,
                 importBox = importBox,
+                onSortBy = onSortBy,
             )
         }
 
@@ -124,8 +135,10 @@ fun MainScreenTopBar(
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
     importBox: () -> Unit = {},
+    onSortBy: (HomeScreenSorting) -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var sortExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -171,6 +184,28 @@ fun MainScreenTopBar(
                 )
 
                 DropdownMenuItem(
+                    text = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(text = stringResource(id = R.string.sort_by))
+
+                            Icon(
+                                imageVector = Icons.Filled.ArrowDropDown,
+                                modifier = Modifier.rotate(-90f),
+                                contentDescription = "sort by"
+                            )
+                        }
+                    },
+                    onClick = {
+                        expanded = false
+                        sortExpanded = true
+                    }
+                )
+
+                DropdownMenuItem(
                     text = { Text(text = stringResource(R.string.import_box)) },
                     onClick = {
                         expanded = false
@@ -185,6 +220,21 @@ fun MainScreenTopBar(
                         showAboutApp()
                     }
                 )
+            }
+
+            DropdownMenu(
+                expanded = sortExpanded,
+                onDismissRequest = { sortExpanded = false }
+            ) {
+                homeScreenSorting.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(option.second)) },
+                        onClick = {
+                            sortExpanded = false
+                            onSortBy(option.first)
+                        }
+                    )
+                }
             }
         },
     )
