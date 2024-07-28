@@ -28,18 +28,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.BoxNameWithFlag
 import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.boxScreenSorting
 import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.isLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

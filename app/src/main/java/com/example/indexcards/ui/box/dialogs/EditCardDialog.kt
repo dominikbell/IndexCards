@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.indexcards.R
 import com.example.indexcards.data.Tag
-import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.box.TagList
 import com.example.indexcards.ui.elements.MeaningField
 import com.example.indexcards.ui.elements.NewTagButton
@@ -52,6 +51,7 @@ import com.example.indexcards.utils.state.toCardDetails
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
 import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.isLanguage
 import kotlinx.coroutines.delay
 import java.io.File
 

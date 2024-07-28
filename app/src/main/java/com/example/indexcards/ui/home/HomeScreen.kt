@@ -143,11 +143,11 @@ fun HomeScreen(
         uiBoxList.boxList.sortedWith(
             when (sortedBy) {
                 HomeScreenSorting.CREATED_DESC -> {
-                    compareBy<Box> { it.dateAdded }.reversed()
+                    compareBy<Box> { it.dateAdded }
                 }
 
                 HomeScreenSorting.CREATED_ASC -> {
-                    compareBy<Box> { it.dateAdded }
+                    compareBy<Box> { it.dateAdded }.reversed()
                 }
 
                 HomeScreenSorting.NAME_ASC -> {

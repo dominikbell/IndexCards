@@ -28,7 +28,6 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
-import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.elements.NewTagButton
 import com.example.indexcards.utils.state.BoxDetails
@@ -38,6 +37,9 @@ import com.example.indexcards.utils.box.UiTagWithCards
 import com.example.indexcards.utils.state.toBox
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.isLanguage
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Composable
 fun BoxScreenBody(
@@ -66,7 +68,10 @@ fun BoxScreenBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             if (isSearching) {
                 Row(
                     modifier = Modifier

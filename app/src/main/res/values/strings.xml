@@ -26,6 +26,8 @@
     <string name="about_app_text">Developed in Kotlin by Dominik Bell</string>
     <string name="nr_card">Number of cards in this box</string>
     <string name="edit_box">Edit Box Details</string>
+    <string name="box_created">This box was created on</string>
+    <string name="at">at</string>
     <string name="search">Search</string>
     <string name="export_box">Export Box to CSV</string>
     <string name="import_box">Import Box from CSV</string>

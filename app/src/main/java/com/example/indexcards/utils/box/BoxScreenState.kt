@@ -1,6 +1,5 @@
 package com.example.indexcards.utils.box
 
-import androidx.compose.ui.res.stringResource
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card

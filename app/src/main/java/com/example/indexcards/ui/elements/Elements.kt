@@ -36,12 +36,12 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.LanguageData
-import com.example.indexcards.data.getImageId
 import com.example.indexcards.utils.state.BoxState
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.toBoxDetails
 import com.example.indexcards.utils.state.toBoxState
 import com.example.indexcards.utils.state.CardState
+import com.example.indexcards.utils.state.getImageId
 
 @Composable
 fun BoxNameWithFlag(

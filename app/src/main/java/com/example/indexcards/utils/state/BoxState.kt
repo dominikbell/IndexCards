@@ -1,7 +1,9 @@
 package com.example.indexcards.utils.state
 
+import android.content.Context
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.LanguageData
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -11,7 +13,7 @@ val emptyBox: Box = Box(
     topic = "EMPTY BOX",
     description = "EMPTY BOX",
     reminders = false,
-    dateAdded = 0,
+    dateAdded = -1,
 )
 
 data class BoxState(
@@ -22,11 +24,12 @@ data class BoxState(
 )
 
 data class BoxDetails(
-    val id: Long = 0,
+    val id: Long = -1,
     val name: String = "",
     val topic: String = "",
     val reminders: Boolean = false,
     val description: String = "",
+    val dateAdded: Long = -1,
 )
 
 fun BoxDetails.toBox(): Box = Box(
@@ -35,7 +38,7 @@ fun BoxDetails.toBox(): Box = Box(
     topic = topic,
     description = description,
     reminders = reminders,
-    dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
+    dateAdded = if (dateAdded == (-1).toLong()) LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) else dateAdded,
 )
 
 fun Box.toBoxState(isValid: Boolean = false) : BoxState = BoxState(
@@ -48,10 +51,52 @@ fun Box.toBoxDetails(): BoxDetails = BoxDetails(
     name = name,
     topic = topic,
     reminders = reminders,
-    description = description
+    description = description,
+    dateAdded = dateAdded,
 )
 
 data class UiBoxWithCards(
     val box: Box = emptyBox,
     val cardList: List<Card> = listOf()
 )
+
+fun Box.isLanguage(): Boolean {
+    return (LanguageData.language.map { it.value.first }.contains(this.topic))
+}
+
+/** Decided not to use emoji flags, but we will keep it in case it might come in handy */
+fun Box.namePlusFlag(): String {
+    return this.name +
+            if (this.isLanguage()) {
+                " " + this.getFlag()
+            } else {
+                ""
+            }
+}
+
+fun Box.getFlag(): String {
+    return if (this.isLanguage()) {
+        LanguageData.language.values.find { it.first == this.topic }?.second ?: ""
+    } else {
+        ""
+    }
+}
+
+fun Box.getImageId(context: Context): Int {
+    return if (this.isLanguage()) {
+        getImageId(
+            context = context,
+            nameBase = LanguageData.language.filterValues { it.first == this.topic }.keys.first()
+        )
+    } else {
+        -1
+    }
+}
+
+fun getImageId(context: Context, nameBase: String): Int {
+    return context.resources.getIdentifier(
+        "flag$nameBase",
+        "drawable",
+        context.packageName
+    )
+}

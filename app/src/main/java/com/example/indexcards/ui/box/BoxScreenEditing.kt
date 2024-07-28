@@ -1,11 +1,15 @@
 package com.example.indexcards.ui.box
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
-import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.DescriptionField
 import com.example.indexcards.ui.elements.LanguageDropDownMenu
 import com.example.indexcards.ui.elements.NameField
@@ -28,8 +31,11 @@ import com.example.indexcards.ui.elements.TopicField
 import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.state.BoxState
 import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.isLanguage
 import com.example.indexcards.utils.state.toBox
 import com.example.indexcards.utils.state.toBoxDetails
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Composable
 fun BoxScreenEditing(
@@ -60,89 +66,114 @@ fun BoxScreenEditing(
         }
         updateBoxUiState(boxUiState.boxDetails.copy(reminders = !remindersEnabled))
     }
-
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        NameField(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            boxUiState = boxUiState,
-            isError = !validName,
-            onValueChange = {
-                validName = true
-                updateBoxUiState(boxUiState.boxDetails.copy(name = it))
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            NameField(
+                modifier = Modifier.fillMaxWidth(),
+                boxUiState = boxUiState,
+                isError = !validName,
+                onValueChange = {
+                    validName = true
+                    updateBoxUiState(boxUiState.boxDetails.copy(name = it))
+                }
+            )
+            if (isLanguage) {
+                LanguageDropDownMenu(
+                    modifier = Modifier.fillMaxWidth(),
+                    boxUiState = boxUiState,
+                    expanded = expanded,
+                    changeExpanded = { expanded = !expanded },
+                    isError = !validTopic,
+                    onValueChange = {
+                        validTopic = true
+                        updateBoxUiState(boxUiState.boxDetails.copy(topic = it))
+                    }
+                )
+            } else {
+                TopicField(
+                    modifier = Modifier.fillMaxWidth(),
+                    boxUiState = boxUiState,
+                    isError = !validTopic,
+                    onValueChange = {
+                        validTopic = true
+                        updateBoxUiState(boxUiState.boxDetails.copy(topic = it))
+                    }
+                )
             }
-        )
-        if (isLanguage) {
-            LanguageDropDownMenu(
+
+            DescriptionField(
                 modifier = Modifier.fillMaxWidth(),
                 boxUiState = boxUiState,
-                expanded = expanded,
-                changeExpanded = { expanded = !expanded },
-                isError = !validTopic,
-                onValueChange = {
-                    validTopic = true
-                    updateBoxUiState(boxUiState.boxDetails.copy(topic = it))
-                }
+                onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(description = it)) }
             )
-        } else {
-            TopicField(
-                modifier = Modifier.fillMaxWidth(),
-                boxUiState = boxUiState,
-                isError = !validTopic,
-                onValueChange = {
-                    validTopic = true
-                    updateBoxUiState(boxUiState.boxDetails.copy(topic = it))
-                }
+
+            RequiredFieldsText()
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            RemindersSwitch(
+                modifier = modifier,
+                enabled = (remindersEnabled && hasNotificationPermission),
+                onCheckedChange = {
+                    if (!hasNotificationPermission) {
+                        val success = requestNotificationPermission()
+                        if (success) {
+                            onSwitchChanged()
+                        }
+                    } else {
+                        onSwitchChanged()
+
+                    }
+                },
+                hasNotificationPermission = hasNotificationPermission,
+                requestNotificationPermission = requestNotificationPermission
             )
+
+            Button(
+                onClick = {
+                    if (boxUiState.isValid) {
+                        onSave()
+                    } else {
+                        if (!boxUiState.validName) {
+                            validName = false
+                        }
+                        if (!boxUiState.validTopic) {
+                            validTopic = false
+                        }
+                    }
+                }
+            ) {
+                Text(text = stringResource(R.string.save))
+            }
         }
 
-        DescriptionField(
-            modifier = Modifier.fillMaxWidth(),
-            boxUiState = boxUiState,
-            onValueChange = { updateBoxUiState(boxUiState.boxDetails.copy(description = it)) }
-        )
+        if (boxUiState.boxDetails.dateAdded != (-1).toLong()) {
+            val date =
+                LocalDateTime.ofEpochSecond(boxUiState.boxDetails.dateAdded, 0, ZoneOffset.UTC)
+            val day = date.dayOfMonth
+            val month = date.month
+            val year = date.year
+            val hour = date.hour
+            val minute = date.minute
 
-        RequiredFieldsText()
-
-        Spacer(modifier = Modifier.size(8.dp))
-
-        RemindersSwitch(
-            modifier = modifier,
-            enabled = (remindersEnabled && hasNotificationPermission),
-            onCheckedChange = {
-                if (!hasNotificationPermission) {
-                    val success = requestNotificationPermission()
-                    if (success) {
-                        onSwitchChanged()
-                    }
-                } else {
-                    onSwitchChanged()
-
-                }
-            },
-            hasNotificationPermission = hasNotificationPermission,
-            requestNotificationPermission = requestNotificationPermission
-        )
-
-        Button(
-            onClick = {
-                if (boxUiState.isValid) {
-                    onSave()
-                } else {
-                    if (!boxUiState.validName) {
-                        validName = false
-                    }
-                    if (!boxUiState.validTopic) {
-                        validTopic = false
-                    }
-                }
-            }
-        ) {
-            Text(text = stringResource(R.string.save))
+            Text(
+                modifier = Modifier.padding(
+                    bottom = (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                ),
+                text = stringResource(id = R.string.box_created) +
+                        ": $day. $month $year "
+                        + stringResource(id = R.string.at)
+                        + " $hour:$minute."
+            )
         }
     }
 }
@@ -151,12 +182,14 @@ fun BoxScreenEditing(
 @Composable
 fun BoxScreenEditingPreview() {
     BoxScreenEditing(
+        modifier = Modifier.height(600.dp),
         boxUiState = BoxState(
             emptyBox.copy(
                 name = "Box1234",
                 description = "This is a descreibung",
                 topic = "Holz",
-                reminders = true
+                reminders = true,
+                dateAdded = 1321390423
             ).toBoxDetails()
         ),
         globalReminders = true,
