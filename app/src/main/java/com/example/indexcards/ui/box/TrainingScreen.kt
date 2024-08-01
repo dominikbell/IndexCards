@@ -52,7 +52,7 @@ fun TrainingScreen(
     navigateToBoxScreen: () -> Unit = {},
     onCardCorrect: (Card) -> Unit = {},
     onCardIncorrect: (Card) -> Unit = {},
-    setOtherLevelsReminder: () -> Unit = {},
+    setRemindersAfterTraining: () -> Unit = {},
 ) {
     var trainedCards by remember { mutableIntStateOf(0) }
     var turnedOver by remember { mutableStateOf(false) }
@@ -103,17 +103,13 @@ fun TrainingScreen(
 
         } else {
             AlertDialog(
-                onDismissRequest = {
-                    navigateToBoxScreen()
-                },
+                onDismissRequest = { navigateToBoxScreen() },
                 title = { Text(text = stringResource(id = R.string.all_done)) },
-                text = {
-                    Text(text = stringResource(id = R.string.no_more_cards))
-                },
+                text = { Text(text = stringResource(id = R.string.no_more_cards)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            setOtherLevelsReminder()
+                            setRemindersAfterTraining()
                             navigateToBoxScreen()
                         }
                     ) {

@@ -229,15 +229,19 @@ class BoxScreenViewModel(
 
 
     /** functions for training that up-/downgrade the level on a card */
-    suspend fun onCardCorrect(card: Card) {
-        if (card.level < 4) {
-            appRepository.upgradeLevelOnCard(card.cardId)
+    fun onCardCorrect(card: Card) {
+        viewModelScope.launch {
+            if (card.level < 4) {
+                appRepository.upgradeLevelOnCard(card.cardId)
+            }
         }
     }
 
-    suspend fun onCardIncorrect(card: Card) {
-        if (card.level > 0) {
-            appRepository.downgradeLevelOnCard(card.cardId)
+    fun onCardIncorrect(card: Card) {
+        viewModelScope.launch {
+            if (card.level > 0) {
+                appRepository.downgradeLevelOnCard(card.cardId)
+            }
         }
     }
 

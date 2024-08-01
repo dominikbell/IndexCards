@@ -141,7 +141,7 @@ fun BoxScreen(
             }
         )
 
-    val shuffledCardList = filteredCardWithTagList.shuffled()
+    var shuffledCardList: List<CardWithTags> by remember { mutableStateOf(listOf()) }
 
     /** Stuff for the voice memos */
     val recorder by lazy { AndroidAudioRecorder(applicationContext) }
@@ -194,6 +194,31 @@ fun BoxScreen(
         }
     }
 
+    fun setRemindersAfterTraining() {
+        if (trainingCounts && boxWithTags.box.reminders) {
+            boxScreenViewModel.viewModelScope.launch {
+                val nextLevel = levelSelected + 1
+                val previousLevel = levelSelected - 1
+
+                if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(levelSelected) == 0) {
+                    cancelNotification(levelSelected)
+                }
+
+                if (levelSelected != 4 &&
+                    boxScreenViewModel.getNumberOfCardsOfLevelInBox(nextLevel) != 0
+                ) {
+                    setReminder(nextLevel)
+                }
+
+                if (levelSelected != 0 &&
+                    boxScreenViewModel.getNumberOfCardsOfLevelInBox(previousLevel) != 0
+                ) {
+                    setReminder(previousLevel)
+                }
+            }
+        }
+    }
+
     fun showEditTagDialog(tag: Tag) {
         boxScreenViewModel.setColor(tag.color)
         boxScreenViewModel.setTagUiState(tag.toTagDetails())
@@ -220,6 +245,12 @@ fun BoxScreen(
         }
     }
 
+    LaunchedEffect(key1 = boxScreenState) {
+        if (boxScreenState == BoxScreenState.TRAIN) {
+            shuffledCardList = filteredCardWithTagList.shuffled()
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -236,7 +267,8 @@ fun BoxScreen(
                 changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
                 exportBox = { boxScreenViewModel.collectCSVString() },
                 showSearch = { isSearching = true },
-                onSortBy = { boxScreenViewModel.setSortedBy(it) }
+                onSortBy = { boxScreenViewModel.setSortedBy(it) },
+                setRemindersAfterTraining = { setRemindersAfterTraining() },
             )
         },
 
@@ -325,39 +357,9 @@ fun BoxScreen(
                         boxScreenViewModel.resetTagSelected()
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
                     },
-                    onCardCorrect = {
-                        boxScreenViewModel.viewModelScope.launch {
-                            boxScreenViewModel.onCardCorrect(it)
-                        }
-                    },
-                    onCardIncorrect = {
-                        boxScreenViewModel.viewModelScope.launch {
-                            boxScreenViewModel.onCardIncorrect(it)
-                        }
-                    },
-                    setOtherLevelsReminder = {
-                        if (trainingCounts && boxWithTags.box.reminders) {
-                            boxScreenViewModel.viewModelScope.launch {
-                                val nextLevel = levelSelected + 1
-                                val previousLevel = levelSelected - 1
-                                if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(levelSelected) == 0) {
-                                    cancelNotification(levelSelected)
-                                }
-                                if (levelSelected != 4 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(
-                                        nextLevel
-                                    ) != 0
-                                ) {
-                                    setReminder(nextLevel)
-                                }
-                                if (levelSelected != 0 && boxScreenViewModel.getNumberOfCardsOfLevelInBox(
-                                        previousLevel
-                                    ) != 0
-                                ) {
-                                    setReminder(previousLevel)
-                                }
-                            }
-                        }
-                    }
+                    onCardCorrect = { boxScreenViewModel.onCardCorrect(it) },
+                    onCardIncorrect = { boxScreenViewModel.onCardIncorrect(it) },
+                    setRemindersAfterTraining = { setRemindersAfterTraining() },
                 )
             }
         }

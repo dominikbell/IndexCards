@@ -57,6 +57,7 @@ fun BoxScreenTopBar(
     exportBox: () -> Unit = {},
     showSearch: () -> Unit = {},
     onSortBy: (BoxScreenSorting) -> Unit = {},
+    setRemindersAfterTraining: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -78,13 +79,16 @@ fun BoxScreenTopBar(
                     Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
                 }
             } else {
-                IconButton(onClick = {
-                    if (boxScreenState == BoxScreenState.TRAIN) {
-                        changeBoxScreenState(BoxScreenState.VIEW)
-                    } else {
-                        navigateToBoxesOverview()
+                IconButton(
+                    onClick = {
+                        if (boxScreenState == BoxScreenState.TRAIN) {
+                            setRemindersAfterTraining()
+                            changeBoxScreenState(BoxScreenState.VIEW)
+                        } else {
+                            navigateToBoxesOverview()
+                        }
                     }
-                }) {
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back Arrow"
