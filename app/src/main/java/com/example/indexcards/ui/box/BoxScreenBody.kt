@@ -52,7 +52,6 @@ fun BoxScreenBody(
     isSearching: Boolean,
     searchText: String,
     showCardDialog: (Card) -> Unit = {},
-    showEditCardDialog: (Card) -> Unit = {},
     showNewTagDialog: () -> Unit = {},
     onTagLongClick: (Tag) -> Unit = {},
     selectLevel: (Int) -> Unit = {},
@@ -166,7 +165,6 @@ fun BoxScreenBody(
             CardList(
                 cardWithTagList = filteredCardWithTagList,
                 showCardDialog = { showCardDialog(it) },
-                showEditCardDialog = { showEditCardDialog(it) }
             )
         }
     }

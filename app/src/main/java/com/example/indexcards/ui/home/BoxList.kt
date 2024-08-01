@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,9 +90,11 @@ fun BoxListItem(
 ) {
     Card(
         modifier = modifier
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+            .clip(CardDefaults.shape)
             .clickable { onClick(box) }
             .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+        ,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(

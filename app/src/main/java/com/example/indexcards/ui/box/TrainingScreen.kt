@@ -1,6 +1,10 @@
 package com.example.indexcards.ui.box
 
+import android.util.Log
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,13 +18,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -41,6 +50,7 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.utils.state.emptyCard
+import kotlinx.coroutines.delay
 import kotlin.math.min
 
 @Composable
@@ -167,8 +177,11 @@ fun CardCard(
             currentCard.card.word
         }
 
+    val cardPadding = 30.dp
+
     Card(
         modifier = modifier
+            .clip(CardDefaults.shape)
             .height(cardHeight)
             .width(cardWidth)
             .clickable {
@@ -179,13 +192,14 @@ fun CardCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(30.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(30.dp),
             ) {
                 SelectionContainer(
                     modifier = Modifier.fillMaxWidth()
@@ -250,35 +264,88 @@ fun CardCard(
             }
 
             if (!turnedOver) {
-                Text(text = stringResource(id = R.string.turn_over))
+                Text(
+                    modifier = Modifier.padding(bottom = cardPadding),
+                    text = stringResource(id = R.string.turn_over)
+                )
             } else {
-                Row {
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            if (trainingCounts) {
-                                onCardIncorrect()
-                            }
-                        }
-                    ) {
-                        Text(text = stringResource(id = R.string.incorrect))
-                    }
-
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            if (trainingCounts) {
-                                onCardCorrect()
-                            }
-                        }
-                    ) {
-                        Text(text = stringResource(id = R.string.correct))
-                    }
-                }
+                CardButtons(
+                    trainingCounts = trainingCounts,
+                    goToNextCard = goToNextCard,
+                    onCardCorrect = onCardCorrect,
+                    onCardIncorrect = onCardIncorrect,
+                )
             }
         }
     }
 }
+
+@Composable
+fun CardButtons(
+    modifier: Modifier = Modifier,
+    trainingCounts: Boolean,
+    goToNextCard: () -> Unit = {},
+    onCardCorrect: () -> Unit = {},
+    onCardIncorrect: () -> Unit = {},
+) {
+    val height = 70.dp
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.End,
+    ) {
+        HorizontalDivider()
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .weight(1f)
+                    .clickable {
+                        goToNextCard()
+                        if (trainingCounts) {
+                            onCardIncorrect()
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.incorrect),
+                    fontWeight = FontWeight(550),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            VerticalDivider(modifier = Modifier.height(height))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .weight(1f)
+                    .clickable {
+                        goToNextCard()
+                        if (trainingCounts) {
+                            onCardCorrect()
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.correct),
+                    fontWeight = FontWeight(550),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
 
 @Preview
 @Composable

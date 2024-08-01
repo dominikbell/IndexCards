@@ -305,10 +305,6 @@ fun BoxScreen(
                         boxScreenViewModel.setCurrentCard(it)
                         cardDialog = true
                     },
-                    showEditCardDialog = {
-                        boxScreenViewModel.setCardUiStateFromCurrentCard()
-                        editCardDialog = true
-                    },
                     showNewTagDialog = { showNewTagDialog() },
                     onTagLongClick = { showEditTagDialog(it) },
                     levelSelected = levelSelected,

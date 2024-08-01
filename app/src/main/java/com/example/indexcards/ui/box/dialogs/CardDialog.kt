@@ -63,9 +63,7 @@ fun CardDialog(
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     var duration by remember { mutableLongStateOf(0) }
-
     var audioFile: File? by remember { mutableStateOf(null) }
-
     val mmr = MediaMetadataRetriever()
 
     LaunchedEffect(key1 = cardWithTags.card.memoURI) {
@@ -80,6 +78,9 @@ fun CardDialog(
                             Integer.parseInt(durInt).toLong()
                         }
                 } ?: 0
+        } else {
+            audioFile = null
+            duration = 0
         }
     }
 
@@ -255,7 +256,7 @@ fun CardDialogPreview() {
             card = emptyCard.copy(
                 word = "Kartonage",
                 meaning = "huch, upsi",
-                notes = "Diese Karte erklärt dir genau was schiefgelaufen ist als  du damals die falsche Milch gekauft hast",
+                notes = "Diese Karte erklärt dir genau was schiefgelaufen ist als du damals die falsche Milch gekauft hast",
                 memoURI = "not0"
             ),
             tagList = listOf(
