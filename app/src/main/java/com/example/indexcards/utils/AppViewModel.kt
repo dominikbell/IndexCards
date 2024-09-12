@@ -58,8 +58,16 @@ open class AppViewModel(
     fun saveBox() {
         viewModelScope.launch {
             if (boxUiState.isValid) {
+                if (boxUiState.boxDetails.id == (-1).toLong()) {
+                    updateBoxUiState(
+                        boxUiState.boxDetails.copy(
+                            id = appRepository.getBiggestBoxId() + 1
+                        )
+                    )
+                }
                 appRepository.upsertBox(boxUiState.boxDetails.toBox())
             }
+            resetBoxUiState()
         }
     }
 

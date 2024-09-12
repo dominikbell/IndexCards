@@ -320,10 +320,14 @@ fun HomeScreen(
                 homeScreenViewModel.resetCurrentBox()
             },
             onDelete = {
+                homeScreenViewModel.viewModelScope.launch {
+                    deleteAllMemos(uiBoxWithCards.cardList)
+                    homeScreenViewModel.deleteBox(currentBox.boxId)
+                    homeScreenViewModel.resetCurrentBox()
+                }
                 deleteBoxDialog = false
-                deleteAllMemos(uiBoxWithCards.cardList)
-                homeScreenViewModel.deleteBox(currentBox.boxId)
-                homeScreenViewModel.resetCurrentBox()
+                isSelecting = false
+                selectedBoxes = listOf()
             },
         )
     }
@@ -335,9 +339,6 @@ fun HomeScreen(
                 deleteBoxesDialog = false
             },
             onDelete = {
-                deleteBoxesDialog = false
-                isSelecting = false
-                selectedBoxes = listOf()
                 homeScreenViewModel.viewModelScope.launch {
                     for (box in selectedBoxes) {
                         homeScreenViewModel.setCurrentBox(box)
@@ -347,6 +348,9 @@ fun HomeScreen(
                     }
                     homeScreenViewModel.resetCurrentBox()
                 }
+                deleteBoxesDialog = false
+                isSelecting = false
+                selectedBoxes = listOf()
             },
         )
     }
