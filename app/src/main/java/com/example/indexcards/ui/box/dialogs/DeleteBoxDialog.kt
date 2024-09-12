@@ -21,8 +21,8 @@ fun DeleteBoxDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        text = { Text(text = stringResource(R.string.delete_box_sure)) },
         title = { Text(text = stringResource(R.string.delete_box) + " '${boxToBeDeleted.name}'") },
+        text = { Text(text = stringResource(R.string.delete_box_sure)) },
         dismissButton =
         {
             TextButton(

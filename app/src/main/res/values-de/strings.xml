@@ -21,7 +21,11 @@
     <string name="required_field">* benötigtes Feld</string>
     <string name="is_language">Karteikasten für eine Sprache</string>
     <string name="delete_box">Karteikasten löschen</string>
+    <string name="delete_boxes">Karteikästen löschen</string>
     <string name="delete_box_sure">Bist Du sicher, dass Du diesen Karteikasten löschen möchtest?</string>
+    <string name="delete_boxes_names">Die folgenden Karteikästen werden gelöscht:</string>
+    <string name="action_cannot_be_undone">Diese Aktion kann nicht rückgängig gemacht werden!</string>
+    <string name="delete_boxes_sure">Bist du sicher?</string>
     <string name="settings">Einstellungen</string>
     <string name="statistics">Statistiken</string>
     <string name="about_app">Über diese App</string>

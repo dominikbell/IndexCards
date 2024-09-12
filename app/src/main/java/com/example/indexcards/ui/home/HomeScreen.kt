@@ -3,7 +3,6 @@ package com.example.indexcards.ui.home
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -36,6 +35,7 @@ import com.example.indexcards.data.Card
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
+import com.example.indexcards.ui.home.dialogs.DeleteBoxesDialog
 import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
 import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
 import com.example.indexcards.ui.home.dialogs.UserNameDialog
@@ -45,6 +45,7 @@ import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -84,6 +85,7 @@ fun HomeScreen(
 
     var addBoxDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
+    var deleteBoxesDialog by remember { mutableStateOf(false) }
     var userNameDialog by remember { mutableStateOf(false) }
     var reminderIntervalsDialog by remember { mutableStateOf(false) }
     var reminderTimeDialog by remember { mutableStateOf(false) }
@@ -205,7 +207,7 @@ fun HomeScreen(
                                         homeScreenViewModel.setCurrentBox(selectedBoxes.first())
                                         deleteBoxDialog = true
                                     } else {
-                                        /* TODO: implement dialog and deleting of multiple boxes */
+                                        deleteBoxesDialog = true
                                     }
                                 },
                                 modifier = modifier
@@ -230,7 +232,10 @@ fun HomeScreen(
                     }
                 } else {
                     FloatingActionButton(
-                        onClick = { addBoxDialog = true },
+                        onClick = {
+                            homeScreenViewModel.resetCurrentBox()
+                            addBoxDialog = true
+                        },
                         modifier = modifier
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Add")
@@ -319,6 +324,29 @@ fun HomeScreen(
                 deleteAllMemos(uiBoxWithCards.cardList)
                 homeScreenViewModel.deleteBox(currentBox.boxId)
                 homeScreenViewModel.resetCurrentBox()
+            },
+        )
+    }
+
+    if (deleteBoxesDialog) {
+        DeleteBoxesDialog(
+            boxesToBeDeleted = selectedBoxes,
+            onDismiss = {
+                deleteBoxesDialog = false
+            },
+            onDelete = {
+                deleteBoxesDialog = false
+                isSelecting = false
+                selectedBoxes = listOf()
+                homeScreenViewModel.viewModelScope.launch {
+                    for (box in selectedBoxes) {
+                        homeScreenViewModel.setCurrentBox(box)
+                        delay(100)
+                        deleteAllMemos(uiBoxWithCards.cardList)
+                        homeScreenViewModel.deleteBox(currentBox.boxId)
+                    }
+                    homeScreenViewModel.resetCurrentBox()
+                }
             },
         )
     }

@@ -89,7 +89,10 @@ fun BoxList(
                                 navigateToBoxScreen(item.boxId)
                             }
                         },
-                        onLongClick = { startSelection() },
+                        onLongClick = {
+                            startSelection()
+                            selectBox(item)
+                        },
                     )
                 }
             }
