@@ -1,44 +1,52 @@
 package com.example.indexcards.ui.home
 
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.ui.elements.BoxNameWithFlag
+import com.example.indexcards.utils.getCutString
 import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.getImageId
 
 @Composable
 fun BoxList(
     modifier: Modifier = Modifier,
     boxList: List<Box>,
+    isSelecting: Boolean,
+    selectedBoxes: List<Box>,
     navigateToBoxScreen: (Long) -> Unit = {},
-    onDelete: (Box) -> Unit = {},
+    startSelection: () -> Unit = {},
+    selectBox: (Box) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -72,8 +80,16 @@ fun BoxList(
                     BoxListItem(
                         modifier = Modifier.padding(bottom = finalOffset),
                         box = item,
-                        onClick = { navigateToBoxScreen(item.boxId) },
-                        showDelete = { onDelete(it) }
+                        isSelecting = isSelecting,
+                        isSelected = selectedBoxes.contains(item),
+                        onClick = {
+                            if (isSelecting) {
+                                selectBox(item)
+                            } else {
+                                navigateToBoxScreen(item.boxId)
+                            }
+                        },
+                        onLongClick = { startSelection() },
                     )
                 }
             }
@@ -81,49 +97,66 @@ fun BoxList(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BoxListItem(
     modifier: Modifier = Modifier,
     box: Box,
+    isSelecting: Boolean,
+    isSelected: Boolean,
     onClick: (Box) -> Unit = {},
-    showDelete: (Box) -> Unit = {},
+    onLongClick: (Box) -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val imageId = box.getImageId(context)
+    val description = box.description.getCutString(40)
+
     Card(
         modifier = modifier
             .padding(start = 8.dp, end = 8.dp, top = 8.dp)
             .clip(CardDefaults.shape)
-            .clickable { onClick(box) }
-            .fillMaxWidth()
-        ,
+            .combinedClickable(
+                onClick = { onClick(box) },
+                onLongClick = { onLongClick(box) }
+            )
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (isSelecting) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onClick(box) }
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(10.dp),
                 verticalArrangement = Arrangement.Top
             ) {
-                BoxNameWithFlag(
-                    box = box, doBold = false, isTitle = true
+                Text(
+                    text = box.name,
+                    fontWeight = FontWeight.Normal,
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.size(4.dp))
                 Text(
-                    text = box.description,
+                    text = description,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            IconButton(
-                onClick = {
-                    showDelete(box)
-                }
-            ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Delete"
+            if (imageId != -1) {
+                Image(
+                    painter = painterResource(id = imageId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(AssistChipDefaults.IconSize * 3F),
                 )
             }
         }
@@ -134,6 +167,18 @@ fun BoxListItem(
 @Composable
 fun BoxListItemPreview() {
     BoxListItem(
+        isSelecting = false,
+        isSelected = false,
+        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung")
+    )
+}
+
+@Preview
+@Composable
+fun BoxListItemSelectedPreview() {
+    BoxListItem(
+        isSelecting = true,
+        isSelected = false,
         box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung")
     )
 }
@@ -142,12 +187,15 @@ fun BoxListItemPreview() {
 @Composable
 fun BoxListPreview() {
     BoxList(
+        modifier = Modifier.height(400.dp),
+        isSelecting = false,
+        selectedBoxes = listOf(),
         boxList = listOf(
             emptyBox.copy(name = "Box123", description = "descr", topic = "English"),
             emptyBox.copy(
                 name = "Another Box",
                 topic = "Chinese",
-                description = "a longer description with more words"
+                description = "a longer description with more words, super delicious sea food"
             ),
         )
     )

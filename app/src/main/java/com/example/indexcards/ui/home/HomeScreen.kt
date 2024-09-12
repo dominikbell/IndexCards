@@ -3,9 +3,15 @@ package com.example.indexcards.ui.home
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Merge
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -16,9 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
@@ -80,6 +88,8 @@ fun HomeScreen(
     var reminderIntervalsDialog by remember { mutableStateOf(false) }
     var reminderTimeDialog by remember { mutableStateOf(false) }
     var showAboutApp by remember { mutableStateOf(false) }
+    var isSelecting by remember { mutableStateOf(false) }
+    var selectedBoxes by remember { mutableStateOf<List<Box>>(listOf()) }
 
     BackHandler {
         when (homeScreenState) {
@@ -153,9 +163,11 @@ fun HomeScreen(
                 HomeScreenSorting.NAME_ASC -> {
                     compareBy<Box> { it.name }
                 }
+
                 HomeScreenSorting.NAME_DESC -> {
                     compareBy<Box> { it.name }.reversed()
                 }
+
                 HomeScreenSorting.TOPIC -> {
                     compareBy<Box> { it.topic }
                 }
@@ -168,22 +180,61 @@ fun HomeScreen(
         topBar = {
             HomeScreenTopBar(
                 homeScreenState = homeScreenState,
+                isSelecting = isSelecting,
                 goToMainScreen = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN) },
                 goToSettings = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS) },
                 goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
                 showAboutApp = { showAboutApp = true },
                 importBox = importBox,
-                onSortBy = { homeScreenViewModel.setSortedBy(it) }
+                onSortBy = { homeScreenViewModel.setSortedBy(it) },
+                stopSelecting = {
+                    isSelecting = false
+                    selectedBoxes = listOf()
+                }
             )
         },
 
         floatingActionButton = {
             if (homeScreenState is HomeScreenState.MAIN) {
-                FloatingActionButton(
-                    onClick = { addBoxDialog = true },
-                    modifier = modifier
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+                if (isSelecting) {
+                    Column {
+                        if (selectedBoxes.isNotEmpty()) {
+                            FloatingActionButton(
+                                onClick = {
+                                    if (selectedBoxes.size == 1) {
+                                        homeScreenViewModel.setCurrentBox(selectedBoxes.first())
+                                        deleteBoxDialog = true
+                                    } else {
+                                        /* TODO: implement dialog and deleting of multiple boxes */
+                                    }
+                                },
+                                modifier = modifier
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Delete")
+                            }
+                        }
+
+                        // TODO: a little bit ugly solution
+                        if (selectedBoxes.isNotEmpty() && selectedBoxes.size >= 2) {
+                            Spacer(modifier = Modifier.size(10.dp))
+                        }
+
+                        if (selectedBoxes.size >= 2) {
+                            FloatingActionButton(
+                                onClick = { /* TODO: implement merging */ },
+                                modifier = modifier.rotate(90F)
+                            ) {
+                                Icon(Icons.Default.Merge, contentDescription = "Merge")
+                            }
+                        }
+                    }
+                } else {
+                    FloatingActionButton(
+                        onClick = { addBoxDialog = true },
+                        modifier = modifier
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Add")
+                    }
                 }
             }
         }
@@ -194,11 +245,22 @@ fun HomeScreen(
                     modifier = modifier
                         .padding(innerPadding),
                     boxList = boxList,
-                    onDelete = {
-                        homeScreenViewModel.setCurrentBox(it)
-                        deleteBoxDialog = true
-                    },
+                    isSelecting = isSelecting,
+                    selectedBoxes = selectedBoxes,
                     navigateToBoxScreen = navigateToBoxScreen,
+                    startSelection = {
+                        if (!isSelecting) {
+                            isSelecting = true
+                        }
+                    },
+                    selectBox = {
+                        selectedBoxes =
+                            if (selectedBoxes.contains(it)) {
+                                selectedBoxes.minus(it)
+                            } else {
+                                selectedBoxes.plus(it)
+                            }
+                    }
                 )
             }
 

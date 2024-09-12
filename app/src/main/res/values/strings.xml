@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">IndexCards</string>
     <string name="your_boxes">Your Boxes</string>
+    <string name="editing">Editing</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="close">Close</string>

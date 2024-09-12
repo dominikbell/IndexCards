@@ -56,7 +56,7 @@ fun BoxNameWithFlag(
         FontWeight.Normal
     }
 
-    val style = if(isTitle) {
+    val style = if (isTitle) {
         MaterialTheme.typography.titleLarge
     } else {
         LocalTextStyle.current
