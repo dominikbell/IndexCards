@@ -1,10 +1,6 @@
 package com.example.indexcards.ui.box
 
-import android.util.Log
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,11 +40,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.utils.state.emptyCard
-import kotlinx.coroutines.delay
 import kotlin.math.min
 
 @Composable
@@ -177,7 +171,7 @@ fun CardCard(
             currentCard.card.word
         }
 
-    val cardPadding = 30.dp
+    val cardPadding = 35.dp
 
     Card(
         modifier = modifier
@@ -271,6 +265,7 @@ fun CardCard(
             } else {
                 CardButtons(
                     trainingCounts = trainingCounts,
+                    cardPadding = cardPadding,
                     goToNextCard = goToNextCard,
                     onCardCorrect = onCardCorrect,
                     onCardIncorrect = onCardIncorrect,
@@ -284,20 +279,25 @@ fun CardCard(
 fun CardButtons(
     modifier: Modifier = Modifier,
     trainingCounts: Boolean,
+    cardPadding: Dp,
     goToNextCard: () -> Unit = {},
     onCardCorrect: () -> Unit = {},
     onCardIncorrect: () -> Unit = {},
 ) {
-    val height = 70.dp
+    val pad = 4.dp
+    val height = 2 * cardPadding + pad
+    val alpha = 0.4F
 
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End,
+        modifier = modifier.fillMaxWidth(),
     ) {
-        HorizontalDivider()
+        HorizontalDivider(
+            modifier = Modifier.padding(start = pad, end = pad),
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = alpha)
+        )
 
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Bottom,
         ) {
             Box(
                 modifier = Modifier
@@ -320,7 +320,12 @@ fun CardButtons(
                 )
             }
 
-            VerticalDivider(modifier = Modifier.height(height))
+            VerticalDivider(
+                modifier = Modifier
+                    .height(height)
+                    .padding(top = pad, bottom = pad),
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = alpha)
+            )
 
             Box(
                 modifier = Modifier

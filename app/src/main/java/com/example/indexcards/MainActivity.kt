@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
         } else {
             (-1).toLong()
         }
+
         val levelPass = if (requestId == NotificationRequest.GO_TO_TRAINING) {
             level
         } else {
