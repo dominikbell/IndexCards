@@ -14,6 +14,7 @@ val emptyCard: Card = Card(
     level = -1,
     dateAdded = -1,
     memoURI = "",
+    categoryId = -1,
 )
 
 data class CardState(
@@ -33,6 +34,7 @@ data class CardDetails(
     val level: Int = 0,
     val memoURI: String = "",
     val dateAdded: Long = -1,
+    val categoryId: Long = -1,
 )
 
 fun CardDetails.toCard(): Card = Card(
@@ -44,6 +46,7 @@ fun CardDetails.toCard(): Card = Card(
     level = level,
     dateAdded = if (dateAdded == (-1).toLong()) LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) else dateAdded,
     memoURI = memoURI,
+    categoryId = categoryId,
 )
 
 fun Card.toCardDetails(): CardDetails = CardDetails(
@@ -55,6 +58,7 @@ fun Card.toCardDetails(): CardDetails = CardDetails(
     level = level,
     dateAdded = dateAdded,
     memoURI = memoURI,
+    categoryId = categoryId,
 )
 
 fun UiCardWithTags.toCardState(isValid: Boolean): CardState =

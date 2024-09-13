@@ -66,6 +66,9 @@ interface AppDao {
     @Query("SELECT * FROM box WHERE boxId = :boxId")
     fun getBoxWithTags(boxId: Long): Flow<BoxWithTags>
 
+    @Query("SELECT * FROM box WHERE boxId = :boxId")
+    fun getBoxWithCategories(boxId: Long): Flow<BoxWithCategories>
+
     @Transaction
     @Query("SELECT * FROM tag WHERE tagId = :tagId")
     fun getTagWithCards(tagId: Long): Flow<TagWithCards>

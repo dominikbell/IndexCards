@@ -250,7 +250,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
+        return "INSERT INTO `Card` (`cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI`,`categoryId`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -280,12 +280,13 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(8, entity.getMemoURI());
         }
+        statement.bindLong(9, entity.getCategoryId());
       }
     }, new EntityDeletionOrUpdateAdapter<Card>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`notes` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ?,`memoURI` = ? WHERE `cardId` = ?";
+        return "UPDATE `Card` SET `cardId` = ?,`word` = ?,`meaning` = ?,`notes` = ?,`dateAdded` = ?,`level` = ?,`boxId` = ?,`memoURI` = ?,`categoryId` = ? WHERE `cardId` = ?";
       }
 
       @Override
@@ -315,7 +316,8 @@ public final class AppDao_Impl implements AppDao {
         } else {
           statement.bindString(8, entity.getMemoURI());
         }
-        statement.bindLong(9, entity.getCardId());
+        statement.bindLong(9, entity.getCategoryId());
+        statement.bindLong(10, entity.getCardId());
       }
     });
     this.__upsertionAdapterOfTag = new EntityUpsertionAdapter<Tag>(new EntityInsertionAdapter<Tag>(__db) {
@@ -951,6 +953,7 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
           final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
           final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
+          final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
           final Card _result;
           if (_cursor.moveToFirst()) {
             final long _tmpCardId;
@@ -985,7 +988,9 @@ public final class AppDao_Impl implements AppDao {
             } else {
               _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
             }
-            _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
+            final long _tmpCategoryId;
+            _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+            _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
           } else {
             _result = null;
           }
@@ -1214,6 +1219,86 @@ public final class AppDao_Impl implements AppDao {
   }
 
   @Override
+  public Flow<BoxWithCategories> getBoxWithCategories(final long boxId) {
+    final String _sql = "SELECT * FROM box WHERE boxId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, boxId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"Category",
+        "box"}, new Callable<BoxWithCategories>() {
+      @Override
+      @NonNull
+      public BoxWithCategories call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
+        try {
+          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
+          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
+          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
+          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final LongSparseArray<ArrayList<Category>> _collectionCategories = new LongSparseArray<ArrayList<Category>>();
+          while (_cursor.moveToNext()) {
+            final long _tmpKey;
+            _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
+            if (!_collectionCategories.containsKey(_tmpKey)) {
+              _collectionCategories.put(_tmpKey, new ArrayList<Category>());
+            }
+          }
+          _cursor.moveToPosition(-1);
+          __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(_collectionCategories);
+          final BoxWithCategories _result;
+          if (_cursor.moveToFirst()) {
+            final Box _tmpBox;
+            final long _tmpBoxId;
+            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+            final String _tmpName;
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _tmpName = null;
+            } else {
+              _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
+            final String _tmpTopic;
+            if (_cursor.isNull(_cursorIndexOfTopic)) {
+              _tmpTopic = null;
+            } else {
+              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
+            }
+            final boolean _tmpReminders;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfReminders);
+            _tmpReminders = _tmp != 0;
+            final String _tmpDescription;
+            if (_cursor.isNull(_cursorIndexOfDescription)) {
+              _tmpDescription = null;
+            } else {
+              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
+            }
+            final long _tmpDateAdded;
+            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpDescription,_tmpDateAdded);
+            final ArrayList<Category> _tmpCategoriesCollection;
+            final long _tmpKey_1;
+            _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
+            _tmpCategoriesCollection = _collectionCategories.get(_tmpKey_1);
+            _result = new BoxWithCategories(_tmpBox,_tmpCategoriesCollection);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
   public Flow<TagWithCards> getTagWithCards(final long tagId) {
     final String _sql = "SELECT * FROM tag WHERE tagId = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
@@ -1310,6 +1395,7 @@ public final class AppDao_Impl implements AppDao {
             final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
             final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
             final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
+            final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
             final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
             while (_cursor.moveToNext()) {
               final long _tmpKey;
@@ -1355,7 +1441,9 @@ public final class AppDao_Impl implements AppDao {
               } else {
                 _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
               }
-              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
+              final long _tmpCategoryId;
+              _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
               final ArrayList<Tag> _tmpTagsCollection;
               final long _tmpKey_1;
               _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
@@ -1404,6 +1492,7 @@ public final class AppDao_Impl implements AppDao {
             final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
             final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
             final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
+            final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
             final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
             while (_cursor.moveToNext()) {
               final long _tmpKey;
@@ -1450,7 +1539,9 @@ public final class AppDao_Impl implements AppDao {
               } else {
                 _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
               }
-              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
+              final long _tmpCategoryId;
+              _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
               final ArrayList<Tag> _tmpTagsCollection;
               final long _tmpKey_1;
               _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
@@ -1626,7 +1717,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI` FROM `Card` WHERE `boxId` IN (");
+    _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI`,`categoryId` FROM `Card` WHERE `boxId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -1653,6 +1744,7 @@ public final class AppDao_Impl implements AppDao {
       final int _cursorIndexOfLevel = 5;
       final int _cursorIndexOfBoxId = 6;
       final int _cursorIndexOfMemoURI = 7;
+      final int _cursorIndexOfCategoryId = 8;
       while (_cursor.moveToNext()) {
         final long _tmpKey;
         _tmpKey = _cursor.getLong(_itemKeyIndex);
@@ -1691,7 +1783,9 @@ public final class AppDao_Impl implements AppDao {
           } else {
             _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
           }
-          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
+          final long _tmpCategoryId;
+          _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
           _tmpRelation.add(_item_1);
         }
       }
@@ -1767,6 +1861,66 @@ public final class AppDao_Impl implements AppDao {
     }
   }
 
+  private void __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(
+      @NonNull final LongSparseArray<ArrayList<Category>> _map) {
+    if (_map.isEmpty()) {
+      return;
+    }
+    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
+        __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(map);
+        return Unit.INSTANCE;
+      });
+      return;
+    }
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT `categoryId`,`boxId`,`name` FROM `Category` WHERE `boxId` IN (");
+    final int _inputSize = _map.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(")");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (int i = 0; i < _map.size(); i++) {
+      final long _item = _map.keyAt(i);
+      _stmt.bindLong(_argIndex, _item);
+      _argIndex++;
+    }
+    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
+    try {
+      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "boxId");
+      if (_itemKeyIndex == -1) {
+        return;
+      }
+      final int _cursorIndexOfCategoryId = 0;
+      final int _cursorIndexOfBoxId = 1;
+      final int _cursorIndexOfName = 2;
+      while (_cursor.moveToNext()) {
+        final long _tmpKey;
+        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        final ArrayList<Category> _tmpRelation = _map.get(_tmpKey);
+        if (_tmpRelation != null) {
+          final Category _item_1;
+          final long _tmpCategoryId;
+          _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+          final long _tmpBoxId;
+          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          final String _tmpName;
+          if (_cursor.isNull(_cursorIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _cursor.getString(_cursorIndexOfName);
+          }
+          _item_1 = new Category(_tmpCategoryId,_tmpBoxId,_tmpName);
+          _tmpRelation.add(_item_1);
+        }
+      }
+    } finally {
+      _cursor.close();
+    }
+  }
+
   private void __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(
       @NonNull final LongSparseArray<ArrayList<Card>> _map) {
     if (_map.isEmpty()) {
@@ -1780,7 +1934,7 @@ public final class AppDao_Impl implements AppDao {
       return;
     }
     final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,`Card`.`memoURI` AS `memoURI`,_junction.`tagId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
+    _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,`Card`.`memoURI` AS `memoURI`,`Card`.`categoryId` AS `categoryId`,_junction.`tagId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
@@ -1796,7 +1950,7 @@ public final class AppDao_Impl implements AppDao {
     final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
       // _junction.tagId;
-      final int _itemKeyIndex = 8;
+      final int _itemKeyIndex = 9;
       if (_itemKeyIndex == -1) {
         return;
       }
@@ -1808,6 +1962,7 @@ public final class AppDao_Impl implements AppDao {
       final int _cursorIndexOfLevel = 5;
       final int _cursorIndexOfBoxId = 6;
       final int _cursorIndexOfMemoURI = 7;
+      final int _cursorIndexOfCategoryId = 8;
       while (_cursor.moveToNext()) {
         final long _tmpKey;
         _tmpKey = _cursor.getLong(_itemKeyIndex);
@@ -1846,7 +2001,9 @@ public final class AppDao_Impl implements AppDao {
           } else {
             _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
           }
-          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI);
+          final long _tmpCategoryId;
+          _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+          _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
           _tmpRelation.add(_item_1);
         }
       }

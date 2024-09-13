@@ -31,6 +31,8 @@
     <string name="about_app_text">Developed in Kotlin by Dominik Bell</string>
     <string name="nr_card">Number of cards in this box</string>
     <string name="edit_box">Edit Box Details</string>
+    <string name="show_categories">Show categories</string>
+    <string name="no_category">No category</string>
     <string name="box_created">This box was created on</string>
     <string name="at">at</string>
     <string name="search">Search</string>

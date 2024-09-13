@@ -83,6 +83,7 @@ fun BoxScreen(
     val trainingCounts by boxScreenViewModel.trainingCounts.collectAsState()
     val trainingDirection by boxScreenViewModel.trainingDirection.collectAsState()
     val boxWithTags by boxScreenViewModel.uiBoxWithTags.collectAsState()
+    val boxWithCategories by boxScreenViewModel.uiBoxWithCategories.collectAsState()
     val cardsWithTags by boxScreenViewModel.uiCardsWithTags.collectAsState()
     val cardWithTags by boxScreenViewModel.uiCardWithTags.collectAsState()
     val tagWithCards by boxScreenViewModel.uiTagWithCards.collectAsState()
@@ -101,6 +102,8 @@ fun BoxScreen(
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
+    /* TODO: save if categories are shown or not shown for each box */
+    var showCategories by remember { mutableStateOf(false) }
 
     val doneCollecting = boxScreenViewModel.doneCollectingData
     val csvString = boxScreenViewModel.csvString
@@ -143,10 +146,11 @@ fun BoxScreen(
 
     var shuffledCardList: List<CardWithTags> by remember { mutableStateOf(listOf()) }
 
+    val fileName = "${boxWithTags.box.name}.csv"
+
     /** Stuff for the voice memos */
     val recorder by lazy { AndroidAudioRecorder(applicationContext) }
     val player by lazy { AndroidAudioPlayer(applicationContext) }
-    val fileName = "${boxWithTags.box.name}.csv"
 
     LaunchedEffect(key1 = doneCollecting) {
         if (doneCollecting) {
@@ -259,8 +263,10 @@ fun BoxScreen(
                 updateEditUiStatus = { boxScreenViewModel.updateBoxUiState(boxWithTags.box.toBoxDetails()) },
                 changeBoxScreenState = { boxScreenViewModel.updateBoxScreenState(it) },
                 boxScreenState = boxScreenState,
+                showCategories = showCategories,
                 thisBox = boxWithTags.box,
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
+                changeShowCategories = { showCategories = !showCategories },
                 trainingCounts = trainingCounts,
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
@@ -301,22 +307,24 @@ fun BoxScreen(
             BoxScreenState.VIEW -> {
                 BoxScreenBody(
                     modifier = modifier.padding(innerPadding),
+                    levelSelected = levelSelected,
+                    isSearching = isSearching,
+                    searchText = searchTerm,
+                    boxWithTags = boxWithTags,
+                    boxWithCategories = boxWithCategories,
+                    cardsWithTags = cardsWithTags,
+                    tagWithCards = tagWithCards,
+                    showCategories = showCategories,
+                    filteredCardWithTagList = filteredCardWithTagList,
                     showCardDialog = {
                         boxScreenViewModel.setCurrentCard(it)
                         cardDialog = true
                     },
                     showNewTagDialog = { showNewTagDialog() },
                     onTagLongClick = { showEditTagDialog(it) },
-                    levelSelected = levelSelected,
-                    isSearching = isSearching,
-                    searchText = searchTerm,
                     selectLevel = { boxScreenViewModel.setLevelSelected(it) },
                     setTagSortedBy = { boxScreenViewModel.setTagSelected(it) },
                     resetTagSortedBy = { boxScreenViewModel.resetTagSelected() },
-                    boxWithTags = boxWithTags,
-                    cardsWithTags = cardsWithTags,
-                    tagWithCards = tagWithCards,
-                    filteredCardWithTagList = filteredCardWithTagList,
                     onCloseSearch = {
                         isSearching = false
                         boxScreenViewModel.resetSearchTerm()

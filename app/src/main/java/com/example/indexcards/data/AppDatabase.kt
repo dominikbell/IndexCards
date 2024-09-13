@@ -11,12 +11,14 @@ import androidx.room.RoomDatabase
         Box::class,
         Card::class,
         Tag::class,
+        Category::class,
         TagCardCrossRef::class,
     ],
-    version = 10,
+    version = 11,
     autoMigrations = [
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11),
     ]
 )
 

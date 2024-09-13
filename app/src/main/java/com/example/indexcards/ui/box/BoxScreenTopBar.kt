@@ -46,11 +46,13 @@ fun BoxScreenTopBar(
     modifier: Modifier = Modifier,
     thisBox: Box,
     boxScreenState: BoxScreenState,
+    showCategories: Boolean,
     trainingCounts: Boolean,
     navigateToBoxesOverview: () -> Unit = {},
     updateEditUiStatus: () -> Unit = {},
     changeBoxScreenState: (BoxScreenState) -> Unit = {},
     cancelEdit: () -> Unit = {},
+    changeShowCategories: () -> Unit = {},
     changeTrainingCounts: () -> Unit = {},
     changeTrainingDirection: () -> Unit = {},
     changeTrainingDirectionToValue: (Boolean) -> Unit = {},
@@ -166,6 +168,25 @@ fun BoxScreenTopBar(
                             }
                         )
                         DropdownMenuItem(
+                            text = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        modifier = Modifier.weight(1F),
+                                        text = stringResource(id = R.string.show_categories)
+                                    )
+                                    Checkbox(
+                                        checked = showCategories,
+                                        onCheckedChange = { changeShowCategories() }
+                                    )
+                                }
+                            },
+                            onClick = { changeShowCategories() }
+                        )
+                        DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.export_box)) },
                             onClick = {
                                 expanded = false
@@ -213,7 +234,7 @@ fun BoxScreenTopBar(
 
                     DropdownMenu(
                         expanded = sortExpanded,
-                        onDismissRequest = { sortExpanded = false }
+                        onDismissRequest = { expanded = false }
                     ) {
                         boxScreenSorting.forEach { option ->
                             DropdownMenuItem(
@@ -279,30 +300,33 @@ fun BoxScreenTopBar(
 
 @Preview
 @Composable
-fun BoxTopBarPreviewView() {
+fun BoxTopBarViewPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.VIEW,
         thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
+        showCategories = false,
     )
 }
 
 @Preview
 @Composable
-fun BoxTopBarPreviewTrain() {
+fun BoxTopBarTrainPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.TRAIN,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = true,
+        showCategories = false,
     )
 }
 
 @Preview
 @Composable
-fun BoxTopBarPreviewEdit() {
+fun BoxTopBarEditPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.EDIT,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = false,
+        showCategories = false,
     )
 }

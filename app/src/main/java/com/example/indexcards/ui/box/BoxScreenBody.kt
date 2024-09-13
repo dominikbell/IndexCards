@@ -27,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.elements.NewTagButton
+import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.UiCardsWithTags
@@ -46,11 +48,13 @@ fun BoxScreenBody(
     modifier: Modifier = Modifier,
     levelSelected: Int,
     boxWithTags: UiBoxWithTags,
+    boxWithCategories: UiBoxWithCategories,
     cardsWithTags: UiCardsWithTags,
     tagWithCards: UiTagWithCards,
     filteredCardWithTagList: List<CardWithTags>,
     isSearching: Boolean,
     searchText: String,
+    showCategories: Boolean,
     showCardDialog: (Card) -> Unit = {},
     showNewTagDialog: () -> Unit = {},
     onTagLongClick: (Tag) -> Unit = {},
@@ -163,6 +167,8 @@ fun BoxScreenBody(
             )
         } else {
             CardList(
+                showCategories = showCategories,
+                boxWithCategories = boxWithCategories,
                 cardWithTagList = filteredCardWithTagList,
                 showCardDialog = { showCardDialog(it) },
             )
@@ -203,6 +209,72 @@ fun BoxScreenBodyPreview() {
         isSearching = false,
         searchText = "",
         boxWithTags = boxWithTags,
+        boxWithCategories = UiBoxWithCategories(),
+        showCategories = false,
+        cardsWithTags = cardsWithTags,
+        filteredCardWithTagList = cardWithTagsList,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BoxScreenBodyCategoriesPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text"
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val tag1 = emptyTag.copy(tagId = 1, text = "Tag123")
+    val tag2 = emptyTag.copy(tagId = 2, text = "Tag3")
+    val tag3 = emptyTag.copy(tagId = 3, text = "Tag243")
+
+    val tagList = listOf(tag1, tag2, tag3)
+
+    val cardWithTagsList = listOf(
+        CardWithTags(
+            emptyCard.copy(word = "Hello", meaning = "Oho", level = 1, categoryId = -1),
+            tags = tagList
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "SDe", meaning = "asd", level = 1, categoryId = 0),
+            tags = tagList.minus(tag1)
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "Plosad", meaning = "Okosd", level = 1, categoryId = 1),
+            tags = tagList.minus(tag1).minus(tag3)
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "Messs", meaning = "ploo", level = 1, categoryId = 1),
+            tags = tagList.minus(tag2).minus(tag1)
+        ),
+    )
+    val cardsWithTags = UiCardsWithTags(
+        cardWithTagList = cardWithTagsList
+    )
+
+    val boxWithTags = UiBoxWithTags(
+        box = box,
+        tagList = tagList
+    )
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
+    BoxScreenBody(
+        tagWithCards = UiTagWithCards(
+            tag = emptyTag.copy(text = "Tag123")
+        ),
+        levelSelected = -1,
+        isSearching = false,
+        searchText = "",
+        boxWithTags = boxWithTags,
+        boxWithCategories = boxWithCategories,
+        showCategories = true,
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
     )
@@ -241,6 +313,8 @@ fun BoxScreenBodySearchingPreview() {
         isSearching = true,
         searchText = "Search",
         boxWithTags = boxWithTags,
+        boxWithCategories = UiBoxWithCategories(),
+        showCategories = false,
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
     )

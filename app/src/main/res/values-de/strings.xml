@@ -32,6 +32,8 @@
     <string name="about_app_text">Entwickelt in Kotlin von Dominik Bell</string>
     <string name="nr_card">Anzahl der Karten in diesem Kasten</string>
     <string name="edit_box">Karteikasten bearbeiten</string>
+    <string name="show_categories">Zeige Kategorien</string>
+    <string name="no_category">Keine Kategorie</string>
     <string name="box_created">Dieser Karteikasten wurde erstellt am</string>
     <string name="at">um</string>
     <string name="search">Suchen</string>

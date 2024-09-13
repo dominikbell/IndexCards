@@ -69,6 +69,9 @@ class OfflineAppRepository(
     override fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags> =
         appDao.getBoxWithTags(boxId)
 
+    override fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories> =
+        appDao.getBoxWithCategories(boxId)
+
     override fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags> =
         appDao.getCardWithTags(cardId)
 

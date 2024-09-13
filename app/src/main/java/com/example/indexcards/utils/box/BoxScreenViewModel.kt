@@ -93,6 +93,24 @@ class BoxScreenViewModel(
             )
 
 
+    /** uiBoxWithCategories
+     * contains box and all its categories
+     */
+    val uiBoxWithCategories: StateFlow<UiBoxWithCategories> =
+        appRepository.getBoxWithCategoriesStream(boxId = boxId)
+            .filterNotNull()
+            .map {
+                UiBoxWithCategories(
+                    box = it.box,
+                    categoryList = it.categories,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = UiBoxWithCategories()
+            )
+
+
     /** uiCardWithTags
      * contains all cards together with their tags
      */

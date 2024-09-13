@@ -35,6 +35,8 @@ interface AppRepository {
 
     fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags>
 
+    fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories>
+
     fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags>
 
     fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards>

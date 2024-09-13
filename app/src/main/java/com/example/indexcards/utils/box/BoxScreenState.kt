@@ -4,6 +4,7 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.emptyTag
@@ -17,6 +18,11 @@ data class UiTagWithCards(
 data class UiBoxWithTags(
     val box: Box = emptyBox,
     val tagList: List<Tag> = listOf()
+)
+
+data class UiBoxWithCategories(
+    val box: Box = emptyBox,
+    val categoryList: List<Category> = listOf()
 )
 
 data class UiCardsWithTags(
