@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
@@ -127,13 +128,18 @@ fun CardDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Row(
-                        modifier = modifier.wrapContentHeight(),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         SelectionContainer(
-                            modifier = modifier.weight(1f),
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
                                 text = cardWithTags.card.word,
