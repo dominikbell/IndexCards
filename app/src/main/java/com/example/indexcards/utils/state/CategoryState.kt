@@ -1,7 +1,6 @@
 package com.example.indexcards.utils.state
 
 import com.example.indexcards.data.Category
-import com.example.indexcards.utils.box.UiBoxWithCategories
 
 val emptyCategory: Category = Category(
     categoryId = -1,

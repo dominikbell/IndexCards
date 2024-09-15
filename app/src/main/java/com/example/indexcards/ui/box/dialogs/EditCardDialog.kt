@@ -1,7 +1,6 @@
 package com.example.indexcards.ui.box.dialogs
 
 import android.media.MediaMetadataRetriever
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -458,7 +457,6 @@ fun CardDialogBody(
                     } else {
                         IconButton(
                             onClick = {
-                                Log.d("cardId", cardId.toString())
                                 if (!hasRecordingPermission) {
                                     val success = requestRecordingPermission()
                                     if (success) {

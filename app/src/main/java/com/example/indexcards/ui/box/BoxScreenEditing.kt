@@ -22,11 +22,8 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -51,12 +48,10 @@ import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.state.BoxState
 import com.example.indexcards.utils.state.CategoryDetails
 import com.example.indexcards.utils.state.CategoryState
-import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.emptyCategory
 import com.example.indexcards.utils.state.isLanguage
 import com.example.indexcards.utils.state.toBox
 import com.example.indexcards.utils.state.toBoxDetails
-import com.example.indexcards.utils.state.toCategory
 import com.example.indexcards.utils.state.toCategoryDetails
 import java.time.LocalDateTime
 import java.time.ZoneOffset
