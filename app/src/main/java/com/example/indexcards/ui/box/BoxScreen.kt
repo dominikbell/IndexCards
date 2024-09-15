@@ -74,6 +74,7 @@ fun BoxScreen(
     /** uiStates of Box (fixed) and Card (dynamic) */
     val boxUiState = boxScreenViewModel.boxUiState
     val cardUiState = boxScreenViewModel.cardUiState
+    val categoryUiState = boxScreenViewModel.categoryUiState
     val tagUiState = boxScreenViewModel.tagUiState
     val newCardId = boxScreenViewModel.newCardId
     val tagSelected by boxScreenViewModel.tagSelected.collectAsState()
@@ -102,8 +103,6 @@ fun BoxScreen(
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
-    /* TODO: save if categories are shown or not shown for each box */
-    var showCategories by remember { mutableStateOf(false) }
 
     val doneCollecting = boxScreenViewModel.doneCollectingData
     val csvString = boxScreenViewModel.csvString
@@ -263,10 +262,8 @@ fun BoxScreen(
                 updateEditUiStatus = { boxScreenViewModel.updateBoxUiState(boxWithTags.box.toBoxDetails()) },
                 changeBoxScreenState = { boxScreenViewModel.updateBoxScreenState(it) },
                 boxScreenState = boxScreenState,
-                showCategories = showCategories,
                 thisBox = boxWithTags.box,
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
-                changeShowCategories = { showCategories = !showCategories },
                 trainingCounts = trainingCounts,
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
@@ -314,7 +311,7 @@ fun BoxScreen(
                     boxWithCategories = boxWithCategories,
                     cardsWithTags = cardsWithTags,
                     tagWithCards = tagWithCards,
-                    showCategories = showCategories,
+                    showCategories = boxWithCategories.box.categories,
                     filteredCardWithTagList = filteredCardWithTagList,
                     showCardDialog = {
                         boxScreenViewModel.setCurrentCard(it)
@@ -337,6 +334,8 @@ fun BoxScreen(
                 BoxScreenEditing(
                     modifier = modifier.padding(innerPadding),
                     boxUiState = boxUiState,
+                    boxWithCategories = boxWithCategories,
+                    categoryUiState = categoryUiState,
                     globalReminders = globalReminders.value,
                     onSave = {
                         boxScreenViewModel.saveBox()
@@ -346,7 +345,11 @@ fun BoxScreen(
                     hasNotificationPermission = hasNotificationPermission,
                     requestNotificationPermission = requestNotificationPermission,
                     updateBoxUiState = { boxScreenViewModel.updateBoxUiState(it) },
-                    setAllReminders = { setAllReminders() }
+                    setAllReminders = { setAllReminders() },
+                    updateCategoryUiState = { boxScreenViewModel.updateCategoryUiState(it) },
+                    resetCategoryUiState = { boxScreenViewModel.resetCategoryUiState() },
+                    saveCategory = { boxScreenViewModel.saveCategory() },
+                    deleteCategory = { boxScreenViewModel.deleteCategory(it) }
                 )
             }
 
@@ -372,6 +375,7 @@ fun BoxScreen(
     if (cardDialog) {
         CardDialog(
             audioPlayer = player,
+            boxWithCategories = boxWithCategories,
             onDismiss = {
                 cardDialog = false
                 boxScreenViewModel.resetCardUiState()
@@ -390,6 +394,7 @@ fun BoxScreen(
         NewCardDialog(
             cardUiState = cardUiState,
             boxWithTags = boxWithTags,
+            boxWithCategories = boxWithCategories,
             cardId = newCardId,
             audioPlayer = player,
             audioRecorder = recorder,
@@ -419,6 +424,7 @@ fun BoxScreen(
     if (editCardDialog) {
         EditCardDialog(
             boxWithTags = boxWithTags,
+            boxWithCategories = boxWithCategories,
             cardWithTags = cardWithTags,
             cardUiState = cardUiState,
             audioPlayer = player,
@@ -443,7 +449,7 @@ fun BoxScreen(
                 } else {
                     boxScreenViewModel.updateCardState(tagList = cardUiState.tagList.plus(it))
                 }
-            }
+            },
         )
     }
 

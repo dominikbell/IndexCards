@@ -32,7 +32,12 @@
     <string name="nr_card">Number of cards in this box</string>
     <string name="edit_box">Edit Box Details</string>
     <string name="show_categories">Show categories</string>
+    <string name="category">Category</string>
+    <string name="use_categories">Use categories</string>
+    <string name="new_category">New category</string>
+    <string name="edit_category">Edit category</string>
     <string name="no_category">No category</string>
+    <string name="no_cards_in_category">There are no cards in this category</string>
     <string name="box_created">This box was created on</string>
     <string name="at">at</string>
     <string name="search">Search</string>
@@ -48,6 +53,7 @@
     <string name="add_new_card">Add a new card</string>
     <string name="word">Word</string>
     <string name="meaning">Meaning</string>
+    <string name="frontside">Front side</string>
     <string name="backside">Back side</string>
     <string name="notes">Notes</string>
     <string name="edit_card">Edit card for</string>

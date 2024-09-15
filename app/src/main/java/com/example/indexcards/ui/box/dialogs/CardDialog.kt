@@ -43,18 +43,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.example.indexcards.R
+import com.example.indexcards.data.BoxWithCategories
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.ui.box.TagList
+import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.state.UiCardWithTags
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
+import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.emptyCategory
 import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toBox
 import kotlinx.coroutines.delay
 import java.io.File
 
 @Composable
 fun CardDialog(
     modifier: Modifier = Modifier,
+    boxWithCategories: UiBoxWithCategories,
     cardWithTags: UiCardWithTags,
     isEditing: Boolean,
     audioPlayer: AndroidAudioPlayer,
@@ -65,6 +72,7 @@ fun CardDialog(
     var isPlaying by remember { mutableStateOf(false) }
     var duration by remember { mutableLongStateOf(0) }
     var audioFile: File? by remember { mutableStateOf(null) }
+    val category: Category = boxWithCategories.categoryList.firstOrNull { it.categoryId == cardWithTags.card.categoryId }?: emptyCategory
     val mmr = MediaMetadataRetriever()
 
     LaunchedEffect(key1 = cardWithTags.card.memoURI) {
@@ -177,6 +185,29 @@ fun CardDialog(
 
                         Spacer(modifier = modifier.size(8.dp))
 
+                        if (category == emptyCategory) {
+                            Text(
+                                text = stringResource(id = R.string.no_category),
+                                fontStyle = FontStyle.Italic
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.category) + ": ",
+                                    fontStyle = FontStyle.Italic
+                                )
+
+                                SelectionContainer {
+                                    Text(text = category.name)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = modifier.size(4.dp))
+
                         TagList(
                             tagList = cardWithTags.tagList,
                             onClick = {},
@@ -222,7 +253,7 @@ fun CardDialog(
                         }
 
 
-                        Spacer(modifier = modifier.size(4.dp))
+                        Spacer(modifier = modifier.size(6.dp))
 
                         if (cardWithTags.card.notes.isNotBlank()) {
                             Row {
@@ -257,13 +288,28 @@ fun CardDialog(
 @Preview
 @Composable
 fun CardDialogPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text"
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
     CardDialog(
         cardWithTags = UiCardWithTags(
             card = emptyCard.copy(
                 word = "Kartonage",
                 meaning = "huch, upsi",
                 notes = "Diese Karte erklärt dir genau was schiefgelaufen ist als du damals die falsche Milch gekauft hast",
-                memoURI = "not0"
+                memoURI = "not0",
+                categoryId = 1
             ),
             tagList = listOf(
                 emptyTag.copy(tagId = 1, text = "Tag1"),
@@ -272,6 +318,7 @@ fun CardDialogPreview() {
             )
         ),
         isEditing = false,
+        boxWithCategories = boxWithCategories,
         audioPlayer = AndroidAudioPlayer(LocalContext.current)
     )
 }

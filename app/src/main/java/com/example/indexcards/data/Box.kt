@@ -12,6 +12,8 @@ data class Box(
     val topic: String,
     @ColumnInfo(name = "reminders", defaultValue = "0")
     val reminders: Boolean,
+    @ColumnInfo(name = "categories", defaultValue = "0")
+    val categories: Boolean,
     val description: String,
     val dateAdded: Long,
 )

@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -81,34 +82,47 @@ fun CardList(
                         category = category,
                         expanded = categoriesExpanded.contains(category.categoryId),
                         changeExpanded = {
-                            if (categoriesExpanded.contains(category.categoryId)) {
-                                categoriesExpanded = categoriesExpanded.minus(category.categoryId)
-                            } else {
-                                categoriesExpanded = categoriesExpanded.plus(category.categoryId)
-                            }
-                        })
+                            categoriesExpanded =
+                                if (categoriesExpanded.contains(category.categoryId)) {
+                                    categoriesExpanded.minus(category.categoryId)
+                                } else {
+                                    categoriesExpanded.plus(category.categoryId)
+                                }
+                        }
+                    )
                 }
 
                 if (categoriesExpanded.contains(category.categoryId)) {
                     val cardsOfCategory =
                         cardWithTagList.filter { it.card.categoryId == category.categoryId }
 
-                    itemsIndexed(cardsOfCategory) { ind, item ->
-                        val cardFinalOffset = if (
-                            index == boxWithCategories.categoryList.size - 1 &&
-                            ind == cardsOfCategory.size - 1 &&
-                            noCategoryCards.isNotEmpty()
-                        ) {
-                            (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
-                        } else {
-                            0.dp
+                    if (cardsOfCategory.isEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                text = stringResource(id = R.string.no_cards_in_category),
+                                fontStyle = FontStyle.Italic
+                            )
                         }
+                    } else {
+                        itemsIndexed(cardsOfCategory) { ind, item ->
+                            val cardFinalOffset = if (
+                                index == boxWithCategories.categoryList.size - 1 &&
+                                ind == cardsOfCategory.size - 1 &&
+                                noCategoryCards.isEmpty()
+                            ) {
+                                (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                            } else {
+                                0.dp
+                            }
 
-                        CardListItem(
-                            modifier = Modifier.padding(bottom = cardFinalOffset),
-                            cardWithTags = item,
-                            onClick = { showCardDialog(it) }
-                        )
+                            CardListItem(
+                                modifier = Modifier.padding(bottom = cardFinalOffset),
+                                cardWithTags = item,
+                                onClick = { showCardDialog(it) }
+                            )
+                        }
                     }
                 }
             }
@@ -150,8 +164,8 @@ fun CardList(
             }
         }
 
+        /** If now categories should be shown - old version */
     } else {
-
         LazyColumn(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
         ) {
@@ -171,21 +185,6 @@ fun CardList(
         }
     }
 }
-
-//@Preview
-//@Composable
-//fun CardListPreview() {
-//    CardList(
-//        cardWithTagList = listOf(
-//            CardWithTags(
-//                emptyCard.copy(),
-//
-//            )
-//        ),
-//        boxWithCategories = ,
-//        showCategories =
-//    )
-//}
 
 @Composable
 fun CategoryListItem(

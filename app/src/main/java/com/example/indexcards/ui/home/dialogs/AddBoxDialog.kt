@@ -44,10 +44,6 @@ fun AddBoxDialog(
     var validName by remember { mutableStateOf(true) }
     var validTopic by remember { mutableStateOf(true) }
 
-    fun changeIsLanguage() {
-        isLanguage = !isLanguage
-    }
-
     AlertDialog(
         modifier = modifier,
         onDismissRequest = {
@@ -103,7 +99,7 @@ fun AddBoxDialog(
 
                 IsLanguageCheckBox(modifier = modifier, isLanguage = isLanguage) {
                     updateUiState(boxUiState.boxDetails.copy(topic = ""))
-                    changeIsLanguage()
+                    isLanguage = !isLanguage
                 }
 
                 DescriptionField(

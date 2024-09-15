@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
@@ -16,6 +17,8 @@ import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.UserPreferences
 import com.example.indexcards.utils.state.CardDetails
 import com.example.indexcards.utils.state.CardState
+import com.example.indexcards.utils.state.CategoryDetails
+import com.example.indexcards.utils.state.CategoryState
 import com.example.indexcards.utils.state.UiCardWithTags
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.toCard
@@ -24,6 +27,7 @@ import com.example.indexcards.utils.state.TagDetails
 import com.example.indexcards.utils.state.TagState
 import com.example.indexcards.utils.state.UiColorState
 import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toCategory
 import com.example.indexcards.utils.state.toTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -143,6 +147,8 @@ class BoxScreenViewModel(
         levelSelected.update { -1 }
     }
 
+
+    /** searchTerm */
     val searchTerm = MutableStateFlow("")
 
     fun setSearchTerm(newTerm: String) {
@@ -211,6 +217,47 @@ class BoxScreenViewModel(
             emptyTag
         }
     }
+
+
+    /** currentCategory
+     * for editing and adding new categories
+     */
+    var categoryUiState by mutableStateOf(CategoryState())
+
+    fun updateCategoryUiState(categoryDetails: CategoryDetails) {
+        categoryUiState = CategoryState(
+            categoryDetails = categoryDetails,
+            isValid = categoryDetails.name.isNotBlank(),
+        )
+    }
+
+    fun resetCategoryUiState() {
+        categoryUiState = CategoryState()
+    }
+
+    fun saveCategory() {
+        viewModelScope.launch {
+            if (categoryUiState.isValid) {
+                if (categoryUiState.categoryDetails.boxId == (-1).toLong()) {
+                    updateCategoryUiState(categoryUiState.categoryDetails.copy(boxId = boxId))
+                }
+                val newId = if (categoryUiState.categoryDetails.id == (-1).toLong()) {
+                    appRepository.getBiggestCategoryId() + 1
+                } else {
+                    categoryUiState.categoryDetails.id
+                }
+                updateCategoryUiState(categoryUiState.categoryDetails.copy(id = newId))
+                appRepository.upsertCategory(categoryUiState.categoryDetails.toCategory())
+            }
+        }
+    }
+
+    fun deleteCategory(category: Category) {
+        viewModelScope.launch {
+            appRepository.deleteCategory(category)
+        }
+    }
+
 
     /** trainingCounts
      * maybe a temporary feature; changes if the training up-/downgrades cards during training

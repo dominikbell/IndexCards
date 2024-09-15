@@ -13,6 +13,7 @@ val emptyBox: Box = Box(
     topic = "EMPTY BOX",
     description = "EMPTY BOX",
     reminders = false,
+    categories = false,
     dateAdded = -1,
 )
 
@@ -28,6 +29,7 @@ data class BoxDetails(
     val name: String = "",
     val topic: String = "",
     val reminders: Boolean = false,
+    val categories: Boolean = false,
     val description: String = "",
     val dateAdded: Long = -1,
 )
@@ -38,6 +40,7 @@ fun BoxDetails.toBox(): Box = Box(
     topic = topic,
     description = description,
     reminders = reminders,
+    categories = categories,
     dateAdded = if (dateAdded == (-1).toLong()) LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) else dateAdded,
 )
 
@@ -51,6 +54,7 @@ fun Box.toBoxDetails(): BoxDetails = BoxDetails(
     name = name,
     topic = topic,
     reminders = reminders,
+    categories = categories,
     description = description,
     dateAdded = dateAdded,
 )
@@ -64,7 +68,7 @@ fun Box.isLanguage(): Boolean {
     return (LanguageData.language.map { it.value.first }.contains(this.topic))
 }
 
-/** Decided not to use emoji flags, but we will keep it in case it might come in handy */
+/** Decided not to use emoji flags, but will keep it in case it might come in handy */
 fun Box.namePlusFlag(): String {
     return this.name +
             if (this.isLanguage()) {

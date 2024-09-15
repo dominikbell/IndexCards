@@ -46,13 +46,11 @@ fun BoxScreenTopBar(
     modifier: Modifier = Modifier,
     thisBox: Box,
     boxScreenState: BoxScreenState,
-    showCategories: Boolean,
     trainingCounts: Boolean,
     navigateToBoxesOverview: () -> Unit = {},
     updateEditUiStatus: () -> Unit = {},
     changeBoxScreenState: (BoxScreenState) -> Unit = {},
     cancelEdit: () -> Unit = {},
-    changeShowCategories: () -> Unit = {},
     changeTrainingCounts: () -> Unit = {},
     changeTrainingDirection: () -> Unit = {},
     changeTrainingDirectionToValue: (Boolean) -> Unit = {},
@@ -166,25 +164,6 @@ fun BoxScreenTopBar(
                                 expanded = false
                                 showSearch()
                             }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    Text(
-                                        modifier = Modifier.weight(1F),
-                                        text = stringResource(id = R.string.show_categories)
-                                    )
-                                    Checkbox(
-                                        checked = showCategories,
-                                        onCheckedChange = { changeShowCategories() }
-                                    )
-                                }
-                            },
-                            onClick = { changeShowCategories() }
                         )
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.export_box)) },
@@ -305,7 +284,6 @@ fun BoxTopBarViewPreview() {
         boxScreenState = BoxScreenState.VIEW,
         thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
-        showCategories = false,
     )
 }
 
@@ -316,7 +294,6 @@ fun BoxTopBarTrainPreview() {
         boxScreenState = BoxScreenState.TRAIN,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = true,
-        showCategories = false,
     )
 }
 
@@ -327,6 +304,5 @@ fun BoxTopBarEditPreview() {
         boxScreenState = BoxScreenState.EDIT,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = false,
-        showCategories = false,
     )
 }

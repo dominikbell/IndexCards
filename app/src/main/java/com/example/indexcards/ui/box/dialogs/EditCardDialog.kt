@@ -34,15 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.indexcards.R
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.TagList
+import com.example.indexcards.ui.elements.CategoriesDropDownMenu
 import com.example.indexcards.ui.elements.MeaningField
 import com.example.indexcards.ui.elements.NewTagButton
 import com.example.indexcards.ui.elements.NotesField
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.WordField
+import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.box.UiBoxWithTags
-import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.CardDetails
 import com.example.indexcards.utils.state.CardState
 import com.example.indexcards.utils.state.UiCardWithTags
@@ -50,8 +52,11 @@ import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.toCardDetails
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
+import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.emptyCategory
 import com.example.indexcards.utils.state.emptyTag
 import com.example.indexcards.utils.state.isLanguage
+import com.example.indexcards.utils.state.toBox
 import kotlinx.coroutines.delay
 import java.io.File
 
@@ -60,6 +65,7 @@ fun NewCardDialog(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
     boxWithTags: UiBoxWithTags,
+    boxWithCategories: UiBoxWithCategories,
     cardId: Long,
     audioPlayer: AndroidAudioPlayer,
     audioRecorder: AndroidAudioRecorder,
@@ -76,6 +82,7 @@ fun NewCardDialog(
         titleText = stringResource(id = R.string.add_new_card),
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
+        boxWithCategories = boxWithCategories,
         cardId = cardId,
         deleteButton = false,
         hasRecordingPermission = hasRecordingPermission,
@@ -94,6 +101,20 @@ fun NewCardDialog(
 @Preview
 @Composable
 fun NewCardDialogPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text"
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
     NewCardDialog(
         cardUiState = CardState(
             cardDetails = emptyCard.copy(
@@ -103,12 +124,13 @@ fun NewCardDialogPreview() {
             ).toCardDetails()
         ),
         boxWithTags = UiBoxWithTags(
-            box = emptyBox.copy(name = "Box123", topic = "English"),
+            box = box,
             tagList = listOf(
                 emptyTag.copy(tagId = 1, text = "Tag1"),
                 emptyTag.copy(tagId = 2, text = "Tag2"),
             )
         ),
+        boxWithCategories = boxWithCategories,
         cardId = -1,
         audioPlayer = AndroidAudioPlayer(LocalContext.current),
         audioRecorder = AndroidAudioRecorder(LocalContext.current),
@@ -119,6 +141,7 @@ fun NewCardDialogPreview() {
 fun EditCardDialog(
     modifier: Modifier = Modifier,
     boxWithTags: UiBoxWithTags,
+    boxWithCategories: UiBoxWithCategories,
     cardWithTags: UiCardWithTags,
     cardUiState: CardState,
     audioPlayer: AndroidAudioPlayer,
@@ -139,6 +162,7 @@ fun EditCardDialog(
         titleText = titleText,
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
+        boxWithCategories = boxWithCategories,
         cardId = cardWithTags.card.cardId,
         deleteButton = true,
         audioPlayer = audioPlayer,
@@ -158,6 +182,20 @@ fun EditCardDialog(
 @Preview
 @Composable
 fun EditCardDialogPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text"
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
     EditCardDialog(
         cardUiState = CardState(
             cardDetails = emptyCard.copy(
@@ -168,12 +206,13 @@ fun EditCardDialogPreview() {
             ).toCardDetails()
         ),
         boxWithTags = UiBoxWithTags(
-            box = emptyBox.copy(name = "Box123"),
+            box = box,
             tagList = listOf(
                 emptyTag.copy(tagId = 1, text = "Tag1"),
                 emptyTag.copy(tagId = 2, text = "Tag2"),
             )
         ),
+        boxWithCategories = boxWithCategories,
         cardWithTags = UiCardWithTags(
             card = emptyCard.copy(word = "OldName")
         ),
@@ -188,6 +227,7 @@ fun CardDialogBody(
     titleText: String,
     cardUiState: CardState,
     boxWithTags: UiBoxWithTags,
+    boxWithCategories: UiBoxWithCategories,
     cardId: Long,
     deleteButton: Boolean,
     audioPlayer: AndroidAudioPlayer,
@@ -203,6 +243,8 @@ fun CardDialogBody(
     showEditTagDialog: (Tag) -> Unit = {},
 ) {
     val applicationContext = LocalContext.current.applicationContext
+    var categoriesExpanded by remember { mutableStateOf(false) }
+    var categoryMenuOpened by remember { mutableStateOf(false) }
 
     /** stuff for audio memos*/
     val mmr = MediaMetadataRetriever()
@@ -234,6 +276,15 @@ fun CardDialogBody(
         if (isPlaying) {
             delay(duration)
             isPlaying = false
+        }
+    }
+
+    // kinda hacky but necessary because a DismissRequest calls onExpandedChanged of
+    // the DropDownMenu first, then onDismissRequest of the AlertDialog
+    LaunchedEffect(key1 = categoriesExpanded) {
+        if (!categoriesExpanded) {
+            delay(100)
+            categoryMenuOpened = false
         }
     }
 
@@ -315,8 +366,15 @@ fun CardDialogBody(
         onDismiss()
     }
 
-    AlertDialog(modifier = modifier,
-        onDismissRequest = { onCancel() },
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = {
+            if (categoryMenuOpened) {
+                categoryMenuOpened = false
+            } else {
+                onCancel()
+            }
+        },
         title = { Text(text = titleText) },
         text = {
             Column(
@@ -325,6 +383,7 @@ fun CardDialogBody(
                 WordField(
                     cardUiState = cardUiState,
                     isError = !validWord,
+                    isLanguage = (boxWithTags.box.isLanguage()),
                     onValueChange = {
                         validWord = true
                         updateUiState(cardUiState.cardDetails.copy(word = it))
@@ -343,9 +402,24 @@ fun CardDialogBody(
 
                 RequiredFieldsText()
 
+                CategoriesDropDownMenu(
+                    currentCategory = boxWithCategories.categoryList
+                        .find { it.categoryId == cardUiState.cardDetails.categoryId }
+                        ?: emptyCategory,
+                    boxWithCategories = boxWithCategories,
+                    expanded = categoriesExpanded,
+                    changeExpanded = {
+                        categoryMenuOpened = true
+                        categoriesExpanded = !categoriesExpanded
+                    },
+                    onSelectCategory = { updateUiState(cardUiState.cardDetails.copy(categoryId = it.categoryId)) },
+                )
+
                 /** TagList */
                 Row(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TagList(

@@ -1,6 +1,7 @@
 package com.example.indexcards.utils.state
 
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import java.time.LocalDateTime
 import java.time.ZoneOffset

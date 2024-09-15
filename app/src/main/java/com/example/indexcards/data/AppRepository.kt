@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 interface AppRepository {
     suspend fun upsertBox(box: Box)
 
+    suspend fun upsertCategory(category: Category)
+
     suspend fun upsertCard(card: Card)
 
     suspend fun insertTag(tag: Tag)
@@ -14,6 +16,8 @@ interface AppRepository {
     suspend fun upsertTagCardCrossRef(tagCrossRef: TagCardCrossRef)
 
     suspend fun deleteBox(boxId: Long)
+
+    suspend fun deleteCategory(category: Category)
 
     suspend fun deleteCard(cardId: Long)
 
@@ -42,6 +46,8 @@ interface AppRepository {
     fun getTagWithCardsStream(tagId: Long): Flow<TagWithCards>
 
     suspend fun getBiggestBoxId(): Long
+
+    suspend fun getBiggestCategoryId(): Long
 
     suspend fun getBiggestCardId(): Long
 

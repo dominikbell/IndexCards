@@ -33,7 +33,12 @@
     <string name="nr_card">Anzahl der Karten in diesem Kasten</string>
     <string name="edit_box">Karteikasten bearbeiten</string>
     <string name="show_categories">Zeige Kategorien</string>
+    <string name="category">Kategorie</string>
+    <string name="use_categories">Kategorien benutzen</string>
+    <string name="new_category">Neue Kategorie</string>
+    <string name="edit_category">Kategorie bearbeiten</string>
     <string name="no_category">Keine Kategorie</string>
+    <string name="no_cards_in_category">In dieser Kategorie sind noch keine Karten</string>
     <string name="box_created">Dieser Karteikasten wurde erstellt am</string>
     <string name="at">um</string>
     <string name="search">Suchen</string>
@@ -49,6 +54,7 @@
     <string name="add_new_card">Eine neue Karte hinzufügen</string>
     <string name="word">Wort</string>
     <string name="meaning">Bedeutung</string>
+    <string name="frontside">Vorderseite</string>
     <string name="backside">Rückseite</string>
     <string name="notes">Notizen</string>
     <string name="edit_card">Bearbeiten von</string>
