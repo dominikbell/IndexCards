@@ -239,7 +239,8 @@ fun CardCard(
                             tagList = currentCard.tags,
                             onClick = {},
                             onLongClick = {},
-                            selectedTags = currentCard.tags
+                            selectedTags = currentCard.tags,
+                            onBoxScreen = false,
                         )
 
                         Spacer(modifier = Modifier.size(8.dp))

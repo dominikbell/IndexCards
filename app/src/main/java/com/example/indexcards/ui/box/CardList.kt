@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -107,7 +108,9 @@ fun CardList(
                     if (cardsOfCategory.isEmpty()) {
                         item {
                             Text(
-                                modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 6.dp),
                                 textAlign = TextAlign.Center,
                                 text = stringResource(id = R.string.no_cards_in_category),
                                 fontStyle = FontStyle.Italic
@@ -240,7 +243,7 @@ fun CategoryListItem(
             IconButton(
                 modifier = Modifier
                     .border(
-                        width = 2.dp,
+                        width = DividerDefaults.Thickness,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8F),
                         shape = CircleShape
                     )
@@ -248,12 +251,6 @@ fun CategoryListItem(
                 onClick = { trainCategory() }
             ) {
                 Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "train")
-            }
-        }
-
-        if (expanded) {
-            Row {
-
             }
         }
     }

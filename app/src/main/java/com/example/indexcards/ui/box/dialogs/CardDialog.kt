@@ -212,7 +212,8 @@ fun CardDialog(
                             tagList = cardWithTags.tagList,
                             onClick = {},
                             onLongClick = {},
-                            selectedTags = cardWithTags.tagList
+                            selectedTags = cardWithTags.tagList,
+                            onBoxScreen = false,
                         )
 
                         Spacer(modifier = modifier.size(4.dp))

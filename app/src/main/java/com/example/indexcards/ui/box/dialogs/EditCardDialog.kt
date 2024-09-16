@@ -426,7 +426,8 @@ fun CardDialogBody(
                         tagList = boxWithTags.tagList,
                         onClick = { onTagClick(it) },
                         onLongClick = { showEditTagDialog(it) },
-                        selectedTags = cardUiState.tagList
+                        selectedTags = cardUiState.tagList,
+                        onBoxScreen = false,
                     )
 
                     VerticalDivider(

@@ -145,7 +145,8 @@ fun BoxScreenBody(
                     }
                 },
                 onLongClick = { onTagLongClick(it) },
-                selectedTags = listOf(tagWithCards.tag)
+                selectedTags = listOf(tagWithCards.tag),
+                onBoxScreen = true,
             )
 
             VerticalDivider(
