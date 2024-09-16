@@ -172,6 +172,19 @@ class BoxScreenViewModel(
     }
 
 
+    /** For expanding categories */
+
+    val categoriesExpanded = MutableStateFlow<List<Long>>(listOf())
+
+    fun toggleCategoryExpanded(categoryId: Long) {
+        if (categoriesExpanded.value.contains(categoryId)) {
+            categoriesExpanded.update { categoriesExpanded.value.minus(categoryId) }
+        } else {
+            categoriesExpanded.update { categoriesExpanded.value.plus(categoryId) }
+        }
+    }
+
+
     /** tagSelected
      * used for filtering the cards by tag
      * uiTagWithCards is a StateFlow that emits an empty list when the tagSelected

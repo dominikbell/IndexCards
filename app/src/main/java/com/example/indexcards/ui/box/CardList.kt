@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -30,10 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,21 +49,22 @@ import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.emptyTag
 
+
 @Composable
 fun CardList(
     modifier: Modifier = Modifier,
     cardWithTagList: List<CardWithTags>,
     boxWithCategories: UiBoxWithCategories,
     showCategories: Boolean,
+    categoriesExpanded: List<Long>,
     numberOfButtons: Int,
     showCardDialog: (Card) -> Unit = {},
     trainCategory: (Long) -> Unit = {},
+    toggleCategoryExpanded: (Long) -> Unit = {},
 ) {
-    var categoriesExpanded: List<Long> by remember { mutableStateOf(listOf()) }
-
     if (showCategories) {
         val noCategoryCards = cardWithTagList.filter { it.card.categoryId == (-1).toLong() }
-        var noCategoryExpanded by remember { mutableStateOf(false) }
+        val noCategoryExpanded = categoriesExpanded.contains((-1).toLong())
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
@@ -81,7 +77,7 @@ fun CardList(
                 ) {
                     (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                 } else {
-                    0.dp
+                    2.dp
                 }
 
                 item {
@@ -89,14 +85,7 @@ fun CardList(
                         modifier = Modifier.padding(bottom = categoryFinalOffset),
                         category = category,
                         expanded = categoriesExpanded.contains(category.categoryId),
-                        changeExpanded = {
-                            categoriesExpanded =
-                                if (categoriesExpanded.contains(category.categoryId)) {
-                                    categoriesExpanded.minus(category.categoryId)
-                                } else {
-                                    categoriesExpanded.plus(category.categoryId)
-                                }
-                        },
+                        changeExpanded = { toggleCategoryExpanded(category.categoryId) },
                         trainCategory = { trainCategory(category.categoryId) },
                     )
                 }
@@ -125,7 +114,7 @@ fun CardList(
                             ) {
                                 (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                             } else {
-                                0.dp
+                                2.dp
                             }
 
                             CardListItem(
@@ -154,7 +143,7 @@ fun CardList(
                             name = stringResource(id = R.string.no_category)
                         ),
                         expanded = noCategoryExpanded,
-                        changeExpanded = { noCategoryExpanded = !noCategoryExpanded },
+                        changeExpanded = { toggleCategoryExpanded((-1).toLong()) },
                         trainCategory = { trainCategory((-1).toLong()) },
                     )
                 }

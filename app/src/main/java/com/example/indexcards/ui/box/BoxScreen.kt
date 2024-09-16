@@ -95,6 +95,7 @@ fun BoxScreen(
     val cardWithTags by boxScreenViewModel.uiCardWithTags.collectAsState()
     val tagWithCards by boxScreenViewModel.uiTagWithCards.collectAsState()
     val currentCard by boxScreenViewModel.currentCard.collectAsState()
+    val categoriesExpanded by boxScreenViewModel.categoriesExpanded.collectAsState()
 
     val globalReminders = boxScreenViewModel.globalReminders.collectAsState()
     val reminderIntervals = boxScreenViewModel.reminderIntervals.collectAsState()
@@ -351,6 +352,7 @@ fun BoxScreen(
                     cardsWithTags = cardsWithTags,
                     tagWithCards = tagWithCards,
                     showCategories = boxWithCategories.box.categories,
+                    categoriesExpanded = categoriesExpanded,
                     filteredCardWithTagList = filteredCardWithTagList,
                     showCardDialog = {
                         boxScreenViewModel.setCurrentCard(it)
@@ -370,7 +372,8 @@ fun BoxScreen(
                     trainCategory = {
                         trainCategory = it
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
-                    }
+                    },
+                    toggleCategoryExpanded = { boxScreenViewModel.toggleCategoryExpanded(it) }
                 )
             }
 

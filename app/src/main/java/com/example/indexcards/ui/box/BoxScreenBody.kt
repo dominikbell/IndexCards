@@ -40,8 +40,7 @@ import com.example.indexcards.utils.state.toBox
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.emptyTag
 import com.example.indexcards.utils.state.isLanguage
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+
 
 @Composable
 fun BoxScreenBody(
@@ -55,6 +54,7 @@ fun BoxScreenBody(
     isSearching: Boolean,
     searchText: String,
     showCategories: Boolean,
+    categoriesExpanded: List<Long>,
     numberOfButtons: Int,
     showCardDialog: (Card) -> Unit = {},
     showNewTagDialog: () -> Unit = {},
@@ -65,6 +65,7 @@ fun BoxScreenBody(
     updateSearchText: (String) -> Unit = {},
     onCloseSearch: () -> Unit = {},
     trainCategory: (Long) -> Unit = {},
+    toggleCategoryExpanded: (Long) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -170,12 +171,14 @@ fun BoxScreenBody(
             )
         } else {
             CardList(
-                showCategories = showCategories,
-                boxWithCategories = boxWithCategories,
                 cardWithTagList = filteredCardWithTagList,
+                showCategories = showCategories,
+                categoriesExpanded = categoriesExpanded,
+                boxWithCategories = boxWithCategories,
                 showCardDialog = { showCardDialog(it) },
                 numberOfButtons = numberOfButtons,
-                trainCategory = trainCategory
+                trainCategory = trainCategory,
+                toggleCategoryExpanded = toggleCategoryExpanded
             )
         }
     }
@@ -216,6 +219,7 @@ fun BoxScreenBodyPreview() {
         boxWithTags = boxWithTags,
         boxWithCategories = UiBoxWithCategories(),
         showCategories = false,
+        categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
         numberOfButtons = 1,
@@ -281,6 +285,7 @@ fun BoxScreenBodyCategoriesPreview() {
         boxWithTags = boxWithTags,
         boxWithCategories = boxWithCategories,
         showCategories = true,
+        categoriesExpanded = listOf(0, -1),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
         numberOfButtons = 1,
@@ -322,6 +327,7 @@ fun BoxScreenBodySearchingPreview() {
         boxWithTags = boxWithTags,
         boxWithCategories = UiBoxWithCategories(),
         showCategories = false,
+        categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
         numberOfButtons = 1,
