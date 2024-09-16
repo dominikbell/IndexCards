@@ -58,6 +58,7 @@ fun BoxScreenTopBar(
     showSearch: () -> Unit = {},
     onSortBy: (BoxScreenSorting) -> Unit = {},
     setRemindersAfterTraining: () -> Unit = {},
+    setTrainSelection: (Boolean) -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -197,6 +198,7 @@ fun BoxScreenTopBar(
                             text = { Text(text = stringResource(R.string.train_all)) },
                             onClick = {
                                 expanded = false
+                                setTrainSelection(false)
                                 changeTrainingDirectionToValue(true)
                                 changeBoxScreenState(BoxScreenState.TRAIN)
                             }
@@ -205,6 +207,7 @@ fun BoxScreenTopBar(
                             text = { Text(text = stringResource(R.string.train_selection)) },
                             onClick = {
                                 expanded = false
+                                setTrainSelection(true)
                                 changeTrainingDirectionToValue(true)
                                 changeBoxScreenState(BoxScreenState.TRAIN)
                             }

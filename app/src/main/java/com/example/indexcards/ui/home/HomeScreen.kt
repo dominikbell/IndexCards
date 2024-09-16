@@ -216,12 +216,9 @@ fun HomeScreen(
                             }
                         }
 
-                        // TODO: a little bit ugly solution
-                        if (selectedBoxes.isNotEmpty() && selectedBoxes.size >= 2) {
-                            Spacer(modifier = Modifier.size(10.dp))
-                        }
-
                         if (selectedBoxes.size >= 2) {
+                            Spacer(modifier = Modifier.size(10.dp))
+
                             FloatingActionButton(
                                 onClick = { /* TODO: implement merging */ },
                                 modifier = modifier.rotate(90F)

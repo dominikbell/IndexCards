@@ -55,6 +55,7 @@ fun BoxScreenBody(
     isSearching: Boolean,
     searchText: String,
     showCategories: Boolean,
+    numberOfButtons: Int,
     showCardDialog: (Card) -> Unit = {},
     showNewTagDialog: () -> Unit = {},
     onTagLongClick: (Tag) -> Unit = {},
@@ -63,6 +64,7 @@ fun BoxScreenBody(
     resetTagSortedBy: () -> Unit = {},
     updateSearchText: (String) -> Unit = {},
     onCloseSearch: () -> Unit = {},
+    trainCategory: (Long) -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -171,6 +173,8 @@ fun BoxScreenBody(
                 boxWithCategories = boxWithCategories,
                 cardWithTagList = filteredCardWithTagList,
                 showCardDialog = { showCardDialog(it) },
+                numberOfButtons = numberOfButtons,
+                trainCategory = trainCategory
             )
         }
     }
@@ -213,6 +217,7 @@ fun BoxScreenBodyPreview() {
         showCategories = false,
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
     )
 }
 
@@ -277,6 +282,7 @@ fun BoxScreenBodyCategoriesPreview() {
         showCategories = true,
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
     )
 }
 
@@ -317,5 +323,6 @@ fun BoxScreenBodySearchingPreview() {
         showCategories = false,
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
     )
 }

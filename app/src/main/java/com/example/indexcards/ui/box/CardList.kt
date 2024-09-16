@@ -1,8 +1,10 @@
 package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,15 +14,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -36,6 +40,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,7 +59,9 @@ fun CardList(
     cardWithTagList: List<CardWithTags>,
     boxWithCategories: UiBoxWithCategories,
     showCategories: Boolean,
+    numberOfButtons: Int,
     showCardDialog: (Card) -> Unit = {},
+    trainCategory: (Long) -> Unit = {},
 ) {
     var categoriesExpanded: List<Long> by remember { mutableStateOf(listOf()) }
 
@@ -71,7 +78,7 @@ fun CardList(
                     categoriesExpanded.isEmpty() &&
                     noCategoryCards.isEmpty()
                 ) {
-                    (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                    (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                 } else {
                     0.dp
                 }
@@ -88,7 +95,8 @@ fun CardList(
                                 } else {
                                     categoriesExpanded.plus(category.categoryId)
                                 }
-                        }
+                        },
+                        trainCategory = { trainCategory(category.categoryId) },
                     )
                 }
 
@@ -99,7 +107,7 @@ fun CardList(
                     if (cardsOfCategory.isEmpty()) {
                         item {
                             Text(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
                                 textAlign = TextAlign.Center,
                                 text = stringResource(id = R.string.no_cards_in_category),
                                 fontStyle = FontStyle.Italic
@@ -112,7 +120,7 @@ fun CardList(
                                 ind == cardsOfCategory.size - 1 &&
                                 noCategoryCards.isEmpty()
                             ) {
-                                (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                                (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                             } else {
                                 0.dp
                             }
@@ -129,7 +137,7 @@ fun CardList(
 
             if (noCategoryCards.isNotEmpty()) {
                 val categoryFinalOffset = if (!noCategoryExpanded) {
-                    (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                    (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                 } else {
                     0.dp
                 }
@@ -143,13 +151,15 @@ fun CardList(
                             name = stringResource(id = R.string.no_category)
                         ),
                         expanded = noCategoryExpanded,
-                        changeExpanded = { noCategoryExpanded = !noCategoryExpanded })
+                        changeExpanded = { noCategoryExpanded = !noCategoryExpanded },
+                        trainCategory = { trainCategory((-1).toLong()) },
+                    )
                 }
 
                 if (noCategoryExpanded) {
                     itemsIndexed(noCategoryCards) { index, item ->
                         val cardFinalOffset = if (index == noCategoryCards.size - 1) {
-                            (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                            (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                         } else {
                             0.dp
                         }
@@ -171,7 +181,7 @@ fun CardList(
         ) {
             itemsIndexed(items = cardWithTagList) { index, item ->
                 val finalOffset = if (index == cardWithTagList.size - 1) {
-                    (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                    (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                 } else {
                     0.dp
                 }
@@ -192,6 +202,7 @@ fun CategoryListItem(
     category: Category,
     expanded: Boolean,
     changeExpanded: () -> Unit = {},
+    trainCategory: () -> Unit = {},
 ) {
     val rotation = if (expanded) {
         0F
@@ -199,25 +210,52 @@ fun CategoryListItem(
         -90F
     }
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { changeExpanded() },
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier.fillMaxWidth()
     ) {
-        Icon(
-            modifier = Modifier.rotate(rotation),
-            imageVector = Icons.Default.ArrowDropDown,
-            contentDescription = "arrow"
-        )
-        Text(
-            modifier = Modifier.padding(end = 6.dp),
-            text = category.name,
+        HorizontalDivider()
 
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(4.dp))
+                .clickable { changeExpanded() }
+                .padding(top = 8.dp, bottom = 8.dp, end = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                modifier = Modifier.rotate(rotation),
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "arrow"
             )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8F)
-        )
+            Text(
+                modifier = Modifier.padding(end = 14.dp),
+                text = category.name,
+                fontWeight = FontWeight.Bold,
+            )
+            HorizontalDivider(
+                modifier = Modifier.weight(1F),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8F)
+            )
+            IconButton(
+                modifier = Modifier
+                    .border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8F),
+                        shape = CircleShape
+                    )
+                    .size(34.dp),
+                onClick = { trainCategory() }
+            ) {
+                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "train")
+            }
+        }
+
+        if (expanded) {
+            Row {
+
+            }
+        }
     }
 }
 
@@ -229,72 +267,73 @@ fun CategoryListItemPreview() {
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun CategoryListItemExpandedPreview() {
+    CategoryListItem(
+        category = Category(categoryId = 1, boxId = 1, name = "Test123"), expanded = true
+    )
+}
+
 @Composable
 fun CardListItem(
     modifier: Modifier = Modifier,
     cardWithTags: CardWithTags,
     onClick: (Card) -> Unit = {},
 ) {
-    Card(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(4.dp)
-            .clip(CardDefaults.shape)
-            .clickable { onClick(cardWithTags.card) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            .clip(RoundedCornerShape(4.dp))
+            .clickable { onClick(cardWithTags.card) }
+            .padding(start = 20.dp, top = 6.dp, bottom = 6.dp, end = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        Text(
+            text = cardWithTags.card.word,
+            textAlign = TextAlign.Start,
+        )
+
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = cardWithTags.card.word,
-                textAlign = TextAlign.Start,
-            )
+            if (cardWithTags.card.memoURI.isNotBlank()) {
+                Icon(
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .size(22.dp),
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = "micIcon"
+                )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (cardWithTags.card.memoURI.isNotBlank()) {
-                    Icon(
-                        modifier = Modifier
-                            .padding(top = 2.dp)
-                            .size(22.dp),
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = "micIcon"
-                    )
-
-                    VerticalDivider(
-                        modifier = Modifier
-                            .height(30.dp)
-                            .padding(start = 3.dp, end = 3.dp)
-                    )
-                }
-
-                if (cardWithTags.tags.isNotEmpty()) {
-                    if (cardWithTags.tags.size <= 3) {
-                        TagCircleRow(tagList = cardWithTags.tags)
-                    } else {
-                        CompactTagCircleRow(tagList = cardWithTags.tags)
-                    }
-
-                    VerticalDivider(
-                        modifier = Modifier
-                            .height(30.dp)
-                            .padding(start = 3.dp, end = 6.dp)
-                    )
-                }
-
-                LevelIndicator(level = cardWithTags.card.level)
+                VerticalDivider(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .padding(start = 3.dp, end = 3.dp)
+                )
             }
+
+            if (cardWithTags.tags.isNotEmpty()) {
+                if (cardWithTags.tags.size <= 3) {
+                    TagCircleRow(tagList = cardWithTags.tags)
+                } else {
+                    CompactTagCircleRow(tagList = cardWithTags.tags)
+                }
+
+                VerticalDivider(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .padding(start = 3.dp, end = 6.dp)
+                )
+            }
+
+            LevelIndicator(level = cardWithTags.card.level)
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CardListItemPreview() {
     CardListItem(

@@ -1,10 +1,14 @@
 package com.example.indexcards.ui.box
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -12,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -103,6 +109,8 @@ fun BoxScreen(
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
+    var trainSelection by remember { mutableStateOf(false) }
+    var trainCategory by remember { mutableLongStateOf(-1) }
 
     val doneCollecting = boxScreenViewModel.doneCollectingData
     val csvString = boxScreenViewModel.csvString
@@ -250,7 +258,18 @@ fun BoxScreen(
 
     LaunchedEffect(key1 = boxScreenState) {
         if (boxScreenState == BoxScreenState.TRAIN) {
-            shuffledCardList = filteredCardWithTagList.shuffled()
+            shuffledCardList =
+                if (trainCategory != (-1).toLong()) {
+                    filteredCardWithTagList
+                        .filter { it.card.categoryId == trainCategory }
+                        .shuffled()
+                } else {
+                    if (trainSelection) {
+                        filteredCardWithTagList.shuffled()
+                    } else {
+                        cardsWithTags.cardWithTagList.shuffled()
+                    }
+                }
         }
     }
 
@@ -272,19 +291,39 @@ fun BoxScreen(
                 showSearch = { isSearching = true },
                 onSortBy = { boxScreenViewModel.setSortedBy(it) },
                 setRemindersAfterTraining = { setRemindersAfterTraining() },
+                setTrainSelection = { trainSelection = it },
             )
         },
 
         floatingActionButton = {
             when (boxScreenState) {
                 BoxScreenState.VIEW -> {
-                    FloatingActionButton(
-                        onClick = {
-                            boxScreenViewModel.setBiggestCardId()
-                            newCardDialog = true
+                    Column {
+                        if (filteredCardWithTagList.isNotEmpty()) {
+                            FloatingActionButton(
+                                onClick = {
+                                    trainSelection = true
+                                    boxScreenViewModel.changeTrainingDirection(true)
+                                    boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "train"
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.size(10.dp))
                         }
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+
+                        FloatingActionButton(
+                            onClick = {
+                                boxScreenViewModel.setBiggestCardId()
+                                newCardDialog = true
+                            }
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Add")
+                        }
                     }
                 }
 
@@ -326,7 +365,12 @@ fun BoxScreen(
                         isSearching = false
                         boxScreenViewModel.resetSearchTerm()
                     },
-                    updateSearchText = { boxScreenViewModel.setSearchTerm(it) }
+                    updateSearchText = { boxScreenViewModel.setSearchTerm(it) },
+                    numberOfButtons = if (filteredCardWithTagList.isNotEmpty()) 2 else 1,
+                    trainCategory = {
+                        trainCategory = it
+                        boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
+                    }
                 )
             }
 
