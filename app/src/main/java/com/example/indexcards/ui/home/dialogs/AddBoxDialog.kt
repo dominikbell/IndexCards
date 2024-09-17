@@ -124,7 +124,6 @@ fun AddBoxDialog(
                 onClick = {
                     if (boxUiState.isValid) {
                         onSave()
-                        onDismiss()
                     } else {
                         if (!boxUiState.validName) {
                             validName = false

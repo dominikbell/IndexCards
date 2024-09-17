@@ -1,6 +1,7 @@
 package com.example.indexcards.ui.home
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Merge
 import androidx.compose.material3.FloatingActionButton
@@ -34,6 +34,7 @@ import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.elements.AddBoxButton
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
 import com.example.indexcards.ui.home.dialogs.DeleteBoxesDialog
 import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
@@ -43,8 +44,10 @@ import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenSorting
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
+import com.example.indexcards.utils.home.TutorialMap
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
+import com.example.indexcards.utils.state.emptyBox
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -92,6 +95,10 @@ fun HomeScreen(
     var showAboutApp by remember { mutableStateOf(false) }
     var isSelecting by remember { mutableStateOf(false) }
     var selectedBoxes by remember { mutableStateOf<List<Box>>(listOf()) }
+
+    /** Tutorial */
+    var showTutorial by remember { mutableStateOf(false) }
+    var tutorialStep by remember { mutableStateOf(0) }
 
     BackHandler {
         when (homeScreenState) {
@@ -181,9 +188,18 @@ fun HomeScreen(
             }
         )
 
+    fun onClickAddBox() {
+        homeScreenViewModel.resetCurrentBox()
+        addBoxDialog = true
+    }
+
+    fun endTutorial() {
+        showTutorial = false
+        tutorialStep = 0
+    }
+
     Scaffold(
         modifier = modifier,
-
         topBar = {
             HomeScreenTopBar(
                 homeScreenState = homeScreenState,
@@ -197,6 +213,11 @@ fun HomeScreen(
                 stopSelecting = {
                     isSelecting = false
                     selectedBoxes = listOf()
+                },
+                startTutorial = {
+                    homeScreenViewModel.setSortedBy(HomeScreenSorting.CREATED_ASC)
+                    showTutorial = true
+                    tutorialStep = 0
                 }
             )
         },
@@ -233,15 +254,10 @@ fun HomeScreen(
                         }
                     }
                 } else {
-                    FloatingActionButton(
-                        onClick = {
-                            homeScreenViewModel.resetCurrentBox()
-                            addBoxDialog = true
-                        },
-                        modifier = modifier
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
-                    }
+                    AddBoxButton(
+                        modifier = modifier,
+                        onClick = { onClickAddBox() }
+                    )
                 }
             }
         }
@@ -300,6 +316,17 @@ fun HomeScreen(
         }
     }
 
+    if (showTutorial) {
+        Tutorial(
+            modifier = modifier,
+            nextStep = { tutorialStep += 1 },
+            newBox = boxList.firstOrNull()?: emptyBox,
+            tutorialState = TutorialMap.map.entries.first { it.key == tutorialStep }.value,
+            stopTutorial = { endTutorial() },
+            openAddBoxDialog = { addBoxDialog = true },
+        )
+    }
+
     if (addBoxDialog) {
         AddBoxDialog(
             boxUiState = boxUiState,
@@ -308,8 +335,18 @@ fun HomeScreen(
             onDismiss = {
                 addBoxDialog = false
                 homeScreenViewModel.resetBoxUiState()
+                if (showTutorial) {
+                    endTutorial()
+                }
             },
-            onSave = { homeScreenViewModel.saveBox() },
+            onSave = {
+                addBoxDialog = false
+                homeScreenViewModel.saveBox()
+                homeScreenViewModel.resetBoxUiState()
+                if (showTutorial) {
+                    tutorialStep += 1
+                }
+            },
             updateUiState = { homeScreenViewModel.updateBoxUiState(it) }
         )
     }

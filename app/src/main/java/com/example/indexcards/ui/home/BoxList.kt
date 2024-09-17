@@ -56,8 +56,8 @@ fun BoxList(
         verticalArrangement = Arrangement.Top,
     ) {
         if (boxList.isEmpty()) {
-            Spacer(modifier = Modifier.size(20.dp))
             Text(
+                modifier = modifier.padding(top = 20.dp),
                 text = stringResource(R.string.click_to_add_box),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
@@ -65,8 +65,10 @@ fun BoxList(
         } else {
             LazyColumn(
                 modifier = Modifier
+                    .padding(8.dp)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.Top,
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 itemsIndexed(
                     items = boxList
@@ -117,7 +119,6 @@ fun BoxListItem(
 
     Card(
         modifier = modifier
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
             .clip(CardDefaults.shape)
             .combinedClickable(
                 onClick = { onClick(box) },

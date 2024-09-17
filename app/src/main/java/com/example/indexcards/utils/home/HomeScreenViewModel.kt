@@ -55,14 +55,14 @@ class HomeScreenViewModel(
     }
 
     /** For sorting */
-    val sortedBy = MutableStateFlow<HomeScreenSorting>(HomeScreenSorting.CREATED_DESC)
+    val sortedBy = MutableStateFlow<HomeScreenSorting>(HomeScreenSorting.CREATED_ASC)
 
     fun setSortedBy(newSorting: HomeScreenSorting) {
         sortedBy.update { newSorting }
     }
 
     fun resetSortedBy() {
-        sortedBy.update { HomeScreenSorting.CREATED_DESC }
+        sortedBy.update { HomeScreenSorting.CREATED_ASC }
     }
 
 

@@ -47,6 +47,7 @@ fun HomeScreenTopBar(
     importBox: () -> Unit = {},
     onSortBy: (HomeScreenSorting) -> Unit = {},
     stopSelecting: () -> Unit = {},
+    startTutorial: () -> Unit = {},
 ) {
     when (homeScreenState) {
         HomeScreenState.MAIN -> {
@@ -58,7 +59,8 @@ fun HomeScreenTopBar(
                 goToStatistics = goToStatistics,
                 importBox = importBox,
                 onSortBy = onSortBy,
-                stopSelecting = stopSelecting
+                stopSelecting = stopSelecting,
+                startTutorial = startTutorial,
             )
         }
 
@@ -143,6 +145,7 @@ fun MainScreenTopBar(
     importBox: () -> Unit = {},
     onSortBy: (HomeScreenSorting) -> Unit = {},
     stopSelecting: () -> Unit = {},
+    startTutorial: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -241,6 +244,14 @@ fun MainScreenTopBar(
                         onClick = {
                             expanded = false
                             importBox()
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = { Text(text = "Show Tutorial") },
+                        onClick = {
+                            expanded = false
+                            startTutorial()
                         }
                     )
 

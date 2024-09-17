@@ -15,11 +15,11 @@ sealed interface HomeScreenState {
 }
 
 sealed interface HomeScreenSorting {
-    data object CREATED_ASC: HomeScreenSorting
-    data object CREATED_DESC: HomeScreenSorting
-    data object NAME_ASC: HomeScreenSorting
-    data object NAME_DESC: HomeScreenSorting
-    data object TOPIC: HomeScreenSorting
+    data object CREATED_ASC : HomeScreenSorting
+    data object CREATED_DESC : HomeScreenSorting
+    data object NAME_ASC : HomeScreenSorting
+    data object NAME_DESC : HomeScreenSorting
+    data object TOPIC : HomeScreenSorting
 }
 
 val homeScreenSorting: List<Pair<HomeScreenSorting, Int>> = listOf(
