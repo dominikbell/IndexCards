@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.example.indexcards.R
@@ -281,8 +282,7 @@ fun CardListItem(
     showCategories: Boolean,
     onClick: (Card) -> Unit = {},
 ) {
-    var heightPx by remember { mutableStateOf(400) }
-    val height = heightPx.pxToDp()
+    val height = TextUnit.Unspecified.value.dp
 
     Row(
         modifier = modifier
@@ -300,7 +300,6 @@ fun CardListItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            modifier = Modifier.onSizeChanged { heightPx = it.height },
             text = cardWithTags.card.word,
             textAlign = TextAlign.Start,
         )

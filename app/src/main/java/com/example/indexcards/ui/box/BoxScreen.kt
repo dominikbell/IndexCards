@@ -294,7 +294,13 @@ fun BoxScreen(
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
                 changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
                 exportBox = { boxScreenViewModel.collectCSVString() },
-                showSearch = { isSearching = true },
+                showSearch = {
+                    isSearching = true
+                    for (category in boxWithCategories.categoryList) {
+                        boxScreenViewModel.toggleCategoryExpanded(category.categoryId)
+                    }
+                    boxScreenViewModel.toggleCategoryExpanded((-1).toLong())
+                },
                 onSortBy = { boxScreenViewModel.setSortedBy(it) },
                 setRemindersAfterTraining = { setRemindersAfterTraining() },
                 setTrainSelection = { trainSelection = it },
