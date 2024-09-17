@@ -250,7 +250,7 @@ fun BoxScreenBodyCategoriesPreview() {
             tags = tagList
         ),
         CardWithTags(
-            emptyCard.copy(word = "SDe", meaning = "asd", level = 1, categoryId = 0),
+            emptyCard.copy(word = "SDee", meaning = "asd", level = 1, categoryId = 0),
             tags = tagList.minus(tag1)
         ),
         CardWithTags(

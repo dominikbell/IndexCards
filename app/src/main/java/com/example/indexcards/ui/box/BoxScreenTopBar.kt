@@ -216,7 +216,7 @@ fun BoxScreenTopBar(
 
                     DropdownMenu(
                         expanded = sortExpanded,
-                        onDismissRequest = { expanded = false }
+                        onDismissRequest = { sortExpanded = false }
                     ) {
                         boxScreenSorting.forEach { option ->
                             DropdownMenuItem(

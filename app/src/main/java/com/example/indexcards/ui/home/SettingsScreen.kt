@@ -7,8 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -121,17 +125,19 @@ fun SettingsScreen(
                 modifier = Modifier.clickable {
                     openRemindersTimeDialog()
                 },
-                text = reminderTimeText
+                text = reminderTimeText,
             )
         }
 
         HorizontalDivider()
 
         Text(text = stringResource(id = R.string.reminders_for) + " ..")
-        
+
         reminderIntervals.forEachIndexed { index, interval ->
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

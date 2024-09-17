@@ -99,14 +99,19 @@ fun HomeScreen(
                 if (addBoxDialog) {
                     addBoxDialog = false
                 } else {
-                    /* TODO: when coming from a box from a notification toast gets created but
-                    *   pressing back again navigates back to the HomeScreenState.Main to itself */
-                    if (backPressedTime + 3000 > System.currentTimeMillis()) {
-                        /** seems a bit hacky but works */
-                        activity?.finish()
+                    if (isSelecting) {
+                        isSelecting = false
+                        selectedBoxes = listOf()
                     } else {
-                        backPressedTime = System.currentTimeMillis()
-                        Toast.makeText(context, backAgainString, Toast.LENGTH_SHORT).show()
+                        /* TODO: when coming from a box from a notification toast gets created but
+                        *   pressing back again navigates back to the HomeScreenState.Main to itself */
+                        if (backPressedTime + 3000 > System.currentTimeMillis()) {
+                            /** seems a bit hacky but works */
+                            activity?.finish()
+                        } else {
+                            backPressedTime = System.currentTimeMillis()
+                            Toast.makeText(context, backAgainString, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

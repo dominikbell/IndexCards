@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.getCutString
@@ -138,19 +139,21 @@ fun BoxListItem(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(10.dp),
+                    .padding(if (isSelecting) 0.dp else 10.dp),
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(
                     text = box.name,
-                    fontWeight = FontWeight.Normal,
-                    style = MaterialTheme.typography.titleLarge
+                    fontWeight = FontWeight(550),
+                    style = MaterialTheme.typography.titleLarge,
                 )
-                Spacer(modifier = Modifier.size(4.dp))
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                if (description.isNotBlank()) {
+                    Text(
+                        modifier = Modifier.padding(top = 4.dp),
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
             if (imageId != -1) {
@@ -178,6 +181,16 @@ fun BoxListItemPreview() {
 
 @Preview
 @Composable
+fun BoxListItemWithoutDescriptionPreview() {
+    BoxListItem(
+        isSelecting = false,
+        isSelected = false,
+        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "")
+    )
+}
+
+@Preview
+@Composable
 fun BoxListItemSelectedPreview() {
     BoxListItem(
         isSelecting = true,
@@ -194,7 +207,7 @@ fun BoxListPreview() {
         isSelecting = false,
         selectedBoxes = listOf(),
         boxList = listOf(
-            emptyBox.copy(name = "Box123", description = "descr", topic = "English"),
+            emptyBox.copy(name = "Box123", description = "", topic = "English"),
             emptyBox.copy(
                 name = "Another Box",
                 topic = "Chinese",

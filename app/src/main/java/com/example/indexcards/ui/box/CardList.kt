@@ -29,23 +29,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.box.UiBoxWithCategories
+import com.example.indexcards.utils.pxToDp
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.emptyTag
 
@@ -120,6 +127,7 @@ fun CardList(
                             CardListItem(
                                 modifier = Modifier.padding(bottom = cardFinalOffset),
                                 cardWithTags = item,
+                                showCategories = showCategories,
                                 onClick = { showCardDialog(it) }
                             )
                         }
@@ -159,6 +167,7 @@ fun CardList(
                         CardListItem(
                             modifier = Modifier.padding(bottom = cardFinalOffset),
                             cardWithTags = item,
+                            showCategories = showCategories,
                             onClick = { showCardDialog(it) }
                         )
                     }
@@ -168,6 +177,8 @@ fun CardList(
 
         /** If now categories should be shown - old version */
     } else {
+        HorizontalDivider()
+
         LazyColumn(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
         ) {
@@ -181,6 +192,7 @@ fun CardList(
                 CardListItem(
                     modifier = Modifier.padding(bottom = finalOffset),
                     cardWithTags = item,
+                    showCategories = showCategories,
                     onClick = { showCardDialog(it) },
                 )
             }
@@ -231,6 +243,7 @@ fun CategoryListItem(
             )
             IconButton(
                 modifier = Modifier
+                    .padding(start = 12.dp)
                     .border(
                         width = DividerDefaults.Thickness,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8F),
@@ -265,38 +278,52 @@ fun CategoryListItemExpandedPreview() {
 fun CardListItem(
     modifier: Modifier = Modifier,
     cardWithTags: CardWithTags,
+    showCategories: Boolean,
     onClick: (Card) -> Unit = {},
 ) {
+    var heightPx by remember { mutableStateOf(400) }
+    val height = heightPx.pxToDp()
+
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .height(1.5 * height)
             .clip(RoundedCornerShape(4.dp))
             .clickable { onClick(cardWithTags.card) }
-            .padding(start = 20.dp, top = 6.dp, bottom = 6.dp, end = 6.dp),
+            .padding(
+                start = if (showCategories) 20.dp else 8.dp,
+                top = 6.dp,
+                bottom = 6.dp,
+                end = 6.dp
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
+            modifier = Modifier.onSizeChanged { heightPx = it.height },
             text = cardWithTags.card.word,
             textAlign = TextAlign.Start,
         )
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (cardWithTags.card.memoURI.isNotBlank()) {
                 Icon(
                     modifier = Modifier
                         .padding(top = 2.dp)
-                        .size(22.dp),
+                        .size(height),
                     imageVector = Icons.Default.Mic,
                     contentDescription = "micIcon"
                 )
 
                 VerticalDivider(
                     modifier = Modifier
-                        .height(30.dp)
-                        .padding(start = 3.dp, end = 3.dp)
+                        .height(height)
+                        .padding(
+                            start = 3.dp,
+                            end = if (cardWithTags.tags.isNotEmpty()) 3.dp else 6.dp
+                        )
                 )
             }
 
@@ -309,7 +336,7 @@ fun CardListItem(
 
                 VerticalDivider(
                     modifier = Modifier
-                        .height(30.dp)
+                        .height(height)
                         .padding(start = 3.dp, end = 6.dp)
                 )
             }
@@ -330,7 +357,8 @@ fun CardListItemPreview() {
                 emptyTag.copy(tagId = 2, text = "Tag2"),
                 emptyTag.copy(tagId = 3, text = "Tag3"),
             )
-        )
+        ),
+        showCategories = false,
     )
 }
 

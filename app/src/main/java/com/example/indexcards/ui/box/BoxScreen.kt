@@ -244,7 +244,12 @@ fun BoxScreen(
     BackHandler {
         when (boxScreenState) {
             BoxScreenState.VIEW -> {
-                navigateToBoxesOverview()
+                if (isSearching) {
+                    isSearching = false
+                    boxScreenViewModel.resetSearchTerm()
+                } else {
+                    navigateToBoxesOverview()
+                }
             }
 
             BoxScreenState.EDIT -> {

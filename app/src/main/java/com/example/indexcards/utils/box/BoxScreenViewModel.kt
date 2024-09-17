@@ -52,6 +52,7 @@ import kotlinx.coroutines.launch
  *
  * - enables filtering by levelSelected
  * - enables filtering by tagSelected (-> tagWithCards)
+ * - enables expanding and collapsing categories by expandedCategories
  *
  * - has CardUiState to view and edit card
  * - has TagUiState to view and edit tag
@@ -377,6 +378,9 @@ class BoxScreenViewModel(
         cardUiState = CardState(
             cardDetails = uiCardWithTags.value.card.toCardDetails(),
             tagList = uiCardWithTags.value.tagList,
+            isValid = true,
+            validWord = true,
+            validMeaning = true,
         )
     }
 

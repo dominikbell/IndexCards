@@ -310,7 +310,7 @@ fun BoxScreenEditing(
                         }
                     }
                 } else {
-                    HorizontalDivider()
+                    HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
 
                     Row(
                         modifier = Modifier

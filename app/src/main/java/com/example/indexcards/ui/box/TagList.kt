@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -105,19 +106,23 @@ fun TagListItem(
             0.dp
         }
     val borderColor =
-        if (selected) {
-            MaterialTheme.colorScheme.secondary
+        if (onBoxScreen) {
+            if (selected) {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.secondary.copy(alpha = 0.5F)
+            }
         } else {
-            MaterialTheme.colorScheme.secondary.copy(alpha = 0.6F)
+            AlertDialogDefaults.containerColor
         }
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(2.dp))
+            .clip(RoundedCornerShape(if (onBoxScreen) 12.dp else 2.dp))
             .border(
                 width = borderThickness,
                 color = borderColor,
-                shape = RoundedCornerShape(2.dp)
+                shape = RoundedCornerShape(12.dp)
             )
             .fillMaxWidth()
             .combinedClickable(
