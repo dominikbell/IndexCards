@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
@@ -43,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.example.indexcards.R
-import com.example.indexcards.data.BoxWithCategories
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.Category
 import com.example.indexcards.ui.box.TagList
@@ -79,14 +77,17 @@ fun CardDialog(
         if (cardWithTags.card.memoURI.isNotBlank()) {
             audioFile = cardWithTags.card.memoURI.toUri().path?.let { File(it) }
 
-            duration =
-                audioFile?.let {
-                    mmr.setDataSource(it.toUri().path)
-                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                        ?.let { durInt ->
-                            Integer.parseInt(durInt).toLong()
-                        }
-                } ?: 0
+            if (audioFile?.exists() == true) {
+                duration =
+                    audioFile?.let {
+                        mmr.setDataSource(it.toUri().path)
+                        mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            ?.let { durInt ->
+                                Integer.parseInt(durInt).toLong()
+                            }
+                    } ?: 0
+            }
+
         } else {
             audioFile = null
             duration = 0

@@ -140,7 +140,8 @@ fun BoxListItem(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(if (isSelecting) 0.dp else 10.dp),
+                    .padding(start = if (isSelecting) 0.dp else 10.dp)
+                    .padding(top = 10.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(

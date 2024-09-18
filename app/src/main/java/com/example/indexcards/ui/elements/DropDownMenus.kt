@@ -62,7 +62,6 @@ fun LanguageDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
             isError = isError
         )
         ExposedDropdownMenu(

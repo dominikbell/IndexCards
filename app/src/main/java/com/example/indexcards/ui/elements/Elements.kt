@@ -181,7 +181,7 @@ fun NameField(
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         value = boxUiState.boxDetails.name,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.name) + "*") },
@@ -206,7 +206,7 @@ fun DescriptionField(
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         value = boxUiState.boxDetails.description,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.description)) },
@@ -222,7 +222,7 @@ fun TopicField(
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         value = boxUiState.boxDetails.topic,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.topic) + "*") },

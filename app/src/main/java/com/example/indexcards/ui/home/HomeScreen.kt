@@ -1,18 +1,20 @@
 package com.example.indexcards.ui.home
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Merge
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,10 +35,10 @@ import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
-import com.example.indexcards.ui.home.dialogs.AddBoxDialog
+import com.example.indexcards.ui.home.dialogs.OldAddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
-import com.example.indexcards.ui.elements.AddBoxButton
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
+import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.home.dialogs.DeleteBoxesDialog
 import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
 import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
@@ -45,9 +48,9 @@ import com.example.indexcards.utils.home.HomeScreenSorting
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.home.TutorialMap
+import com.example.indexcards.utils.home.TutorialState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
-import com.example.indexcards.utils.state.emptyBox
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -97,8 +100,10 @@ fun HomeScreen(
     var selectedBoxes by remember { mutableStateOf<List<Box>>(listOf()) }
 
     /** Tutorial */
-    var showTutorial by remember { mutableStateOf(false) }
-    var tutorialStep by remember { mutableStateOf(0) }
+    var tutorial by remember { mutableStateOf(false) }
+    var tutorialStep by remember { mutableStateOf(-1) }
+    val tutorialState =
+        TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
 
     BackHandler {
         when (homeScreenState) {
@@ -188,14 +193,9 @@ fun HomeScreen(
             }
         )
 
-    fun onClickAddBox() {
-        homeScreenViewModel.resetCurrentBox()
-        addBoxDialog = true
-    }
-
     fun endTutorial() {
-        showTutorial = false
-        tutorialStep = 0
+        tutorial = false
+        tutorialStep = -1
     }
 
     Scaffold(
@@ -204,6 +204,7 @@ fun HomeScreen(
             HomeScreenTopBar(
                 homeScreenState = homeScreenState,
                 isSelecting = isSelecting,
+                tutorial = tutorial,
                 goToMainScreen = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN) },
                 goToSettings = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.SETTINGS) },
                 goToStatistics = { homeScreenViewModel.updateHomeScreenState(HomeScreenState.STATISTICS) },
@@ -216,9 +217,10 @@ fun HomeScreen(
                 },
                 startTutorial = {
                     homeScreenViewModel.setSortedBy(HomeScreenSorting.CREATED_ASC)
-                    showTutorial = true
-                    tutorialStep = 0
-                }
+                    tutorial = true
+                    tutorialStep = 1
+                },
+                endTutorial = { endTutorial() }
             )
         },
 
@@ -243,21 +245,43 @@ fun HomeScreen(
                         }
 
                         if (selectedBoxes.size >= 2) {
-                            Spacer(modifier = Modifier.size(10.dp))
-
                             FloatingActionButton(
                                 onClick = { /* TODO: implement merging */ },
-                                modifier = modifier.rotate(90F)
+                                modifier = modifier
+                                    .padding(top = 10.dp)
+                                    .rotate(90F)
                             ) {
                                 Icon(Icons.Default.Merge, contentDescription = "Merge")
                             }
                         }
                     }
                 } else {
-                    AddBoxButton(
-                        modifier = modifier,
-                        onClick = { onClickAddBox() }
-                    )
+                    val boxModifier =
+                        if (tutorial && tutorialState == TutorialState.ADD_BOX_INTRO) {
+                            Modifier
+                                .clip(FloatingActionButtonDefaults.shape)
+                                .background(color = MaterialTheme.colorScheme.primary)
+                                .padding(6.dp)
+                        } else {
+                            Modifier
+                        }
+                    Box(
+                        modifier = boxModifier
+                    ) {
+                        FloatingActionButton(
+                            modifier = modifier,
+                            onClick = {
+                                if (tutorial) {
+                                    /* TODO: remove and implement highlighting the menu */
+                                    tutorialStep += 2
+                                }
+                                homeScreenViewModel.resetCurrentBox()
+                                addBoxDialog = true
+                            },
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Add")
+                        }
+                    }
                 }
             }
         }
@@ -265,8 +289,7 @@ fun HomeScreen(
         when (homeScreenState) {
             HomeScreenState.MAIN -> {
                 BoxList(
-                    modifier = modifier
-                        .padding(innerPadding),
+                    modifier = modifier.padding(innerPadding),
                     boxList = boxList,
                     isSelecting = isSelecting,
                     selectedBoxes = selectedBoxes,
@@ -312,30 +335,32 @@ fun HomeScreen(
                 )
             }
 
-            HomeScreenState.STATISTICS -> {}
+            HomeScreenState.STATISTICS -> {
+                /* TODO: implement statistics screen */
+            }
         }
     }
 
-    if (showTutorial) {
+    if (tutorial) {
         Tutorial(
             modifier = modifier,
             nextStep = { tutorialStep += 1 },
-            newBox = boxList.firstOrNull()?: emptyBox,
-            tutorialState = TutorialMap.map.entries.first { it.key == tutorialStep }.value,
+            tutorialState = tutorialState,
             stopTutorial = { endTutorial() },
-            openAddBoxDialog = { addBoxDialog = true },
         )
     }
 
     if (addBoxDialog) {
         AddBoxDialog(
             boxUiState = boxUiState,
+            tutorial = tutorial,
+            tutorialState = tutorialState,
             hasNotificationPermission = hasNotificationPermission,
             requestNotificationPermission = requestNotificationPermission,
             onDismiss = {
                 addBoxDialog = false
                 homeScreenViewModel.resetBoxUiState()
-                if (showTutorial) {
+                if (tutorial) {
                     endTutorial()
                 }
             },
@@ -343,11 +368,12 @@ fun HomeScreen(
                 addBoxDialog = false
                 homeScreenViewModel.saveBox()
                 homeScreenViewModel.resetBoxUiState()
-                if (showTutorial) {
+                if (tutorial) {
                     tutorialStep += 1
                 }
             },
-            updateUiState = { homeScreenViewModel.updateBoxUiState(it) }
+            updateUiState = { homeScreenViewModel.updateBoxUiState(it) },
+            nextTutorialStep = { tutorialStep += 1 }
         )
     }
 

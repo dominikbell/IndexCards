@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -121,12 +122,21 @@ fun BoxScreenBody(
             }
         }
 
-        Spacer(modifier = Modifier.size(4.dp))
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+        )
 
         LevelList(
             cardWithTagList = cardsWithTags.cardWithTagList,
             currentLevel = levelSelected,
             selectLevel = { selectLevel(it) },
+        )
+
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
         )
 
         Row(
@@ -161,10 +171,11 @@ fun BoxScreenBody(
             )
         }
 
-        if (cardsWithTags.cardWithTagList.isEmpty()) {
-            Spacer(modifier = Modifier.size(4.dp))
+        HorizontalDivider()
 
+        if (cardsWithTags.cardWithTagList.isEmpty()) {
             Text(
+                modifier = Modifier.padding(top = 10.dp),
                 text = stringResource(R.string.click_to_add_card),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
@@ -246,7 +257,7 @@ fun BoxScreenBodyCategoriesPreview() {
 
     val cardWithTagsList = listOf(
         CardWithTags(
-            emptyCard.copy(word = "Hello", meaning = "Oho", level = 1, categoryId = -1),
+            emptyCard.copy(word = "Hello", meaning = "Oho", memoURI = "asd", level = 1, categoryId = -1),
             tags = tagList
         ),
         CardWithTags(

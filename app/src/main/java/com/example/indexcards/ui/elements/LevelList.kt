@@ -37,9 +37,6 @@ fun LevelList(
         modifier = modifier
             .fillMaxWidth()
     ) {
-
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -60,8 +57,6 @@ fun LevelList(
                 }
             }
         }
-
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
 }
 

@@ -30,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
-import com.example.indexcards.utils.box.boxScreenSorting
 import com.example.indexcards.utils.home.HomeScreenSorting
 import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.homeScreenSorting
@@ -40,6 +39,7 @@ fun HomeScreenTopBar(
     modifier: Modifier = Modifier,
     homeScreenState: HomeScreenState,
     isSelecting: Boolean,
+    tutorial: Boolean,
     goToMainScreen: () -> Unit = {},
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
@@ -48,12 +48,14 @@ fun HomeScreenTopBar(
     onSortBy: (HomeScreenSorting) -> Unit = {},
     stopSelecting: () -> Unit = {},
     startTutorial: () -> Unit = {},
+    endTutorial: () -> Unit = {},
 ) {
     when (homeScreenState) {
         HomeScreenState.MAIN -> {
             MainScreenTopBar(
                 modifier = modifier,
                 isSelecting = isSelecting,
+                tutorial = tutorial,
                 showAboutApp = showAboutApp,
                 goToSettings = goToSettings,
                 goToStatistics = goToStatistics,
@@ -61,6 +63,7 @@ fun HomeScreenTopBar(
                 onSortBy = onSortBy,
                 stopSelecting = stopSelecting,
                 startTutorial = startTutorial,
+                endTutorial = endTutorial,
             )
         }
 
@@ -139,6 +142,7 @@ fun StatisticsTopBarPreview() {
 fun MainScreenTopBar(
     modifier: Modifier,
     isSelecting: Boolean,
+    tutorial: Boolean,
     showAboutApp: () -> Unit = {},
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
@@ -146,6 +150,7 @@ fun MainScreenTopBar(
     onSortBy: (HomeScreenSorting) -> Unit = {},
     stopSelecting: () -> Unit = {},
     startTutorial: () -> Unit = {},
+    endTutorial: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -247,13 +252,23 @@ fun MainScreenTopBar(
                         }
                     )
 
-                    DropdownMenuItem(
-                        text = { Text(text = "Show Tutorial") },
-                        onClick = {
-                            expanded = false
-                            startTutorial()
-                        }
-                    )
+                    if (tutorial) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.end_tutorial)) },
+                            onClick = {
+                                expanded = false
+                                endTutorial()
+                            }
+                        )
+                    } else {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.start_tutorial)) },
+                            onClick = {
+                                expanded = false
+                                startTutorial()
+                            }
+                        )
+                    }
 
                     DropdownMenuItem(
                         text = { Text(text = stringResource(R.string.about_app)) },
@@ -289,6 +304,7 @@ fun MainScreenTopBarPreview() {
     MainScreenTopBar(
         modifier = Modifier,
         isSelecting = false,
+        tutorial = false,
     )
 }
 
@@ -298,5 +314,6 @@ fun MainScreenTopBarSelectingPreview() {
     MainScreenTopBar(
         modifier = Modifier,
         isSelecting = true,
+        tutorial = false,
     )
 }

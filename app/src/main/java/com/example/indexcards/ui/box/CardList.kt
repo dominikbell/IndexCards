@@ -25,6 +25,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -89,6 +90,10 @@ fun CardList(
                 }
 
                 item {
+                    if (index != 0) {
+                        HorizontalDivider()
+                    }
+
                     CategoryListItem(
                         modifier = Modifier.padding(bottom = categoryFinalOffset),
                         category = category,
@@ -144,6 +149,8 @@ fun CardList(
                 }
 
                 item {
+                    HorizontalDivider()
+
                     CategoryListItem(
                         modifier = Modifier.padding(bottom = categoryFinalOffset),
                         category = Category(
@@ -178,8 +185,6 @@ fun CardList(
 
         /** If now categories should be shown - old version */
     } else {
-        HorizontalDivider()
-
         LazyColumn(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
         ) {
@@ -218,8 +223,6 @@ fun CategoryListItem(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        HorizontalDivider()
-
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -318,7 +321,7 @@ fun CardListItem(
 
                 VerticalDivider(
                     modifier = Modifier
-                        .height(height)
+                        .height(26.dp)
                         .padding(
                             start = 3.dp,
                             end = if (cardWithTags.tags.isNotEmpty()) 3.dp else 6.dp
@@ -335,7 +338,7 @@ fun CardListItem(
 
                 VerticalDivider(
                     modifier = Modifier
-                        .height(height)
+                        .height(26.dp)
                         .padding(start = 3.dp, end = 6.dp)
                 )
             }
