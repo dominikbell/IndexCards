@@ -36,9 +36,10 @@ fun TutorialDialog(
     val screenWidth = configuration.screenWidthDp.dp
 
     val title = when (tutorialState) {
-        TutorialState.WELCOME -> "Welcome to IndexCards!"
-        TutorialState.ADD_BOX_INTRO -> "Adding a new box"
-        TutorialState.NEW_BOX -> "Great job!"
+        TutorialState.WELCOME -> stringResource(id = R.string.welcome_title)
+        TutorialState.ADD_BOX_INTRO -> stringResource(id = R.string.add_box_intro_title)
+        TutorialState.NEW_BOX -> stringResource(id = R.string.new_box_title)
+        TutorialState.ADD_CARD_INTRO -> stringResource(id = R.string.add_card_intro_title)
         else -> ""
     }
 
@@ -71,11 +72,13 @@ fun TutorialDialog(
 
             Text(
                 text = when (tutorialState) {
-                    TutorialState.WELCOME -> "This tutorial will show you how to use the app."
+                    TutorialState.WELCOME -> stringResource(id = R.string.welcome_text)
 
-                    TutorialState.ADD_BOX_INTRO -> "Click the '+' to add a new box."
+                    TutorialState.ADD_BOX_INTRO -> stringResource(id = R.string.add_box_intro_title)
 
-                    TutorialState.NEW_BOX -> "Click the box to see its contents."
+                    TutorialState.NEW_BOX -> stringResource(id = R.string.new_box_text)
+
+                    TutorialState.ADD_CARD_INTRO -> stringResource(id = R.string.add_card_intro_text)
 
                     else -> ""
                 }
@@ -97,7 +100,7 @@ fun TutorialDialog(
                         modifier = Modifier.weight(1F),
                         onClick = nextStep
                     ) {
-                        Text(text = "Next")
+                        Text(text = stringResource(id = R.string.next))
                     }
                 }
             }

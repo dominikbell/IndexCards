@@ -137,7 +137,6 @@ fun CategoriesDropDownMenu(
             label = { Text(text = stringResource(R.string.category) + "*") },
             onValueChange = { },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,

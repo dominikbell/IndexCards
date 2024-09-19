@@ -46,6 +46,7 @@ fun AddBoxDialog(
     updateUiState: (BoxDetails) -> Unit = {},
     onSave: () -> Unit = {},
     nextTutorialStep: () -> Unit = {},
+    endTutorial: () -> Unit = {},
 ) {
     val reminders = boxUiState.boxDetails.reminders
 
@@ -180,7 +181,12 @@ fun AddBoxDialog(
 
         dismissButton = {
             TextButton(
-                onClick = { onDismiss() }
+                onClick = {
+                    if (tutorial) {
+                        endTutorial()
+                    }
+                    onDismiss()
+                }
             ) {
                 Text(text = stringResource(R.string.cancel))
             }
@@ -190,31 +196,31 @@ fun AddBoxDialog(
         tutorialText = {
             when (tutorialState) {
                 TutorialState.ADD_BOX_DIALOG -> {
-                    Text(text = "In this dialog you can add all important information for your new box.")
+                    Text(text = stringResource(id = R.string.add_box_dialog))
                 }
 
                 TutorialState.ADD_BOX_DIALOG_NAME -> {
-                    Text(text = "First, give your new box a name.")
+                    Text(text = stringResource(id = R.string.add_box_dialog_name))
                 }
 
                 TutorialState.ADD_BOX_DIALOG_TOPIC -> {
-                    Text(text = "Choose the language that you want to learn.")
+                    Text(text = stringResource(id = R.string.add_box_dialog_topic))
                 }
 
                 TutorialState.ADD_BOX_DIALOG_CHECK_BOX -> {
-                    Text(text = "If your box is not for learning a language, you can disable the check box and type in the topic in the field above.")
+                    Text(text = stringResource(id = R.string.add_box_dialog_check_box))
                 }
 
                 TutorialState.ADD_BOX_DIALOG_DESCRIPTION -> {
-                    Text(text = "Here you can add a description for your new box.")
+                    Text(text = stringResource(id = R.string.add_box_dialog_description))
                 }
 
                 TutorialState.ADD_BOX_DIALOG_REMINDER -> {
-                    Text(text = "If you want to receive notifications about training reminders, switch them on here.")
+                    Text(text = stringResource(id = R.string.add_box_dialog_reminder))
                 }
 
                 TutorialState.ADD_BOX_DIALOG_SAVE -> {
-                    Text(text = "Finally, save the new box you've just created.")
+                    Text(text = stringResource(id = R.string.add_box_dialog_save))
                 }
 
                 else -> {}
@@ -226,7 +232,7 @@ fun AddBoxDialog(
                 TextButton(
                     onClick = nextTutorialStep
                 ) {
-                    Text(text = "Next")
+                    Text(text = stringResource(id = R.string.next))
                 }
             }
         }
@@ -246,7 +252,7 @@ fun AddBoxDialogPreview() {
             ).toBoxDetails()
         ),
         tutorial = false,
-        tutorialState = TutorialState.OFF
+        tutorialState = TutorialState.OFF,
     )
 }
 

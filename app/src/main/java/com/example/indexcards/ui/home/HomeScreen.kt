@@ -61,7 +61,7 @@ fun HomeScreen(
     requestNotificationPermission: () -> Boolean = { false },
     deleteAllMemos: (List<Card>) -> Unit = {},
     importBox: () -> Unit = {},
-    navigateToBoxScreen: (Long) -> Unit = {},
+    navigateToBoxScreen: (Long, Boolean) -> Unit = { _, _ -> },
     cancelAllNotifications: () -> Unit = {},
     scheduleNotification: (Long, Int, String, Long, Long) -> Unit = { _, _, _, _, _ -> },
     homeScreenViewModel: HomeScreenViewModel = viewModel(
@@ -272,8 +272,7 @@ fun HomeScreen(
                             modifier = modifier,
                             onClick = {
                                 if (tutorial) {
-                                    /* TODO: remove and implement highlighting the menu */
-                                    tutorialStep += 2
+                                    tutorialStep += 1
                                 }
                                 homeScreenViewModel.resetCurrentBox()
                                 addBoxDialog = true
@@ -293,7 +292,7 @@ fun HomeScreen(
                     boxList = boxList,
                     isSelecting = isSelecting,
                     selectedBoxes = selectedBoxes,
-                    navigateToBoxScreen = navigateToBoxScreen,
+                    navigateToBoxScreen = { navigateToBoxScreen(it, tutorial) },
                     startSelection = {
                         if (!isSelecting) {
                             isSelecting = true
@@ -344,8 +343,8 @@ fun HomeScreen(
     if (tutorial) {
         Tutorial(
             modifier = modifier,
-            nextStep = { tutorialStep += 1 },
             tutorialState = tutorialState,
+            nextStep = { tutorialStep += 1 },
             stopTutorial = { endTutorial() },
         )
     }

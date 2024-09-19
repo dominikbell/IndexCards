@@ -3,6 +3,7 @@ package com.example.indexcards
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -19,7 +20,6 @@ import com.example.indexcards.ui.home.HomeScreen
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.home.HomeScreenViewModel
-import java.io.File
 
 @Composable
 fun Navigation(
@@ -39,9 +39,14 @@ fun Navigation(
     scheduleNotification: (Long, Int, String, Long, Long) -> Unit = { _, _, _, _, _ -> },
 ) {
     var currentBoxId by remember { mutableLongStateOf(startBoxId) }
+    var tutorial by remember { mutableStateOf(false) }
 
     fun setNewBoxId(newBoxId: Long) {
         currentBoxId = newBoxId
+    }
+
+    fun setTutorial(newTut: Boolean) {
+        tutorial = newTut
     }
 
     NavHost(
@@ -55,9 +60,10 @@ fun Navigation(
     ) {
         composable("homeScreen") {
             HomeScreen(
-                navigateToBoxScreen = { boxId ->
+                navigateToBoxScreen = { boxId, tut ->
                     setNewBoxId(boxId)
-                    navController.navigate("boxScreen/${boxId}/${-1}")
+                    setTutorial(tut)
+                    navController.navigate("boxScreen/${boxId}/${-1}/${tut}")
                 },
                 hasNotificationPermission = hasNotificationPermission,
                 requestNotificationPermission = requestNotificationPermission,
@@ -69,7 +75,7 @@ fun Navigation(
             )
         }
         composable(
-            "boxScreen/{boxId}/{level}",
+            "boxScreen/{boxId}/{level}/{tutorial}",
             arguments = listOf(
                 navArgument("boxId") {
                     type = NavType.LongType
@@ -78,17 +84,23 @@ fun Navigation(
                 navArgument("level") {
                     type = NavType.IntType
                     defaultValue = startLevel
+                },
+                navArgument("tutorial") {
+                    type = NavType.BoolType
+                    defaultValue = false
                 }
             )
         ) {
             val boxId = it.arguments?.getLong("boxId") ?: -1
             val level = it.arguments?.getInt("level") ?: -1
+            val tut = it.arguments?.getBoolean("tutorial") ?: false
             BoxScreen(
                 navigateToBoxesOverview = {
                     navController.navigate("homeScreen")
                 },
                 boxId = boxId,
                 startLevel = level,
+                tutorialGiven = tut,
                 boxScreenViewModel = viewModel(
                     factory = ViewModelProvider(context = LocalContext.current).factory
                 ) as BoxScreenViewModel,

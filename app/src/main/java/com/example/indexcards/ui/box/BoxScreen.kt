@@ -1,6 +1,8 @@
 package com.example.indexcards.ui.box
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -10,7 +12,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -37,10 +42,13 @@ import com.example.indexcards.ui.box.dialogs.NewCardDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.box.dialogs.NoCardsDialog
 import com.example.indexcards.ui.box.dialogs.TagDialog
+import com.example.indexcards.ui.home.Tutorial
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
 import com.example.indexcards.utils.box.BoxScreenViewModel
+import com.example.indexcards.utils.home.TutorialMap
+import com.example.indexcards.utils.home.TutorialState
 import com.example.indexcards.utils.state.toBoxDetails
 import com.example.indexcards.utils.state.toCardState
 import com.example.indexcards.utils.notification.getTimeFromReminderSettings
@@ -59,6 +67,7 @@ fun BoxScreen(
     modifier: Modifier = Modifier,
     boxId: Long, /* Is also here for boxScreenViewModel to work */
     startLevel: Int = -1,
+    tutorialGiven: Boolean = false,
     hasNotificationPermission: Boolean = false,
     hasRecordingPermission: Boolean = false,
     navigateToBoxesOverview: () -> Unit = {},
@@ -115,6 +124,12 @@ fun BoxScreen(
 
     val doneCollecting = boxScreenViewModel.doneCollectingData
     val csvString = boxScreenViewModel.csvString
+
+    /** Tutorial */
+    var tutorial by remember { mutableStateOf(false) }
+    var tutorialStep by remember { mutableStateOf(-1) }
+    val tutorialState =
+        TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
 
     val filteredCardWithTagList =
         cardsWithTags.cardWithTagList.filter {
@@ -184,6 +199,15 @@ fun BoxScreen(
         }
     }
 
+    LaunchedEffect(key1 = tutorialGiven) {
+        if (tutorialGiven) {
+            tutorialStep =
+                TutorialMap.map.entries.firstOrNull { it.value == TutorialState.ADD_CARD_INTRO }?.key
+                    ?: -1
+            tutorial = true
+        }
+    }
+
     fun setReminder(level: Int) {
         val time = getTimeFromReminderSettings(
             reminderIntervals = reminderIntervals.value,
@@ -239,6 +263,11 @@ fun BoxScreen(
 
     fun showNewTagDialog() {
         newTag = true; tagDialog = true
+    }
+
+    fun endTutorial() {
+        tutorial = false
+        tutorialStep = -1
     }
 
     BackHandler {
@@ -328,13 +357,29 @@ fun BoxScreen(
                             Spacer(modifier = Modifier.size(10.dp))
                         }
 
-                        FloatingActionButton(
-                            onClick = {
-                                boxScreenViewModel.setBiggestCardId()
-                                newCardDialog = true
+                        val boxModifier =
+                            if (tutorial && tutorialState == TutorialState.ADD_CARD_INTRO) {
+                                Modifier
+                                    .clip(FloatingActionButtonDefaults.shape)
+                                    .background(color = MaterialTheme.colorScheme.primary)
+                                    .padding(6.dp)
+                            } else {
+                                Modifier
                             }
+                        Box(
+                            modifier = boxModifier
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = "Add")
+                            FloatingActionButton(
+                                onClick = {
+                                    if (tutorial) {
+                                        tutorialStep += 1
+                                    }
+                                    boxScreenViewModel.setBiggestCardId()
+                                    newCardDialog = true
+                                }
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = "Add")
+                            }
                         }
                     }
                 }
@@ -430,6 +475,15 @@ fun BoxScreen(
         }
     }
 
+    if (tutorialGiven) {
+        Tutorial(
+            modifier = modifier,
+            tutorialState = tutorialState,
+            nextStep = { tutorialStep += 1 },
+            stopTutorial = { endTutorial() },
+        )
+    }
+
     if (cardDialog) {
         CardDialog(
             audioPlayer = player,
@@ -453,6 +507,8 @@ fun BoxScreen(
             cardUiState = cardUiState,
             boxWithTags = boxWithTags,
             boxWithCategories = boxWithCategories,
+            tutorial = tutorial,
+            tutorialState = tutorialState,
             cardId = newCardId,
             audioPlayer = player,
             audioRecorder = recorder,
@@ -476,6 +532,8 @@ fun BoxScreen(
             },
             showNewTagDialog = { showNewTagDialog() },
             showEditTagDialog = { showEditTagDialog(it) },
+            nextTutorialStep = { tutorialStep += 1 },
+            endTutorial = { endTutorial() },
         )
     }
 
@@ -485,6 +543,8 @@ fun BoxScreen(
             boxWithCategories = boxWithCategories,
             cardWithTags = cardWithTags,
             cardUiState = cardUiState,
+            tutorial = tutorial,
+            tutorialState = tutorialState,
             audioPlayer = player,
             audioRecorder = recorder,
             hasRecordingPermission = hasRecordingPermission,
