@@ -74,7 +74,7 @@ fun TutorialDialog(
                 text = when (tutorialState) {
                     TutorialState.WELCOME -> stringResource(id = R.string.welcome_text)
 
-                    TutorialState.ADD_BOX_INTRO -> stringResource(id = R.string.add_box_intro_title)
+                    TutorialState.ADD_BOX_INTRO -> stringResource(id = R.string.add_box_intro_text)
 
                     TutorialState.NEW_BOX -> stringResource(id = R.string.new_box_text)
 

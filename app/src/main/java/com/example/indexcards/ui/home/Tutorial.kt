@@ -78,7 +78,7 @@ fun Tutorial(
                     Column(
                         modifier = modifier
                             .fillMaxWidth()
-                            .height(screenHeight - statusBarHeight - buttonSize)
+                            .height(screenHeight - buttonSize)
                             .clickable(interactionSource = null, indication = null, onClick = {})
                             .background(color = Color.Black.copy(alpha = 0.6F)),
                     ) {}
