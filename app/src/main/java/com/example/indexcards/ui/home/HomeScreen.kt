@@ -35,11 +35,11 @@ import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
-import com.example.indexcards.ui.home.dialogs.OldAddBoxDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.home.dialogs.DeleteBoxesDialog
+import com.example.indexcards.ui.home.dialogs.MergeBoxesDialog
 import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
 import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
 import com.example.indexcards.ui.home.dialogs.UserNameDialog
@@ -92,6 +92,7 @@ fun HomeScreen(
     var addBoxDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
     var deleteBoxesDialog by remember { mutableStateOf(false) }
+    var mergeBoxesDialog by remember { mutableStateOf(false) }
     var userNameDialog by remember { mutableStateOf(false) }
     var reminderIntervalsDialog by remember { mutableStateOf(false) }
     var reminderTimeDialog by remember { mutableStateOf(false) }
@@ -246,7 +247,7 @@ fun HomeScreen(
 
                         if (selectedBoxes.size >= 2) {
                             FloatingActionButton(
-                                onClick = { /* TODO: implement merging */ },
+                                onClick = { mergeBoxesDialog = true },
                                 modifier = modifier
                                     .padding(top = 10.dp)
                                     .rotate(90F)
@@ -400,7 +401,9 @@ fun HomeScreen(
         DeleteBoxesDialog(
             boxesToBeDeleted = selectedBoxes,
             onDismiss = {
+                isSelecting = false
                 deleteBoxesDialog = false
+                selectedBoxes = listOf()
             },
             onDelete = {
                 homeScreenViewModel.viewModelScope.launch {
@@ -416,6 +419,17 @@ fun HomeScreen(
                 isSelecting = false
                 selectedBoxes = listOf()
             },
+        )
+    }
+
+    if (mergeBoxesDialog) {
+        MergeBoxesDialog(
+            selectedBoxes = selectedBoxes,
+            onDismiss = {
+                mergeBoxesDialog = false
+                isSelecting = false
+                selectedBoxes = listOf()
+            }
         )
     }
 

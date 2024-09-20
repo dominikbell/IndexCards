@@ -1,56 +1,100 @@
 <resources>
     <string name="app_name">IndexCards</string>
-    <string name="your_boxes">Your Boxes</string>
-    <string name="editing">Editing</string>
+
+    <!-- General Strings -->
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="close">Close</string>
     <string name="delete">Delete</string>
     <string name="not_implemented">This feature is not implemented yet!</string>
+    <string name="required_fields">* required fields</string>
+    <string name="required_field">* required field</string>
+    <string name="action_cannot_be_undone">This action cannot be undone!</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="finish">Finish</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+
+    <!--    HomeScreen
+    -->
+    <string name="your_boxes">Your Boxes</string>
+    <string name="editing">Editing</string>
     <string name="click_to_add_box">Click \'+\' to create a new box</string>
+    <string name="back_twice_to_close">Pressing \'Back\' again will close the app</string>
+
+    <!-- HomeScreen DropDownMenu -->
+    <string name="settings">Settings</string>
+    <string name="statistics">Statistics</string>
+    <string name="about_app">About this App</string>
+    <string name="about_app_text">Developed in Kotlin by Dominik Bell</string>
+    <string name="import_box">Import Box from CSV</string>
+    <string name="must_be_csv">Importing is only possible from a .csv file!</string>
+    <string name="sort_by">Sort by</string>
+    <string name="date_asc">Newest first</string>
+    <string name="date_desc">Oldest first</string>
+    <string name="name_asc">Name A .. Z</string>
+    <string name="name_desc">Name Z .. A</string>
+    <string name="start_tutorial">Start Tutorial</string>
+    <string name="end_tutorial">End Tutorial</string>
+
+    <!-- AddBox Dialog -->
     <string name="add_new_box">Add a new box</string>
     <string name="name">Name</string>
     <string name="language">Language</string>
     <string name="topic">Topic</string>
     <string name="description">Description</string>
+    <string name="is_language">Adding a language box</string>
+
+    <!-- DeleteBox Dialog -->
+    <string name="delete_box">Delete box</string>
+    <string name="delete_box_sure">Are you sure you want to delete this box?</string>
+
+    <!-- DeleteBoxes Dialog -->
+    <string name="delete_boxes">Delete boxes</string>
+    <string name="delete_boxes_names">You are about to delete the following boxes:</string>
+    <string name="delete_boxes_sure">Are you sure you want to delete these boxes?</string>
+
+    <!-- MergeBoxes Dialog -->
+    <string name="merge_boxes">Merge boxes</string>
+    <string name="merge_boxes_names">You\'re about to merge the following boxes:</string>
+    <string name="merge_boxes_explanation">This action will create a new box containing all the cards, tags, and categories of the old boxes.</string>
+    <string name="merge_boxes_delete">Delete old boxes</string>
+    <string name="merge_boxes_choose_name">Choose a name for the new box or enter a new one:</string>
+    <string name="merge_boxes_choose_imports">Choose what should be imported to the new box:</string>
+    <string name="keep_all_cards">Keep all cards</string>
+    <string name="keep_all_tags">Keep all tags</string>
+    <string name="keep_all_categories">Keep all categories</string>
+    <string name="old_boxes_will_be_deleted">Your old boxes will be deleted.</string>
+
+
+    <!--    BoxScreen
+    -->
+    <string name="nr_card">Number of cards in this box</string>
     <string name="level">Level</string>
     <string name="item_in_level">items</string>
     <string name="items_in_level">items</string>
-    <string name="required_fields">* required fields</string>
-    <string name="required_field">* required field</string>
-    <string name="is_language">Adding a language box</string>
-    <string name="delete_box">Delete box</string>
-    <string name="delete_boxes">Delete boxes</string>
-    <string name="delete_box_sure">Are you sure you want to delete this box?</string>
-    <string name="delete_boxes_names">You are about to delete the following boxes:</string>
-    <string name="action_cannot_be_undone">This action cannot be undone!</string>
-    <string name="delete_boxes_sure">Are you sure you want to delete these boxes?</string>
-    <string name="settings">Settings</string>
-    <string name="statistics">Statistics</string>
-    <string name="about_app">About this App</string>
-    <string name="about_app_text">Developed in Kotlin by Dominik Bell</string>
-    <string name="nr_card">Number of cards in this box</string>
-    <string name="edit_box">Edit Box Details</string>
-    <string name="show_categories">Show categories</string>
-    <string name="category">Category</string>
-    <string name="use_categories">Use categories</string>
-    <string name="new_category">New category</string>
-    <string name="edit_category">Edit category</string>
+    <string name="new_tag">New Tag</string>
+    <string name="click_to_add_card">Click \'+\' to add a new card to this box</string>
     <string name="no_category">No category</string>
     <string name="no_cards_in_category">There are no cards in this category</string>
-    <string name="box_created">This box was created on</string>
-    <string name="at">at</string>
+
+    <!-- BoxScreen DropDownMenu -->
+    <string name="edit_box">Edit Box Details</string>
     <string name="search">Search</string>
     <string name="export_box">Export Box to CSV</string>
-    <string name="import_box">Import Box from CSV</string>
-    <string name="must_be_csv">Importing is only possible from a .csv file!</string>
-    <string name="click_to_add_card">Click \'+\' to add a new card to this box</string>
-    <string name="new_tag">New Tag</string>
-    <string name="new_tag_short">New</string>
-    <string name="add_new_tag">Add a new tag</string>
-    <string name="edit_tag">Edit tag</string>
-    <string name="tag_name">Tag Name</string>
+    <string name="train_all">Train all</string>
+    <string name="train_selection">Train selection</string>
+    <string name="word_asc">Words A .. Z</string>
+    <string name="word_desc">Words Z .. A</string>
+    <string name="level_asc">Level ascending</string>
+    <string name="level_desc">Level descending</string>
+
+    <!-- New/Edit/ CardDialog -->
     <string name="add_new_card">Add a new card</string>
+    <string name="new_tag_short">New</string>
+    <string name="category">Category</string>
     <string name="word">Word</string>
     <string name="meaning">Meaning</string>
     <string name="frontside">Front side</string>
@@ -59,20 +103,25 @@
     <string name="edit_card">Edit card for</string>
     <string name="delete_card">Delete card for</string>
     <string name="delete_card_sure">Are you sure you want to delete this card?</string>
+    <string name="memo">Memo</string>
+    <string name="no_memo">No memo was saved for this card</string>
+
+    <!-- TagDialog -->
+    <string name="add_new_tag">Add a new tag</string>
+    <string name="edit_tag">Edit Tag</string>
+    <string name="tag_name">Tag Name</string>
+
+    <!-- EditBoxScreen -->
+    <string name="show_categories">Show categories</string>
+    <string name="use_categories">Use categories</string>
+    <string name="new_category">New category</string>
+    <string name="box_created">This box was created on</string>
+    <string name="at">at</string>
     <string name="editing_box">Editing box</string>
+
+    <!-- TrainingScreen -->
     <string name="training">Training</string>
     <string name="training_counts">Training counts</string>
-    <string name="train_all">Train all</string>
-    <string name="train_selection">Train selection</string>
-    <string name="sort_by">Sort by</string>
-    <string name="date_asc">Newest first</string>
-    <string name="date_desc">Oldest first</string>
-    <string name="word_asc">Words A .. Z</string>
-    <string name="word_desc">Words Z .. A</string>
-    <string name="level_asc">Level ascending</string>
-    <string name="level_desc">Level descending</string>
-    <string name="name_asc">Name A .. Z</string>
-    <string name="name_desc">Name Z .. A</string>
     <string name="reverse_sides">Reverse sides</string>
     <string name="correct">Correct</string>
     <string name="incorrect">Incorrect</string>
@@ -84,7 +133,9 @@
     <string name="oops_no_cards">Oops, no cards found</string>
     <string name="no_cards_of_level_1">There are no cards in this box of level</string>
     <string name="no_cards_of_level_2">. This must be a mistake.</string>
-    <string name="back_twice_to_close">Pressing \'Back\' again will close the app</string>
+
+
+    <!-- SettingsScreen -->
     <string name="day">day</string>
     <string name="week">week</string>
     <string name="month">month</string>
@@ -106,18 +157,15 @@
     <string name="set_reminders">Set reminders for level</string>
     <string name="enter_name">Enter your name</string>
     <string name="my_name">My name is</string>
-    <string name="not_set1">Not set</string>
+    <string name="not_set">Not set</string>
     <string name="default_notification_time">Default notification time</string>
     <string name="set_reminder_time">Set a reminder time</string>
     <string name="do_not_use">Do Not Use</string>
     <string name="global_reminders_set">Global reminders have been set!</string>
     <string name="global_reminders_cancelled">All notifications have been cancelled!</string>
-    <string name="memo">Memo</string>
-    <string name="no_memo">No memo was saved for this card</string>
 
-    <string name="start_tutorial">Start Tutorial</string>
-    <string name="end_tutorial">End Tutorial</string>
-    <string name="next">Next</string>
+
+    <!-- TutorialDialog -->
     <string name="welcome_title">Welcome to IndexCards!</string>
     <string name="welcome_text">This tutorial will show you how to use the app.</string>
     <string name="add_box_intro_title">Adding a new box</string>
@@ -127,6 +175,7 @@
     <string name="add_card_intro_title">It is quite empty here</string>
     <string name="add_card_intro_text">Let us add a card to this box. Click the \'+\' to open the dialog for that.</string>
 
+    <!-- AddBoxDialog Tutorial -->
     <string name="add_box_dialog">In this dialog you can add all important information for your new box.</string>
     <string name="add_box_dialog_name">First, give your new box a name.</string>
     <string name="add_box_dialog_topic">Choose the language that you want to learn.</string>
@@ -135,6 +184,7 @@
     <string name="add_box_dialog_reminder">If you want to receive notifications about training reminders, switch them on here.</string>
     <string name="add_box_dialog_save">Finally, save the new box you\'ve just created.</string>
 
+    <!-- AddCardDialog Tutorial -->
     <string name="add_card_dialog">In this dialog you can add all important information for your new card.</string>
     <string name="add_card_dialog_word">Enter a new word in the language you want to learn.</string>
     <string name="add_card_dialog_meaning">Enter the meaning of the word.</string>

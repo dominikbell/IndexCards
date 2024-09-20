@@ -18,6 +18,7 @@ object LanguageData {
         "_it" to Pair("Italian", "🇮🇹"),
         "_jp" to Pair("Japanese", "🇯🇵"),
         "_kr" to Pair("Korean", "🇰🇷"),
+        "_re" to Pair("Latin", ""),
         "_no" to Pair("Norwegian", "🇳🇴"),
         "_ir" to Pair("Persian", "🇮🇷"),
         "_pt" to Pair("Portuguese", "🇵🇹"),
