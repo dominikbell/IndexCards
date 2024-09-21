@@ -174,7 +174,7 @@ class MainActivity : ComponentActivity() {
                                     cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                                 cursor.moveToFirst()
                                 val fileName = cursor.getString(fileNameIndex)
-                                isCSVFile = fileName.split(".").last() == "csv"
+                                isCSVFile = fileName.split(".").last().substring(0,3) == "csv"
                             }
                         contentResolver.openInputStream(uri).use { inputStream ->
                             inputStream?.let {

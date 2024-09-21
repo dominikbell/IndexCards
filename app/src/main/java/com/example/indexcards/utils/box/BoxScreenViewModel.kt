@@ -579,8 +579,9 @@ class BoxScreenViewModel(
     }
 
     /** For exporting to a CSV file
-     * returns a string in which the first line holds the box name, topic, description, and tags (text and color)
-     * and in the following lines each one card, their meaning and their tags separated by a comma
+     * returns a string in which the first line holds the box name, topic, description
+     * The second line holds the categories, and the third line the tags (text and color).
+     * In the following lines each one card with word, meaning, category, and their tags separated by a semicolon
      * Warning: This only takes the first value emitted by the database, changes during
      * the process are not taken into consideration */
     var doneCollectingData by mutableStateOf(false)
@@ -589,9 +590,10 @@ class BoxScreenViewModel(
     fun collectCSVString() {
         viewModelScope.launch {
             doneCollectingData = false
+            var categories = mutableListOf<Pair<Long, String>>()
             var res = ""
 
-            /** Write Box and tags */
+            /** Write box and tags */
             appRepository.getBoxWithTagsStream(boxId = boxId)
                 .filterNotNull()
                 .first()
@@ -610,6 +612,20 @@ class BoxScreenViewModel(
                     }
                 }
 
+            /** Write categories */
+            appRepository.getBoxWithCategoriesStream(boxId = boxId)
+                .filterNotNull()
+                .first()
+                .also { boxWithCategories ->
+                    res += "\n"
+                    res += "Categories:;"
+
+                    boxWithCategories.categories.forEach { category ->
+                        categories = categories.plus(Pair(category.categoryId, category.name)).toMutableList()
+                        res += category.name + ";"
+                    }
+                }
+
             res += "\n"
 
             /** Write Cards */
@@ -620,6 +636,8 @@ class BoxScreenViewModel(
                     res += cardWithTags.card.word + ";"
                     res += cardWithTags.card.meaning + ";"
                     res += cardWithTags.card.notes + ";"
+                    res += categories.firstOrNull { it.first == cardWithTags.card.categoryId }?.second ?: ""
+                    res += ";"
                     cardWithTags.tags.forEach { tag ->
                         res += tag.text + ";"
                     }

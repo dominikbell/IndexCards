@@ -9,6 +9,7 @@ import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.AppViewModel
@@ -18,6 +19,7 @@ import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.state.UiBoxWithCards
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyCategory
 import com.example.indexcards.utils.state.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -232,11 +234,15 @@ class HomeScreenViewModel(
             val newBoxId = appRepository.getBiggestBoxId() + 1
             val newTagId = appRepository.getBiggestTagId() + 1
             val newCardId = appRepository.getBiggestCardId() + 1
+            val newCategoryId = appRepository.getBiggestCategoryId() + 1
 
             val splitText = fileString.split("\n")
             val tagList = mutableListOf<Tag>()
             val cardList = mutableListOf<Card>()
+            val categoryList = mutableListOf<Category>()
             val cardTagCrossRefs = mutableListOf<TagCardCrossRef>()
+
+            /* TODO: add categories */
 
             splitText.forEachIndexed { ind, line ->
                 val splitLine = line.split(";")
@@ -300,6 +306,29 @@ class HomeScreenViewModel(
                         }
                     }
 
+                    /** Categories */
+                    2 -> {
+                        var newCategory = emptyCategory
+
+                        splitLine.forEachIndexed { cellInd, cell ->
+                            when (cellInd) {
+                                0 -> {}
+                                else -> {
+                                    if (cell.isNotBlank()) {
+                                        newCategory =
+                                            newCategory.copy(
+                                                categoryId = newCategoryId + cellInd.toLong(),
+                                                boxId = newBoxId,
+                                                name = cell,
+                                            )
+                                        categoryList.add(newCategory)
+                                        newCategory = emptyCategory
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     /** Card */
                     else -> {
                         var newCard = emptyCard
@@ -324,6 +353,15 @@ class HomeScreenViewModel(
 
                                 2 -> {
                                     newCard = newCard.copy(notes = cell)
+                                }
+
+                                3 -> {
+                                    if (cell.isNotBlank()) {
+                                        newCard = newCard.copy(
+                                            categoryId = categoryList.firstOrNull { it.name == cell }?.categoryId
+                                                ?: (-1).toLong()
+                                        )
+                                    }
                                     cardList.add(newCard)
                                     newCard = emptyCard
                                 }
@@ -350,6 +388,10 @@ class HomeScreenViewModel(
             if (boxUiState.isValid) {
                 saveBox()
 
+                categoryList.forEach {
+                    appRepository.upsertCategory(it)
+                }
+
                 tagList.forEach {
                     appRepository.insertTag(it)
                 }
@@ -364,4 +406,7 @@ class HomeScreenViewModel(
             }
         }
     }
+
+    /** For merging boxes */
+    var doneMerging by mutableStateOf(false)
 }
