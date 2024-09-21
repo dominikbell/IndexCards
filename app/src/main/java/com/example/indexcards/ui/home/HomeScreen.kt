@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -40,6 +41,7 @@ import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
 import com.example.indexcards.ui.home.dialogs.AboutAppDialog
 import com.example.indexcards.ui.home.dialogs.AddBoxDialog
 import com.example.indexcards.ui.home.dialogs.DeleteBoxesDialog
+import com.example.indexcards.ui.home.dialogs.LoadingDialog
 import com.example.indexcards.ui.home.dialogs.MergeBoxesDialog
 import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
 import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
@@ -88,6 +90,8 @@ fun HomeScreen(
     val uiBoxWithCards by homeScreenViewModel.boxWithCards.collectAsState()
     val uiBoxList by homeScreenViewModel.uiBoxList.collectAsState()
     val currentBox by homeScreenViewModel.currentBox.collectAsState()
+    val importingInProcess by homeScreenViewModel.importingInProcess.collectAsState()
+    val mergingInProcess by homeScreenViewModel.mergingInProcess.collectAsState()
     val backAgainString = stringResource(id = R.string.back_twice_to_close)
 
     var addBoxDialog by remember { mutableStateOf(false) }
@@ -100,6 +104,7 @@ fun HomeScreen(
     var showAboutApp by remember { mutableStateOf(false) }
     var isSelecting by remember { mutableStateOf(false) }
     var selectedBoxes by remember { mutableStateOf<List<Box>>(listOf()) }
+    var isLoading by remember { mutableStateOf(false) }
 
     /** Tutorial */
     var tutorial by remember { mutableStateOf(false) }
@@ -138,6 +143,10 @@ fun HomeScreen(
                 homeScreenViewModel.updateHomeScreenState(HomeScreenState.MAIN)
             }
         }
+    }
+
+    LaunchedEffect(key1 = importingInProcess, key2 = mergingInProcess) {
+        isLoading = (importingInProcess || mergingInProcess)
     }
 
     fun setReminder(boxId: Long, boxName: String, level: Int) {
@@ -342,6 +351,10 @@ fun HomeScreen(
         }
     }
 
+    if (isLoading) {
+        LoadingDialog()
+    }
+
     if (tutorial) {
         Tutorial(
             modifier = modifier,
@@ -429,6 +442,34 @@ fun HomeScreen(
             onDismiss = {
                 mergeBoxesDialog = false
                 isSelecting = false
+                selectedBoxes = listOf()
+            },
+            onFinish = {
+                    deleteOldBoxes,
+                    newBoxName,
+                    newDescription,
+                    newTopic,
+                    transferCards,
+                    transferTags,
+                    transferCategories,
+                    transferMemos,
+                    keepLevels,
+                ->
+
+                isSelecting = false
+                mergeBoxesDialog = false
+                homeScreenViewModel.mergeBoxes(
+                    oldBoxes = selectedBoxes,
+                    deleteOldBoxes = deleteOldBoxes,
+                    newBoxName = newBoxName,
+                    newDescription = newDescription,
+                    newTopic = newTopic,
+                    transferCards = transferCards,
+                    transferTags = transferTags,
+                    transferCategories = transferCategories,
+                    transferMemos = transferMemos,
+                    keepLevels = keepLevels,
+                )
                 selectedBoxes = listOf()
             }
         )

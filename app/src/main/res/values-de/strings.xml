@@ -70,9 +70,11 @@
     <string name="merge_boxes_choose_topic">Wähle Thema oder gib ein neues ein:</string>
     <string name="merge_boxes_description">Hier kannst Du eine Beschreibung für den neuen Karteikasten eingeben:</string>
     <string name="merge_boxes_choose_imports">Wähle aus, was alles in den neuen Karteikasten übernommen werden soll:</string>
-    <string name="keep_all_cards">Alle Karten übertragen</string>
-    <string name="keep_all_tags">Alle Stichwörter übertragen</string>
-    <string name="keep_all_categories">Alle Kategorien übertragen</string>
+    <string name="keep_cards">Alle Karten übertragen</string>
+    <string name="keep_memos">Memos behalten</string>
+    <string name="keep_levels">Niveau der Karten merken</string>
+    <string name="keep_tags">Alle Stichwörter übertragen</string>
+    <string name="keep_categories">Alle Kategorien übertragen</string>
     <string name="old_boxes_will_be_deleted">Deine alten Karteikästen werden gelöscht.</string>
 
 

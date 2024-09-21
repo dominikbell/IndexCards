@@ -69,9 +69,11 @@
     <string name="merge_boxes_choose_topic">Choose a topic for the new box or enter a new one:</string>
     <string name="merge_boxes_description">Here you can enter a description of the new box:</string>
     <string name="merge_boxes_choose_imports">Choose what should be imported to the new box:</string>
-    <string name="keep_all_cards">Keep all cards</string>
-    <string name="keep_all_tags">Keep all tags</string>
-    <string name="keep_all_categories">Keep all categories</string>
+    <string name="keep_cards">Keep all cards</string>
+    <string name="keep_memos">Keep all memos</string>
+    <string name="keep_levels">Keep levels</string>
+    <string name="keep_tags">Keep all tags</string>
+    <string name="keep_categories">Keep all categories</string>
     <string name="old_boxes_will_be_deleted">Your old boxes will be deleted.</string>
 
 

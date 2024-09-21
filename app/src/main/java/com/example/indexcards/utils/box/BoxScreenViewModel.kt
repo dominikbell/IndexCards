@@ -590,7 +590,7 @@ class BoxScreenViewModel(
     fun collectCSVString() {
         viewModelScope.launch {
             doneCollectingData = false
-            var categories = mutableListOf<Pair<Long, String>>()
+            val categories = mutableListOf<Pair<Long, String>>()
             var res = ""
 
             /** Write box and tags */
@@ -621,7 +621,7 @@ class BoxScreenViewModel(
                     res += "Categories:;"
 
                     boxWithCategories.categories.forEach { category ->
-                        categories = categories.plus(Pair(category.categoryId, category.name)).toMutableList()
+                        categories.add(Pair(category.categoryId, category.name))
                         res += category.name + ";"
                     }
                 }
