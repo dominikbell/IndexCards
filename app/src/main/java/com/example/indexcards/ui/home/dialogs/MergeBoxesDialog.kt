@@ -5,11 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Merge
@@ -20,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,11 +35,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
+import com.example.indexcards.data.LanguageData
+import com.example.indexcards.utils.getCutString
 import com.example.indexcards.utils.state.emptyBox
 
 
@@ -54,19 +50,33 @@ fun MergeBoxesDialog(
     onDismiss: () -> Unit = {},
     onFinish: (Boolean, String, Boolean, Boolean, Boolean) -> Unit = { _, _, _, _, _ -> },
 ) {
-    var step by remember { mutableIntStateOf(3) }
+    val topics = selectedBoxes.map { Pair(it.topic, it.boxId) }
+    val haveSameTopics = topics.all { it.first == topics.first().first }
+
+    var step by remember { mutableIntStateOf(0) }
 
     /* Screen 0 */
-    var deleteOldBoxes by remember { mutableStateOf(true) }
+    var deleteOldBoxes by remember { mutableStateOf(false) }
+
+    /* for choices on Screen 1 and Screen 2 */
+    var noOptionChosen by remember { mutableStateOf(false) }
 
     /* Screen 1 */
     var newBoxName by remember { mutableStateOf("") }
     var customBoxName by remember { mutableStateOf("") }
+    var selectedBoxIdName by remember { mutableLongStateOf(-2) }
     var validCustomName by remember { mutableStateOf(true) }
-    var noOptionChosen by remember { mutableStateOf(false) }
-    var selectedBoxId by remember { mutableLongStateOf(-2) }
 
     /* Screen 2 */
+    var newTopic by remember { mutableStateOf("") }
+    var customTopic by remember { mutableStateOf("") }
+    var selectedBoxIdTopic by remember { mutableLongStateOf(-2) }
+    var validCustomTopic by remember { mutableStateOf(true) }
+
+    /* Screen 3 */
+    var newDescription by remember { mutableStateOf("") }
+
+    /* Screen 4 */
     var transferCards by remember { mutableStateOf(true) }
     var transferTags by remember { mutableStateOf(true) }
     var transferCategories by remember { mutableStateOf(true) }
@@ -121,7 +131,7 @@ fun MergeBoxesDialog(
                     }
                 }
 
-                /** Choose the name */
+                /** BoxName */
                 1 -> {
                     Column {
                         Text(
@@ -139,16 +149,16 @@ fun MergeBoxesDialog(
                                         .clickable {
                                             validCustomName = true
                                             newBoxName = it.name
-                                            selectedBoxId = it.boxId
+                                            selectedBoxIdName = it.boxId
                                         },
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     RadioButton(
-                                        selected = (selectedBoxId == it.boxId),
+                                        selected = (selectedBoxIdName == it.boxId),
                                         onClick = {
                                             validCustomName = true
                                             newBoxName = it.name
-                                            selectedBoxId = it.boxId
+                                            selectedBoxIdName = it.boxId
                                         },
                                         colors = RadioButtonDefaults.colors().copy(
                                             unselectedColor =
@@ -165,11 +175,11 @@ fun MergeBoxesDialog(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 RadioButton(
-                                    selected = (selectedBoxId == (-1).toLong()),
+                                    selected = (selectedBoxIdName == (-1).toLong()),
                                     onClick = {
                                         noOptionChosen = false
                                         newBoxName = customBoxName
-                                        selectedBoxId = -1
+                                        selectedBoxIdName = -1
                                     },
                                     colors = RadioButtonDefaults.colors().copy(
                                         unselectedColor =
@@ -184,7 +194,7 @@ fun MergeBoxesDialog(
                                         noOptionChosen = false
                                         customBoxName = it
                                         newBoxName = it
-                                        selectedBoxId = -1
+                                        selectedBoxIdName = -1
                                     },
                                     isError = !validCustomName,
                                     trailingIcon = {
@@ -204,8 +214,196 @@ fun MergeBoxesDialog(
                     }
                 }
 
-                /** Decide if cards, tags, and categories should be transferred  */
+                /** Topic */
                 2 -> {
+                    /* If all boxes have the same topic */
+                    if (haveSameTopics) {
+                        Column {
+                            Text(text = stringResource(id = R.string.merge_boxes_have_same_name))
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        noOptionChosen = false
+                                        validCustomTopic = true
+                                        newTopic = topics.first().first
+                                        selectedBoxIdTopic = topics.first().second
+                                    },
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(
+                                    selected = newTopic == topics.first().first,
+                                    onClick = {
+                                        noOptionChosen = false
+                                        validCustomTopic = true
+                                        newTopic = topics.first().first
+                                        selectedBoxIdTopic = topics.first().second
+                                    },
+                                )
+
+                                Text(text = stringResource(id = R.string.keep_topic) + ": ")
+
+                                Text(
+                                    text = topics.first().first,
+                                    fontStyle = FontStyle.Italic
+                                )
+                            }
+
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(
+                                    selected = (selectedBoxIdTopic == (-1).toLong()),
+                                    onClick = {
+                                        noOptionChosen = false
+                                        newTopic = customTopic
+                                        selectedBoxIdTopic = -1
+                                    },
+                                    colors = RadioButtonDefaults.colors().copy(
+                                        unselectedColor =
+                                        if (noOptionChosen) MaterialTheme.colorScheme.error
+                                        else RadioButtonDefaults.colors().unselectedColor
+                                    )
+                                )
+                                OutlinedTextField(
+                                    value = customTopic,
+                                    onValueChange = {
+                                        validCustomTopic = true
+                                        noOptionChosen = false
+                                        customTopic = it
+                                        newTopic = it
+                                        selectedBoxIdTopic = -1
+                                    },
+                                    isError = !validCustomTopic,
+                                    trailingIcon = {
+                                        if (customTopic.isNotBlank()) {
+                                            Icon(
+                                                modifier = Modifier.clickable {
+                                                    customTopic = ""
+                                                },
+                                                imageVector = Icons.Default.Clear,
+                                                contentDescription = "clear"
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        Column {
+                            Text(
+                                modifier = Modifier.padding(bottom = 4.dp),
+                                text = stringResource(id = R.string.merge_boxes_choose_name)
+                            )
+
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(0.dp)
+                            ) {
+                                topics.distinct().forEach {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                validCustomTopic = true
+                                                newTopic = it.first
+                                                selectedBoxIdTopic = it.second
+                                            },
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        RadioButton(
+                                            selected = (selectedBoxIdTopic == it.second),
+                                            onClick = {
+                                                validCustomTopic = true
+                                                newTopic = it.first
+                                                selectedBoxIdTopic = it.second
+                                            },
+                                            colors = RadioButtonDefaults.colors().copy(
+                                                unselectedColor =
+                                                if (noOptionChosen) MaterialTheme.colorScheme.error
+                                                else RadioButtonDefaults.colors().unselectedColor
+                                            )
+                                        )
+
+                                        Text(text = it.first)
+                                    }
+                                }
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    RadioButton(
+                                        selected = (selectedBoxIdTopic == (-1).toLong()),
+                                        onClick = {
+                                            noOptionChosen = false
+                                            newTopic = customTopic
+                                            selectedBoxIdTopic = -1
+                                        },
+                                        colors = RadioButtonDefaults.colors().copy(
+                                            unselectedColor =
+                                            if (noOptionChosen) MaterialTheme.colorScheme.error
+                                            else RadioButtonDefaults.colors().unselectedColor
+                                        )
+                                    )
+                                    OutlinedTextField(
+                                        value = customTopic,
+                                        onValueChange = {
+                                            validCustomTopic = true
+                                            noOptionChosen = false
+                                            customTopic = it
+                                            newTopic = it
+                                            selectedBoxIdTopic = -1
+                                        },
+                                        isError = !validCustomTopic,
+                                        trailingIcon = {
+                                            if (customTopic.isNotBlank()) {
+                                                Icon(
+                                                    modifier = Modifier.clickable {
+                                                        customTopic = ""
+                                                    },
+                                                    imageVector = Icons.Default.Clear,
+                                                    contentDescription = "clear"
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /** Description */
+                3 -> {
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(bottom = 6.dp),
+                            text = stringResource(id = R.string.merge_boxes_description),
+                        )
+
+                        OutlinedTextField(
+                            value = newDescription,
+                            onValueChange = { newDescription = it },
+                            minLines = 3,
+                            maxLines = 5,
+                            trailingIcon = {
+                                if (newDescription.isNotBlank()) {
+                                    Icon(
+                                        modifier = Modifier.clickable {
+                                            newDescription = ""
+                                        },
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "clear"
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+
+                /** Decide if cards, tags, and categories should be transferred  */
+                4 -> {
                     Column {
                         Text(text = stringResource(id = R.string.merge_boxes_choose_imports))
 
@@ -257,7 +455,7 @@ fun MergeBoxesDialog(
                 }
 
                 /** List all choices and confirm */
-                3 -> {
+                else -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -279,6 +477,28 @@ fun MergeBoxesDialog(
                             )
 
                             Text(text = newBoxName)
+                        }
+
+                        HorizontalDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (LanguageData.language.values.any { it.first == newTopic }) {
+                                Text(text = stringResource(id = R.string.language) + ": ")
+                            } else {
+                                Text(text = stringResource(id = R.string.topic) + ": ")
+                            }
+                            Text(text = newTopic.getCutString(25))
+                        }
+
+                        if (newDescription.isNotBlank()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = stringResource(id = R.string.description) + ": ")
+                                Text(text = newDescription.getCutString(25))
+                            }
                         }
 
                         HorizontalDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
@@ -330,11 +550,17 @@ fun MergeBoxesDialog(
                         }
 
                         if (deleteOldBoxes) {
-                            HorizontalDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
+                            HorizontalDivider(
+                                modifier = Modifier.padding(
+                                    top = 10.dp,
+                                    bottom = 10.dp
+                                )
+                            )
 
                             Text(
                                 modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                                text = stringResource(id = R.string.old_boxes_will_be_deleted) + " " + stringResource(id = R.string.action_cannot_be_undone)
+                                text = stringResource(id = R.string.old_boxes_will_be_deleted) + " " +
+                                        stringResource(id = R.string.action_cannot_be_undone)
                             )
                         }
                     }
@@ -362,18 +588,30 @@ fun MergeBoxesDialog(
                     }
                 }
 
-                if (step != 3) {
+                if ((0..4).contains(step)) {
                     TextButton(
                         onClick = {
                             if (step == 1) {
                                 /* If no option was chosen */
-                                if (selectedBoxId == (-2).toLong()) {
+                                if (selectedBoxIdName == (-2).toLong()) {
                                     noOptionChosen = true
                                     return@TextButton
                                 }
                                 /* If a custom name was chosen but the TextField is blank */
-                                if (selectedBoxId == (-1).toLong() && customBoxName.isBlank()) {
+                                if (selectedBoxIdName == (-1).toLong() && customBoxName.isBlank()) {
                                     validCustomName = false
+                                    return@TextButton
+                                }
+                            }
+                            if (step == 2) {
+                                /* If no option was chosen */
+                                if (selectedBoxIdTopic == (-2).toLong()) {
+                                    noOptionChosen = true
+                                    return@TextButton
+                                }
+                                /* If a custom name was chosen but the TextField is blank */
+                                if (selectedBoxIdTopic == (-1).toLong() && customTopic.isBlank()) {
+                                    validCustomTopic = false
                                     return@TextButton
                                 }
                             }
@@ -406,9 +644,9 @@ fun MergeBoxesDialog(
 @Preview
 @Composable
 fun MergeBoxesDialogPreview() {
-    val box1 = emptyBox.copy(name = "Box1")
-    val box2 = emptyBox.copy(name = "Another Box")
-    val box3 = emptyBox.copy(name = "Spanish B1")
+    val box1 = emptyBox.copy(name = "Box1", topic = "test")
+    val box2 = emptyBox.copy(name = "Another Box", topic = "test")
+    val box3 = emptyBox.copy(name = "Spanish B1", topic = "test1")
     MergeBoxesDialog(
         selectedBoxes = listOf(box1, box2, box3)
     )

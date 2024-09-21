@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -102,7 +103,7 @@ fun HomeScreen(
 
     /** Tutorial */
     var tutorial by remember { mutableStateOf(false) }
-    var tutorialStep by remember { mutableStateOf(-1) }
+    var tutorialStep by remember { mutableIntStateOf(-1) }
     val tutorialState =
         TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
 

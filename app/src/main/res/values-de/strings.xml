@@ -16,6 +16,8 @@
     <string name="finish">Fertig</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="loading">Laden</string>
+    <string name="wait">Bitte warte während diese Aktion abgeschlossen wird.</string>
 
 
     <!--    HomeScreen
@@ -63,6 +65,10 @@
     <string name="merge_boxes_explanation">Hierbei wird ein neuer Karteikasten erstellt mit den Karteikarten, Stichwörtern, und Kategorien der alten Karteikästen.</string>
     <string name="merge_boxes_delete">Alte Karteikästen löschen</string>
     <string name="merge_boxes_choose_name">Wähle einen Namen für die neue Box oder gib einen eigenen ein:</string>
+    <string name="merge_boxes_have_same_name">Alle gewählten Karteikästen haben denselben Namen. Möchtest du ihn behalten oder einen anderen eingeben?</string>
+    <string name="keep_topic">Behalten</string>
+    <string name="merge_boxes_choose_topic">Wähle Thema oder gib ein neues ein:</string>
+    <string name="merge_boxes_description">Hier kannst Du eine Beschreibung für den neuen Karteikasten eingeben:</string>
     <string name="merge_boxes_choose_imports">Wähle aus, was alles in den neuen Karteikasten übernommen werden soll:</string>
     <string name="keep_all_cards">Alle Karten übertragen</string>
     <string name="keep_all_tags">Alle Stichwörter übertragen</string>
@@ -158,7 +164,7 @@
     <string name="set_reminders">Benachrichtigungen für Niveau</string>
     <string name="enter_name">Gib Deinen Name ein</string>
     <string name="my_name">Mein Name ist</string>
-    <string name="not_set">Nicht festgelegt</string>
+    <string name="not_set1">Nicht festgelegt</string> <!-- has to be renamed since "not_set" is internally taken by Android -->
     <string name="default_notification_time">Standard Benachrichtigungszeit</string>
     <string name="set_reminder_time">Wähle einen Benachrichtigunszeitpunkt</string>
     <string name="do_not_use">Nicht Benutzen</string>

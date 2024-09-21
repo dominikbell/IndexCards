@@ -228,9 +228,14 @@ class HomeScreenViewModel(
     }
 
 
+    /** For importing boxes */
+    var importingInProcess by mutableStateOf(false)
+
     /** functionality for importing a box from a CSV */
     fun importBox(fileString: String) {
         viewModelScope.launch {
+            importingInProcess = true
+
             val newBoxId = appRepository.getBiggestBoxId() + 1
             val newTagId = appRepository.getBiggestTagId() + 1
             val newCardId = appRepository.getBiggestCardId() + 1
@@ -404,9 +409,11 @@ class HomeScreenViewModel(
                     appRepository.upsertTagCardCrossRef(it)
                 }
             }
+
+            importingInProcess = false
         }
     }
 
     /** For merging boxes */
-    var doneMerging by mutableStateOf(false)
+    var mergingInProcess by mutableStateOf(false)
 }

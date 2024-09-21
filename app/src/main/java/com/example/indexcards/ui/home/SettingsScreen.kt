@@ -51,7 +51,7 @@ fun SettingsScreen(
 
     val reminderTimeText =
         if (reminderTime.first == -1) {
-            stringResource(id = R.string.not_set)
+            stringResource(id = R.string.not_set1)
         } else {
             reminderTime.first.toAtLeast2DigitString() + ":" + reminderTime.second.toAtLeast2DigitString()
         }
