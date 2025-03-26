@@ -122,13 +122,10 @@ fun BoxScreenBody(
             }
         }
 
-        HorizontalDivider(
+        LevelList(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp)
-        )
-
-        LevelList(
+                .padding(top = 4.dp),
             cardWithTagList = cardsWithTags.cardWithTagList,
             currentLevel = levelSelected,
             selectLevel = { selectLevel(it) },

@@ -25,21 +25,15 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,7 +48,6 @@ import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.box.UiBoxWithCategories
-import com.example.indexcards.utils.pxToDp
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.emptyTag
 
@@ -72,7 +65,7 @@ fun CardList(
     toggleCategoryExpanded: (Long) -> Unit = {},
 ) {
     if (showCategories) {
-        val noCategoryCards = cardWithTagList.filter { it.card.categoryId == (-1).toLong() }
+        val cardsWithoutCategory = cardWithTagList.filter { it.card.categoryId == (-1).toLong() }
         val noCategoryExpanded = categoriesExpanded.contains((-1).toLong())
 
         LazyColumn(
@@ -82,7 +75,7 @@ fun CardList(
                 val categoryFinalOffset = if (
                     index == boxWithCategories.categoryList.size - 1 &&
                     categoriesExpanded.isEmpty() &&
-                    noCategoryCards.isEmpty()
+                    cardsWithoutCategory.isEmpty()
                 ) {
                     (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                 } else {
@@ -123,7 +116,7 @@ fun CardList(
                             val cardFinalOffset = if (
                                 index == boxWithCategories.categoryList.size - 1 &&
                                 ind == cardsOfCategory.size - 1 &&
-                                noCategoryCards.isEmpty()
+                                cardsWithoutCategory.isEmpty()
                             ) {
                                 (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                             } else {
@@ -141,7 +134,7 @@ fun CardList(
                 }
             }
 
-            if (noCategoryCards.isNotEmpty()) {
+            if (cardsWithoutCategory.isNotEmpty()) {
                 val categoryFinalOffset = if (!noCategoryExpanded) {
                     (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                 } else {
@@ -165,8 +158,8 @@ fun CardList(
                 }
 
                 if (noCategoryExpanded) {
-                    itemsIndexed(noCategoryCards) { index, item ->
-                        val cardFinalOffset = if (index == noCategoryCards.size - 1) {
+                    itemsIndexed(cardsWithoutCategory) { index, item ->
+                        val cardFinalOffset = if (index == cardsWithoutCategory.size - 1) {
                             (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
                         } else {
                             0.dp

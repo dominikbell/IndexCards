@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -70,7 +68,9 @@ fun CardDialog(
     var isPlaying by remember { mutableStateOf(false) }
     var duration by remember { mutableLongStateOf(0) }
     var audioFile: File? by remember { mutableStateOf(null) }
-    val category: Category = boxWithCategories.categoryList.firstOrNull { it.categoryId == cardWithTags.card.categoryId }?: emptyCategory
+    val category: Category =
+        boxWithCategories.categoryList.firstOrNull { it.categoryId == cardWithTags.card.categoryId }
+            ?: emptyCategory
     val mmr = MediaMetadataRetriever()
 
     LaunchedEffect(key1 = cardWithTags.card.memoURI) {
@@ -125,7 +125,7 @@ fun CardDialog(
     ) {
         Surface(
             modifier = modifier
-                .height(300.dp),
+                .wrapContentHeight(),
             shape = AlertDialogDefaults.shape,
             color = AlertDialogDefaults.containerColor,
             tonalElevation = AlertDialogDefaults.TonalElevation,
@@ -133,7 +133,6 @@ fun CardDialog(
             Column(
                 modifier = Modifier
                     .padding(15.dp)
-                    .fillMaxHeight()
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
@@ -143,7 +142,8 @@ fun CardDialog(
                     Row(
                         modifier = modifier
                             .fillMaxWidth()
-                            .wrapContentHeight(),
+                            .wrapContentHeight()
+                            .padding(bottom = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -155,19 +155,6 @@ fun CardDialog(
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                stopPlaying()
-                                showEditCardDialog()
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.Create,
-                                modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
-                                contentDescription = "Edit",
                             )
                         }
                     }
@@ -269,18 +256,36 @@ fun CardDialog(
                     }
                 }
 
-                IconButton(
+                Row(
                     modifier = modifier
+                        .fillMaxWidth()
                         .align(Alignment.End),
-                    onClick = {
-                        stopPlaying()
-                        showDelete(cardWithTags.card)
-                    }
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete"
-                    )
+                    IconButton(
+                        onClick = {
+                            stopPlaying()
+                            showDelete(cardWithTags.card)
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete"
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            stopPlaying()
+                            showEditCardDialog()
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Create,
+                            modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
+                            contentDescription = "Edit",
+                        )
+                    }
                 }
             }
         }
@@ -308,6 +313,7 @@ fun CardDialogPreview() {
         cardWithTags = UiCardWithTags(
             card = emptyCard.copy(
                 word = "Kartonage",
+//                word = "Kartonage and a very long card title which forces the cards to ill-behave because the title is so long and convoluted",
                 meaning = "huch, upsi",
                 notes = "Diese Karte erklärt dir genau was schiefgelaufen ist als du damals die falsche Milch gekauft hast",
                 memoURI = "not0",
