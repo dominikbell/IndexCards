@@ -50,6 +50,7 @@ import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.state.emptyTag
+import androidx.core.graphics.toColorInt
 
 
 @Composable
@@ -369,7 +370,7 @@ fun TagCircleRow(
                 modifier = modifier.size(20.dp)
             ) {
                 drawCircle(
-                    color = Color(android.graphics.Color.parseColor(it.color)), radius = 20f
+                    color = Color(it.color.toColorInt()), radius = 20f
                 )
             }
         }
@@ -391,7 +392,7 @@ fun CompactTagCircleRow(
                     .width(5.dp)
             ) {
                 drawRect(
-                    color = Color(android.graphics.Color.parseColor(it.color)),
+                    color = Color(it.color.toColorInt()),
                 )
             }
             Spacer(modifier = modifier.size(2.dp))
