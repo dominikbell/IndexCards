@@ -1,7 +1,7 @@
 package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -242,11 +241,8 @@ fun CategoryListItem(
             IconButton(
                 modifier = Modifier
                     .padding(start = 12.dp)
-                    .border(
-                        width = DividerDefaults.Thickness,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8F),
-                        shape = CircleShape
-                    )
+                    .clip(shape = CircleShape)
+                    .background(color = MaterialTheme.colorScheme.primaryContainer)
                     .size(34.dp),
                 onClick = { trainCategory() }
             ) {
