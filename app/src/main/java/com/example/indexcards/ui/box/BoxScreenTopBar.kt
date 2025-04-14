@@ -40,6 +40,7 @@ import com.example.indexcards.utils.box.boxScreenSorting
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.isLanguage
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxScreenTopBar(
@@ -47,6 +48,7 @@ fun BoxScreenTopBar(
     thisBox: Box,
     boxScreenState: BoxScreenState,
     trainingCounts: Boolean,
+    allCategoriesExpanded: Boolean,
     navigateToBoxesOverview: () -> Unit = {},
     updateEditUiStatus: () -> Unit = {},
     changeBoxScreenState: (BoxScreenState) -> Unit = {},
@@ -59,6 +61,7 @@ fun BoxScreenTopBar(
     onSortBy: (BoxScreenSorting) -> Unit = {},
     setRemindersAfterTraining: () -> Unit = {},
     setTrainSelection: (Boolean) -> Unit = {},
+    toggleAllCategories: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -194,6 +197,24 @@ fun BoxScreenTopBar(
                                 sortExpanded = true
                             }
                         )
+                        if (allCategoriesExpanded) {
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.collapse_all_categories)) },
+                                onClick = {
+                                    expanded = false
+                                    toggleAllCategories()
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.expand_all_categories)) },
+                                onClick = {
+                                    expanded = false
+                                    toggleAllCategories()
+                                }
+                            )
+
+                        }
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.train_all)) },
                             onClick = {
@@ -287,6 +308,7 @@ fun BoxTopBarViewPreview() {
         boxScreenState = BoxScreenState.VIEW,
         thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
+        allCategoriesExpanded = true,
     )
 }
 
@@ -297,6 +319,7 @@ fun BoxTopBarTrainPreview() {
         boxScreenState = BoxScreenState.TRAIN,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = true,
+        allCategoriesExpanded = true,
     )
 }
 
@@ -307,5 +330,6 @@ fun BoxTopBarEditPreview() {
         boxScreenState = BoxScreenState.EDIT,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = false,
+        allCategoriesExpanded = true,
     )
 }

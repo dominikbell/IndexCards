@@ -83,10 +83,6 @@ fun CardList(
                 }
 
                 item {
-                    if (index != 0) {
-                        HorizontalDivider()
-                    }
-
                     CategoryListItem(
                         modifier = Modifier.padding(bottom = categoryFinalOffset),
                         category = category,
@@ -142,8 +138,6 @@ fun CardList(
                 }
 
                 item {
-                    HorizontalDivider()
-
                     CategoryListItem(
                         modifier = Modifier.padding(bottom = categoryFinalOffset),
                         category = Category(

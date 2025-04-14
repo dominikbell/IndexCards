@@ -92,6 +92,8 @@
     <string name="edit_box">Edit Box Details</string>
     <string name="search">Search</string>
     <string name="export_box">Export Box to CSV</string>
+    <string name="expand_all_categories">Expand all categories</string>
+    <string name="collapse_all_categories">Collapse all categories</string>
     <string name="train_all">Train all</string>
     <string name="train_selection">Train selection</string>
     <string name="word_asc">Words A .. Z</string>

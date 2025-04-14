@@ -166,7 +166,10 @@ fun BoxScreenBody(
             )
         }
 
-        HorizontalDivider()
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+        )
 
         if (cardsWithTags.cardWithTagList.isEmpty()) {
             Text(

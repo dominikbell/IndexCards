@@ -93,6 +93,8 @@
     <string name="edit_box">Karteikasten bearbeiten</string>
     <string name="search">Suchen</string>
     <string name="export_box">Zu CSV exportieren</string>
+    <string name="expand_all_categories">Alle Kategorien ausklappen</string>
+    <string name="collapse_all_categories">Alle Kategorien einklappen</string>
     <string name="train_all">Alle trainieren</string>
     <string name="train_selection">Auswahl trainieren</string>
     <string name="word_asc">Wort A..Z</string>

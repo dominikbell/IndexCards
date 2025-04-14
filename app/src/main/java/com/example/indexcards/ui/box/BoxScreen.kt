@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -127,7 +128,7 @@ fun BoxScreen(
 
     /** Tutorial */
     var tutorial by remember { mutableStateOf(false) }
-    var tutorialStep by remember { mutableStateOf(-1) }
+    var tutorialStep by remember { mutableIntStateOf(-1) }
     val tutorialState =
         TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
 
@@ -319,6 +320,7 @@ fun BoxScreen(
                 thisBox = boxWithTags.box,
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
                 trainingCounts = trainingCounts,
+                allCategoriesExpanded = (boxScreenViewModel.allCategoriesExpanded.collectAsState().value),
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
                 changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
@@ -333,6 +335,7 @@ fun BoxScreen(
                 onSortBy = { boxScreenViewModel.setSortedBy(it) },
                 setRemindersAfterTraining = { setRemindersAfterTraining() },
                 setTrainSelection = { trainSelection = it },
+                toggleAllCategories = { boxScreenViewModel.toggleAllCategoriesExpanded() }
             )
         },
 

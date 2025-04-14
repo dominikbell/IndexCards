@@ -168,12 +168,12 @@ class BoxScreenViewModel(
         sortedBy.update { newSorting }
     }
 
-    fun resetSortedBy() {
-        sortedBy.update { BoxScreenSorting.DATE_DESC }
-    }
+//    fun resetSortedBy() {
+//        sortedBy.update { BoxScreenSorting.DATE_DESC }
+//    }
 
 
-    /** For expanding categories */
+    /** For expanding, collapsing single or all categories */
 
     val categoriesExpanded = MutableStateFlow<List<Long>>(listOf())
 
@@ -185,6 +185,35 @@ class BoxScreenViewModel(
         }
     }
 
+    fun toggleAllCategoriesExpanded() {
+        /* if all categories are expanded: collapse all*/
+        if (allCategoriesExpanded.value) {
+            for (categoryId in uiBoxWithCategories.value.categoryList.map { it.categoryId }
+                .plus((-1).toLong())) {
+                toggleCategoryExpanded(categoryId)
+            }
+            /* if not all categories are expanded: expand the not expanded ones*/
+        } else {
+            for (categoryId in uiBoxWithCategories.value.categoryList.map { it.categoryId }
+                .plus((-1).toLong())) {
+                if (!categoriesExpanded.value.contains(categoryId)) {
+                    toggleCategoryExpanded(categoryId)
+                }
+            }
+        }
+    }
+
+    val allCategoriesExpanded: StateFlow<Boolean> =
+        categoriesExpanded.map {
+            it.containsAll(uiBoxWithCategories.value.categoryList.map { it.categoryId }
+                .plus((-1).toLong()))
+        }
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = false
+            )
 
     /** tagSelected
      * used for filtering the cards by tag
@@ -636,7 +665,8 @@ class BoxScreenViewModel(
                     res += cardWithTags.card.word + ";"
                     res += cardWithTags.card.meaning + ";"
                     res += cardWithTags.card.notes + ";"
-                    res += categories.firstOrNull { it.first == cardWithTags.card.categoryId }?.second ?: ""
+                    res += categories.firstOrNull { it.first == cardWithTags.card.categoryId }?.second
+                        ?: ""
                     res += ";"
                     cardWithTags.tags.forEach { tag ->
                         res += tag.text + ";"
