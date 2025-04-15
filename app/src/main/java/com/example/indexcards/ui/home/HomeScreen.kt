@@ -1,8 +1,8 @@
 package com.example.indexcards.ui.home
 
-import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,7 +72,7 @@ fun HomeScreen(
     ),
 ) {
     val context = LocalContext.current
-    val activity = (LocalContext.current as? Activity)
+    val activity = LocalActivity.current
 
     var backPressedTime: Long = 0
 

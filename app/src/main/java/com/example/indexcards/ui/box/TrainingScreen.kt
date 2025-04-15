@@ -45,6 +45,8 @@ import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
+import kotlin.collections.listOf
 import kotlin.math.min
 
 @Composable
@@ -132,7 +134,7 @@ fun TrainingScreenPreview() {
         cardList = listOf(
             CardWithTags(
                 card = emptyCard.copy(word = "Hallo", meaning = "Hello"),
-                tags = listOf()
+                tags = listOf(emptyTag.copy(tagId = 3, text = "Tag243")),
             ),
             CardWithTags(card = emptyCard, tags = listOf()),
             CardWithTags(card = emptyCard, tags = listOf()),
@@ -235,6 +237,7 @@ fun CardCard(
 
                         Spacer(modifier = Modifier.size(8.dp))
 
+                        // TODO: still has a slight ring in on phones (but not in preview) -> remove
                         TagList(
                             tagList = currentCard.tags,
                             onClick = {},
@@ -379,7 +382,7 @@ fun CardCardPreviewRevealed() {
         currentCard =
         CardWithTags(
             card = emptyCard.copy(word = "Hallo", meaning = "Hello", notes = "Very important card"),
-            tags = listOf()
+            tags = listOf(emptyTag.copy(tagId = 3, text = "Tag243")),
         ),
         cardHeight = 400.dp,
         cardWidth = 300.dp,

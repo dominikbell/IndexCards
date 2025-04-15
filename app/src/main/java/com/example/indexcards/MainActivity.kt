@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -243,7 +244,7 @@ class MainActivity : ComponentActivity() {
                             service.closeNotification(boxId, level, 0)
                         },
                         scheduleNotification = { boxId, level, name, trigger, repeat ->
-                            service.scheduleNotification(
+                            service.scheduleNotificationRepeating(
                                 boxId = boxId, level = level, boxName = name,
                                 triggerTime = trigger, repeatingTime = repeat
                             )

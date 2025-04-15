@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -63,6 +64,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Locale
 
+
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
@@ -83,6 +85,7 @@ fun BoxScreen(
     ),
 ) {
     val applicationContext = LocalContext.current.applicationContext
+    val context = LocalContext.current
 
     /** Navigation on the BoxScreen */
     val boxScreenState = boxScreenViewModel.boxScreenState
@@ -228,6 +231,7 @@ fun BoxScreen(
                 if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level) != 0)
                     setReminder(level)
             }
+            Toast.makeText(context, "Reminders have been set!", Toast.LENGTH_SHORT).show()
         }
     }
 

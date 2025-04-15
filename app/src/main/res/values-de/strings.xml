@@ -176,6 +176,16 @@
     <string name="global_reminders_cancelled">Alle ausstehenden Benachrichtigungen wurden gelöscht!</string>
 
 
+    <!-- Notifications -->
+    <string name="training_waits">Die Karten warten!</string>
+    <string name="cards_need_train1">Karten des Niveaus</string>
+    <string name="cards_need_train2">des Kasten</string>
+    <string name="cards_need_train3">müssen geübt werden</string>
+    <string name="train_now">Jetzt üben</string>
+    <string name="go_to_box">Zum Kasten</string>
+    <string name="remind_me_later">Erinner mich in 1h</string>
+
+
     <!-- TutorialDialog -->
     <string name="welcome_title">Willkommen zu KarteiKarten!</string>
     <string name="welcome_text">Diese Einleitung zeigt Dir wie man diese Anwendung benutzt.</string>

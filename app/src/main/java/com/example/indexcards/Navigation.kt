@@ -21,6 +21,7 @@ import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenViewModel
 import com.example.indexcards.utils.home.HomeScreenViewModel
 
+
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
@@ -55,7 +56,7 @@ fun Navigation(
         if (startBoxId == (-1).toLong()) {
             "homeScreen"
         } else {
-            "boxScreen/${startBoxId}/${startLevel}"
+            "boxScreen/${startBoxId}/${startLevel}/false"
         }
     ) {
         composable("homeScreen") {
@@ -93,7 +94,7 @@ fun Navigation(
         ) {
             val boxId = it.arguments?.getLong("boxId") ?: -1
             val level = it.arguments?.getInt("level") ?: -1
-            val tut = it.arguments?.getBoolean("tutorial") ?: false
+            val tut = it.arguments?.getBoolean("tutorial") == true
             BoxScreen(
                 navigateToBoxesOverview = {
                     navController.navigate("homeScreen")

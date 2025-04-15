@@ -175,6 +175,16 @@
     <string name="global_reminders_cancelled">All notifications have been cancelled!</string>
 
 
+    <!-- Notifications -->
+    <string name="training_waits">Training waits!</string>
+    <string name="cards_need_train1">Cards of level</string>
+    <string name="cards_need_train2">in box</string>
+    <string name="cards_need_train3">need to be trained</string>
+    <string name="train_now">Train now</string>
+    <string name="go_to_box">Go to box</string>
+    <string name="remind_me_later">Remind me in 1h</string>
+
+
     <!-- TutorialDialog -->
     <string name="welcome_title">Welcome to IndexCards!</string>
     <string name="welcome_text">This tutorial will show you how to use the app.</string>
