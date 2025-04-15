@@ -1,5 +1,6 @@
 package com.example.indexcards.ui.box
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -125,6 +126,8 @@ fun BoxScreen(
     var isSearching by remember { mutableStateOf(false) }
     var trainSelection by remember { mutableStateOf(false) }
     var trainCategory by remember { mutableLongStateOf(-1) }
+    var isSelecting by remember { mutableStateOf(false) }
+    var selectedCards by remember { mutableStateOf<List<Card>>(listOf()) }
 
     val doneCollecting = boxScreenViewModel.doneCollectingData
     val csvString = boxScreenViewModel.csvString
@@ -324,6 +327,7 @@ fun BoxScreen(
                 thisBox = boxWithTags.box,
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
                 trainingCounts = trainingCounts,
+                isSelecting = isSelecting,
                 allCategoriesExpanded = (boxScreenViewModel.allCategoriesExpanded.collectAsState().value),
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
@@ -339,7 +343,11 @@ fun BoxScreen(
                 onSortBy = { boxScreenViewModel.setSortedBy(it) },
                 setRemindersAfterTraining = { setRemindersAfterTraining() },
                 setTrainSelection = { trainSelection = it },
-                toggleAllCategories = { boxScreenViewModel.toggleAllCategoriesExpanded() }
+                toggleAllCategories = { boxScreenViewModel.toggleAllCategoriesExpanded() },
+                stopSelection = {
+                    isSelecting = false
+                    selectedCards = listOf()
+                }
             )
         },
 
@@ -436,7 +444,22 @@ fun BoxScreen(
                         trainCategory = it
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
                     },
-                    toggleCategoryExpanded = { boxScreenViewModel.toggleCategoryExpanded(it) }
+                    toggleCategoryExpanded = { boxScreenViewModel.toggleCategoryExpanded(it) },
+                    isSelecting = isSelecting,
+                    selectedCards = selectedCards,
+                    selectCard = {
+                        selectedCards =
+                            if (selectedCards.contains(it)) {
+                                selectedCards.minus(it)
+                            } else {
+                                selectedCards.plus(it)
+                            }
+                    },
+                    startSelection = {
+                        if (!isSelecting) {
+                            isSelecting = true
+                        }
+                    },
                 )
             }
 

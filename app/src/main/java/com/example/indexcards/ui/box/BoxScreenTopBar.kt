@@ -49,6 +49,7 @@ fun BoxScreenTopBar(
     boxScreenState: BoxScreenState,
     trainingCounts: Boolean,
     allCategoriesExpanded: Boolean,
+    isSelecting: Boolean,
     navigateToBoxesOverview: () -> Unit = {},
     updateEditUiStatus: () -> Unit = {},
     changeBoxScreenState: (BoxScreenState) -> Unit = {},
@@ -62,6 +63,7 @@ fun BoxScreenTopBar(
     setRemindersAfterTraining: () -> Unit = {},
     setTrainSelection: (Boolean) -> Unit = {},
     toggleAllCategories: () -> Unit = {},
+    stopSelection: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -76,27 +78,49 @@ fun BoxScreenTopBar(
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         navigationIcon = {
-            if (boxScreenState == BoxScreenState.EDIT) {
-                IconButton(
-                    onClick = { cancelEdit() }
-                ) {
-                    Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
+            when (boxScreenState) {
+                BoxScreenState.EDIT -> {
+                    IconButton(
+                        onClick = { cancelEdit() }
+                    ) {
+                        Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
+                    }
                 }
-            } else {
-                IconButton(
-                    onClick = {
-                        if (boxScreenState == BoxScreenState.TRAIN) {
+
+                BoxScreenState.TRAIN -> {
+                    IconButton(
+                        onClick = {
                             setRemindersAfterTraining()
                             changeBoxScreenState(BoxScreenState.VIEW)
-                        } else {
-                            navigateToBoxesOverview()
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back Arrow"
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back Arrow"
-                    )
+                }
+
+                BoxScreenState.VIEW -> {
+                    if (isSelecting) {
+                        IconButton(
+                            onClick = { stopSelection() }
+                        ) {
+                            Icon(imageVector = Icons.Filled.Clear, contentDescription = "Cancel")
+                        }
+                    } else {
+                        IconButton(
+                            onClick = {
+                                navigateToBoxesOverview()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back Arrow"
+                            )
+                        }
+
+                    }
                 }
             }
         },
@@ -104,7 +128,15 @@ fun BoxScreenTopBar(
         title = {
             when (boxScreenState) {
                 BoxScreenState.VIEW -> {
-                    BoxNameWithFlag(box = thisBox, doBold = true, isTitle = false)
+                    if (isSelecting) {
+                        Text(
+                            text = stringResource(id = R.string.editing),
+                            fontWeight = FontWeight.Bold,
+                            modifier = modifier
+                        )
+                    } else {
+                        BoxNameWithFlag(box = thisBox, doBold = true, isTitle = false)
+                    }
                 }
 
                 BoxScreenState.EDIT -> {
@@ -128,125 +160,127 @@ fun BoxScreenTopBar(
         actions = {
             when (boxScreenState) {
                 BoxScreenState.VIEW -> {
-                    IconButton(
-                        onClick = { expanded = true }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "Menu"
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.edit_box)) },
-                            onClick = {
-                                updateEditUiStatus()
-                                expanded = false
-                                changeBoxScreenState(BoxScreenState.EDIT)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    Text(text = stringResource(R.string.search))
-
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "search"
-                                    )
-                                }
-                            },
-                            onClick = {
-                                expanded = false
-                                showSearch()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.export_box)) },
-                            onClick = {
-                                expanded = false
-                                exportBox()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Top
-                                ) {
-                                    Text(text = stringResource(id = R.string.sort_by))
-
-                                    Icon(
-                                        imageVector = Icons.Filled.ArrowDropDown,
-                                        modifier = Modifier.rotate(-90f),
-                                        contentDescription = "sort by"
-                                    )
-                                }
-                            },
-                            onClick = {
-                                expanded = false
-                                sortExpanded = true
-                            }
-                        )
-                        if (allCategoriesExpanded) {
-                            DropdownMenuItem(
-                                text = { Text(text = stringResource(R.string.collapse_all_categories)) },
-                                onClick = {
-                                    expanded = false
-                                    toggleAllCategories()
-                                }
+                    if (!isSelecting) {
+                        IconButton(
+                            onClick = { expanded = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = "Menu"
                             )
-                        } else {
-                            DropdownMenuItem(
-                                text = { Text(text = stringResource(R.string.expand_all_categories)) },
-                                onClick = {
-                                    expanded = false
-                                    toggleAllCategories()
-                                }
-                            )
-
                         }
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.train_all)) },
-                            onClick = {
-                                expanded = false
-                                setTrainSelection(false)
-                                changeTrainingDirectionToValue(true)
-                                changeBoxScreenState(BoxScreenState.TRAIN)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.train_selection)) },
-                            onClick = {
-                                expanded = false
-                                setTrainSelection(true)
-                                changeTrainingDirectionToValue(true)
-                                changeBoxScreenState(BoxScreenState.TRAIN)
-                            }
-                        )
-                    }
 
-                    DropdownMenu(
-                        expanded = sortExpanded,
-                        onDismissRequest = { sortExpanded = false }
-                    ) {
-                        boxScreenSorting.forEach { option ->
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
                             DropdownMenuItem(
-                                text = { Text(text = stringResource(option.second)) },
+                                text = { Text(text = stringResource(R.string.edit_box)) },
                                 onClick = {
-                                    sortExpanded = false
-                                    onSortBy(option.first)
+                                    updateEditUiStatus()
+                                    expanded = false
+                                    changeBoxScreenState(BoxScreenState.EDIT)
                                 }
                             )
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                    ) {
+                                        Text(text = stringResource(R.string.search))
+
+                                        Icon(
+                                            imageVector = Icons.Default.Search,
+                                            contentDescription = "search"
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    expanded = false
+                                    showSearch()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.export_box)) },
+                                onClick = {
+                                    expanded = false
+                                    exportBox()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.Top
+                                    ) {
+                                        Text(text = stringResource(id = R.string.sort_by))
+
+                                        Icon(
+                                            imageVector = Icons.Filled.ArrowDropDown,
+                                            modifier = Modifier.rotate(-90f),
+                                            contentDescription = "sort by"
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    expanded = false
+                                    sortExpanded = true
+                                }
+                            )
+                            if (allCategoriesExpanded) {
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(R.string.collapse_all_categories)) },
+                                    onClick = {
+                                        expanded = false
+                                        toggleAllCategories()
+                                    }
+                                )
+                            } else {
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(R.string.expand_all_categories)) },
+                                    onClick = {
+                                        expanded = false
+                                        toggleAllCategories()
+                                    }
+                                )
+
+                            }
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.train_all)) },
+                                onClick = {
+                                    expanded = false
+                                    setTrainSelection(false)
+                                    changeTrainingDirectionToValue(true)
+                                    changeBoxScreenState(BoxScreenState.TRAIN)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.train_selection)) },
+                                onClick = {
+                                    expanded = false
+                                    setTrainSelection(true)
+                                    changeTrainingDirectionToValue(true)
+                                    changeBoxScreenState(BoxScreenState.TRAIN)
+                                }
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = sortExpanded,
+                            onDismissRequest = { sortExpanded = false }
+                        ) {
+                            boxScreenSorting.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(option.second)) },
+                                    onClick = {
+                                        sortExpanded = false
+                                        onSortBy(option.first)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -309,6 +343,19 @@ fun BoxTopBarViewPreview() {
         thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
         allCategoriesExpanded = true,
+        isSelecting = false,
+    )
+}
+
+@Preview
+@Composable
+fun BoxTopBarViewSelectingPreview() {
+    BoxScreenTopBar(
+        boxScreenState = BoxScreenState.VIEW,
+        thisBox = emptyBox.copy(name = "Test123", topic = "English"),
+        trainingCounts = false,
+        allCategoriesExpanded = true,
+        isSelecting = true,
     )
 }
 
@@ -320,6 +367,7 @@ fun BoxTopBarTrainPreview() {
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = true,
         allCategoriesExpanded = true,
+        isSelecting = false,
     )
 }
 
@@ -331,5 +379,6 @@ fun BoxTopBarEditPreview() {
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = false,
         allCategoriesExpanded = true,
+        isSelecting = false,
     )
 }

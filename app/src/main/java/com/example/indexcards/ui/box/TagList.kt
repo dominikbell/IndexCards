@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,6 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.data.Tag
 import com.example.indexcards.utils.state.emptyTag
+import androidx.core.graphics.toColorInt
+
 
 @Composable
 fun TagList(
@@ -141,12 +142,12 @@ fun TagListItem(
         ) {
             if (selected) {
                 drawCircle(
-                    color = Color(android.graphics.Color.parseColor(item.color)),
+                    color = Color(item.color.toColorInt()),
                     radius = size.minDimension * 0.6F
                 )
             } else {
                 drawCircle(
-                    color = Color(android.graphics.Color.parseColor(item.color)),
+                    color = Color(item.color.toColorInt()),
                     style = Stroke(width = strokeWidth),
                     radius = (size.minDimension - strokeWidth) * 0.6F
                 )

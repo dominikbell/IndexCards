@@ -1,8 +1,10 @@
 package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,7 +41,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.example.indexcards.R
@@ -60,10 +62,29 @@ fun CardList(
     showCategories: Boolean,
     categoriesExpanded: List<Long>,
     numberOfButtons: Int,
+    isSelecting: Boolean,
+    selectedCards: List<Card>,
     showCardDialog: (Card) -> Unit = {},
     trainCategory: (Long) -> Unit = {},
     toggleCategoryExpanded: (Long) -> Unit = {},
+    startSelection: () -> Unit = {},
+    selectCard: (Card) -> Unit = {},
 ) {
+    fun clickOnCard(card: Card) {
+        if (isSelecting) {
+            selectCard(card)
+        } else {
+            showCardDialog(card)
+        }
+    }
+
+    fun longClickCard(card: Card) {
+        if (!isSelecting) {
+            startSelection()
+            selectCard(card)
+        }
+    }
+
     if (showCategories) {
         val cardsWithoutCategory = cardWithTagList.filter { it.card.categoryId == (-1).toLong() }
         val noCategoryExpanded = categoriesExpanded.contains((-1).toLong())
@@ -123,7 +144,10 @@ fun CardList(
                                 modifier = Modifier.padding(bottom = cardFinalOffset),
                                 cardWithTags = item,
                                 showCategories = showCategories,
-                                onClick = { showCardDialog(it) }
+                                isSelecting = isSelecting,
+                                isSelected = selectedCards.contains(item.card),
+                                onClick = { clickOnCard(it) },
+                                onLongClick = { longClickCard(it) },
                             )
                         }
                     }
@@ -163,14 +187,17 @@ fun CardList(
                             modifier = Modifier.padding(bottom = cardFinalOffset),
                             cardWithTags = item,
                             showCategories = showCategories,
-                            onClick = { showCardDialog(it) }
+                            isSelecting = isSelecting,
+                            isSelected = selectedCards.contains(item.card),
+                            onClick = { clickOnCard(it) },
+                            onLongClick = { longClickCard(it) },
                         )
                     }
                 }
             }
         }
 
-        /** If now categories should be shown - old version */
+        /** If no categories should be shown */
     } else {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
@@ -186,7 +213,10 @@ fun CardList(
                     modifier = Modifier.padding(bottom = finalOffset),
                     cardWithTags = item,
                     showCategories = showCategories,
-                    onClick = { showCardDialog(it) },
+                    isSelecting = isSelecting,
+                    isSelected = selectedCards.contains(item.card),
+                    onClick = { clickOnCard(it) },
+                    onLongClick = { longClickCard(it) },
                 )
             }
         }
@@ -262,21 +292,28 @@ fun CategoryListItemExpandedPreview() {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardListItem(
     modifier: Modifier = Modifier,
     cardWithTags: CardWithTags,
     showCategories: Boolean,
+    isSelecting: Boolean,
+    isSelected: Boolean,
     onClick: (Card) -> Unit = {},
+    onLongClick: (Card) -> Unit = {},
 ) {
-    val height = TextUnit.Unspecified.value.dp
+    val height = 26.dp
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(1.5 * height)
             .clip(RoundedCornerShape(4.dp))
-            .clickable { onClick(cardWithTags.card) }
+            .combinedClickable(
+                onClick = { onClick(cardWithTags.card) },
+                onLongClick = { onLongClick(cardWithTags.card) },
+            )
             .padding(
                 start = if (showCategories) 20.dp else 8.dp,
                 top = 6.dp,
@@ -286,7 +323,19 @@ fun CardListItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        if (isSelecting) {
+            Checkbox(
+                modifier = Modifier
+                    .size(height)
+                    .padding(end = 4.dp),
+                checked = isSelected,
+                onCheckedChange = {
+                    onClick(cardWithTags.card)
+                }
+            )
+        }
         Text(
+            modifier = Modifier.weight(1f),
             text = cardWithTags.card.word,
             textAlign = TextAlign.Start,
         )
@@ -298,14 +347,14 @@ fun CardListItem(
                 Icon(
                     modifier = Modifier
                         .padding(top = 2.dp)
-                        .size(height),
+                        .size(26.dp - 2.dp),
                     imageVector = Icons.Default.Mic,
                     contentDescription = "micIcon"
                 )
 
                 VerticalDivider(
                     modifier = Modifier
-                        .height(26.dp)
+                        .height(height)
                         .padding(
                             start = 3.dp,
                             end = if (cardWithTags.tags.isNotEmpty()) 3.dp else 6.dp
@@ -322,7 +371,7 @@ fun CardListItem(
 
                 VerticalDivider(
                     modifier = Modifier
-                        .height(26.dp)
+                        .height(height)
                         .padding(start = 3.dp, end = 6.dp)
                 )
             }
@@ -345,6 +394,44 @@ fun CardListItemPreview() {
             )
         ),
         showCategories = false,
+        isSelecting = false,
+        isSelected = false,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardListItemNotSelectedPreview() {
+    CardListItem(
+        cardWithTags = CardWithTags(
+            card = emptyCard.copy(word = "Vorderseite", memoURI = "nonzero", level = 1),
+            tags = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+                emptyTag.copy(tagId = 3, text = "Tag3"),
+            )
+        ),
+        showCategories = false,
+        isSelecting = true,
+        isSelected = false,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardListItemSelectedPreview() {
+    CardListItem(
+        cardWithTags = CardWithTags(
+            card = emptyCard.copy(word = "Vorderseite", memoURI = "nonzero", level = 1),
+            tags = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+                emptyTag.copy(tagId = 3, text = "Tag3"),
+            )
+        ),
+        showCategories = false,
+        isSelecting = true,
+        isSelected = true,
     )
 }
 
