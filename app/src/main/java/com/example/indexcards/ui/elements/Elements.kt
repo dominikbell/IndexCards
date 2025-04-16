@@ -239,10 +239,22 @@ fun RemindersSwitch(
     onCheckedChange: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false }
 ) {
+    fun onClick() {
+        if (!hasNotificationPermission) {
+            val success = requestNotificationPermission()
+            if (success) {
+                onCheckedChange()
+            }
+        } else {
+            onCheckedChange()
+        }
+    }
+
     Row(
         modifier = Modifier
             .padding(top = 4.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -250,16 +262,7 @@ fun RemindersSwitch(
 
         Switch(
             checked = enabled,
-            onCheckedChange = {
-                if (!hasNotificationPermission) {
-                    val success = requestNotificationPermission()
-                    if (success) {
-                        onCheckedChange()
-                    }
-                } else {
-                    onCheckedChange()
-                }
-            }
+            onCheckedChange = { onClick() }
         )
     }
 }

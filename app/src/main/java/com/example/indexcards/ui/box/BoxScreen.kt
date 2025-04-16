@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.box
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -537,6 +536,7 @@ fun BoxScreen(
             cardUiState = cardUiState,
             boxWithTags = boxWithTags,
             boxWithCategories = boxWithCategories,
+            categoryUiState = categoryUiState,
             tutorial = tutorial,
             tutorialState = tutorialState,
             cardId = newCardId,
@@ -564,6 +564,9 @@ fun BoxScreen(
             showEditTagDialog = { showEditTagDialog(it) },
             nextTutorialStep = { tutorialStep += 1 },
             endTutorial = { endTutorial() },
+            updateCategoryUiState = { boxScreenViewModel.updateCategoryUiState(it) },
+            resetCategoryUiState = { boxScreenViewModel.resetCategoryUiState() },
+            saveCategory = { boxScreenViewModel.saveCategory() },
         )
     }
 
@@ -571,6 +574,7 @@ fun BoxScreen(
         EditCardDialog(
             boxWithTags = boxWithTags,
             boxWithCategories = boxWithCategories,
+            categoryUiState = categoryUiState,
             cardWithTags = cardWithTags,
             cardUiState = cardUiState,
             tutorial = tutorial,
@@ -598,6 +602,9 @@ fun BoxScreen(
                     boxScreenViewModel.updateCardState(tagList = cardUiState.tagList.plus(it))
                 }
             },
+            updateCategoryUiState = { boxScreenViewModel.updateCategoryUiState(it) },
+            resetCategoryUiState = { boxScreenViewModel.resetCategoryUiState() },
+            saveCategory = { boxScreenViewModel.saveCategory() },
         )
     }
 

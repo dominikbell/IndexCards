@@ -56,6 +56,7 @@ import com.example.indexcards.utils.state.toCategoryDetails
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+
 @Composable
 fun BoxScreenEditing(
     modifier: Modifier = Modifier,
@@ -170,7 +171,9 @@ fun BoxScreenEditing(
             HorizontalDivider()
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { updateBoxUiState(boxUiState.boxDetails.copy(categories = !boxUiState.boxDetails.categories)) },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -273,7 +276,9 @@ fun BoxScreenEditing(
 
                 if (addCategory) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {

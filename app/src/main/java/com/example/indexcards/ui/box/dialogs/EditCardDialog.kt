@@ -61,10 +61,13 @@ import com.example.indexcards.utils.state.toCardDetails
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
 import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.CategoryDetails
+import com.example.indexcards.utils.state.CategoryState
 import com.example.indexcards.utils.state.emptyCategory
 import com.example.indexcards.utils.state.emptyTag
 import com.example.indexcards.utils.state.isLanguage
 import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.toCategoryDetails
 import kotlinx.coroutines.delay
 import java.io.File
 
@@ -75,6 +78,7 @@ fun NewCardDialog(
     cardUiState: CardState,
     boxWithTags: UiBoxWithTags,
     boxWithCategories: UiBoxWithCategories,
+    categoryUiState: CategoryState,
     tutorial: Boolean,
     tutorialState: TutorialState,
     cardId: Long,
@@ -90,12 +94,16 @@ fun NewCardDialog(
     showEditTagDialog: (Tag) -> Unit = {},
     nextTutorialStep: () -> Unit = {},
     endTutorial: () -> Unit = {},
+    updateCategoryUiState: (CategoryDetails) -> Unit = {},
+    resetCategoryUiState: () -> Unit = {},
+    saveCategory: () -> Unit = {},
 ) {
     CardDialogBody(
         titleText = stringResource(id = R.string.add_new_card),
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
         boxWithCategories = boxWithCategories,
+        categoryUiState = categoryUiState,
         tutorial = tutorial,
         tutorialState = tutorialState,
         cardId = cardId,
@@ -112,6 +120,9 @@ fun NewCardDialog(
         showEditTagDialog = showEditTagDialog,
         nextTutorialStep = nextTutorialStep,
         endTutorial = endTutorial,
+        updateCategoryUiState = updateCategoryUiState,
+        resetCategoryUiState = resetCategoryUiState,
+        saveCategory = saveCategory,
     )
 }
 
@@ -121,7 +132,51 @@ fun NewCardDialogPreview() {
     val box = BoxDetails().copy(
         name = "Box 456",
         topic = "Maschinenbau",
-        description = "Schreibebiung mit seeeehr langem Text"
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = false,
+    ).toBox()
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf()
+    )
+
+    NewCardDialog(
+        cardUiState = CardState(
+            cardDetails = emptyCard.copy(
+                word = "New Card",
+                meaning = "Bedeutung12",
+                notes = "Notizen dazu",
+            ).toCardDetails()
+        ),
+        boxWithTags = UiBoxWithTags(
+            box = box,
+            tagList = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+            )
+        ),
+        boxWithCategories = boxWithCategories,
+        categoryUiState = CategoryState(
+            categoryDetails = emptyCategory.toCategoryDetails(),
+            isValid = true
+        ),
+        tutorial = false,
+        tutorialState = TutorialState.OFF,
+        cardId = -1,
+        audioPlayer = AndroidAudioPlayer(LocalContext.current),
+        audioRecorder = AndroidAudioRecorder(LocalContext.current),
+    )
+}
+
+@Preview
+@Composable
+fun NewCardDialogCategoriesPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = true,
     ).toBox()
 
     val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
@@ -148,6 +203,10 @@ fun NewCardDialogPreview() {
             )
         ),
         boxWithCategories = boxWithCategories,
+        categoryUiState = CategoryState(
+            categoryDetails = emptyCategory.toCategoryDetails(),
+            isValid = true
+        ),
         tutorial = false,
         tutorialState = TutorialState.OFF,
         cardId = -1,
@@ -161,6 +220,7 @@ fun EditCardDialog(
     modifier: Modifier = Modifier,
     boxWithTags: UiBoxWithTags,
     boxWithCategories: UiBoxWithCategories,
+    categoryUiState: CategoryState,
     cardWithTags: UiCardWithTags,
     cardUiState: CardState,
     tutorial: Boolean,
@@ -178,6 +238,9 @@ fun EditCardDialog(
     clickOnTag: (Tag) -> Unit = {},
     nextTutorialStep: () -> Unit = {},
     endTutorial: () -> Unit = {},
+    updateCategoryUiState: (CategoryDetails) -> Unit = {},
+    resetCategoryUiState: () -> Unit = {},
+    saveCategory: () -> Unit = {},
 ) {
     val titleText = stringResource(id = R.string.edit_card) + " " + cardWithTags.card.word
 
@@ -186,6 +249,7 @@ fun EditCardDialog(
         cardUiState = cardUiState,
         boxWithTags = boxWithTags,
         boxWithCategories = boxWithCategories,
+        categoryUiState = categoryUiState,
         tutorial = tutorial,
         tutorialState = tutorialState,
         cardId = cardWithTags.card.cardId,
@@ -203,6 +267,9 @@ fun EditCardDialog(
         showEditTagDialog = { showEditTagDialog(it) },
         nextTutorialStep = nextTutorialStep,
         endTutorial = endTutorial,
+        updateCategoryUiState = updateCategoryUiState,
+        resetCategoryUiState = resetCategoryUiState,
+        saveCategory = saveCategory,
     )
 }
 
@@ -212,7 +279,54 @@ fun EditCardDialogPreview() {
     val box = BoxDetails().copy(
         name = "Box 456",
         topic = "Maschinenbau",
-        description = "Schreibebiung mit seeeehr langem Text"
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = false,
+    ).toBox()
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf()
+    )
+
+    EditCardDialog(
+        cardUiState = CardState(
+            cardDetails = emptyCard.copy(
+                word = "New Name",
+                meaning = "Bedeutung12",
+                notes = "Notizen dazu",
+                memoURI = "notzero"
+            ).toCardDetails()
+        ),
+        boxWithTags = UiBoxWithTags(
+            box = box,
+            tagList = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+            )
+        ),
+        boxWithCategories = boxWithCategories,
+        categoryUiState = CategoryState(
+            categoryDetails = emptyCategory.toCategoryDetails(),
+            isValid = true
+        ),
+        tutorial = false,
+        tutorialState = TutorialState.OFF,
+        cardWithTags = UiCardWithTags(
+            card = emptyCard.copy(word = "OldName")
+        ),
+        audioPlayer = AndroidAudioPlayer(LocalContext.current),
+        audioRecorder = AndroidAudioRecorder(LocalContext.current),
+    )
+}
+
+@Preview
+@Composable
+fun EditCardDialogCategoriesPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = true,
     ).toBox()
 
     val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
@@ -240,6 +354,10 @@ fun EditCardDialogPreview() {
             )
         ),
         boxWithCategories = boxWithCategories,
+        categoryUiState = CategoryState(
+            categoryDetails = emptyCategory.toCategoryDetails(),
+            isValid = true
+        ),
         tutorial = false,
         tutorialState = TutorialState.OFF,
         cardWithTags = UiCardWithTags(
@@ -257,6 +375,7 @@ fun CardDialogBody(
     cardUiState: CardState,
     boxWithTags: UiBoxWithTags,
     boxWithCategories: UiBoxWithCategories,
+    categoryUiState: CategoryState,
     tutorial: Boolean,
     tutorialState: TutorialState,
     cardId: Long,
@@ -274,10 +393,14 @@ fun CardDialogBody(
     showEditTagDialog: (Tag) -> Unit = {},
     nextTutorialStep: () -> Unit = {},
     endTutorial: () -> Unit = {},
+    updateCategoryUiState: (CategoryDetails) -> Unit = {},
+    resetCategoryUiState: () -> Unit = {},
+    saveCategory: () -> Unit = {},
 ) {
     val applicationContext = LocalContext.current.applicationContext
     var categoriesExpanded by remember { mutableStateOf(false) }
     var categoryMenuOpened by remember { mutableStateOf(false) }
+    var addCategory by remember { mutableStateOf(false) }
     val isLanguageBox = boxWithTags.box.isLanguage()
 
     val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5F)
@@ -324,6 +447,8 @@ fun CardDialogBody(
     LaunchedEffect(key1 = categoriesExpanded) {
         if (!categoriesExpanded) {
             delay(100)
+            resetCategoryUiState()
+            addCategory = false
             categoryMenuOpened = false
         }
     }
@@ -410,6 +535,8 @@ fun CardDialogBody(
         modifier = modifier,
         onDismissRequest = {
             if (categoryMenuOpened) {
+                resetCategoryUiState()
+                addCategory = false
                 categoryMenuOpened = false
             } else {
                 if (!tutorial) {
@@ -422,6 +549,7 @@ fun CardDialogBody(
             Column(
                 modifier = modifier
             ) {
+                /** Word */
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_WORD) highlightModifier else Modifier,
                 ) {
@@ -436,6 +564,7 @@ fun CardDialogBody(
                     )
                 }
 
+                /** Meaning */
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_MEANING) highlightModifier else Modifier,
                 ) {
@@ -452,21 +581,44 @@ fun CardDialogBody(
 
                 RequiredFieldsText()
 
-                Box(
-                    modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_CATEGORY) highlightModifier else Modifier,
-                ) {
-                    CategoriesDropDownMenu(
-                        currentCategory = boxWithCategories.categoryList
-                            .find { it.categoryId == cardUiState.cardDetails.categoryId }
-                            ?: emptyCategory,
-                        boxWithCategories = boxWithCategories,
-                        expanded = categoriesExpanded,
-                        changeExpanded = {
-                            categoryMenuOpened = true
-                            categoriesExpanded = !categoriesExpanded
-                        },
-                        onSelectCategory = { updateUiState(cardUiState.cardDetails.copy(categoryId = it.categoryId)) },
-                    )
+                /** Category DropDownMenu */
+                if (tutorial or boxWithCategories.box.categories) {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(
+                        modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_CATEGORY) highlightModifier else Modifier,
+                    ) {
+                        CategoriesDropDownMenu(
+                            currentCategory = boxWithCategories.categoryList
+                                .find { it.categoryId == cardUiState.cardDetails.categoryId }
+                                ?: emptyCategory,
+                            boxWithCategories = boxWithCategories,
+                            categoryUiState = categoryUiState,
+                            expanded = categoriesExpanded,
+                            addCategory = addCategory,
+                            changeExpanded = {
+                                addCategory = false
+                                categoryMenuOpened = true
+                                categoriesExpanded = !categoriesExpanded
+                            },
+                            onSelectCategory = {
+                                updateUiState(
+                                    cardUiState.cardDetails.copy(
+                                        categoryId = it.categoryId
+                                    )
+                                )
+                            },
+                            updateCategoryUiState = updateCategoryUiState,
+                            resetCategoryUiState = resetCategoryUiState,
+                            saveCategory = saveCategory,
+                            updateAddCategory = {
+                                if (it) {
+                                    resetCategoryUiState()
+                                }
+                                addCategory = it
+                            }
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -499,7 +651,7 @@ fun CardDialogBody(
                                 stopEverything()
                                 showNewTagDialog()
                             },
-                            short = true
+                            short = boxWithTags.tagList.isNotEmpty(),
                         )
                     }
                 }
@@ -509,7 +661,9 @@ fun CardDialogBody(
                     modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_MEMO) highlightModifier else Modifier,
                 ) {
                     Row(
-                        modifier = modifier.wrapContentHeight().fillMaxWidth(),
+                        modifier = modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start,
                     ) {
@@ -583,6 +737,7 @@ fun CardDialogBody(
                     }
                 }
 
+                /** Notes */
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_NOTES) highlightModifier else Modifier,
                 ) {
