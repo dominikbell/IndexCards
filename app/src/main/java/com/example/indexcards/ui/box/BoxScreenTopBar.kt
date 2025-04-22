@@ -48,7 +48,7 @@ fun BoxScreenTopBar(
     thisBox: Box,
     boxScreenState: BoxScreenState,
     trainingCounts: Boolean,
-    allCategoriesExpanded: Boolean,
+    allCategoriesCollapsed: Boolean,
     isSelecting: Boolean,
     navigateToBoxesOverview: () -> Unit = {},
     updateEditUiStatus: () -> Unit = {},
@@ -239,9 +239,9 @@ fun BoxScreenTopBar(
                             )
 
                             /** Expand/Collapse categories */
-                            if (!allCategoriesExpanded) {
+                            if (allCategoriesCollapsed) {
                                 DropdownMenuItem(
-                                    text = { Text(text = stringResource(R.string.collapse_all_categories)) },
+                                    text = { Text(text = stringResource(R.string.expand_all_categories)) },
                                     onClick = {
                                         expanded = false
                                         toggleAllCategories()
@@ -249,7 +249,7 @@ fun BoxScreenTopBar(
                                 )
                             } else {
                                 DropdownMenuItem(
-                                    text = { Text(text = stringResource(R.string.expand_all_categories)) },
+                                    text = { Text(text = stringResource(R.string.collapse_all_categories)) },
                                     onClick = {
                                         expanded = false
                                         toggleAllCategories()
@@ -355,7 +355,7 @@ fun BoxTopBarViewPreview() {
         boxScreenState = BoxScreenState.VIEW,
         thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
-        allCategoriesExpanded = true,
+        allCategoriesCollapsed = true,
         isSelecting = false,
     )
 }
@@ -367,7 +367,7 @@ fun BoxTopBarViewSelectingPreview() {
         boxScreenState = BoxScreenState.VIEW,
         thisBox = emptyBox.copy(name = "Test123", topic = "English"),
         trainingCounts = false,
-        allCategoriesExpanded = true,
+        allCategoriesCollapsed = true,
         isSelecting = true,
     )
 }
@@ -379,7 +379,7 @@ fun BoxTopBarTrainPreview() {
         boxScreenState = BoxScreenState.TRAIN,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = true,
-        allCategoriesExpanded = true,
+        allCategoriesCollapsed = true,
         isSelecting = false,
     )
 }
@@ -391,7 +391,7 @@ fun BoxTopBarEditPreview() {
         boxScreenState = BoxScreenState.EDIT,
         thisBox = emptyBox.copy(name = "Test123"),
         trainingCounts = false,
-        allCategoriesExpanded = true,
+        allCategoriesCollapsed = true,
         isSelecting = false,
     )
 }

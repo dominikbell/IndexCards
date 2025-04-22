@@ -186,27 +186,29 @@ class BoxScreenViewModel(
     }
 
     fun toggleAllCategoriesExpanded() {
-        /* if all categories are expanded: collapse all*/
-        if (allCategoriesExpanded.value) {
+        /* if all categories are collapsed: expand all*/
+        if (allCategoriesCollapsed.value) {
             for (categoryId in uiBoxWithCategories.value.categoryList.map { it.categoryId }
                 .plus((-1).toLong())) {
                 toggleCategoryExpanded(categoryId)
             }
-            /* if not all categories are expanded: expand the not expanded ones*/
         } else {
-            for (categoryId in uiBoxWithCategories.value.categoryList.map { it.categoryId }
-                .plus((-1).toLong())) {
-                if (!categoriesExpanded.value.contains(categoryId)) {
+            /* if not all categories are collapsed: collapse the expanded ones*/
+            for (categoryId in uiBoxWithCategories.value.categoryList
+                .map { it.categoryId }
+                .plus((-1).toLong())
+            ) {
+                if (categoriesExpanded.value.contains(categoryId)) {
                     toggleCategoryExpanded(categoryId)
                 }
             }
         }
     }
 
-    val allCategoriesExpanded: StateFlow<Boolean> =
-        categoriesExpanded.map {
-            it.containsAll(uiBoxWithCategories.value.categoryList.map { it.categoryId }
-                .plus((-1).toLong()))
+    /* If all categories are collapsed */
+    val allCategoriesCollapsed: StateFlow<Boolean> =
+        categoriesExpanded.map { list ->
+            list.isEmpty()
         }
             .filterNotNull()
             .stateIn(
@@ -214,6 +216,7 @@ class BoxScreenViewModel(
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = false
             )
+
 
     /** tagSelected
      * used for filtering the cards by tag

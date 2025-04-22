@@ -327,7 +327,7 @@ fun BoxScreen(
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
                 trainingCounts = trainingCounts,
                 isSelecting = isSelecting,
-                allCategoriesExpanded = (boxScreenViewModel.allCategoriesExpanded.collectAsState().value),
+                allCategoriesCollapsed = (boxScreenViewModel.allCategoriesCollapsed.collectAsState().value),
                 changeTrainingCounts = { boxScreenViewModel.changeTrainingCounts() },
                 changeTrainingDirection = { boxScreenViewModel.changeTrainingDirection() },
                 changeTrainingDirectionToValue = { boxScreenViewModel.changeTrainingDirection(it) },
