@@ -52,7 +52,6 @@ fun BoxScreenBody(
     filteredCardWithTagList: List<CardWithTags>,
     isSearching: Boolean,
     searchText: String,
-    showCategories: Boolean,
     categoriesExpanded: List<Long>,
     numberOfButtons: Int,
     isSelecting: Boolean,
@@ -175,6 +174,24 @@ fun BoxScreenBody(
                 .fillMaxWidth()
         )
 
+//        if (isSelecting) {
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 2.dp),
+//                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.SpaceEvenly,
+//            ) {
+//                Text(
+//                    "Add tags to cards"
+//                )
+//
+//                Text(
+//                    "Add cards to category"
+//                )
+//            }
+//        }
+
         if (cardsWithTags.cardWithTagList.isEmpty()) {
             Text(
                 modifier = Modifier.padding(top = 10.dp),
@@ -185,7 +202,6 @@ fun BoxScreenBody(
         } else {
             CardList(
                 cardWithTagList = filteredCardWithTagList,
-                showCategories = showCategories,
                 categoriesExpanded = categoriesExpanded,
                 boxWithCategories = boxWithCategories,
                 showCardDialog = { showCardDialog(it) },
@@ -234,8 +250,7 @@ fun BoxScreenBodyPreview() {
         isSearching = false,
         searchText = "",
         boxWithTags = boxWithTags,
-        boxWithCategories = UiBoxWithCategories(),
-        showCategories = false,
+        boxWithCategories = UiBoxWithCategories(box = boxWithTags.box),
         categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
@@ -251,7 +266,8 @@ fun BoxScreenBodyCategoriesPreview() {
     val box = BoxDetails().copy(
         name = "Box 456",
         topic = "Maschinenbau",
-        description = "Schreibebiung mit seeeehr langem Text"
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = true,
     ).toBox()
 
     val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
@@ -265,7 +281,13 @@ fun BoxScreenBodyCategoriesPreview() {
 
     val cardWithTagsList = listOf(
         CardWithTags(
-            emptyCard.copy(word = "Hello", meaning = "Oho", memoURI = "asd", level = 1, categoryId = -1),
+            emptyCard.copy(
+                word = "Hello",
+                meaning = "Oho",
+                memoURI = "asd",
+                level = 1,
+                categoryId = -1
+            ),
             tags = tagList
         ),
         CardWithTags(
@@ -303,7 +325,6 @@ fun BoxScreenBodyCategoriesPreview() {
         searchText = "",
         boxWithTags = boxWithTags,
         boxWithCategories = boxWithCategories,
-        showCategories = true,
         categoriesExpanded = listOf(0, -1),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
@@ -347,7 +368,6 @@ fun BoxScreenBodySelectingPreview() {
         searchText = "",
         boxWithTags = boxWithTags,
         boxWithCategories = UiBoxWithCategories(),
-        showCategories = false,
         categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
@@ -363,7 +383,8 @@ fun BoxScreenBodyCategoriesSelectingPreview() {
     val box = BoxDetails().copy(
         name = "Box 456",
         topic = "Maschinenbau",
-        description = "Schreibebiung mit seeeehr langem Text"
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = true,
     ).toBox()
 
     val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
@@ -377,7 +398,13 @@ fun BoxScreenBodyCategoriesSelectingPreview() {
 
     val cardWithTagsList = listOf(
         CardWithTags(
-            emptyCard.copy(word = "Hello", meaning = "Oho", memoURI = "asd", level = 1, categoryId = -1),
+            emptyCard.copy(
+                word = "Hello",
+                meaning = "Oho",
+                memoURI = "asd",
+                level = 1,
+                categoryId = -1
+            ),
             tags = tagList
         ),
         CardWithTags(
@@ -415,7 +442,6 @@ fun BoxScreenBodyCategoriesSelectingPreview() {
         searchText = "",
         boxWithTags = boxWithTags,
         boxWithCategories = boxWithCategories,
-        showCategories = true,
         categoriesExpanded = listOf(0, -1),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
@@ -459,7 +485,6 @@ fun BoxScreenBodySearchingPreview() {
         searchText = "Search",
         boxWithTags = boxWithTags,
         boxWithCategories = UiBoxWithCategories(),
-        showCategories = false,
         categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,

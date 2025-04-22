@@ -357,6 +357,8 @@ fun BoxScreen(
                         if (filteredCardWithTagList.isNotEmpty()) {
                             FloatingActionButton(
                                 onClick = {
+                                    isSelecting = false
+                                    selectedCards = listOf()
                                     trainSelection = true
                                     boxScreenViewModel.changeTrainingDirection(true)
                                     boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
@@ -389,6 +391,8 @@ fun BoxScreen(
                                         tutorialStep += 1
                                     }
                                     boxScreenViewModel.setBiggestCardId()
+                                    isSelecting = false
+                                    selectedCards = listOf()
                                     newCardDialog = true
                                 }
                             ) {
@@ -421,7 +425,6 @@ fun BoxScreen(
                     boxWithCategories = boxWithCategories,
                     cardsWithTags = cardsWithTags,
                     tagWithCards = tagWithCards,
-                    showCategories = boxWithCategories.box.categories,
                     categoriesExpanded = categoriesExpanded,
                     filteredCardWithTagList = filteredCardWithTagList,
                     showCardDialog = {
@@ -440,6 +443,8 @@ fun BoxScreen(
                     updateSearchText = { boxScreenViewModel.setSearchTerm(it) },
                     numberOfButtons = if (filteredCardWithTagList.isNotEmpty()) 2 else 1,
                     trainCategory = {
+                        isSelecting = false
+                        selectedCards = listOf()
                         trainCategory = it
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
                     },

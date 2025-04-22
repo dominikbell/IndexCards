@@ -137,6 +137,7 @@
     <string name="incorrect">Incorrect</string>
     <string name="turn_over">Tap card to turn over</string>
     <string name="reminders">Remind me to train</string>
+    <string name="showNumbersOfCard">Show number of cards</string>
     <string name="back_to_box">Go back to box</string>
     <string name="all_done">All done!</string>
     <string name="no_more_cards">There are now more cards to train.</string>

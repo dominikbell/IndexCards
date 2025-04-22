@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -338,6 +339,24 @@ fun BoxScreenEditing(
                             Icon(imageVector = Icons.Filled.Add, contentDescription = "new")
                         }
                     }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
+
+                Row(
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .fillMaxWidth()
+                        .clickable { updateBoxUiState(boxUiState.boxDetails.copy(showNumberOfCards = !boxUiState.boxDetails.showNumberOfCards)) },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = stringResource(id = R.string.showNumbersOfCard))
+
+                    Switch(
+                        checked = boxUiState.boxDetails.showNumberOfCards,
+                        onCheckedChange = { updateBoxUiState(boxUiState.boxDetails.copy(showNumberOfCards = !boxUiState.boxDetails.showNumberOfCards)) }
+                    )
                 }
             }
 

@@ -7,6 +7,7 @@ import com.example.indexcards.data.LanguageData
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+
 val emptyBox: Box = Box(
     boxId = -1,
     name = "EMPTY BOX",
@@ -15,6 +16,12 @@ val emptyBox: Box = Box(
     reminders = false,
     categories = false,
     dateAdded = -1,
+    showNumberOfCards = true,
+    lastTrained1 = -1,
+    lastTrained2 = -1,
+    lastTrained3 = -1,
+    lastTrained4 = -1,
+    lastTrained5 = -1,
 )
 
 data class BoxState(
@@ -32,6 +39,12 @@ data class BoxDetails(
     val categories: Boolean = false,
     val description: String = "",
     val dateAdded: Long = -1,
+    val showNumberOfCards: Boolean = true,
+    val lastTrained1: Long = -1,
+    val lastTrained2: Long = -1,
+    val lastTrained3: Long = -1,
+    val lastTrained4: Long = -1,
+    val lastTrained5: Long = -1,
 )
 
 fun BoxDetails.toBox(): Box = Box(
@@ -42,6 +55,12 @@ fun BoxDetails.toBox(): Box = Box(
     reminders = reminders,
     categories = categories,
     dateAdded = if (dateAdded == (-1).toLong()) LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) else dateAdded,
+    showNumberOfCards = showNumberOfCards,
+    lastTrained1 = lastTrained1,
+    lastTrained2 = lastTrained2,
+    lastTrained3 = lastTrained3,
+    lastTrained4 = lastTrained4,
+    lastTrained5 = lastTrained5,
 )
 
 fun Box.toBoxState(isValid: Boolean = false) : BoxState = BoxState(
@@ -57,6 +76,12 @@ fun Box.toBoxDetails(): BoxDetails = BoxDetails(
     categories = categories,
     description = description,
     dateAdded = dateAdded,
+    showNumberOfCards = showNumberOfCards,
+    lastTrained1 = lastTrained1,
+    lastTrained2 = lastTrained2,
+    lastTrained3 = lastTrained3,
+    lastTrained4 = lastTrained4,
+    lastTrained5 = lastTrained5,
 )
 
 data class UiBoxWithCards(

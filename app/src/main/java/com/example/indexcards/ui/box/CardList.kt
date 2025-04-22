@@ -59,7 +59,6 @@ fun CardList(
     modifier: Modifier = Modifier,
     cardWithTagList: List<CardWithTags>,
     boxWithCategories: UiBoxWithCategories,
-    showCategories: Boolean,
     categoriesExpanded: List<Long>,
     numberOfButtons: Int,
     isSelecting: Boolean,
@@ -85,7 +84,7 @@ fun CardList(
         }
     }
 
-    if (showCategories) {
+    if (boxWithCategories.box.categories) {
         val cardsWithoutCategory = cardWithTagList.filter { it.card.categoryId == (-1).toLong() }
         val noCategoryExpanded = categoriesExpanded.contains((-1).toLong())
 
@@ -103,19 +102,22 @@ fun CardList(
                     2.dp
                 }
 
+                val cardsOfCategory =
+                    cardWithTagList.filter { it.card.categoryId == category.categoryId }
+
                 item {
                     CategoryListItem(
                         modifier = Modifier.padding(bottom = categoryFinalOffset),
                         category = category,
                         expanded = categoriesExpanded.contains(category.categoryId),
+                        showNumberOfCards = boxWithCategories.box.showNumberOfCards,
+                        numberOfCards = cardsOfCategory.size,
                         changeExpanded = { toggleCategoryExpanded(category.categoryId) },
                         trainCategory = { trainCategory(category.categoryId) },
                     )
                 }
 
                 if (categoriesExpanded.contains(category.categoryId)) {
-                    val cardsOfCategory =
-                        cardWithTagList.filter { it.card.categoryId == category.categoryId }
 
                     if (cardsOfCategory.isEmpty()) {
                         item {
@@ -143,7 +145,7 @@ fun CardList(
                             CardListItem(
                                 modifier = Modifier.padding(bottom = cardFinalOffset),
                                 cardWithTags = item,
-                                showCategories = showCategories,
+                                showCategories = boxWithCategories.box.categories,
                                 isSelecting = isSelecting,
                                 isSelected = selectedCards.contains(item.card),
                                 onClick = { clickOnCard(it) },
@@ -170,6 +172,8 @@ fun CardList(
                             name = stringResource(id = R.string.no_category)
                         ),
                         expanded = noCategoryExpanded,
+                        showNumberOfCards = boxWithCategories.box.showNumberOfCards,
+                        numberOfCards = cardsWithoutCategory.size,
                         changeExpanded = { toggleCategoryExpanded((-1).toLong()) },
                         trainCategory = { trainCategory((-1).toLong()) },
                     )
@@ -186,7 +190,7 @@ fun CardList(
                         CardListItem(
                             modifier = Modifier.padding(bottom = cardFinalOffset),
                             cardWithTags = item,
-                            showCategories = showCategories,
+                            showCategories = boxWithCategories.box.categories,
                             isSelecting = isSelecting,
                             isSelected = selectedCards.contains(item.card),
                             onClick = { clickOnCard(it) },
@@ -212,7 +216,7 @@ fun CardList(
                 CardListItem(
                     modifier = Modifier.padding(bottom = finalOffset),
                     cardWithTags = item,
-                    showCategories = showCategories,
+                    showCategories = boxWithCategories.box.categories,
                     isSelecting = isSelecting,
                     isSelected = selectedCards.contains(item.card),
                     onClick = { clickOnCard(it) },
@@ -228,6 +232,8 @@ fun CategoryListItem(
     modifier: Modifier = Modifier,
     category: Category,
     expanded: Boolean,
+    showNumberOfCards: Boolean,
+    numberOfCards: Int,
     changeExpanded: () -> Unit = {},
     trainCategory: () -> Unit = {},
 ) {
@@ -235,6 +241,12 @@ fun CategoryListItem(
         0F
     } else {
         -90F
+    }
+
+    val text = if (showNumberOfCards) {
+        category.name + " (" + numberOfCards.toString() + ")"
+    } else {
+        category.name
     }
 
     Column(
@@ -255,7 +267,7 @@ fun CategoryListItem(
             )
             Text(
                 modifier = Modifier.padding(end = 14.dp),
-                text = category.name,
+                text = text,
                 fontWeight = FontWeight.Bold,
             )
             HorizontalDivider(
@@ -280,7 +292,10 @@ fun CategoryListItem(
 @Composable
 fun CategoryListItemPreview() {
     CategoryListItem(
-        category = Category(categoryId = 1, boxId = 1, name = "Test123"), expanded = false
+        category = Category(categoryId = 1, boxId = 1, name = "Test123"),
+        expanded = false,
+        showNumberOfCards = true,
+        numberOfCards = 2,
     )
 }
 
@@ -288,7 +303,10 @@ fun CategoryListItemPreview() {
 @Composable
 fun CategoryListItemExpandedPreview() {
     CategoryListItem(
-        category = Category(categoryId = 1, boxId = 1, name = "Test123"), expanded = true
+        category = Category(categoryId = 1, boxId = 1, name = "Test123"),
+        expanded = true,
+        showNumberOfCards = true,
+        numberOfCards = 2,
     )
 }
 

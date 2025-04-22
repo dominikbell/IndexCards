@@ -210,7 +210,7 @@ public final class AppDao_Impl implements AppDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT INTO `Box` (`boxId`,`name`,`topic`,`reminders`,`categories`,`description`,`dateAdded`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+        return "INSERT INTO `Box` (`boxId`,`name`,`topic`,`reminders`,`categories`,`description`,`dateAdded`,`showNumberOfCards`,`lastTrained1`,`lastTrained2`,`lastTrained3`,`lastTrained4`,`lastTrained5`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -237,12 +237,19 @@ public final class AppDao_Impl implements AppDao {
           statement.bindString(6, entity.getDescription());
         }
         statement.bindLong(7, entity.getDateAdded());
+        final int _tmp_2 = entity.getShowNumberOfCards() ? 1 : 0;
+        statement.bindLong(8, _tmp_2);
+        statement.bindLong(9, entity.getLastTrained1());
+        statement.bindLong(10, entity.getLastTrained2());
+        statement.bindLong(11, entity.getLastTrained3());
+        statement.bindLong(12, entity.getLastTrained4());
+        statement.bindLong(13, entity.getLastTrained5());
       }
     }, new EntityDeletionOrUpdateAdapter<Box>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE `Box` SET `boxId` = ?,`name` = ?,`topic` = ?,`reminders` = ?,`categories` = ?,`description` = ?,`dateAdded` = ? WHERE `boxId` = ?";
+        return "UPDATE `Box` SET `boxId` = ?,`name` = ?,`topic` = ?,`reminders` = ?,`categories` = ?,`description` = ?,`dateAdded` = ?,`showNumberOfCards` = ?,`lastTrained1` = ?,`lastTrained2` = ?,`lastTrained3` = ?,`lastTrained4` = ?,`lastTrained5` = ? WHERE `boxId` = ?";
       }
 
       @Override
@@ -269,7 +276,14 @@ public final class AppDao_Impl implements AppDao {
           statement.bindString(6, entity.getDescription());
         }
         statement.bindLong(7, entity.getDateAdded());
-        statement.bindLong(8, entity.getBoxId());
+        final int _tmp_2 = entity.getShowNumberOfCards() ? 1 : 0;
+        statement.bindLong(8, _tmp_2);
+        statement.bindLong(9, entity.getLastTrained1());
+        statement.bindLong(10, entity.getLastTrained2());
+        statement.bindLong(11, entity.getLastTrained3());
+        statement.bindLong(12, entity.getLastTrained4());
+        statement.bindLong(13, entity.getLastTrained5());
+        statement.bindLong(14, entity.getBoxId());
       }
     });
     this.__upsertionAdapterOfCategory = new EntityUpsertionAdapter<Category>(new EntityInsertionAdapter<Category>(__db) {
@@ -961,6 +975,12 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
+          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
+          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
+          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
+          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
+          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
           final List<Box> _result = new ArrayList<Box>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Box _item;
@@ -994,7 +1014,21 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _item = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded);
+            final boolean _tmpShowNumberOfCards;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
+            _tmpShowNumberOfCards = _tmp_2 != 0;
+            final long _tmpLastTrained1;
+            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
+            final long _tmpLastTrained2;
+            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
+            final long _tmpLastTrained3;
+            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
+            final long _tmpLastTrained4;
+            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
+            final long _tmpLastTrained5;
+            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
+            _item = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
             _result.add(_item);
           }
           return _result;
@@ -1029,6 +1063,12 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
+          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
+          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
+          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
+          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
+          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
           final Box _result;
           if (_cursor.moveToFirst()) {
             final long _tmpBoxId;
@@ -1061,7 +1101,21 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded);
+            final boolean _tmpShowNumberOfCards;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
+            _tmpShowNumberOfCards = _tmp_2 != 0;
+            final long _tmpLastTrained1;
+            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
+            final long _tmpLastTrained2;
+            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
+            final long _tmpLastTrained3;
+            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
+            final long _tmpLastTrained4;
+            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
+            final long _tmpLastTrained5;
+            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
+            _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
           } else {
             _result = null;
           }
@@ -1223,6 +1277,12 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
+          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
+          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
+          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
+          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
+          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
           final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
           while (_cursor.moveToNext()) {
             final long _tmpKey;
@@ -1266,7 +1326,21 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded);
+            final boolean _tmpShowNumberOfCards;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
+            _tmpShowNumberOfCards = _tmp_2 != 0;
+            final long _tmpLastTrained1;
+            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
+            final long _tmpLastTrained2;
+            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
+            final long _tmpLastTrained3;
+            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
+            final long _tmpLastTrained4;
+            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
+            final long _tmpLastTrained5;
+            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
             final ArrayList<Card> _tmpCardsCollection;
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
@@ -1308,6 +1382,12 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
+          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
+          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
+          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
+          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
+          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
           final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
           while (_cursor.moveToNext()) {
             final long _tmpKey;
@@ -1351,7 +1431,21 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded);
+            final boolean _tmpShowNumberOfCards;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
+            _tmpShowNumberOfCards = _tmp_2 != 0;
+            final long _tmpLastTrained1;
+            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
+            final long _tmpLastTrained2;
+            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
+            final long _tmpLastTrained3;
+            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
+            final long _tmpLastTrained4;
+            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
+            final long _tmpLastTrained5;
+            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
             final ArrayList<Tag> _tmpTagsCollection;
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
@@ -1393,6 +1487,12 @@ public final class AppDao_Impl implements AppDao {
           final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
           final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
           final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
+          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
+          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
+          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
+          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
+          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
+          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
           final LongSparseArray<ArrayList<Category>> _collectionCategories = new LongSparseArray<ArrayList<Category>>();
           while (_cursor.moveToNext()) {
             final long _tmpKey;
@@ -1436,7 +1536,21 @@ public final class AppDao_Impl implements AppDao {
             }
             final long _tmpDateAdded;
             _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded);
+            final boolean _tmpShowNumberOfCards;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
+            _tmpShowNumberOfCards = _tmp_2 != 0;
+            final long _tmpLastTrained1;
+            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
+            final long _tmpLastTrained2;
+            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
+            final long _tmpLastTrained3;
+            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
+            final long _tmpLastTrained4;
+            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
+            final long _tmpLastTrained5;
+            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
+            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
             final ArrayList<Category> _tmpCategoriesCollection;
             final long _tmpKey_1;
             _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);

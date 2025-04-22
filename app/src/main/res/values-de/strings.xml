@@ -138,6 +138,7 @@
     <string name="incorrect">Falsch</string>
     <string name="turn_over">Zum Umdrehen Karte antippen</string>
     <string name="reminders">Erinnere mich zu trainieren</string>
+    <string name="showNumbersOfCard">Anzahl der Karten anzeigen</string>
     <string name="back_to_box">Zurück zum Kasten</string>
     <string name="all_done">Fertig!</string>
     <string name="no_more_cards">Es gibt keine weiteren Karten zu trainieren.</string>

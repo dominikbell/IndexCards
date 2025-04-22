@@ -174,6 +174,7 @@ fun BoxScreenTopBar(
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
                         ) {
+                            /** Edit Box Details */
                             DropdownMenuItem(
                                 text = { Text(text = stringResource(R.string.edit_box)) },
                                 onClick = {
@@ -182,6 +183,8 @@ fun BoxScreenTopBar(
                                     changeBoxScreenState(BoxScreenState.EDIT)
                                 }
                             )
+
+                            /** Search */
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -202,6 +205,8 @@ fun BoxScreenTopBar(
                                     showSearch()
                                 }
                             )
+
+                            /** Export to CSV*/
                             DropdownMenuItem(
                                 text = { Text(text = stringResource(R.string.export_box)) },
                                 onClick = {
@@ -209,6 +214,8 @@ fun BoxScreenTopBar(
                                     exportBox()
                                 }
                             )
+
+                            /** Sorting */
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -230,7 +237,9 @@ fun BoxScreenTopBar(
                                     sortExpanded = true
                                 }
                             )
-                            if (allCategoriesExpanded) {
+
+                            /** Expand/Collapse categories */
+                            if (!allCategoriesExpanded) {
                                 DropdownMenuItem(
                                     text = { Text(text = stringResource(R.string.collapse_all_categories)) },
                                     onClick = {
@@ -246,8 +255,9 @@ fun BoxScreenTopBar(
                                         toggleAllCategories()
                                     }
                                 )
-
                             }
+
+                            /** Train all */
                             DropdownMenuItem(
                                 text = { Text(text = stringResource(R.string.train_all)) },
                                 onClick = {
@@ -257,6 +267,8 @@ fun BoxScreenTopBar(
                                     changeBoxScreenState(BoxScreenState.TRAIN)
                                 }
                             )
+
+                            /** Train selection */
                             DropdownMenuItem(
                                 text = { Text(text = stringResource(R.string.train_selection)) },
                                 onClick = {
@@ -268,6 +280,7 @@ fun BoxScreenTopBar(
                             )
                         }
 
+                        /** Sorting Menu */
                         DropdownMenu(
                             expanded = sortExpanded,
                             onDismissRequest = { sortExpanded = false }

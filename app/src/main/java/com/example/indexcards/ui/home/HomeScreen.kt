@@ -239,6 +239,7 @@ fun HomeScreen(
             if (homeScreenState is HomeScreenState.MAIN) {
                 if (isSelecting) {
                     Column {
+                        /** Deleting boxes */
                         if (selectedBoxes.isNotEmpty()) {
                             FloatingActionButton(
                                 onClick = {
@@ -255,6 +256,7 @@ fun HomeScreen(
                             }
                         }
 
+                        /** Merging boxes */
                         if (selectedBoxes.size >= 2) {
                             FloatingActionButton(
                                 onClick = { mergeBoxesDialog = true },
@@ -266,7 +268,7 @@ fun HomeScreen(
                             }
                         }
                     }
-                } else {
+                } else /** Adding a new box */ {
                     val boxModifier =
                         if (tutorial && tutorialState == TutorialState.ADD_BOX_INTRO) {
                             Modifier
