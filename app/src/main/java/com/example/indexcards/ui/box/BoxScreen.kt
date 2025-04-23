@@ -731,7 +731,8 @@ fun BoxScreen(
                     isSelecting = false
                     selectedCards = listOf()
                 }
-            }
+            },
+            showEditTagDialog = { showEditTagDialog(it) },
         )
     }
 
@@ -739,10 +740,23 @@ fun BoxScreen(
         CardsToCategoryDialog(
             modifier = Modifier,
             boxWithCategories = boxWithCategories,
+            categoryUiState = categoryUiState,
             cardList = selectedCards,
             onDismiss = {
                 addCardsToCategoryDialog = false
-            }
+            },
+            onSave = { category ->
+                boxScreenViewModel.viewModelScope.launch {
+                    for (card in selectedCards) {
+                        boxScreenViewModel.saveCardToCategory(card = card, category = category)
+                    }
+                    selectedCards = listOf()
+                    isSelecting = false
+                }
+            },
+            updateCategoryUiState = { boxScreenViewModel.updateCategoryUiState(it) },
+            resetCategoryUiState = { boxScreenViewModel.resetCategoryUiState() },
+            saveCategory = { boxScreenViewModel.saveCategory() },
         )
     }
 

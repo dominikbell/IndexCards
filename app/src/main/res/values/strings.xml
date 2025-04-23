@@ -108,6 +108,8 @@
     <string name="all_tags">All tags:</string>
     <string name="common_tags">Common tags:</string>
     <string name="add_category">Add cards to category</string>
+    <string name="editing_category">Editing category of cards</string>
+    <string name="editing_category_text">Editing category of these cards:</string>
 
     <!-- New/Edit/ CardDialog -->
     <string name="add_new_card">Add a new card</string>

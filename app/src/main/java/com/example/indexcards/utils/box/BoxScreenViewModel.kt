@@ -513,6 +513,10 @@ class BoxScreenViewModel(
         appRepository.deleteTagCardCrossRef(tagId = tagId, cardId = cardId)
     }
 
+    suspend fun saveCardToCategory(card: Card, category: Category) {
+        appRepository.upsertCard(card.copy(categoryId = category.categoryId))
+    }
+
     /** functions for adding and deleting a tag to/from a card
      * are used upon saving a new card and immediately when clicking
      * on a tag when editing an existing card */

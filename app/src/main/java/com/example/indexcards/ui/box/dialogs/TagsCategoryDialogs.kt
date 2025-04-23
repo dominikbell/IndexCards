@@ -18,14 +18,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.TagList
+import com.example.indexcards.ui.elements.CategoriesDropDownMenu
 import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.CategoryDetails
+import com.example.indexcards.utils.state.CategoryState
 import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyCategory
 import com.example.indexcards.utils.state.emptyTag
 import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.toCategoryDetails
 
 
 @Composable
@@ -204,22 +210,72 @@ fun TagsToCardsDialogPreview() {
 fun CardsToCategoryDialog(
     modifier: Modifier,
     boxWithCategories: UiBoxWithCategories,
+    categoryUiState: CategoryState,
     cardList: List<Card>,
     onDismiss: () -> Unit = {},
+    onSave: (Category) -> Unit = {},
+    updateCategoryUiState: (CategoryDetails) -> Unit = {},
+    resetCategoryUiState: () -> Unit = {},
+    saveCategory: () -> Unit = {},
 ) {
+    var currentCategory by remember { mutableStateOf(emptyCategory) }
+    var categoriesExpanded by remember { mutableStateOf(false) }
+    var categoryMenuOpened by remember { mutableStateOf(false) }
+    var addCategory by remember { mutableStateOf(false) }
+
     AlertDialog(
         modifier = modifier,
-        title = { },
-        text = { },
+        title = { Text(stringResource(R.string.editing_category)) },
+        text = {
+            Column {
+                Text(stringResource(R.string.editing_category_text))
+
+                Column(modifier = Modifier.padding(start = 8.dp, top = 2.dp, bottom = 8.dp)) {
+                    for (card in cardList) {
+                        Text(
+                            text = "\u2022 " + card.word,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
+                }
+
+                CategoriesDropDownMenu(
+                    modifier = Modifier,
+                    currentCategory = currentCategory,
+                    boxWithCategories = boxWithCategories,
+                    categoryUiState = categoryUiState,
+                    expanded = categoriesExpanded,
+                    addCategory = addCategory,
+                    changeExpanded = {
+                        addCategory = false
+                        categoryMenuOpened = true
+                        categoriesExpanded = !categoriesExpanded
+                    },
+                    onSelectCategory = {
+                        currentCategory = it
+                    },
+                    updateCategoryUiState = updateCategoryUiState,
+                    resetCategoryUiState = resetCategoryUiState,
+                    saveCategory = saveCategory,
+                    updateAddCategory = {
+                        if (it) {
+                            resetCategoryUiState()
+                        }
+                        addCategory = it
+                    }
+                )
+            }
+        },
         onDismissRequest = onDismiss,
         confirmButton =
             {
                 TextButton(
                     onClick = {
+                        onSave(currentCategory)
                         onDismiss()
                     }
                 ) {
-                    Text(text = stringResource(R.string.delete))
+                    Text(text = stringResource(R.string.save))
                 }
             },
         dismissButton =
@@ -230,5 +286,35 @@ fun CardsToCategoryDialog(
                     Text(text = stringResource(R.string.cancel))
                 }
             },
+    )
+}
+
+@Preview
+@Composable
+fun CardsToCategoryDialogPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = false,
+    ).toBox()
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf()
+    )
+
+    CardsToCategoryDialog(
+        modifier = Modifier,
+        cardList = listOf(
+            emptyCard.copy(word = "Karte123"),
+            emptyCard.copy(word = "Karte456"),
+            emptyCard.copy(word = "Karte897"),
+        ),
+        boxWithCategories = boxWithCategories,
+        categoryUiState = CategoryState(
+            categoryDetails = emptyCategory.toCategoryDetails(),
+            isValid = true
+        ),
     )
 }

@@ -109,6 +109,8 @@
     <string name="all_tags">Alle Stichwörter:</string>
     <string name="common_tags">Gemeinsame Stichwörter:</string>
     <string name="add_category">Karten zu Kategorie hinzufügen</string>
+    <string name="editing_category">Kategorie ändern</string>
+    <string name="editing_category_text">Kategorie für folgende Karteikarten ändern:</string>
 
     <!-- New/Edit/ CardDialog -->
     <string name="add_new_card">Eine neue Karte hinzufügen</string>
