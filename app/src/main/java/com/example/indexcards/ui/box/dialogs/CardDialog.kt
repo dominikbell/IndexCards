@@ -54,6 +54,7 @@ import com.example.indexcards.utils.state.toBox
 import kotlinx.coroutines.delay
 import java.io.File
 
+
 @Composable
 fun CardDialog(
     modifier: Modifier = Modifier,
@@ -281,7 +282,7 @@ fun CardDialog(
                         }
                     ) {
                         Icon(
-                            Icons.Default.Create,
+                            imageVector = Icons.Default.Create,
                             modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
                             contentDescription = "Edit",
                         )

@@ -4,27 +4,32 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,12 +37,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.getCutString
+import com.example.indexcards.utils.notification.getTimeIntervalAtHour
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.getImageId
+import java.time.ZonedDateTime
+
 
 @Composable
 fun BoxList(
@@ -45,6 +52,8 @@ fun BoxList(
     boxList: List<Box>,
     isSelecting: Boolean,
     selectedBoxes: List<Box>,
+    reminderIntervals:  List<Pair<Int, String>>,
+    reminderTime: Pair<Int, Int>,
     navigateToBoxScreen: (Long) -> Unit = {},
     startSelection: () -> Unit = {},
     selectBox: (Box) -> Unit = {},
@@ -72,7 +81,7 @@ fun BoxList(
             ) {
                 itemsIndexed(
                     items = boxList
-                ) { index, item ->
+                ) { index, box ->
 
                     val finalOffset = if (index == boxList.size - 1) {
                         (2.5 * FloatingActionButtonDefaults.LargeIconSize.value).dp
@@ -80,22 +89,42 @@ fun BoxList(
                         0.dp
                     }
 
+                    val needsTraining = listOf(
+                        box.lastTrained1,
+                        box.lastTrained2,
+                        box.lastTrained3,
+                        box.lastTrained4,
+                        box.lastTrained5,
+                    ).mapIndexed { ind, lastTrainTime ->
+                        if (lastTrainTime == (-1).toLong()) {
+                            false
+                        } else {
+                            val trainTimeInterval = getTimeIntervalAtHour(
+                                reminderIntervals = reminderIntervals,
+                                reminderTime = reminderTime,
+                                level = ind
+                            )
+                            (ZonedDateTime.now().toInstant().toEpochMilli() - lastTrainTime) >= trainTimeInterval
+                        }
+                    }.any { it == true }
+
                     BoxListItem(
                         modifier = Modifier.padding(bottom = finalOffset),
-                        box = item,
+                        box = box,
                         isSelecting = isSelecting,
-                        isSelected = selectedBoxes.contains(item),
+                        isSelected = selectedBoxes.contains(box),
                         onClick = {
                             if (isSelecting) {
-                                selectBox(item)
+                                selectBox(box)
                             } else {
-                                navigateToBoxScreen(item.boxId)
+                                navigateToBoxScreen(box.boxId)
                             }
                         },
                         onLongClick = {
                             startSelection()
-                            selectBox(item)
+                            selectBox(box)
                         },
+                        needsTraining = (needsTraining && !isSelecting),
                     )
                 }
             }
@@ -110,6 +139,7 @@ fun BoxListItem(
     box: Box,
     isSelecting: Boolean,
     isSelected: Boolean,
+    needsTraining: Boolean,
     onClick: (Box) -> Unit = {},
     onLongClick: (Box) -> Unit = {},
 ) {
@@ -122,18 +152,18 @@ fun BoxListItem(
             .clip(CardDefaults.shape)
             .combinedClickable(
                 onClick = { onClick(box) },
-                onLongClick = { onLongClick(box) }
+                onLongClick = { onLongClick(box) },
             )
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (isSelecting) {
                 Checkbox(
                     checked = isSelected,
-                    onCheckedChange = { onClick(box) }
+                    onCheckedChange = { onClick(box) },
                 )
             }
 
@@ -142,18 +172,32 @@ fun BoxListItem(
                     .weight(1f)
                     .padding(start = if (isSelecting) 0.dp else 10.dp)
                     .padding(top = 10.dp, bottom = 10.dp),
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Top,
             ) {
-                Text(
-                    text = box.name,
-                    fontWeight = FontWeight(550),
-                    style = MaterialTheme.typography.titleLarge,
-                )
+                Box {
+                    Text(
+                        text = box.name,
+                        fontWeight = FontWeight(550),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+
+                    if (needsTraining) {
+                        Icon(
+                            imageVector = Icons.Filled.Timer,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 13.dp, y = (-4).dp)
+                                .size(14.dp),
+                            tint = Color.Yellow.copy(red = 0.9F, green = 0.8F, blue = 0F),
+                            contentDescription = "timer",
+                        )
+                    }
+                }
                 if (description.isNotBlank()) {
                     Text(
                         modifier = Modifier.padding(top = 4.dp),
                         text = description,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }
@@ -177,7 +221,8 @@ fun BoxListItemPreview() {
     BoxListItem(
         isSelecting = false,
         isSelected = false,
-        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung")
+        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung"),
+        needsTraining = false,
     )
 }
 
@@ -187,7 +232,8 @@ fun BoxListItemWithoutDescriptionPreview() {
     BoxListItem(
         isSelecting = false,
         isSelected = false,
-        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "")
+        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = ""),
+        needsTraining = false,
     )
 }
 
@@ -197,7 +243,8 @@ fun BoxListItemSelectedPreview() {
     BoxListItem(
         isSelecting = true,
         isSelected = false,
-        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung")
+        box = emptyBox.copy(name = "Test Box", topic = "Japanese", description = "beschreibung"),
+        needsTraining = false,
     )
 }
 
@@ -215,6 +262,8 @@ fun BoxListPreview() {
                 topic = "Chinese",
                 description = "a longer description with more words, super delicious sea food"
             ),
-        )
+        ),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }

@@ -98,6 +98,7 @@ open class AppViewModel(
         }
     }
 
+    /* List of pairs of int (=amount) and string (=d,w,m) */
     val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
         userPreferences.currentReminderIntervals
             .filterNotNull()
@@ -107,6 +108,7 @@ open class AppViewModel(
                 initialValue = DefaultPreferences.REMINDER_INTERVALS
             )
 
+    /* Time of reminder in pair: first is hour, second is minute */
     val reminderTime: StateFlow<Pair<Int, Int>> =
         userPreferences.currentReminderTime
             .filterNotNull()

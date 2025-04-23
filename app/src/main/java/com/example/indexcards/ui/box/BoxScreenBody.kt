@@ -56,6 +56,8 @@ fun BoxScreenBody(
     numberOfButtons: Int,
     isSelecting: Boolean,
     selectedCards: List<Card>,
+    reminderIntervals:  List<Pair<Int, String>>,
+    reminderTime: Pair<Int, Int>,
     showCardDialog: (Card) -> Unit = {},
     showNewTagDialog: () -> Unit = {},
     onTagLongClick: (Tag) -> Unit = {},
@@ -130,6 +132,15 @@ fun BoxScreenBody(
             cardWithTagList = cardsWithTags.cardWithTagList,
             currentLevel = levelSelected,
             selectLevel = { selectLevel(it) },
+            lastReminders = listOf(
+                boxWithTags.box.lastTrained1,
+                boxWithTags.box.lastTrained2,
+                boxWithTags.box.lastTrained3,
+                boxWithTags.box.lastTrained4,
+                boxWithTags.box.lastTrained5,
+            ),
+            reminderIntervals = reminderIntervals,
+            reminderTime = reminderTime,
         )
 
         HorizontalDivider(
@@ -239,6 +250,8 @@ fun BoxScreenBodyPreview() {
         numberOfButtons = 1,
         isSelecting = false,
         selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }
 
@@ -313,6 +326,8 @@ fun BoxScreenBodyCategoriesPreview() {
         numberOfButtons = 1,
         isSelecting = false,
         selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }
 
@@ -356,6 +371,8 @@ fun BoxScreenBodySelectingPreview() {
         numberOfButtons = 1,
         isSelecting = true,
         selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }
 
@@ -430,6 +447,8 @@ fun BoxScreenBodyCategoriesSelectingPreview() {
         numberOfButtons = 1,
         isSelecting = true,
         selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }
 
@@ -473,5 +492,7 @@ fun BoxScreenBodySearchingPreview() {
         numberOfButtons = 1,
         isSelecting = false,
         selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }

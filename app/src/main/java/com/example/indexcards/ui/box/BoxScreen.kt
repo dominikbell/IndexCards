@@ -63,6 +63,7 @@ import com.example.indexcards.utils.state.emptyTag
 import com.example.indexcards.utils.state.toColor
 import com.example.indexcards.utils.state.toTagDetails
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 import java.util.Locale
 
 
@@ -80,7 +81,7 @@ fun BoxScreen(
     deleteAllMemos: (List<Card>) -> Unit = {},
     saveFile: (ByteArray, String) -> Unit = { _, _ -> },
     cancelNotification: (Int) -> Unit = {},
-    scheduleNotification: (Int, String, Long, Long) -> Unit = { _, _, _, _ -> },
+    scheduleNotification: (Int, String, Long, Long) -> Unit = { _, _, _, _ -> }, /* lvl, name, trigger, repeat */
     boxScreenViewModel: BoxScreenViewModel = viewModel(
         factory = ViewModelProvider(context = LocalContext.current).factory
     ),
@@ -111,9 +112,9 @@ fun BoxScreen(
     val currentCard by boxScreenViewModel.currentCard.collectAsState()
     val categoriesExpanded by boxScreenViewModel.categoriesExpanded.collectAsState()
 
-    val globalReminders = boxScreenViewModel.globalReminders.collectAsState()
-    val reminderIntervals = boxScreenViewModel.reminderIntervals.collectAsState()
-    val reminderTime = boxScreenViewModel.reminderTime.collectAsState()
+    val globalReminders by boxScreenViewModel.globalReminders.collectAsState()
+    val reminderIntervals by boxScreenViewModel.reminderIntervals.collectAsState()
+    val reminderTime by boxScreenViewModel.reminderTime.collectAsState()
 
     var cardDialog by remember { mutableStateOf(false) }
     var noCardsDialog by remember { mutableStateOf(false) }
@@ -220,12 +221,12 @@ fun BoxScreen(
 
     fun setReminder(level: Int) {
         val time = getTimeFromReminderSettings(
-            reminderIntervals = reminderIntervals.value,
-            reminderTime = reminderTime.value,
+            reminderIntervals = reminderIntervals,
+            reminderTime = reminderTime,
             level = level
         )
         val period = getTimeIntervalFromReminderIntervals(
-            reminderIntervals = reminderIntervals.value,
+            reminderIntervals = reminderIntervals,
             level = level,
         )
         scheduleNotification(level, boxUiState.boxDetails.name, time, period)
@@ -242,27 +243,67 @@ fun BoxScreen(
     }
 
     fun setRemindersAfterTraining() {
-        if (trainingCounts && boxWithTags.box.reminders) {
-            boxScreenViewModel.viewModelScope.launch {
-                val nextLevel = levelSelected + 1
-                val previousLevel = levelSelected - 1
+        boxScreenViewModel.viewModelScope.launch {
+            /** If a level had been selected (e.g. when training from notification) */
+            if (trainingCounts && boxWithTags.box.reminders) {
+                val currentTime = ZonedDateTime.now().toInstant().toEpochMilli()
+                if (levelSelected != -1) {
+                    val nextLevel = levelSelected + 1
+                    val previousLevel = levelSelected - 1
 
-                if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(levelSelected) == 0) {
-                    cancelNotification(levelSelected)
-                }
+                    /* Cancel the repeating notifications if no card is left at this level */
+                    if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(levelSelected) == 0) {
+                        cancelNotification(levelSelected)
+                    }
 
-                if (levelSelected != 4 &&
-                    boxScreenViewModel.getNumberOfCardsOfLevelInBox(nextLevel) != 0
-                ) {
-                    setReminder(nextLevel)
-                }
+                    /* Set reminders for next level (if it has cards and current one is not the last) */
+                    if (levelSelected != (NUMBER_OF_LEVELS - 1) &&
+                        boxScreenViewModel.getNumberOfCardsOfLevelInBox(nextLevel) != 0
+                    ) {
+                        setReminder(nextLevel)
+                    }
 
-                if (levelSelected != 0 &&
-                    boxScreenViewModel.getNumberOfCardsOfLevelInBox(previousLevel) != 0
-                ) {
-                    setReminder(previousLevel)
+                    /* Set reminders for previous level (if it has cards and current one is not the first) */
+                    if (levelSelected != 0 &&
+                        boxScreenViewModel.getNumberOfCardsOfLevelInBox(previousLevel) != 0
+                    ) {
+                        setReminder(previousLevel)
+                    }
+
+                    boxScreenViewModel.setLastTrainedTime(levelSelected, currentTime)
+                } else {
+                /** If no level had been selected (e.g. when training just like this) */
+                    for (level in shuffledCardList.map { it.card.level }.toSet()) {
+                        val nextLevel = level + 1
+                        val previousLevel = level - 1
+
+                        /* Cancel the repeating notifications if no card is left at this level */
+                        if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level) == 0) {
+                            cancelNotification(level)
+                        }
+
+                        /* Set reminders for next level (if it has cards and current one is not the last) */
+                        if (level != (NUMBER_OF_LEVELS - 1) &&
+                            boxScreenViewModel.getNumberOfCardsOfLevelInBox(nextLevel) != 0
+                        ) {
+                            setReminder(nextLevel)
+                        }
+
+                        /* Set reminders for previous level (if it has cards and current one is not the first) */
+                        if (level != 0 &&
+                            boxScreenViewModel.getNumberOfCardsOfLevelInBox(previousLevel) != 0
+                        ) {
+                            setReminder(previousLevel)
+                        }
+
+                        boxScreenViewModel.setLastTrainedTime(level, currentTime)
+                    }
                 }
             }
+
+            boxScreenViewModel.resetLevelSelected()
+            boxScreenViewModel.resetTagSelected()
+            boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
         }
     }
 
@@ -450,6 +491,8 @@ fun BoxScreen(
                     tagWithCards = tagWithCards,
                     categoriesExpanded = categoriesExpanded,
                     filteredCardWithTagList = filteredCardWithTagList,
+                    reminderIntervals = reminderIntervals,
+                    reminderTime = reminderTime,
                     showCardDialog = {
                         boxScreenViewModel.setCurrentCard(it)
                         cardDialog = true
@@ -496,7 +539,7 @@ fun BoxScreen(
                     boxUiState = boxUiState,
                     boxWithCategories = boxWithCategories,
                     categoryUiState = categoryUiState,
-                    globalReminders = globalReminders.value,
+                    globalReminders = globalReminders,
                     onSave = {
                         boxScreenViewModel.saveBox()
                         boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
@@ -519,14 +562,9 @@ fun BoxScreen(
                     trainingCounts = trainingCounts,
                     trainingDirection = trainingDirection,
                     cardList = shuffledCardList,
-                    navigateToBoxScreen = {
-                        boxScreenViewModel.resetLevelSelected()
-                        boxScreenViewModel.resetTagSelected()
-                        boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW)
-                    },
                     onCardCorrect = { boxScreenViewModel.onCardCorrect(it) },
                     onCardIncorrect = { boxScreenViewModel.onCardIncorrect(it) },
-                    setRemindersAfterTraining = { setRemindersAfterTraining() },
+                    finishTraining = { setRemindersAfterTraining() },
                 )
             }
         }
@@ -725,7 +763,10 @@ fun BoxScreen(
                     }
                     for (tag in deselectedTags) {
                         for (card in selectedCards) {
-                            boxScreenViewModel.removeTagFromCard(tagId = tag.tagId, cardId = card.cardId)
+                            boxScreenViewModel.removeTagFromCard(
+                                tagId = tag.tagId,
+                                cardId = card.cardId
+                            )
                         }
                     }
                     isSelecting = false

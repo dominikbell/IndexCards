@@ -153,7 +153,7 @@
     <string name="showNumbersOfCard">Show number of cards</string>
     <string name="back_to_box">Go back to box</string>
     <string name="all_done">All done!</string>
-    <string name="no_more_cards">There are now more cards to train.</string>
+    <string name="no_more_cards">There are no more cards to train.</string>
     <string name="oops_no_cards">Oops, no cards found</string>
     <string name="no_cards_of_level_1">There are no cards in this box of level</string>
     <string name="no_cards_of_level_2">. This must be a mistake.</string>

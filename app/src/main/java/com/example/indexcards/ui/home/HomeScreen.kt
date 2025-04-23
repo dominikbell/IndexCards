@@ -57,6 +57,7 @@ import com.example.indexcards.utils.notification.getTimeIntervalFromReminderInte
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -305,6 +306,8 @@ fun HomeScreen(
                     boxList = boxList,
                     isSelecting = isSelecting,
                     selectedBoxes = selectedBoxes,
+                    reminderIntervals = reminderIntervals,
+                    reminderTime = reminderTime,
                     navigateToBoxScreen = { navigateToBoxScreen(it, tutorial) },
                     startSelection = {
                         if (!isSelecting) {
@@ -318,7 +321,7 @@ fun HomeScreen(
                             } else {
                                 selectedBoxes.plus(it)
                             }
-                    }
+                    },
                 )
             }
 

@@ -55,10 +55,9 @@ fun TrainingScreen(
     cardList: List<CardWithTags>,
     trainingCounts: Boolean,
     trainingDirection: Boolean,
-    navigateToBoxScreen: () -> Unit = {},
+    finishTraining: () -> Unit = {},
     onCardCorrect: (Card) -> Unit = {},
     onCardIncorrect: (Card) -> Unit = {},
-    setRemindersAfterTraining: () -> Unit = {},
 ) {
     var trainedCards by remember { mutableIntStateOf(0) }
     var turnedOver by remember { mutableStateOf(false) }
@@ -109,15 +108,12 @@ fun TrainingScreen(
 
         } else {
             AlertDialog(
-                onDismissRequest = { navigateToBoxScreen() },
+                onDismissRequest = { finishTraining() },
                 title = { Text(text = stringResource(id = R.string.all_done)) },
                 text = { Text(text = stringResource(id = R.string.no_more_cards)) },
                 confirmButton = {
                     TextButton(
-                        onClick = {
-                            setRemindersAfterTraining()
-                            navigateToBoxScreen()
-                        }
+                        onClick = { finishTraining() }
                     ) {
                         Text(text = stringResource(id = R.string.back_to_box))
                     }

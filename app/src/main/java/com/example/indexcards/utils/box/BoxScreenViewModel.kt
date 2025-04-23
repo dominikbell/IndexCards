@@ -1,5 +1,6 @@
 package com.example.indexcards.utils.box
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.UserPreferences
+import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.state.CardDetails
 import com.example.indexcards.utils.state.CardState
 import com.example.indexcards.utils.state.CategoryDetails
@@ -28,6 +30,8 @@ import com.example.indexcards.utils.state.TagDetails
 import com.example.indexcards.utils.state.TagState
 import com.example.indexcards.utils.state.UiColorState
 import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.toBoxDetails
 import com.example.indexcards.utils.state.toCategory
 import com.example.indexcards.utils.state.toTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -355,6 +359,46 @@ class BoxScreenViewModel(
             if (card.level > 0) {
                 appRepository.downgradeLevelOnCard(card.cardId)
             }
+        }
+    }
+
+    /** Set lastTrained time */
+    suspend fun setLastTrainedTime(level: Int, time: Long) {
+        if (level != -1) {
+            when (level) {
+                0 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained1 = time)
+                    )
+                }
+
+                1 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained2 = time)
+                    )
+                }
+
+                2 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained3 = time)
+                    )
+                }
+
+                3 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained4 = time)
+                    )
+                }
+
+                4 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained5 = time)
+                    )
+                }
+
+                else -> {}
+            }
+            appRepository.upsertBox(boxUiState.boxDetails.toBox())
         }
     }
 
