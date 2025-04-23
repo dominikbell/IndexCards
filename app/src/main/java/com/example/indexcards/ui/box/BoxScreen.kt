@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
@@ -38,12 +37,15 @@ import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
 import com.example.indexcards.ui.box.dialogs.CardDialog
+import com.example.indexcards.ui.box.dialogs.CardsToCategoryDialog
 import com.example.indexcards.ui.box.dialogs.DeleteCardDialog
 import com.example.indexcards.ui.box.dialogs.EditCardDialog
 import com.example.indexcards.ui.box.dialogs.NewCardDialog
 import com.example.indexcards.ui.box.dialogs.DeleteBoxDialog
+import com.example.indexcards.ui.box.dialogs.DeleteCardsDialog
 import com.example.indexcards.ui.box.dialogs.NoCardsDialog
 import com.example.indexcards.ui.box.dialogs.TagDialog
+import com.example.indexcards.ui.box.dialogs.TagsToCardsDialog
 import com.example.indexcards.ui.home.Tutorial
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenSorting
@@ -61,7 +63,6 @@ import com.example.indexcards.utils.state.emptyTag
 import com.example.indexcards.utils.state.toColor
 import com.example.indexcards.utils.state.toTagDetails
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.Locale
 
 
@@ -119,6 +120,9 @@ fun BoxScreen(
     var newCardDialog by remember { mutableStateOf(false) }
     var editCardDialog by remember { mutableStateOf(false) }
     var deleteCardDialog by remember { mutableStateOf(false) }
+    var deleteCardsDialog by remember { mutableStateOf(false) }
+    var addTagsToCardsDialog by remember { mutableStateOf(false) }
+    var addCardsToCategoryDialog by remember { mutableStateOf(false) }
     var newTag by remember { mutableStateOf(true) }
     var tagDialog by remember { mutableStateOf(false) }
     var deleteBoxDialog by remember { mutableStateOf(false) }
@@ -323,7 +327,7 @@ fun BoxScreen(
                 updateEditUiStatus = { boxScreenViewModel.updateBoxUiState(boxWithTags.box.toBoxDetails()) },
                 changeBoxScreenState = { boxScreenViewModel.updateBoxScreenState(it) },
                 boxScreenState = boxScreenState,
-                thisBox = boxWithTags.box,
+                boxWithTags = boxWithTags,
                 cancelEdit = { boxScreenViewModel.updateBoxScreenState(BoxScreenState.VIEW) },
                 trainingCounts = trainingCounts,
                 isSelecting = isSelecting,
@@ -346,58 +350,77 @@ fun BoxScreen(
                 stopSelection = {
                     isSelecting = false
                     selectedCards = listOf()
-                }
+                },
+                showTagsToCardsDialog = {
+                    addTagsToCardsDialog = true
+                },
+                showCardsToCategoryDialog = {
+                    addCardsToCategoryDialog = true
+                },
             )
         },
 
         floatingActionButton = {
             when (boxScreenState) {
                 BoxScreenState.VIEW -> {
-                    Column {
-                        if (filteredCardWithTagList.isNotEmpty()) {
-                            FloatingActionButton(
-                                onClick = {
-                                    isSelecting = false
-                                    selectedCards = listOf()
-                                    trainSelection = true
-                                    boxScreenViewModel.changeTrainingDirection(true)
-                                    boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "train"
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.size(10.dp))
-                        }
-
-                        val boxModifier =
-                            if (tutorial && tutorialState == TutorialState.ADD_CARD_INTRO) {
-                                Modifier
-                                    .clip(FloatingActionButtonDefaults.shape)
-                                    .background(color = MaterialTheme.colorScheme.primary)
-                                    .padding(6.dp)
-                            } else {
-                                Modifier
-                            }
-                        Box(
-                            modifier = boxModifier
-                        ) {
-                            FloatingActionButton(
-                                onClick = {
-                                    if (tutorial) {
-                                        tutorialStep += 1
+                    if (!isSelecting) {
+                        Column {
+                            if (filteredCardWithTagList.isNotEmpty()) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        isSelecting = false
+                                        selectedCards = listOf()
+                                        trainSelection = true
+                                        boxScreenViewModel.changeTrainingDirection(true)
+                                        boxScreenViewModel.updateBoxScreenState(BoxScreenState.TRAIN)
                                     }
-                                    boxScreenViewModel.setBiggestCardId()
-                                    isSelecting = false
-                                    selectedCards = listOf()
-                                    newCardDialog = true
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PlayArrow,
+                                        contentDescription = "train"
+                                    )
                                 }
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = "Add")
+
+                                Spacer(modifier = Modifier.size(10.dp))
                             }
+
+                            val boxModifier =
+                                if (tutorial && tutorialState == TutorialState.ADD_CARD_INTRO) {
+                                    Modifier
+                                        .clip(FloatingActionButtonDefaults.shape)
+                                        .background(color = MaterialTheme.colorScheme.primary)
+                                        .padding(6.dp)
+                                } else {
+                                    Modifier
+                                }
+                            Box(
+                                modifier = boxModifier
+                            ) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        if (tutorial) {
+                                            tutorialStep += 1
+                                        }
+                                        boxScreenViewModel.setBiggestCardId()
+                                        isSelecting = false
+                                        selectedCards = listOf()
+                                        newCardDialog = true
+                                    }
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = "Add")
+                                }
+                            }
+                        }
+                    } else {
+                        FloatingActionButton(
+                            onClick = {
+                                deleteCardsDialog = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "delete"
+                            )
                         }
                     }
                 }
@@ -623,14 +646,25 @@ fun BoxScreen(
                 cardDialog = false
                 editCardDialog = false
                 deleteCardDialog = false
-                if (currentCard.memoURI.isNotBlank()) {
-                    currentCard.memoURI.toUri().path?.let { path ->
-                        File(path).also { file ->
-                            file.delete()
-                        }
-                    }
-                }
                 boxScreenViewModel.deleteCard(currentCard)
+            }
+        )
+    }
+
+    if (deleteCardsDialog) {
+        DeleteCardsDialog(
+            modifier = Modifier,
+            cardList = selectedCards,
+            onDismiss = { deleteCardsDialog = false },
+            deleteCards = {
+                deleteCardsDialog = false
+                isSelecting = false
+                boxScreenViewModel.viewModelScope.launch {
+                    for (card in selectedCards) {
+                        boxScreenViewModel.deleteCard(card)
+                    }
+                    selectedCards = listOf()
+                }
             }
         )
     }
@@ -661,6 +695,53 @@ fun BoxScreen(
                 tagDialog = false
                 boxScreenViewModel.deleteTag()
                 boxScreenViewModel.resetTagUiState()
+            }
+        )
+    }
+
+    if (addTagsToCardsDialog) {
+        var givenTags = cardsWithTags.cardWithTagList.filter {
+            selectedCards.contains(it.card)
+        }.map {
+            it.tags
+        }.fold(boxWithTags.tagList) { acc, next ->
+            acc.intersect(next).toList()
+        }
+
+        TagsToCardsDialog(
+            modifier = Modifier,
+            boxWithTags = boxWithTags,
+            cardList = selectedCards,
+            givenTags = givenTags,
+            onDismiss = {
+                addTagsToCardsDialog = false
+            },
+            onSave = { selectedTags, deselectedTags ->
+                boxScreenViewModel.viewModelScope.launch {
+                    for (tag in selectedTags) {
+                        for (card in selectedCards) {
+                            boxScreenViewModel.addTagToCard(tagId = tag.tagId, cardId = card.cardId)
+                        }
+                    }
+                    for (tag in deselectedTags) {
+                        for (card in selectedCards) {
+                            boxScreenViewModel.removeTagFromCard(tagId = tag.tagId, cardId = card.cardId)
+                        }
+                    }
+                    isSelecting = false
+                    selectedCards = listOf()
+                }
+            }
+        )
+    }
+
+    if (addCardsToCategoryDialog) {
+        CardsToCategoryDialog(
+            modifier = Modifier,
+            boxWithCategories = boxWithCategories,
+            cardList = selectedCards,
+            onDismiss = {
+                addCardsToCategoryDialog = false
             }
         )
     }

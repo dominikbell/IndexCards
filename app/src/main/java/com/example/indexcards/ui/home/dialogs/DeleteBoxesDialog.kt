@@ -32,7 +32,10 @@ fun DeleteBoxesDialog(
         title = { Text(text = stringResource(R.string.delete_boxes)) },
         text = {
             Column(modifier = modifier.fillMaxWidth()) {
-                Text(text = stringResource(id = R.string.delete_boxes_names))
+                Text(
+                    modifier = Modifier.padding(bottom = 2.dp),
+                    text = stringResource(id = R.string.delete_boxes_names),
+                )
                 Column(modifier = Modifier.padding(start = 8.dp)) {
                     for (box in boxesToBeDeleted) {
                         Text(
@@ -43,7 +46,9 @@ fun DeleteBoxesDialog(
                 }
 
                 Text(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 8.dp),
                     text = stringResource(id = R.string.action_cannot_be_undone),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -53,21 +58,21 @@ fun DeleteBoxesDialog(
             }
         },
         dismissButton =
-        {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                Text(text = stringResource(R.string.cancel))
-            }
-        },
+            {
+                TextButton(
+                    onClick = onDismiss
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            },
         confirmButton =
-        {
-            TextButton(
-                onClick = onDelete
-            ) {
-                Text(text = stringResource(R.string.delete))
-            }
-        },
+            {
+                TextButton(
+                    onClick = onDelete
+                ) {
+                    Text(text = stringResource(R.string.delete))
+                }
+            },
     )
 }
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
@@ -41,6 +42,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 /** ViewModel for the BoxScreen
@@ -491,11 +493,25 @@ class BoxScreenViewModel(
 
     fun deleteCard(card: Card) {
         viewModelScope.launch {
+            if (card.memoURI.isNotBlank()) {
+                card.memoURI.toUri().path?.let { path ->
+                    File(path).also { file ->
+                        file.delete()
+                    }
+                }
+            }
             appRepository.deleteCard(cardId = card.cardId)
         }
         resetCard()
     }
 
+    suspend fun addTagToCard(tagId: Long, cardId: Long) {
+        appRepository.upsertTagCardCrossRef(TagCardCrossRef(tagId = tagId, cardId = cardId))
+    }
+
+    suspend fun removeTagFromCard(tagId: Long, cardId: Long) {
+        appRepository.deleteTagCardCrossRef(tagId = tagId, cardId = cardId)
+    }
 
     /** functions for adding and deleting a tag to/from a card
      * are used upon saving a new card and immediately when clicking

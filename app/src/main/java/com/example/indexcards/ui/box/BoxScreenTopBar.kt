@@ -36,6 +36,7 @@ import com.example.indexcards.data.Box
 import com.example.indexcards.ui.elements.BoxNameWithFlag
 import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
+import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.boxScreenSorting
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.isLanguage
@@ -45,7 +46,7 @@ import com.example.indexcards.utils.state.isLanguage
 @Composable
 fun BoxScreenTopBar(
     modifier: Modifier = Modifier,
-    thisBox: Box,
+    boxWithTags: UiBoxWithTags,
     boxScreenState: BoxScreenState,
     trainingCounts: Boolean,
     allCategoriesCollapsed: Boolean,
@@ -64,6 +65,8 @@ fun BoxScreenTopBar(
     setTrainSelection: (Boolean) -> Unit = {},
     toggleAllCategories: () -> Unit = {},
     stopSelection: () -> Unit = {},
+    showTagsToCardsDialog: () -> Unit = {},
+    showCardsToCategoryDialog: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
     var sortExpanded by remember { mutableStateOf(false) }
@@ -135,13 +138,13 @@ fun BoxScreenTopBar(
                             modifier = modifier
                         )
                     } else {
-                        BoxNameWithFlag(box = thisBox, doBold = true, isTitle = false)
+                        BoxNameWithFlag(box = boxWithTags.box, doBold = true, isTitle = false)
                     }
                 }
 
                 BoxScreenState.EDIT -> {
                     Text(
-                        text = stringResource(id = R.string.editing_box) + " " + thisBox.name,
+                        text = stringResource(id = R.string.editing_box) + " " + boxWithTags.box.name,
                         fontWeight = FontWeight.Bold,
                         modifier = modifier
                     )
@@ -169,7 +172,6 @@ fun BoxScreenTopBar(
                                 contentDescription = "Menu"
                             )
                         }
-
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
@@ -295,6 +297,40 @@ fun BoxScreenTopBar(
                                 )
                             }
                         }
+                    } else {
+                        if (boxWithTags.box.categories || boxWithTags.tagList.isNotEmpty()) {
+                            IconButton(
+                                onClick = { expanded = true }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = "Menu"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                if (boxWithTags.tagList.isNotEmpty()) {
+                                    DropdownMenuItem(
+                                        text = { Text(text = stringResource(R.string.edit_tags)) },
+                                        onClick = {
+                                            showTagsToCardsDialog()
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                                if (boxWithTags.box.categories) {
+                                    DropdownMenuItem(
+                                        text = { Text(text = stringResource(R.string.add_category)) },
+                                        onClick = {
+                                            showCardsToCategoryDialog()
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -330,7 +366,7 @@ fun BoxScreenTopBar(
                             },
                             onClick = { changeTrainingCounts() }
                         )
-                        if (thisBox.isLanguage()) {
+                        if (boxWithTags.box.isLanguage()) {
                             DropdownMenuItem(
                                 text = {
                                     Text(text = stringResource(id = R.string.reverse_sides))
@@ -353,7 +389,10 @@ fun BoxScreenTopBar(
 fun BoxTopBarViewPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.VIEW,
-        thisBox = emptyBox.copy(name = "Test123", topic = "English"),
+        boxWithTags = UiBoxWithTags(
+            box = emptyBox.copy(name = "Test123", topic = "English"),
+            tagList = listOf()
+        ),
         trainingCounts = false,
         allCategoriesCollapsed = true,
         isSelecting = false,
@@ -365,7 +404,10 @@ fun BoxTopBarViewPreview() {
 fun BoxTopBarViewSelectingPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.VIEW,
-        thisBox = emptyBox.copy(name = "Test123", topic = "English"),
+        boxWithTags = UiBoxWithTags(
+            box = emptyBox.copy(name = "Test123", topic = "English"),
+            tagList = listOf()
+        ),
         trainingCounts = false,
         allCategoriesCollapsed = true,
         isSelecting = true,
@@ -377,7 +419,7 @@ fun BoxTopBarViewSelectingPreview() {
 fun BoxTopBarTrainPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.TRAIN,
-        thisBox = emptyBox.copy(name = "Test123"),
+        boxWithTags = UiBoxWithTags(box = emptyBox.copy(name = "Test123"), tagList = listOf()),
         trainingCounts = true,
         allCategoriesCollapsed = true,
         isSelecting = false,
@@ -389,7 +431,7 @@ fun BoxTopBarTrainPreview() {
 fun BoxTopBarEditPreview() {
     BoxScreenTopBar(
         boxScreenState = BoxScreenState.EDIT,
-        thisBox = emptyBox.copy(name = "Test123"),
+        boxWithTags = UiBoxWithTags(box = emptyBox.copy(name = "Test123"), tagList = listOf()),
         trainingCounts = false,
         allCategoriesCollapsed = true,
         isSelecting = false,

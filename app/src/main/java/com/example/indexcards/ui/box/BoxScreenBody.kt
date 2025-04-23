@@ -174,24 +174,6 @@ fun BoxScreenBody(
                 .fillMaxWidth()
         )
 
-//        if (isSelecting) {
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 2.dp),
-//                verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.SpaceEvenly,
-//            ) {
-//                Text(
-//                    "Add tags to cards"
-//                )
-//
-//                Text(
-//                    "Add cards to category"
-//                )
-//            }
-//        }
-
         if (cardsWithTags.cardWithTagList.isEmpty()) {
             Text(
                 modifier = Modifier.padding(top = 10.dp),

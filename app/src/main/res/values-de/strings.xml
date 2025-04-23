@@ -101,6 +101,14 @@
     <string name="word_desc">Wort Z..A</string>
     <string name="level_asc">Niveau aufsteigend</string>
     <string name="level_desc">Niveau absteigend</string>
+    <string name="edit_tags">Stichwörter von Karten bearbeiten</string>
+    <string name="editing_tags">Stichwörter von Karten bearbeiten</string>
+    <string name="editing_tags_text">Stichwörter von diesen Karten bearbeiten:</string>
+    <string name="adding_tags_text">Stichwörter werden hinzugefügt:</string>
+    <string name="removing_tags_text">Stichwörter werden entfernt:</string>
+    <string name="all_tags">Alle Stichwörter:</string>
+    <string name="common_tags">Gemeinsame Stichwörter:</string>
+    <string name="add_category">Karten zu Kategorie hinzufügen</string>
 
     <!-- New/Edit/ CardDialog -->
     <string name="add_new_card">Eine neue Karte hinzufügen</string>
@@ -114,6 +122,9 @@
     <string name="edit_card">Bearbeiten von</string>
     <string name="delete_card">Löschen von</string>
     <string name="delete_card_sure">Bist Du sicher, dass Du diese Karteikarte löschen möchtest?</string>
+    <string name="delete_cards">Karteikarten löschen</string>
+    <string name="delete_cards_before">Die folgenden Karteikarten werden gelöscht</string>
+    <string name="delete_cards_sure">Bist Du sicher?</string>
     <string name="memo">Memo</string>
     <string name="no_memo">Für diese Karte gibt es keine Memo</string>
 

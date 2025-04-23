@@ -100,6 +100,14 @@
     <string name="word_desc">Words Z .. A</string>
     <string name="level_asc">Level ascending</string>
     <string name="level_desc">Level descending</string>
+    <string name="edit_tags">Edit tags on cards</string>
+    <string name="editing_tags">Editing tags on cards</string>
+    <string name="editing_tags_text">Editing tags on these cards:</string>
+    <string name="adding_tags_text">Adding tags to these cards:</string>
+    <string name="removing_tags_text">Removing tags from these cards:</string>
+    <string name="all_tags">All tags:</string>
+    <string name="common_tags">Common tags:</string>
+    <string name="add_category">Add cards to category</string>
 
     <!-- New/Edit/ CardDialog -->
     <string name="add_new_card">Add a new card</string>
@@ -113,6 +121,9 @@
     <string name="edit_card">Edit card for</string>
     <string name="delete_card">Delete card for</string>
     <string name="delete_card_sure">Are you sure you want to delete this card?</string>
+    <string name="delete_cards">Delete cards</string>
+    <string name="delete_cards_before">You are about to delete the following cards:</string>
+    <string name="delete_cards_sure">Are you sure you want to delete these cards?</string>
     <string name="memo">Memo</string>
     <string name="no_memo">No memo was saved for this card</string>
 
