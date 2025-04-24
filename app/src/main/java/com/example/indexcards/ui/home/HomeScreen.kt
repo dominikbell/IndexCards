@@ -52,8 +52,8 @@ import com.example.indexcards.utils.home.HomeScreenState
 import com.example.indexcards.utils.home.HomeScreenViewModel
 import com.example.indexcards.utils.home.TutorialMap
 import com.example.indexcards.utils.home.TutorialState
-import com.example.indexcards.utils.notification.getTimeFromReminderSettings
-import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
+import com.example.indexcards.utils.notification.getTriggerTime
+import com.example.indexcards.utils.notification.getTimeInterval
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -151,12 +151,12 @@ fun HomeScreen(
     }
 
     fun setReminder(boxId: Long, boxName: String, level: Int) {
-        val time = getTimeFromReminderSettings(
+        val time = getTriggerTime(
             reminderIntervals = reminderIntervals,
             reminderTime = reminderTime,
             level = level,
         )
-        val period = getTimeIntervalFromReminderIntervals(
+        val period = getTimeInterval(
             reminderIntervals = reminderIntervals,
             level = level,
         )
@@ -307,7 +307,6 @@ fun HomeScreen(
                     isSelecting = isSelecting,
                     selectedBoxes = selectedBoxes,
                     reminderIntervals = reminderIntervals,
-                    reminderTime = reminderTime,
                     navigateToBoxScreen = { navigateToBoxScreen(it, tutorial) },
                     startSelection = {
                         if (!isSelecting) {

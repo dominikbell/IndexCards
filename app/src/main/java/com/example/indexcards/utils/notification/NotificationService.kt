@@ -138,43 +138,42 @@ class NotificationService(
         boxId: Long = -1,
         level: Int = -1,
         boxName: String = "",
-        triggerTime: Long,
-        repeatingTime: Long,
+        triggerTime: Long = -1,
+        repeatingTime: Long = -1,
     ) {
-        val intent = Intent(context, NotificationReceiver::class.java)
-            .putExtra("id", NotificationRequest.MAKE_REMINDER)
-            .putExtra("boxId", boxId)
-            .putExtra("level", level)
-            .putExtra("boxName", boxName)
-        val requestId = getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER)
+        if (boxId != (-1).toLong() && level != -1 && triggerTime != (-1).toLong() && repeatingTime != (-1).toLong()) {
+            val intent = Intent(context, NotificationReceiver::class.java)
+                .putExtra("id", NotificationRequest.MAKE_REMINDER)
+                .putExtra("boxId", boxId)
+                .putExtra("level", level)
+                .putExtra("boxName", boxName)
+            val requestId = getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER)
 
-        val alarmExists =
-            PendingIntent.getBroadcast(
+//        val alarmExists =
+//            PendingIntent.getBroadcast(
+//                context,
+//                requestId,
+//                intent,
+//                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+//            ) != null
+
+//        if (!alarmExists) {
+            val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 requestId,
                 intent,
-                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-            ) != null
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
-        if (!alarmExists) {
-            if (boxId != (-1).toLong() && level != -1) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-                val pendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    requestId,
-                    intent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                )
-
-                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerTime,
-                    repeatingTime,
-                    pendingIntent
-                )
-            }
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                repeatingTime,
+                pendingIntent
+            )
+//            }
         }
     }
 

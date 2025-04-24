@@ -1,6 +1,5 @@
 package com.example.indexcards.utils.box
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +16,6 @@ import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.notification.getTimeFromReminderSettings
 import com.example.indexcards.utils.state.CardDetails
 import com.example.indexcards.utils.state.CardState
 import com.example.indexcards.utils.state.CategoryDetails

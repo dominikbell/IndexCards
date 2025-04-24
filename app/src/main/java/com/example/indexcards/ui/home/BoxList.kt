@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
 import com.example.indexcards.utils.getCutString
-import com.example.indexcards.utils.notification.getTimeIntervalAtHour
+import com.example.indexcards.utils.notification.getTimeInterval
 import com.example.indexcards.utils.state.emptyBox
 import com.example.indexcards.utils.state.getImageId
 import java.time.ZonedDateTime
@@ -53,7 +53,6 @@ fun BoxList(
     isSelecting: Boolean,
     selectedBoxes: List<Box>,
     reminderIntervals:  List<Pair<Int, String>>,
-    reminderTime: Pair<Int, Int>,
     navigateToBoxScreen: (Long) -> Unit = {},
     startSelection: () -> Unit = {},
     selectBox: (Box) -> Unit = {},
@@ -99,9 +98,8 @@ fun BoxList(
                         if (lastTrainTime == (-1).toLong()) {
                             false
                         } else {
-                            val trainTimeInterval = getTimeIntervalAtHour(
+                            val trainTimeInterval = getTimeInterval(
                                 reminderIntervals = reminderIntervals,
-                                reminderTime = reminderTime,
                                 level = ind
                             )
                             (ZonedDateTime.now().toInstant().toEpochMilli() - lastTrainTime) >= trainTimeInterval
@@ -264,6 +262,5 @@ fun BoxListPreview() {
             ),
         ),
         reminderIntervals = listOf(),
-        reminderTime = Pair(0,0),
     )
 }

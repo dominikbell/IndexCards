@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.utils.notification.getTimeIntervalAtHour
+import com.example.indexcards.utils.notification.getTimeInterval
 import com.example.indexcards.utils.state.emptyCard
 import java.time.ZonedDateTime
 
@@ -42,16 +42,14 @@ fun LevelList(
     currentLevel: Int,
     lastReminders: List<Long>,
     reminderIntervals:  List<Pair<Int, String>>,
-    reminderTime: Pair<Int, Int>,
     selectLevel: (Int) -> Unit = {},
 ) {
     val needsTraining = (0..<NUMBER_OF_LEVELS).map { level ->
         if (lastReminders[level] == (-1).toLong()) {
             false
         } else {
-            val trainTimeInterval = getTimeIntervalAtHour(
+            val trainTimeInterval = getTimeInterval(
                 reminderIntervals = reminderIntervals,
-                reminderTime = reminderTime,
                 level = level
             )
             (ZonedDateTime.now().toInstant().toEpochMilli() - lastReminders[level]) >= trainTimeInterval
@@ -107,7 +105,6 @@ fun LevelListPreview() {
         currentLevel = -1,
         lastReminders = (1..5).map { (-1).toLong() },
         reminderIntervals = listOf(),
-        reminderTime = Pair(0,0),
     )
 }
 

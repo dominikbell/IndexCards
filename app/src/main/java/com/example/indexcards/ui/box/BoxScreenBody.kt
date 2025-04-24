@@ -140,7 +140,6 @@ fun BoxScreenBody(
                 boxWithTags.box.lastTrained5,
             ),
             reminderIntervals = reminderIntervals,
-            reminderTime = reminderTime,
         )
 
         HorizontalDivider(

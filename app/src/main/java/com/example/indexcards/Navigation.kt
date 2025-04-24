@@ -92,7 +92,7 @@ fun Navigation(
                 }
             )
         ) {
-            val boxId = it.arguments?.getLong("boxId") ?: -1
+            val boxId = it.arguments?.getLong("boxId") ?: (-1).toLong()
             val level = it.arguments?.getInt("level") ?: -1
             val tut = it.arguments?.getBoolean("tutorial") == true
             BoxScreen(

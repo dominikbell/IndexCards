@@ -55,8 +55,8 @@ import com.example.indexcards.utils.home.TutorialMap
 import com.example.indexcards.utils.home.TutorialState
 import com.example.indexcards.utils.state.toBoxDetails
 import com.example.indexcards.utils.state.toCardState
-import com.example.indexcards.utils.notification.getTimeFromReminderSettings
-import com.example.indexcards.utils.notification.getTimeIntervalFromReminderIntervals
+import com.example.indexcards.utils.notification.getTriggerTime
+import com.example.indexcards.utils.notification.getTimeInterval
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
 import com.example.indexcards.utils.recording.AndroidAudioRecorder
 import com.example.indexcards.utils.state.emptyTag
@@ -220,12 +220,12 @@ fun BoxScreen(
     }
 
     fun setReminder(level: Int) {
-        val time = getTimeFromReminderSettings(
+        val time = getTriggerTime(
             reminderIntervals = reminderIntervals,
             reminderTime = reminderTime,
             level = level
         )
-        val period = getTimeIntervalFromReminderIntervals(
+        val period = getTimeInterval(
             reminderIntervals = reminderIntervals,
             level = level,
         )
