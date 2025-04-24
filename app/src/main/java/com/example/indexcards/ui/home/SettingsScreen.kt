@@ -7,12 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +24,7 @@ import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.home.toAtLeast2DigitString
 import com.example.indexcards.utils.home.toReminderText
 import com.example.indexcards.utils.home.toWord
+
 
 @Composable
 fun SettingsScreen(

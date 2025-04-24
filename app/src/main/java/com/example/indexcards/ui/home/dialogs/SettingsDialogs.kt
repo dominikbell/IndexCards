@@ -13,6 +13,10 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -113,6 +117,8 @@ fun ReminderIntervalsDialog(
             uiReminderIntervals.reminderIntervals[currentLevel].first.toString()
         }
 
+    var isValidEntry by remember { mutableStateOf(true) }
+
     AlertDialog(
         title = {
             Text(text = stringResource(id = R.string.set_reminders) + " " + (currentLevel + 1).toString())
@@ -126,6 +132,7 @@ fun ReminderIntervalsDialog(
                     modifier = Modifier.weight(0.1F),
                     value = text,
                     onValueChange = {
+                        isValidEntry = true
                         if (it.isBlank()) {
                             updateUiReminderIntervals(
                                 -1,
@@ -140,7 +147,8 @@ fun ReminderIntervalsDialog(
                             }
                         }
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = !isValidEntry,
                 )
 
                 PeriodSelect(
@@ -157,7 +165,17 @@ fun ReminderIntervalsDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
-                onClick = applyChanges
+                onClick = {
+                    if (text.isBlank()) {
+                        applyChanges()
+                    } else {
+                        if (text.toInt() > 0) {
+                            applyChanges()
+                        } else {
+                            isValidEntry = false
+                        }
+                    }
+                }
             ) {
                 Text(text = stringResource(id = R.string.save))
             }
