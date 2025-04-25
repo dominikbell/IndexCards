@@ -29,6 +29,20 @@ sealed interface TutorialState {
     data object HIGHLIGHT_MENU : TutorialState
 }
 
+fun TutorialState.isLaterThan(otherState: TutorialState): Boolean {
+    val thisInd = TutorialMap.map.entries.firstOrNull { it.value == this }?.key ?: -1
+    val otherInd = TutorialMap.map.entries.firstOrNull { it.value == otherState }?.key ?: -1
+
+    return thisInd > otherInd
+}
+
+fun TutorialState.isEqualOrLaterThan(otherState: TutorialState): Boolean {
+    val thisInd = TutorialMap.map.entries.firstOrNull { it.value == this }?.key ?: -1
+    val otherInd = TutorialMap.map.entries.firstOrNull { it.value == otherState }?.key ?: -1
+
+    return thisInd >= otherInd
+}
+
 object TutorialMap {
     val map: Map<Int, TutorialState> = mapOf(
         -1 to TutorialState.OFF,

@@ -167,6 +167,8 @@
     <string name="weeks">weeks</string>
     <string name="months">months</string>
     <string name="error">error</string>
+    <string name="error_title">error</string>
+    <string name="error_text">This should not have happened..</string>
     <string name="every_singular">every</string>
     <string name="every_plural">every</string>
     <string name="first">first</string>
@@ -203,7 +205,7 @@
     <string name="welcome_title">Welcome to IndexCards!</string>
     <string name="welcome_text">This tutorial will show you how to use the app.</string>
     <string name="add_box_intro_title">Adding a new box</string>
-    <string name="add_box_intro_text">Click the \'+\' to add a new box.</string>
+    <string name="add_box_intro_text">Click the \'+\' in the right lower corner to add a new box.</string>
     <string name="new_box_title">Great job!</string>
     <string name="new_box_text">Click the box to see its contents.</string>
     <string name="add_card_intro_title">It is quite empty here</string>

@@ -28,6 +28,8 @@ import com.example.indexcards.ui.elements.RemindersSwitch
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.TopicField
 import com.example.indexcards.utils.home.TutorialState
+import com.example.indexcards.utils.home.isEqualOrLaterThan
+import com.example.indexcards.utils.home.isLaterThan
 import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.state.BoxState
 import com.example.indexcards.utils.state.emptyBox
@@ -57,7 +59,7 @@ fun AddBoxDialog(
     var validName by remember { mutableStateOf(true) }
     var validTopic by remember { mutableStateOf(true) }
 
-    val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5F)
+    val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2F)
     val highlightModifier = Modifier
         .clip(RoundedCornerShape(6.dp))
         .background(highlightColor)
@@ -87,7 +89,13 @@ fun AddBoxDialog(
                         onValueChange = {
                             validName = true
                             updateUiState(boxUiState.boxDetails.copy(name = it))
-                        }
+                        },
+                        isEnabled =
+                            if (tutorial) {
+                                tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_NAME)
+                            } else {
+                                true
+                            },
                     )
                 }
 
@@ -101,22 +109,38 @@ fun AddBoxDialog(
                             onValueChange = {
                                 validTopic = true
                                 updateUiState(boxUiState.boxDetails.copy(topic = it))
-                            }
+                            },
+                            isEnabled =
+                                if (tutorial) {
+                                    tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC)
+                                } else {
+                                    true
+                                },
                         )
                     } else {
+                        val dropDownMenuIsEnabled =
+                            if (tutorial) {
+                                tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC)
+                            } else {
+                                true
+                            }
+
                         LanguageDropDownMenu(
                             modifier = Modifier,
                             boxUiState = boxUiState,
                             expanded = expanded,
                             isError = !validTopic,
                             changeExpanded = {
-                                expanded = !expanded
-                                collapseDialog = false
+                                if (dropDownMenuIsEnabled) {
+                                    expanded = !expanded
+                                    collapseDialog = false
+                                }
                             },
                             onValueChange = {
                                 validTopic = true
                                 updateUiState(boxUiState.boxDetails.copy(topic = it))
                             },
+                            isEnabled = dropDownMenuIsEnabled,
                         )
                     }
                 }
@@ -125,10 +149,24 @@ fun AddBoxDialog(
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_CHECK_BOX) highlightModifier else Modifier,
                 ) {
-                    IsLanguageCheckBox(modifier = modifier, isLanguage = isLanguage) {
-                        updateUiState(boxUiState.boxDetails.copy(topic = ""))
-                        isLanguage = !isLanguage
-                    }
+                    val checkBoxIsEnabled =
+                        if (tutorial) {
+                            tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_CHECK_BOX)
+                        } else {
+                            true
+                        }
+
+                    IsLanguageCheckBox(
+                        modifier = modifier,
+                        isLanguage = isLanguage,
+                        isEnabled = checkBoxIsEnabled,
+                        changeIsLanguage = {
+                            if (checkBoxIsEnabled) {
+                                updateUiState(boxUiState.boxDetails.copy(topic = ""))
+                                isLanguage = !isLanguage
+                            }
+                        }
+                    )
                 }
 
                 Box(
@@ -136,7 +174,13 @@ fun AddBoxDialog(
                 ) {
                     DescriptionField(
                         boxUiState = boxUiState,
-                        onValueChange = { updateUiState(boxUiState.boxDetails.copy(description = it)) }
+                        onValueChange = { updateUiState(boxUiState.boxDetails.copy(description = it)) },
+                        isEnabled =
+                            if (tutorial) {
+                                tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_DESCRIPTION)
+                            } else {
+                                true
+                            }
                     )
                 }
 
@@ -145,31 +189,51 @@ fun AddBoxDialog(
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_REMINDER) highlightModifier else Modifier,
                 ) {
+                    val switchEnabled =
+                        if (tutorial) {
+                            tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_REMINDER)
+                        } else {
+                            true
+                        }
                     RemindersSwitch(
                         modifier = modifier,
-                        enabled = (reminders && hasNotificationPermission),
-                        onCheckedChange = { updateUiState(boxUiState.boxDetails.copy(reminders = !reminders)) },
+                        checked = (reminders && hasNotificationPermission),
+                        onCheckedChange = {
+                            if (switchEnabled) {
+                                updateUiState(boxUiState.boxDetails.copy(reminders = !reminders))
+                            }
+                        },
                         hasNotificationPermission = hasNotificationPermission,
-                        requestNotificationPermission = requestNotificationPermission
+                        requestNotificationPermission = requestNotificationPermission,
+                        isEnabled = switchEnabled,
                     )
                 }
             }
         },
 
         confirmButton = {
+            val saveButtonEnabled =
+                if (tutorial) {
+                    tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE)
+                } else {
+                    true
+                }
             Box(
                 modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE) highlightModifier else Modifier,
             ) {
                 TextButton(
+                    enabled = saveButtonEnabled,
                     onClick = {
-                        if (boxUiState.isValid) {
-                            onSave()
-                        } else {
-                            if (!boxUiState.validName) {
-                                validName = false
-                            }
-                            if (!boxUiState.validTopic) {
-                                validTopic = false
+                        if (saveButtonEnabled) {
+                            if (boxUiState.isValid) {
+                                onSave()
+                            } else {
+                                if (!boxUiState.validName) {
+                                    validName = false
+                                }
+                                if (!boxUiState.validTopic) {
+                                    validTopic = false
+                                }
                             }
                         }
                     }

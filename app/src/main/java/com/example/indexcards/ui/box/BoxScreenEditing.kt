@@ -153,7 +153,7 @@ fun BoxScreenEditing(
 
             RemindersSwitch(
                 modifier = modifier,
-                enabled = (remindersEnabled && hasNotificationPermission),
+                checked = (remindersEnabled && hasNotificationPermission),
                 onCheckedChange = {
                     if (!hasNotificationPermission) {
                         val success = requestNotificationPermission()

@@ -168,6 +168,8 @@
     <string name="weeks">Wochen</string>
     <string name="months">Monate</string>
     <string name="error">Fehler</string>
+    <string name="error_title">Fehler</string>
+    <string name="error_text">Das hätte nicht passieren sollen..</string>
     <string name="every_singular">Jede(n)</string>
     <string name="every_plural">Alle</string>
     <string name="first">erstes</string>
@@ -204,7 +206,7 @@
     <string name="welcome_title">Willkommen zu KarteiKarten!</string>
     <string name="welcome_text">Diese Einleitung zeigt Dir wie man diese Anwendung benutzt.</string>
     <string name="add_box_intro_title">Einen neuen Karteikasten hinzufügen</string>
-    <string name="add_box_intro_text">Tippe auf \'+\', um einen neuen Karteikasten zu erstellen.</string>
+    <string name="add_box_intro_text">Tippe auf das \'+\' rechts unten, um einen neuen Karteikasten zu erstellen.</string>
     <string name="new_box_title">Gut gemacht!</string>
     <string name="new_box_text">Tippe auf den Karteikasten, um seine Inhalte zu sehen.</string>
     <string name="add_card_intro_title">So leer hier</string>

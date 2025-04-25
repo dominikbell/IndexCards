@@ -178,6 +178,7 @@ fun NameField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -186,7 +187,8 @@ fun NameField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.name) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-        isError = isError
+        isError = isError,
+        enabled = isEnabled,
     )
 }
 
@@ -203,6 +205,7 @@ fun NameFieldPreview() {
 fun DescriptionField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -211,6 +214,7 @@ fun DescriptionField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.description)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -219,6 +223,7 @@ fun TopicField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -234,8 +239,9 @@ fun TopicField(
 @Composable
 fun RemindersSwitch(
     modifier: Modifier = Modifier,
-    enabled: Boolean = false,
+    checked: Boolean = false,
     hasNotificationPermission: Boolean = false,
+    isEnabled: Boolean = true,
     onCheckedChange: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false }
 ) {
@@ -261,8 +267,9 @@ fun RemindersSwitch(
         Text(text = stringResource(id = R.string.reminders))
 
         Switch(
-            checked = enabled,
-            onCheckedChange = { onClick() }
+            checked = checked,
+            onCheckedChange = { onClick() },
+            enabled = isEnabled,
         )
     }
 }
@@ -277,6 +284,7 @@ fun RemindersSwitchPreview() {
 fun IsLanguageCheckBox(
     modifier: Modifier = Modifier,
     isLanguage: Boolean,
+    isEnabled: Boolean = true,
     changeIsLanguage: () -> Unit = {},
 ) {
     Row(
@@ -285,13 +293,18 @@ fun IsLanguageCheckBox(
             .selectable(
                 selected = isLanguage,
                 role = Role.RadioButton,
-                onClick = { changeIsLanguage() }
+                onClick = {
+                    if (isEnabled) {
+                        changeIsLanguage()
+                    }
+                }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = isLanguage,
-            onCheckedChange = { changeIsLanguage() }
+            onCheckedChange = { changeIsLanguage() },
+            enabled = isEnabled,
         )
         Text(
             modifier = modifier.padding(start = 6.dp),

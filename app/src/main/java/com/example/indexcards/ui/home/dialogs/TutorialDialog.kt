@@ -3,13 +3,10 @@ package com.example.indexcards.ui.home.dialogs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,12 +22,13 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.utils.home.TutorialState
 
+
 @Composable
 fun TutorialDialog(
     modifier: Modifier = Modifier,
     tutorialState: TutorialState,
-    nextStep: () -> Unit,
-    stopTutorial: () -> Unit,
+    nextStep: () -> Unit = {},
+    stopTutorial: () -> Unit = {},
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -42,7 +40,6 @@ fun TutorialDialog(
         TutorialState.ADD_CARD_INTRO -> stringResource(id = R.string.add_card_intro_title)
         else -> ""
     }
-
 
     Surface(
         modifier = modifier
@@ -86,10 +83,10 @@ fun TutorialDialog(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 TextButton(
-                    modifier = Modifier.padding(end = 8.dp),
+                    modifier = Modifier,
                     onClick = stopTutorial
                 ) {
                     Text(text = stringResource(id = R.string.end_tutorial))
@@ -97,7 +94,7 @@ fun TutorialDialog(
 
                 if (tutorialState == TutorialState.WELCOME) {
                     TextButton(
-                        modifier = Modifier.weight(1F),
+                        modifier = Modifier,
                         onClick = nextStep
                     ) {
                         Text(text = stringResource(id = R.string.next))
@@ -113,8 +110,6 @@ fun TutorialDialog(
 fun TutorialDialogWelcomePreview() {
     TutorialDialog(
         tutorialState = TutorialState.WELCOME,
-        nextStep = {},
-        stopTutorial = {},
     )
 }
 
@@ -123,7 +118,5 @@ fun TutorialDialogWelcomePreview() {
 fun TutorialDialogAddBoxPreview() {
     TutorialDialog(
         tutorialState = TutorialState.ADD_BOX_INTRO,
-        nextStep = {},
-        stopTutorial = {},
     )
 }

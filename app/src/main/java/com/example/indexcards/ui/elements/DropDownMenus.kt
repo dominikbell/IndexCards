@@ -1,6 +1,5 @@
 package com.example.indexcards.ui.elements
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,11 +25,8 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,7 +47,6 @@ import com.example.indexcards.utils.state.getImageId
 import com.example.indexcards.utils.state.toBox
 import com.example.indexcards.utils.state.toBoxDetails
 import com.example.indexcards.utils.state.toCategoryDetails
-import kotlin.math.exp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +56,7 @@ fun LanguageDropDownMenu(
     boxUiState: BoxState,
     expanded: Boolean,
     isError: Boolean,
+    isEnabled: Boolean = true,
     changeExpanded: () -> Unit = {},
     onValueChange: (String) -> Unit = {},
 ) {
@@ -80,7 +76,8 @@ fun LanguageDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            isError = isError
+            isError = isError,
+            enabled = isEnabled,
         )
         ExposedDropdownMenu(
             expanded = expanded,

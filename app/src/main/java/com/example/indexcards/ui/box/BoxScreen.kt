@@ -46,7 +46,6 @@ import com.example.indexcards.ui.box.dialogs.DeleteCardsDialog
 import com.example.indexcards.ui.box.dialogs.NoCardsDialog
 import com.example.indexcards.ui.box.dialogs.TagDialog
 import com.example.indexcards.ui.box.dialogs.TagsToCardsDialog
-import com.example.indexcards.ui.home.Tutorial
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
@@ -229,7 +228,7 @@ fun BoxScreen(
             reminderIntervals = reminderIntervals,
             level = level,
         )
-        scheduleNotification(level, boxUiState.boxDetails.name, time, period)
+        scheduleNotification(level, boxWithTags.box.name, time, period)
     }
 
     fun setAllReminders() {
@@ -568,15 +567,6 @@ fun BoxScreen(
                 )
             }
         }
-    }
-
-    if (tutorialGiven) {
-        Tutorial(
-            modifier = modifier,
-            tutorialState = tutorialState,
-            nextStep = { tutorialStep += 1 },
-            stopTutorial = { endTutorial() },
-        )
     }
 
     if (cardDialog) {

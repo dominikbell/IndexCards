@@ -4,18 +4,28 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Merge
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,9 +34,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +58,7 @@ import com.example.indexcards.ui.home.dialogs.LoadingDialog
 import com.example.indexcards.ui.home.dialogs.MergeBoxesDialog
 import com.example.indexcards.ui.home.dialogs.ReminderIntervalsDialog
 import com.example.indexcards.ui.home.dialogs.ReminderTimeDialog
+import com.example.indexcards.ui.home.dialogs.TutorialDialog
 import com.example.indexcards.ui.home.dialogs.UserNameDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenSorting
@@ -58,6 +72,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -234,6 +249,26 @@ fun HomeScreen(
                 },
                 endTutorial = { endTutorial() }
             )
+
+            when (tutorialState) {
+                in listOf(
+                    TutorialState.WELCOME,
+                    TutorialState.ADD_BOX_INTRO,
+                ) -> {
+                    Box(
+                        modifier = modifier
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp)
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = null,
+                                indication = null,
+                                onClick = {})
+                            .background(color = Color.Black.copy(alpha = 0.6F)),
+                    )
+                }
+
+                else -> {}
+            }
         },
 
         floatingActionButton = {
@@ -269,33 +304,43 @@ fun HomeScreen(
                             }
                         }
                     }
-                } else /** Adding a new box */ {
-                    val boxModifier =
-                        if (tutorial && tutorialState == TutorialState.ADD_BOX_INTRO) {
-                            Modifier
-                                .clip(FloatingActionButtonDefaults.shape)
-                                .background(color = MaterialTheme.colorScheme.primary)
-                                .padding(6.dp)
-                        } else {
-                            Modifier
-                        }
-                    Box(
-                        modifier = boxModifier
+                } else
+                /** Adding a new box */
+                {
+                    FloatingActionButton(
+                        modifier = Modifier,
+                        onClick = {
+                            if (tutorial) {
+                                tutorialStep += 1
+                            }
+                            homeScreenViewModel.resetCurrentBox()
+                            addBoxDialog = true
+                        },
                     ) {
-                        FloatingActionButton(
-                            modifier = modifier,
-                            onClick = {
-                                if (tutorial) {
-                                    tutorialStep += 1
-                                }
-                                homeScreenViewModel.resetCurrentBox()
-                                addBoxDialog = true
-                            },
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "Add")
-                        }
+                        Icon(Icons.Default.Add, contentDescription = "Add")
                     }
                 }
+            }
+
+            when (tutorialState) {
+                in listOf(
+                    TutorialState.WELCOME,
+                ) -> {
+                    FloatingActionButton(
+                        modifier = Modifier,
+                        containerColor = Color.Black.copy(alpha = 0.6F),
+                        contentColor = Color.Transparent,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 0.dp,
+                            pressedElevation = 0.dp,
+                            focusedElevation = 0.dp,
+                            hoveredElevation = 0.dp,
+                        ),
+                        onClick = {},
+                    ) {}
+                }
+
+                else -> {}
             }
         }
     ) { innerPadding ->
@@ -322,6 +367,26 @@ fun HomeScreen(
                             }
                     },
                 )
+
+                when (tutorialState) {
+                    in listOf(
+                        TutorialState.WELCOME,
+                        TutorialState.ADD_BOX_INTRO,
+                    ) -> {
+                        Box(
+                            modifier = modifier
+                                .padding(innerPadding)
+                                .fillMaxSize()
+                                .clickable(
+                                    interactionSource = null,
+                                    indication = null,
+                                    onClick = {})
+                                .background(color = Color.Black.copy(alpha = 0.6F)),
+                        )
+                    }
+
+                    else -> {}
+                }
             }
 
             HomeScreenState.SETTINGS -> {
@@ -360,12 +425,17 @@ fun HomeScreen(
     }
 
     if (tutorial) {
-        Tutorial(
-            modifier = modifier,
-            tutorialState = tutorialState,
-            nextStep = { tutorialStep += 1 },
-            stopTutorial = { endTutorial() },
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            TutorialDialog(
+                tutorialState = tutorialState,
+                nextStep = { tutorialStep += 1 },
+                stopTutorial = { endTutorial() },
+            )
+        }
     }
 
     if (addBoxDialog) {
