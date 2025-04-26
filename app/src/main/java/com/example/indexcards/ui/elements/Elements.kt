@@ -100,6 +100,7 @@ fun WordField(
     cardUiState: CardState,
     isLanguage: Boolean,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     val label = if (isLanguage) {
@@ -113,6 +114,7 @@ fun WordField(
         label = { Text(text = "$label*") },
         isError = isError,
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -122,6 +124,7 @@ fun MeaningField(
     cardUiState: CardState,
     isLanguage: Boolean,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     val label =
@@ -137,6 +140,7 @@ fun MeaningField(
         label = { Text(text = "$label*") },
         isError = isError,
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -144,6 +148,7 @@ fun MeaningField(
 fun NotesField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -151,6 +156,7 @@ fun NotesField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.notes)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 

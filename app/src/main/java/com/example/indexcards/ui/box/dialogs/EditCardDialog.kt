@@ -53,6 +53,7 @@ import com.example.indexcards.ui.elements.WordField
 import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.home.TutorialState
+import com.example.indexcards.utils.home.isEqualOrLaterThan
 import com.example.indexcards.utils.state.CardDetails
 import com.example.indexcards.utils.state.CardState
 import com.example.indexcards.utils.state.UiCardWithTags
@@ -557,10 +558,11 @@ fun CardDialogBody(
                         cardUiState = cardUiState,
                         isError = !validWord,
                         isLanguage = isLanguageBox,
+                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_WORD)),
                         onValueChange = {
                             validWord = true
                             updateUiState(cardUiState.cardDetails.copy(word = it))
-                        }
+                        },
                     )
                 }
 
@@ -576,13 +578,14 @@ fun CardDialogBody(
                             updateUiState(cardUiState.cardDetails.copy(meaning = it))
                         },
                         isLanguage = isLanguageBox,
+                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_MEANING)),
                     )
                 }
 
                 RequiredFieldsText()
 
                 /** Category DropDownMenu */
-                if (tutorial or boxWithCategories.box.categories) {
+                if (tutorial || boxWithCategories.box.categories) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Box(
@@ -590,7 +593,7 @@ fun CardDialogBody(
                     ) {
                         CategoriesDropDownMenu(
                             currentCategory = boxWithCategories.categoryList
-                                .find { it.categoryId == cardUiState.cardDetails.categoryId }
+                                .firstOrNull { it.categoryId == cardUiState.cardDetails.categoryId }
                                 ?: emptyCategory,
                             boxWithCategories = boxWithCategories,
                             categoryUiState = categoryUiState,
@@ -616,7 +619,8 @@ fun CardDialogBody(
                                     resetCategoryUiState()
                                 }
                                 addCategory = it
-                            }
+                            },
+                            isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_CATEGORY))
                         )
                     }
                 }
@@ -743,26 +747,32 @@ fun CardDialogBody(
                 ) {
                     NotesField(
                         cardUiState = cardUiState,
-                        onValueChange = { updateUiState(cardUiState.cardDetails.copy(notes = it)) }
+                        onValueChange = { updateUiState(cardUiState.cardDetails.copy(notes = it)) },
+                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_NOTES)),
                     )
                 }
             }
         },
 
         confirmButton = {
+            val saveButtonEnabled =
+                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
             Box(
                 modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE) highlightModifier else Modifier,
             ) {
                 TextButton(
+                    enabled = saveButtonEnabled,
                     onClick = {
-                        if (cardUiState.isValid) {
-                            onClickSave()
-                        } else {
-                            if (!cardUiState.validWord) {
-                                validWord = false
-                            }
-                            if (!cardUiState.validMeaning) {
-                                validMeaning = false
+                        if (saveButtonEnabled) {
+                            if (cardUiState.isValid) {
+                                onClickSave()
+                            } else {
+                                if (!cardUiState.validWord) {
+                                    validWord = false
+                                }
+                                if (!cardUiState.validMeaning) {
+                                    validMeaning = false
+                                }
                             }
                         }
                     }
@@ -773,13 +783,19 @@ fun CardDialogBody(
         },
 
         dismissButton = {
+            val cancelButtonEnabled =
+                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
+
             Row {
                 TextButton(
+                    enabled = cancelButtonEnabled,
                     onClick = {
-                        if (tutorial) {
-                            endTutorial()
+                        if (cancelButtonEnabled) {
+                            if (tutorial) {
+                                endTutorial()
+                            }
+                            onCancel()
                         }
-                        onCancel()
                     }
                 ) {
                     Text(text = stringResource(R.string.cancel))
@@ -849,6 +865,14 @@ fun CardDialogBody(
                     Text(text = stringResource(id = R.string.next))
                 }
             }
-        }
+        },
+
+        tutorialDismissButton = {
+            TextButton(
+                onClick = endTutorial
+            ) {
+                Text(text = stringResource(R.string.end_tutorial))
+            }
+        },
     )
 }

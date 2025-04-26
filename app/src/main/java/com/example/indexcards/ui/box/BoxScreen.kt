@@ -3,20 +3,27 @@ package com.example.indexcards.ui.box
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,8 +33,10 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -46,6 +55,7 @@ import com.example.indexcards.ui.box.dialogs.DeleteCardsDialog
 import com.example.indexcards.ui.box.dialogs.NoCardsDialog
 import com.example.indexcards.ui.box.dialogs.TagDialog
 import com.example.indexcards.ui.box.dialogs.TagsToCardsDialog
+import com.example.indexcards.ui.home.dialogs.TutorialDialog
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.box.BoxScreenSorting
 import com.example.indexcards.utils.box.BoxScreenState
@@ -66,6 +76,7 @@ import java.time.ZonedDateTime
 import java.util.Locale
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxScreen(
     modifier: Modifier = Modifier,
@@ -271,7 +282,7 @@ fun BoxScreen(
 
                     boxScreenViewModel.setLastTrainedTime(levelSelected, currentTime)
                 } else {
-                /** If no level had been selected (e.g. when training just like this) */
+                    /** If no level had been selected (e.g. when training just like this) */
                     for (level in shuffledCardList.map { it.card.level }.toSet()) {
                         val nextLevel = level + 1
                         val previousLevel = level - 1
@@ -398,6 +409,25 @@ fun BoxScreen(
                     addCardsToCategoryDialog = true
                 },
             )
+
+            when (tutorialState) {
+                in listOf(
+                    TutorialState.ADD_CARD_INTRO,
+                ) -> {
+                    Box(
+                        modifier = modifier
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp)
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = null,
+                                indication = null,
+                                onClick = {})
+                            .background(color = Color.Black.copy(alpha = 0.6F)),
+                    )
+                }
+
+                else -> {}
+            }
         },
 
         floatingActionButton = {
@@ -424,31 +454,18 @@ fun BoxScreen(
                                 Spacer(modifier = Modifier.size(10.dp))
                             }
 
-                            val boxModifier =
-                                if (tutorial && tutorialState == TutorialState.ADD_CARD_INTRO) {
-                                    Modifier
-                                        .clip(FloatingActionButtonDefaults.shape)
-                                        .background(color = MaterialTheme.colorScheme.primary)
-                                        .padding(6.dp)
-                                } else {
-                                    Modifier
-                                }
-                            Box(
-                                modifier = boxModifier
-                            ) {
-                                FloatingActionButton(
-                                    onClick = {
-                                        if (tutorial) {
-                                            tutorialStep += 1
-                                        }
-                                        boxScreenViewModel.setBiggestCardId()
-                                        isSelecting = false
-                                        selectedCards = listOf()
-                                        newCardDialog = true
+                            FloatingActionButton(
+                                onClick = {
+                                    if (tutorial) {
+                                        tutorialStep += 1
                                     }
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add")
+                                    boxScreenViewModel.setBiggestCardId()
+                                    isSelecting = false
+                                    selectedCards = listOf()
+                                    newCardDialog = true
                                 }
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = "Add")
                             }
                         }
                     } else {
@@ -530,6 +547,25 @@ fun BoxScreen(
                         }
                     },
                 )
+
+                when (tutorialState) {
+                    in listOf(
+                        TutorialState.ADD_CARD_INTRO,
+                    ) -> {
+                        Box(
+                            modifier = modifier
+                                .padding(innerPadding)
+                                .fillMaxSize()
+                                .clickable(
+                                    interactionSource = null,
+                                    indication = null,
+                                    onClick = {})
+                                .background(color = Color.Black.copy(alpha = 0.6F)),
+                        )
+                    }
+
+                    else -> {}
+                }
             }
 
             BoxScreenState.EDIT -> {
@@ -619,7 +655,11 @@ fun BoxScreen(
             showNewTagDialog = { showNewTagDialog() },
             showEditTagDialog = { showEditTagDialog(it) },
             nextTutorialStep = { tutorialStep += 1 },
-            endTutorial = { endTutorial() },
+            endTutorial = {
+                newCardDialog = false
+                endTutorial()
+                boxScreenViewModel.resetCategoryUiState()
+            },
             updateCategoryUiState = { boxScreenViewModel.updateCategoryUiState(it) },
             resetCategoryUiState = { boxScreenViewModel.resetCategoryUiState() },
             saveCategory = { boxScreenViewModel.saveCategory() },
@@ -789,6 +829,20 @@ fun BoxScreen(
             resetCategoryUiState = { boxScreenViewModel.resetCategoryUiState() },
             saveCategory = { boxScreenViewModel.saveCategory() },
         )
+    }
+
+    if (tutorial) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            TutorialDialog(
+                tutorialState = tutorialState,
+                nextStep = { tutorialStep += 1 },
+                stopTutorial = { endTutorial() },
+            )
+        }
     }
 
     if (deleteBoxDialog) {

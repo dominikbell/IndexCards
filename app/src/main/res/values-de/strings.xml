@@ -210,7 +210,7 @@
     <string name="new_box_title">Gut gemacht!</string>
     <string name="new_box_text">Tippe auf den Karteikasten, um seine Inhalte zu sehen.</string>
     <string name="add_card_intro_title">So leer hier</string>
-    <string name="add_card_intro_text">Erstelle eine neue Karteikarte. Tippe dazu auf \'+\', um das Fenster dafür zu öffnen.</string>
+    <string name="add_card_intro_text">Erstelle eine neue Karteikarte. Tippe dazu auf das \'+\' rechts unten, um das Fenster dafür zu öffnen.</string>
 
     <!-- AddBoxDialog Tutorial -->
     <string name="add_box_dialog">In diesem Fenster kannst Du alle Details Deines Karteikastens hinzufügen.</string>

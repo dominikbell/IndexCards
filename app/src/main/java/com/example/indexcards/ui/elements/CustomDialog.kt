@@ -140,14 +140,10 @@ fun CustomDialog(
                         ) { tutorialText() }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
+                            horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             tutorialDismissButton()
-                            Spacer(modifier = Modifier.width(12.dp))
                             tutorialConfirmButton()
-                            if (tutorialConfirmButton != {}) {
-                                Spacer(modifier = Modifier.width(12.dp))
-                            }
                         }
                     }
                 }

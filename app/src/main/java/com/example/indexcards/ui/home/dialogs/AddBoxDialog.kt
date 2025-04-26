@@ -29,7 +29,6 @@ import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.TopicField
 import com.example.indexcards.utils.home.TutorialState
 import com.example.indexcards.utils.home.isEqualOrLaterThan
-import com.example.indexcards.utils.home.isLaterThan
 import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.state.BoxState
 import com.example.indexcards.utils.state.emptyBox
@@ -91,11 +90,7 @@ fun AddBoxDialog(
                             updateUiState(boxUiState.boxDetails.copy(name = it))
                         },
                         isEnabled =
-                            if (tutorial) {
-                                tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_NAME)
-                            } else {
-                                true
-                            },
+                            (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_NAME)),
                     )
                 }
 
@@ -110,20 +105,11 @@ fun AddBoxDialog(
                                 validTopic = true
                                 updateUiState(boxUiState.boxDetails.copy(topic = it))
                             },
-                            isEnabled =
-                                if (tutorial) {
-                                    tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC)
-                                } else {
-                                    true
-                                },
+                            isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC)),
                         )
                     } else {
                         val dropDownMenuIsEnabled =
-                            if (tutorial) {
-                                tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC)
-                            } else {
-                                true
-                            }
+                            (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC))
 
                         LanguageDropDownMenu(
                             modifier = Modifier,
@@ -150,11 +136,7 @@ fun AddBoxDialog(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_CHECK_BOX) highlightModifier else Modifier,
                 ) {
                     val checkBoxIsEnabled =
-                        if (tutorial) {
-                            tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_CHECK_BOX)
-                        } else {
-                            true
-                        }
+                        (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_CHECK_BOX))
 
                     IsLanguageCheckBox(
                         modifier = modifier,
@@ -175,12 +157,7 @@ fun AddBoxDialog(
                     DescriptionField(
                         boxUiState = boxUiState,
                         onValueChange = { updateUiState(boxUiState.boxDetails.copy(description = it)) },
-                        isEnabled =
-                            if (tutorial) {
-                                tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_DESCRIPTION)
-                            } else {
-                                true
-                            }
+                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_DESCRIPTION)),
                     )
                 }
 
@@ -190,11 +167,8 @@ fun AddBoxDialog(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_REMINDER) highlightModifier else Modifier,
                 ) {
                     val switchEnabled =
-                        if (tutorial) {
-                            tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_REMINDER)
-                        } else {
-                            true
-                        }
+                        (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_REMINDER))
+
                     RemindersSwitch(
                         modifier = modifier,
                         checked = (reminders && hasNotificationPermission),
@@ -213,11 +187,7 @@ fun AddBoxDialog(
 
         confirmButton = {
             val saveButtonEnabled =
-                if (tutorial) {
-                    tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE)
-                } else {
-                    true
-                }
+                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
             Box(
                 modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE) highlightModifier else Modifier,
             ) {
@@ -244,7 +214,11 @@ fun AddBoxDialog(
         },
 
         dismissButton = {
+            val cancelButtonEnabled =
+                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
+
             TextButton(
+                enabled = cancelButtonEnabled,
                 onClick = {
                     if (tutorial) {
                         endTutorial()
@@ -299,7 +273,15 @@ fun AddBoxDialog(
                     Text(text = stringResource(id = R.string.next))
                 }
             }
-        }
+        },
+
+        tutorialDismissButton = {
+            TextButton(
+                onClick = endTutorial
+            ) {
+                Text(text = stringResource(R.string.end_tutorial))
+            }
+        },
     )
 }
 

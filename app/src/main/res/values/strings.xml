@@ -201,15 +201,13 @@
     <string name="remind_me_later">Remind me in 1h</string>
 
 
-    <!-- TutorialDialog -->
+    <!-- TutorialDialog on HomeScreen -->
     <string name="welcome_title">Welcome to IndexCards!</string>
     <string name="welcome_text">This tutorial will show you how to use the app.</string>
     <string name="add_box_intro_title">Adding a new box</string>
-    <string name="add_box_intro_text">Click the \'+\' in the right lower corner to add a new box.</string>
+    <string name="add_box_intro_text">Click the \'+\' in the lower right corner to add a new box.</string>
     <string name="new_box_title">Great job!</string>
     <string name="new_box_text">Click the box to see its contents.</string>
-    <string name="add_card_intro_title">It is quite empty here</string>
-    <string name="add_card_intro_text">Let us add a card to this box. Click the \'+\' to open the dialog for that.</string>
 
     <!-- AddBoxDialog Tutorial -->
     <string name="add_box_dialog">In this dialog you can add all important information for your new box.</string>
@@ -218,7 +216,11 @@
     <string name="add_box_dialog_check_box">If your box is not for learning a language, you can disable the check box and type in the topic in the field above.</string>
     <string name="add_box_dialog_description">Here you can add a description for your new box.</string>
     <string name="add_box_dialog_reminder">If you want to receive notifications about training reminders, switch them on here.</string>
-    <string name="add_box_dialog_save">Finally, save the new box you\'ve just created.</string>
+    <string name="add_box_dialog_save">Finally, save the new box that you have just created.</string>
+
+    <!-- TutorialDialog on BoxScreen 1 -->
+    <string name="add_card_intro_title">It is quite empty here</string>
+    <string name="add_card_intro_text">Let us add a card to this box. Click the \'+\' in the lower right corner to open the dialog for that.</string>
 
     <!-- AddCardDialog Tutorial -->
     <string name="add_card_dialog">In this dialog you can add all important information for your new card.</string>
@@ -226,8 +228,8 @@
     <string name="add_card_dialog_meaning">Enter the meaning of the word.</string>
     <string name="add_card_dialog_front">Type what should be on the front of the new card.</string>
     <string name="add_card_dialog_back">Enter what should be on the back side (will be asked in training).</string>
-    <string name="add_card_dialog_category">Here you can choose a category in which this card will appear - we will learn later how to add a new category.</string>
-    <string name="add_card_dialog_tag_list">In this row tags are listed - you can also create a new one with the button on the right.</string>
+    <string name="add_card_dialog_category">Here you can choose a category in which this card will appear. You can open the drop-down menu and add a new category at the bottom.</string>
+    <string name="add_card_dialog_tag_list">In this row tags are listed - go ahead and create a new one with the button on the right.</string>
     <string name="add_card_dialog_memo">Here you can record a voice memo for this card.</string>
     <string name="add_card_dialog_notes">In this field you can write additional notes to this card.</string>
     <string name="add_card_dialog_save">Finally, save the new card you\'ve just created.</string>

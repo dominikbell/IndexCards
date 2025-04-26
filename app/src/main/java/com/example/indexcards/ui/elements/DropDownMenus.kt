@@ -128,6 +128,7 @@ fun CategoriesDropDownMenu(
     categoryUiState: CategoryState,
     expanded: Boolean,
     addCategory: Boolean,
+    isEnabled: Boolean = true,
     changeExpanded: () -> Unit = {},
     onSelectCategory: (Category) -> Unit = {},
     updateCategoryUiState: (CategoryDetails) -> Unit = {},
@@ -153,13 +154,12 @@ fun CategoriesDropDownMenu(
                     updateCategoryUiState(
                         categoryUiState.categoryDetails.copy(name = it)
                     )
-                }
+                },
             )
             IconButton(
                 onClick = {
                     resetCategoryUiState()
                     updateAddCategory(false)
-//                    changeExpanded()
                 }
             ) {
                 Icon(
@@ -171,7 +171,6 @@ fun CategoriesDropDownMenu(
                 onClick = {
                     saveCategory()
                     updateAddCategory(false)
-//                    changeExpanded()
                 }
             ) {
                 Icon(
@@ -202,6 +201,7 @@ fun CategoriesDropDownMenu(
                 label = { Text(text = stringResource(R.string.category)) },
                 onValueChange = { },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                enabled = isEnabled,
             )
             ExposedDropdownMenu(
                 expanded = expanded,

@@ -254,6 +254,7 @@ fun HomeScreen(
                 in listOf(
                     TutorialState.WELCOME,
                     TutorialState.ADD_BOX_INTRO,
+                    TutorialState.NEW_BOX,
                 ) -> {
                     Box(
                         modifier = modifier
@@ -322,25 +323,19 @@ fun HomeScreen(
                 }
             }
 
-            when (tutorialState) {
-                in listOf(
-                    TutorialState.WELCOME,
-                ) -> {
-                    FloatingActionButton(
-                        modifier = Modifier,
-                        containerColor = Color.Black.copy(alpha = 0.6F),
-                        contentColor = Color.Transparent,
-                        elevation = FloatingActionButtonDefaults.elevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 0.dp,
-                            focusedElevation = 0.dp,
-                            hoveredElevation = 0.dp,
-                        ),
-                        onClick = {},
-                    ) {}
-                }
-
-                else -> {}
+            if (tutorial && tutorialState in listOf(TutorialState.WELCOME, TutorialState.NEW_BOX)) {
+                FloatingActionButton(
+                    modifier = Modifier,
+                    containerColor = Color.Black.copy(alpha = 0.6F),
+                    contentColor = Color.Transparent,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp,
+                        focusedElevation = 0.dp,
+                        hoveredElevation = 0.dp,
+                    ),
+                    onClick = {},
+                ) {}
             }
         }
     ) { innerPadding ->
@@ -383,6 +378,21 @@ fun HomeScreen(
                                     onClick = {})
                                 .background(color = Color.Black.copy(alpha = 0.6F)),
                         )
+                    }
+
+                    is TutorialState.NEW_BOX -> {
+                        Box(
+                            modifier = modifier
+                                .padding(innerPadding)
+                                .padding(top = 90.dp)
+                                .fillMaxSize()
+                                .clickable(
+                                    interactionSource = null,
+                                    indication = null,
+                                    onClick = {})
+                                .background(color = Color.Black.copy(alpha = 0.6F)),
+                        )
+
                     }
 
                     else -> {}
@@ -461,7 +471,12 @@ fun HomeScreen(
                 }
             },
             updateUiState = { homeScreenViewModel.updateBoxUiState(it) },
-            nextTutorialStep = { tutorialStep += 1 }
+            nextTutorialStep = { tutorialStep += 1 },
+            endTutorial = {
+                addBoxDialog = false
+                endTutorial()
+                homeScreenViewModel.resetBoxUiState()
+            }
         )
     }
 
