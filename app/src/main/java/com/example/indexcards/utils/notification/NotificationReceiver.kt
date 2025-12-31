@@ -11,7 +11,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val boxName = intent.getStringExtra("boxName") ?: ""
         val service = NotificationService(context)
 
-        if (intent.getIntExtra("id", -1) == NotificationRequest.REMIND_LATER) {
+        if (intent.getIntExtra("id", -1) == NotificationRequest.MAKE_REMINDER_LATER) {
             service.closeNotification(
                 boxId = boxId,
                 level = level,

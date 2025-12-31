@@ -1,16 +1,14 @@
 package com.example.indexcards.data;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
-import androidx.room.RoomDatabase;
-import androidx.room.RoomOpenHelper;
+import androidx.room.RoomOpenDelegate;
 import androidx.room.migration.AutoMigrationSpec;
 import androidx.room.migration.Migration;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.SQLite;
+import androidx.sqlite.SQLiteConnection;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -22,76 +20,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked", "deprecation", "removal"})
 public final class AppDatabase_Impl extends AppDatabase {
   private volatile AppDao _appDao;
 
   @Override
   @NonNull
-  protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(13) {
+  protected RoomOpenDelegate createOpenDelegate() {
+    final RoomOpenDelegate _openDelegate = new RoomOpenDelegate(13, "394b664a3d7eeecac73858766ff54387", "3b076603d6bb2e0f9273d98c8c8fbb11") {
       @Override
-      public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `reminders` INTEGER NOT NULL DEFAULT 0, `categories` INTEGER NOT NULL DEFAULT 0, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `showNumberOfCards` INTEGER NOT NULL DEFAULT 1, `lastTrained1` INTEGER NOT NULL DEFAULT -1, `lastTrained2` INTEGER NOT NULL DEFAULT -1, `lastTrained3` INTEGER NOT NULL DEFAULT -1, `lastTrained4` INTEGER NOT NULL DEFAULT -1, `lastTrained5` INTEGER NOT NULL DEFAULT -1)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Card` (`cardId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL, `meaning` TEXT NOT NULL, `notes` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `level` INTEGER NOT NULL, `boxId` INTEGER NOT NULL, `memoURI` TEXT NOT NULL DEFAULT '', `categoryId` INTEGER NOT NULL DEFAULT -1)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Tag` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `text` TEXT NOT NULL, `color` TEXT NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `Category` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `name` TEXT NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `TagCardCrossRef` (`tagId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, PRIMARY KEY(`tagId`, `cardId`))");
-        db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '394b664a3d7eeecac73858766ff54387')");
+      public void createAllTables(@NonNull final SQLiteConnection connection) {
+        SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Box` (`boxId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `topic` TEXT NOT NULL, `reminders` INTEGER NOT NULL DEFAULT 0, `categories` INTEGER NOT NULL DEFAULT 0, `description` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `showNumberOfCards` INTEGER NOT NULL DEFAULT 1, `lastTrained1` INTEGER NOT NULL DEFAULT -1, `lastTrained2` INTEGER NOT NULL DEFAULT -1, `lastTrained3` INTEGER NOT NULL DEFAULT -1, `lastTrained4` INTEGER NOT NULL DEFAULT -1, `lastTrained5` INTEGER NOT NULL DEFAULT -1)");
+        SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Card` (`cardId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `word` TEXT NOT NULL, `meaning` TEXT NOT NULL, `notes` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `level` INTEGER NOT NULL, `boxId` INTEGER NOT NULL, `memoURI` TEXT NOT NULL DEFAULT '', `categoryId` INTEGER NOT NULL DEFAULT -1)");
+        SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Tag` (`tagId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `text` TEXT NOT NULL, `color` TEXT NOT NULL)");
+        SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `Category` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `boxId` INTEGER NOT NULL, `name` TEXT NOT NULL)");
+        SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS `TagCardCrossRef` (`tagId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, PRIMARY KEY(`tagId`, `cardId`))");
+        SQLite.execSQL(connection, "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
+        SQLite.execSQL(connection, "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '394b664a3d7eeecac73858766ff54387')");
       }
 
       @Override
-      public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS `Box`");
-        db.execSQL("DROP TABLE IF EXISTS `Card`");
-        db.execSQL("DROP TABLE IF EXISTS `Tag`");
-        db.execSQL("DROP TABLE IF EXISTS `Category`");
-        db.execSQL("DROP TABLE IF EXISTS `TagCardCrossRef`");
-        final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
-        if (_callbacks != null) {
-          for (RoomDatabase.Callback _callback : _callbacks) {
-            _callback.onDestructiveMigration(db);
-          }
-        }
+      public void dropAllTables(@NonNull final SQLiteConnection connection) {
+        SQLite.execSQL(connection, "DROP TABLE IF EXISTS `Box`");
+        SQLite.execSQL(connection, "DROP TABLE IF EXISTS `Card`");
+        SQLite.execSQL(connection, "DROP TABLE IF EXISTS `Tag`");
+        SQLite.execSQL(connection, "DROP TABLE IF EXISTS `Category`");
+        SQLite.execSQL(connection, "DROP TABLE IF EXISTS `TagCardCrossRef`");
       }
 
       @Override
-      public void onCreate(@NonNull final SupportSQLiteDatabase db) {
-        final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
-        if (_callbacks != null) {
-          for (RoomDatabase.Callback _callback : _callbacks) {
-            _callback.onCreate(db);
-          }
-        }
+      public void onCreate(@NonNull final SQLiteConnection connection) {
       }
 
       @Override
-      public void onOpen(@NonNull final SupportSQLiteDatabase db) {
-        mDatabase = db;
-        internalInitInvalidationTracker(db);
-        final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
-        if (_callbacks != null) {
-          for (RoomDatabase.Callback _callback : _callbacks) {
-            _callback.onOpen(db);
-          }
-        }
+      public void onOpen(@NonNull final SQLiteConnection connection) {
+        internalInitInvalidationTracker(connection);
       }
 
       @Override
-      public void onPreMigrate(@NonNull final SupportSQLiteDatabase db) {
-        DBUtil.dropFtsSyncTriggers(db);
+      public void onPreMigrate(@NonNull final SQLiteConnection connection) {
+        DBUtil.dropFtsSyncTriggers(connection);
       }
 
       @Override
-      public void onPostMigrate(@NonNull final SupportSQLiteDatabase db) {
+      public void onPostMigrate(@NonNull final SQLiteConnection connection) {
       }
 
       @Override
       @NonNull
-      public RoomOpenHelper.ValidationResult onValidateSchema(
-          @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsBox = new HashMap<String, TableInfo.Column>(13);
+      public RoomOpenDelegate.ValidationResult onValidateSchema(
+          @NonNull final SQLiteConnection connection) {
+        final Map<String, TableInfo.Column> _columnsBox = new HashMap<String, TableInfo.Column>(13);
         _columnsBox.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("topic", new TableInfo.Column("topic", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -105,16 +84,16 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsBox.put("lastTrained3", new TableInfo.Column("lastTrained3", "INTEGER", true, 0, "-1", TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("lastTrained4", new TableInfo.Column("lastTrained4", "INTEGER", true, 0, "-1", TableInfo.CREATED_FROM_ENTITY));
         _columnsBox.put("lastTrained5", new TableInfo.Column("lastTrained5", "INTEGER", true, 0, "-1", TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysBox = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesBox = new HashSet<TableInfo.Index>(0);
+        final Set<TableInfo.ForeignKey> _foreignKeysBox = new HashSet<TableInfo.ForeignKey>(0);
+        final Set<TableInfo.Index> _indicesBox = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoBox = new TableInfo("Box", _columnsBox, _foreignKeysBox, _indicesBox);
-        final TableInfo _existingBox = TableInfo.read(db, "Box");
+        final TableInfo _existingBox = TableInfo.read(connection, "Box");
         if (!_infoBox.equals(_existingBox)) {
-          return new RoomOpenHelper.ValidationResult(false, "Box(com.example.indexcards.data.Box).\n"
+          return new RoomOpenDelegate.ValidationResult(false, "Box(com.example.indexcards.data.Box).\n"
                   + " Expected:\n" + _infoBox + "\n"
                   + " Found:\n" + _existingBox);
         }
-        final HashMap<String, TableInfo.Column> _columnsCard = new HashMap<String, TableInfo.Column>(9);
+        final Map<String, TableInfo.Column> _columnsCard = new HashMap<String, TableInfo.Column>(9);
         _columnsCard.put("cardId", new TableInfo.Column("cardId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCard.put("word", new TableInfo.Column("word", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCard.put("meaning", new TableInfo.Column("meaning", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -124,95 +103,77 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsCard.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCard.put("memoURI", new TableInfo.Column("memoURI", "TEXT", true, 0, "''", TableInfo.CREATED_FROM_ENTITY));
         _columnsCard.put("categoryId", new TableInfo.Column("categoryId", "INTEGER", true, 0, "-1", TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysCard = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesCard = new HashSet<TableInfo.Index>(0);
+        final Set<TableInfo.ForeignKey> _foreignKeysCard = new HashSet<TableInfo.ForeignKey>(0);
+        final Set<TableInfo.Index> _indicesCard = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoCard = new TableInfo("Card", _columnsCard, _foreignKeysCard, _indicesCard);
-        final TableInfo _existingCard = TableInfo.read(db, "Card");
+        final TableInfo _existingCard = TableInfo.read(connection, "Card");
         if (!_infoCard.equals(_existingCard)) {
-          return new RoomOpenHelper.ValidationResult(false, "Card(com.example.indexcards.data.Card).\n"
+          return new RoomOpenDelegate.ValidationResult(false, "Card(com.example.indexcards.data.Card).\n"
                   + " Expected:\n" + _infoCard + "\n"
                   + " Found:\n" + _existingCard);
         }
-        final HashMap<String, TableInfo.Column> _columnsTag = new HashMap<String, TableInfo.Column>(4);
+        final Map<String, TableInfo.Column> _columnsTag = new HashMap<String, TableInfo.Column>(4);
         _columnsTag.put("tagId", new TableInfo.Column("tagId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTag.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTag.put("text", new TableInfo.Column("text", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTag.put("color", new TableInfo.Column("color", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysTag = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesTag = new HashSet<TableInfo.Index>(0);
+        final Set<TableInfo.ForeignKey> _foreignKeysTag = new HashSet<TableInfo.ForeignKey>(0);
+        final Set<TableInfo.Index> _indicesTag = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoTag = new TableInfo("Tag", _columnsTag, _foreignKeysTag, _indicesTag);
-        final TableInfo _existingTag = TableInfo.read(db, "Tag");
+        final TableInfo _existingTag = TableInfo.read(connection, "Tag");
         if (!_infoTag.equals(_existingTag)) {
-          return new RoomOpenHelper.ValidationResult(false, "Tag(com.example.indexcards.data.Tag).\n"
+          return new RoomOpenDelegate.ValidationResult(false, "Tag(com.example.indexcards.data.Tag).\n"
                   + " Expected:\n" + _infoTag + "\n"
                   + " Found:\n" + _existingTag);
         }
-        final HashMap<String, TableInfo.Column> _columnsCategory = new HashMap<String, TableInfo.Column>(3);
+        final Map<String, TableInfo.Column> _columnsCategory = new HashMap<String, TableInfo.Column>(3);
         _columnsCategory.put("categoryId", new TableInfo.Column("categoryId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCategory.put("boxId", new TableInfo.Column("boxId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCategory.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysCategory = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesCategory = new HashSet<TableInfo.Index>(0);
+        final Set<TableInfo.ForeignKey> _foreignKeysCategory = new HashSet<TableInfo.ForeignKey>(0);
+        final Set<TableInfo.Index> _indicesCategory = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoCategory = new TableInfo("Category", _columnsCategory, _foreignKeysCategory, _indicesCategory);
-        final TableInfo _existingCategory = TableInfo.read(db, "Category");
+        final TableInfo _existingCategory = TableInfo.read(connection, "Category");
         if (!_infoCategory.equals(_existingCategory)) {
-          return new RoomOpenHelper.ValidationResult(false, "Category(com.example.indexcards.data.Category).\n"
+          return new RoomOpenDelegate.ValidationResult(false, "Category(com.example.indexcards.data.Category).\n"
                   + " Expected:\n" + _infoCategory + "\n"
                   + " Found:\n" + _existingCategory);
         }
-        final HashMap<String, TableInfo.Column> _columnsTagCardCrossRef = new HashMap<String, TableInfo.Column>(2);
+        final Map<String, TableInfo.Column> _columnsTagCardCrossRef = new HashMap<String, TableInfo.Column>(2);
         _columnsTagCardCrossRef.put("tagId", new TableInfo.Column("tagId", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTagCardCrossRef.put("cardId", new TableInfo.Column("cardId", "INTEGER", true, 2, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysTagCardCrossRef = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesTagCardCrossRef = new HashSet<TableInfo.Index>(0);
+        final Set<TableInfo.ForeignKey> _foreignKeysTagCardCrossRef = new HashSet<TableInfo.ForeignKey>(0);
+        final Set<TableInfo.Index> _indicesTagCardCrossRef = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoTagCardCrossRef = new TableInfo("TagCardCrossRef", _columnsTagCardCrossRef, _foreignKeysTagCardCrossRef, _indicesTagCardCrossRef);
-        final TableInfo _existingTagCardCrossRef = TableInfo.read(db, "TagCardCrossRef");
+        final TableInfo _existingTagCardCrossRef = TableInfo.read(connection, "TagCardCrossRef");
         if (!_infoTagCardCrossRef.equals(_existingTagCardCrossRef)) {
-          return new RoomOpenHelper.ValidationResult(false, "TagCardCrossRef(com.example.indexcards.data.TagCardCrossRef).\n"
+          return new RoomOpenDelegate.ValidationResult(false, "TagCardCrossRef(com.example.indexcards.data.TagCardCrossRef).\n"
                   + " Expected:\n" + _infoTagCardCrossRef + "\n"
                   + " Found:\n" + _existingTagCardCrossRef);
         }
-        return new RoomOpenHelper.ValidationResult(true, null);
+        return new RoomOpenDelegate.ValidationResult(true, null);
       }
-    }, "394b664a3d7eeecac73858766ff54387", "3b076603d6bb2e0f9273d98c8c8fbb11");
-    final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
-    final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
-    return _helper;
+    };
+    return _openDelegate;
   }
 
   @Override
   @NonNull
   protected InvalidationTracker createInvalidationTracker() {
-    final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
-    final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "Box","Card","Tag","Category","TagCardCrossRef");
+    final Map<String, String> _shadowTablesMap = new HashMap<String, String>(0);
+    final Map<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "Box", "Card", "Tag", "Category", "TagCardCrossRef");
   }
 
   @Override
   public void clearAllTables() {
-    super.assertNotMainThread();
-    final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
-    try {
-      super.beginTransaction();
-      _db.execSQL("DELETE FROM `Box`");
-      _db.execSQL("DELETE FROM `Card`");
-      _db.execSQL("DELETE FROM `Tag`");
-      _db.execSQL("DELETE FROM `Category`");
-      _db.execSQL("DELETE FROM `TagCardCrossRef`");
-      super.setTransactionSuccessful();
-    } finally {
-      super.endTransaction();
-      _db.query("PRAGMA wal_checkpoint(FULL)").close();
-      if (!_db.inTransaction()) {
-        _db.execSQL("VACUUM");
-      }
-    }
+    super.performClear(false, "Box", "Card", "Tag", "Category", "TagCardCrossRef");
   }
 
   @Override
   @NonNull
   protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-    final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
+    final Map<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
     _typeConvertersMap.put(AppDao.class, AppDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
@@ -220,7 +181,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
-    final HashSet<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
+    final Set<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
     return _autoMigrationSpecsSet;
   }
 

@@ -1,26 +1,22 @@
 package com.example.indexcards.data;
 
-import android.database.Cursor;
-import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
-import androidx.room.CoroutinesRoom;
-import androidx.room.EntityDeletionOrUpdateAdapter;
-import androidx.room.EntityInsertionAdapter;
-import androidx.room.EntityUpsertionAdapter;
+import androidx.room.EntityDeleteOrUpdateAdapter;
+import androidx.room.EntityInsertAdapter;
+import androidx.room.EntityUpsertAdapter;
 import androidx.room.RoomDatabase;
-import androidx.room.RoomSQLiteQuery;
-import androidx.room.SharedSQLiteStatement;
-import androidx.room.util.CursorUtil;
+import androidx.room.coroutines.FlowUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.RelationUtil;
+import androidx.room.util.SQLiteStatementUtil;
 import androidx.room.util.StringUtil;
-import androidx.sqlite.db.SupportSQLiteStatement;
+import androidx.sqlite.SQLiteConnection;
+import androidx.sqlite.SQLiteStatement;
 import java.lang.Class;
-import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Long;
+import java.lang.NullPointerException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -29,58 +25,29 @@ import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlinx.coroutines.flow.Flow;
 
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked", "deprecation", "removal"})
 public final class AppDao_Impl implements AppDao {
   private final RoomDatabase __db;
 
-  private final EntityDeletionOrUpdateAdapter<TagCardCrossRef> __deletionAdapterOfTagCardCrossRef;
+  private final EntityDeleteOrUpdateAdapter<TagCardCrossRef> __deleteAdapterOfTagCardCrossRef;
 
-  private final SharedSQLiteStatement __preparedStmtOfUpdateTag;
+  private final EntityUpsertAdapter<Box> __upsertAdapterOfBox;
 
-  private final SharedSQLiteStatement __preparedStmtOfDeleteBox;
+  private final EntityUpsertAdapter<Category> __upsertAdapterOfCategory;
 
-  private final SharedSQLiteStatement __preparedStmtOfDeleteCategory;
+  private final EntityUpsertAdapter<Card> __upsertAdapterOfCard;
 
-  private final SharedSQLiteStatement __preparedStmtOfDeleteCard;
+  private final EntityUpsertAdapter<Tag> __upsertAdapterOfTag;
 
-  private final SharedSQLiteStatement __preparedStmtOfDeleteTag;
-
-  private final SharedSQLiteStatement __preparedStmtOfDeleteCardsFromBox;
-
-  private final SharedSQLiteStatement __preparedStmtOfDeleteCategoriesFromBox;
-
-  private final SharedSQLiteStatement __preparedStmtOfDeleteTagsFromBox;
-
-  private final SharedSQLiteStatement __preparedStmtOfDeleteTagsFromCard;
-
-  private final SharedSQLiteStatement __preparedStmtOfDeleteCardFromTags;
-
-  private final SharedSQLiteStatement __preparedStmtOfUpgradeLevelOnCard;
-
-  private final SharedSQLiteStatement __preparedStmtOfDowngradeLevelOnCard;
-
-  private final SharedSQLiteStatement __preparedStmtOfEnableNotificationsForBox;
-
-  private final SharedSQLiteStatement __preparedStmtOfDisableNotificationsForBox;
-
-  private final EntityUpsertionAdapter<Box> __upsertionAdapterOfBox;
-
-  private final EntityUpsertionAdapter<Category> __upsertionAdapterOfCategory;
-
-  private final EntityUpsertionAdapter<Card> __upsertionAdapterOfCard;
-
-  private final EntityUpsertionAdapter<Tag> __upsertionAdapterOfTag;
-
-  private final EntityUpsertionAdapter<TagCardCrossRef> __upsertionAdapterOfTagCardCrossRef;
+  private final EntityUpsertAdapter<TagCardCrossRef> __upsertAdapterOfTagCardCrossRef;
 
   public AppDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
-    this.__deletionAdapterOfTagCardCrossRef = new EntityDeletionOrUpdateAdapter<TagCardCrossRef>(__db) {
+    this.__deleteAdapterOfTagCardCrossRef = new EntityDeleteOrUpdateAdapter<TagCardCrossRef>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -88,125 +55,13 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
+      protected void bind(@NonNull final SQLiteStatement statement,
           @NonNull final TagCardCrossRef entity) {
         statement.bindLong(1, entity.getTagId());
         statement.bindLong(2, entity.getCardId());
       }
     };
-    this.__preparedStmtOfUpdateTag = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE tag SET text = ?, color = ? WHERE tagId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteBox = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM box WHERE boxId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteCategory = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM category WHERE categoryId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteCard = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM card WHERE cardId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteTag = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM tag WHERE tagId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteCardsFromBox = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM card WHERE boxId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteCategoriesFromBox = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM category WHERE boxId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteTagsFromBox = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM tag WHERE boxId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteTagsFromCard = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM tagcardcrossref WHERE tagId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDeleteCardFromTags = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "DELETE FROM tagcardcrossref WHERE cardId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfUpgradeLevelOnCard = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE Card SET level = level + 1 WHERE cardId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDowngradeLevelOnCard = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE Card SET level = level - 1 WHERE cardId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfEnableNotificationsForBox = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE Box SET reminders = 1 WHERE boxId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfDisableNotificationsForBox = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE Box SET reminders = 0 WHERE boxId = ?";
-        return _query;
-      }
-    };
-    this.__upsertionAdapterOfBox = new EntityUpsertionAdapter<Box>(new EntityInsertionAdapter<Box>(__db) {
+    this.__upsertAdapterOfBox = new EntityUpsertAdapter<Box>(new EntityInsertAdapter<Box>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -214,18 +69,17 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Box entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Box entity) {
         statement.bindLong(1, entity.getBoxId());
         if (entity.getName() == null) {
           statement.bindNull(2);
         } else {
-          statement.bindString(2, entity.getName());
+          statement.bindText(2, entity.getName());
         }
         if (entity.getTopic() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getTopic());
+          statement.bindText(3, entity.getTopic());
         }
         final int _tmp = entity.getReminders() ? 1 : 0;
         statement.bindLong(4, _tmp);
@@ -234,7 +88,7 @@ public final class AppDao_Impl implements AppDao {
         if (entity.getDescription() == null) {
           statement.bindNull(6);
         } else {
-          statement.bindString(6, entity.getDescription());
+          statement.bindText(6, entity.getDescription());
         }
         statement.bindLong(7, entity.getDateAdded());
         final int _tmp_2 = entity.getShowNumberOfCards() ? 1 : 0;
@@ -245,7 +99,7 @@ public final class AppDao_Impl implements AppDao {
         statement.bindLong(12, entity.getLastTrained4());
         statement.bindLong(13, entity.getLastTrained5());
       }
-    }, new EntityDeletionOrUpdateAdapter<Box>(__db) {
+    }, new EntityDeleteOrUpdateAdapter<Box>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -253,18 +107,17 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Box entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Box entity) {
         statement.bindLong(1, entity.getBoxId());
         if (entity.getName() == null) {
           statement.bindNull(2);
         } else {
-          statement.bindString(2, entity.getName());
+          statement.bindText(2, entity.getName());
         }
         if (entity.getTopic() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getTopic());
+          statement.bindText(3, entity.getTopic());
         }
         final int _tmp = entity.getReminders() ? 1 : 0;
         statement.bindLong(4, _tmp);
@@ -273,7 +126,7 @@ public final class AppDao_Impl implements AppDao {
         if (entity.getDescription() == null) {
           statement.bindNull(6);
         } else {
-          statement.bindString(6, entity.getDescription());
+          statement.bindText(6, entity.getDescription());
         }
         statement.bindLong(7, entity.getDateAdded());
         final int _tmp_2 = entity.getShowNumberOfCards() ? 1 : 0;
@@ -286,7 +139,7 @@ public final class AppDao_Impl implements AppDao {
         statement.bindLong(14, entity.getBoxId());
       }
     });
-    this.__upsertionAdapterOfCategory = new EntityUpsertionAdapter<Category>(new EntityInsertionAdapter<Category>(__db) {
+    this.__upsertAdapterOfCategory = new EntityUpsertAdapter<Category>(new EntityInsertAdapter<Category>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -294,17 +147,17 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
+      protected void bind(@NonNull final SQLiteStatement statement,
           @NonNull final Category entity) {
         statement.bindLong(1, entity.getCategoryId());
         statement.bindLong(2, entity.getBoxId());
         if (entity.getName() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getName());
+          statement.bindText(3, entity.getName());
         }
       }
-    }, new EntityDeletionOrUpdateAdapter<Category>(__db) {
+    }, new EntityDeleteOrUpdateAdapter<Category>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -312,19 +165,19 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
+      protected void bind(@NonNull final SQLiteStatement statement,
           @NonNull final Category entity) {
         statement.bindLong(1, entity.getCategoryId());
         statement.bindLong(2, entity.getBoxId());
         if (entity.getName() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getName());
+          statement.bindText(3, entity.getName());
         }
         statement.bindLong(4, entity.getCategoryId());
       }
     });
-    this.__upsertionAdapterOfCard = new EntityUpsertionAdapter<Card>(new EntityInsertionAdapter<Card>(__db) {
+    this.__upsertAdapterOfCard = new EntityUpsertAdapter<Card>(new EntityInsertAdapter<Card>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -332,23 +185,22 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Card entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Card entity) {
         statement.bindLong(1, entity.getCardId());
         if (entity.getWord() == null) {
           statement.bindNull(2);
         } else {
-          statement.bindString(2, entity.getWord());
+          statement.bindText(2, entity.getWord());
         }
         if (entity.getMeaning() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getMeaning());
+          statement.bindText(3, entity.getMeaning());
         }
         if (entity.getNotes() == null) {
           statement.bindNull(4);
         } else {
-          statement.bindString(4, entity.getNotes());
+          statement.bindText(4, entity.getNotes());
         }
         statement.bindLong(5, entity.getDateAdded());
         statement.bindLong(6, entity.getLevel());
@@ -356,11 +208,11 @@ public final class AppDao_Impl implements AppDao {
         if (entity.getMemoURI() == null) {
           statement.bindNull(8);
         } else {
-          statement.bindString(8, entity.getMemoURI());
+          statement.bindText(8, entity.getMemoURI());
         }
         statement.bindLong(9, entity.getCategoryId());
       }
-    }, new EntityDeletionOrUpdateAdapter<Card>(__db) {
+    }, new EntityDeleteOrUpdateAdapter<Card>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -368,23 +220,22 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Card entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Card entity) {
         statement.bindLong(1, entity.getCardId());
         if (entity.getWord() == null) {
           statement.bindNull(2);
         } else {
-          statement.bindString(2, entity.getWord());
+          statement.bindText(2, entity.getWord());
         }
         if (entity.getMeaning() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getMeaning());
+          statement.bindText(3, entity.getMeaning());
         }
         if (entity.getNotes() == null) {
           statement.bindNull(4);
         } else {
-          statement.bindString(4, entity.getNotes());
+          statement.bindText(4, entity.getNotes());
         }
         statement.bindLong(5, entity.getDateAdded());
         statement.bindLong(6, entity.getLevel());
@@ -392,13 +243,13 @@ public final class AppDao_Impl implements AppDao {
         if (entity.getMemoURI() == null) {
           statement.bindNull(8);
         } else {
-          statement.bindString(8, entity.getMemoURI());
+          statement.bindText(8, entity.getMemoURI());
         }
         statement.bindLong(9, entity.getCategoryId());
         statement.bindLong(10, entity.getCardId());
       }
     });
-    this.__upsertionAdapterOfTag = new EntityUpsertionAdapter<Tag>(new EntityInsertionAdapter<Tag>(__db) {
+    this.__upsertAdapterOfTag = new EntityUpsertAdapter<Tag>(new EntityInsertAdapter<Tag>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -406,22 +257,21 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Tag entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Tag entity) {
         statement.bindLong(1, entity.getTagId());
         statement.bindLong(2, entity.getBoxId());
         if (entity.getText() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getText());
+          statement.bindText(3, entity.getText());
         }
         if (entity.getColor() == null) {
           statement.bindNull(4);
         } else {
-          statement.bindString(4, entity.getColor());
+          statement.bindText(4, entity.getColor());
         }
       }
-    }, new EntityDeletionOrUpdateAdapter<Tag>(__db) {
+    }, new EntityDeleteOrUpdateAdapter<Tag>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -429,24 +279,23 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Tag entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Tag entity) {
         statement.bindLong(1, entity.getTagId());
         statement.bindLong(2, entity.getBoxId());
         if (entity.getText() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getText());
+          statement.bindText(3, entity.getText());
         }
         if (entity.getColor() == null) {
           statement.bindNull(4);
         } else {
-          statement.bindString(4, entity.getColor());
+          statement.bindText(4, entity.getColor());
         }
         statement.bindLong(5, entity.getTagId());
       }
     });
-    this.__upsertionAdapterOfTagCardCrossRef = new EntityUpsertionAdapter<TagCardCrossRef>(new EntityInsertionAdapter<TagCardCrossRef>(__db) {
+    this.__upsertAdapterOfTagCardCrossRef = new EntityUpsertAdapter<TagCardCrossRef>(new EntityInsertAdapter<TagCardCrossRef>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -454,12 +303,12 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
+      protected void bind(@NonNull final SQLiteStatement statement,
           @NonNull final TagCardCrossRef entity) {
         statement.bindLong(1, entity.getTagId());
         statement.bindLong(2, entity.getCardId());
       }
-    }, new EntityDeletionOrUpdateAdapter<TagCardCrossRef>(__db) {
+    }, new EntityDeleteOrUpdateAdapter<TagCardCrossRef>() {
       @Override
       @NonNull
       protected String createQuery() {
@@ -467,7 +316,7 @@ public final class AppDao_Impl implements AppDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
+      protected void bind(@NonNull final SQLiteStatement statement,
           @NonNull final TagCardCrossRef entity) {
         statement.bindLong(1, entity.getTagId());
         statement.bindLong(2, entity.getCardId());
@@ -480,566 +329,132 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Object deleteTagCardCrossRef(final TagCardCrossRef crossRef,
       final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __deletionAdapterOfTagCardCrossRef.handle(crossRef);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object updateTag(final long tagId, final String text, final String color,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateTag.acquire();
-        int _argIndex = 1;
-        if (text == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          _stmt.bindString(_argIndex, text);
-        }
-        _argIndex = 2;
-        if (color == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          _stmt.bindString(_argIndex, color);
-        }
-        _argIndex = 3;
-        _stmt.bindLong(_argIndex, tagId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfUpdateTag.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteBox(final long boxId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteBox.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, boxId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteBox.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteCategory(final long categoryId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCategory.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, categoryId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteCategory.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteCard(final long cardId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCard.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, cardId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteCard.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteTag(final long tagId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTag.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, tagId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteTag.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteCardsFromBox(final long boxId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCardsFromBox.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, boxId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteCardsFromBox.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteCategoriesFromBox(final long boxId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCategoriesFromBox.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, boxId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteCategoriesFromBox.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteTagsFromBox(final long boxId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTagsFromBox.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, boxId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteTagsFromBox.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteTagsFromCard(final long tagId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteTagsFromCard.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, tagId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteTagsFromCard.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object deleteCardFromTags(final long cardId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteCardFromTags.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, cardId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDeleteCardFromTags.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object upgradeLevelOnCard(final long cardId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfUpgradeLevelOnCard.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, cardId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfUpgradeLevelOnCard.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object downgradeLevelOnCard(final long cardId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDowngradeLevelOnCard.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, cardId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDowngradeLevelOnCard.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object enableNotificationsForBox(final long boxId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfEnableNotificationsForBox.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, boxId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfEnableNotificationsForBox.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object disableNotificationsForBox(final long boxId,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDisableNotificationsForBox.acquire();
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, boxId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfDisableNotificationsForBox.release(_stmt);
-        }
-      }
+    if (crossRef == null) throw new NullPointerException();
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      __deleteAdapterOfTagCardCrossRef.handle(_connection, crossRef);
+      return Unit.INSTANCE;
     }, $completion);
   }
 
   @Override
   public Object upsertBox(final Box box, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __upsertionAdapterOfBox.upsert(box);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    if (box == null) throw new NullPointerException();
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      __upsertAdapterOfBox.upsert(_connection, box);
+      return Unit.INSTANCE;
     }, $completion);
   }
 
   @Override
   public Object upsertCategory(final Category category,
       final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __upsertionAdapterOfCategory.upsert(category);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    if (category == null) throw new NullPointerException();
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      __upsertAdapterOfCategory.upsert(_connection, category);
+      return Unit.INSTANCE;
     }, $completion);
   }
 
   @Override
   public Object upsertCard(final Card card, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __upsertionAdapterOfCard.upsert(card);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    if (card == null) throw new NullPointerException();
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      __upsertAdapterOfCard.upsert(_connection, card);
+      return Unit.INSTANCE;
     }, $completion);
   }
 
   @Override
   public Object upsertTag(final Tag tag, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __upsertionAdapterOfTag.upsert(tag);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    if (tag == null) throw new NullPointerException();
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      __upsertAdapterOfTag.upsert(_connection, tag);
+      return Unit.INSTANCE;
     }, $completion);
   }
 
   @Override
   public Object upsertTagCardCrossRef(final TagCardCrossRef crossRef,
       final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __upsertionAdapterOfTagCardCrossRef.upsert(crossRef);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    if (crossRef == null) throw new NullPointerException();
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      __upsertAdapterOfTagCardCrossRef.upsert(_connection, crossRef);
+      return Unit.INSTANCE;
     }, $completion);
   }
 
   @Override
   public Flow<List<Box>> getAllBoxes() {
     final String _sql = "SELECT * FROM box ORDER BY dateAdded DESC";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"box"}, new Callable<List<Box>>() {
-      @Override
-      @NonNull
-      public List<Box> call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
-          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
-          final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
-          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
-          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
-          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
-          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
-          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
-          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
-          final List<Box> _result = new ArrayList<Box>(_cursor.getCount());
-          while (_cursor.moveToNext()) {
-            final Box _item;
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
-            final String _tmpTopic;
-            if (_cursor.isNull(_cursorIndexOfTopic)) {
-              _tmpTopic = null;
-            } else {
-              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
-            }
-            final boolean _tmpReminders;
-            final int _tmp;
-            _tmp = _cursor.getInt(_cursorIndexOfReminders);
-            _tmpReminders = _tmp != 0;
-            final boolean _tmpCategories;
-            final int _tmp_1;
-            _tmp_1 = _cursor.getInt(_cursorIndexOfCategories);
-            _tmpCategories = _tmp_1 != 0;
-            final String _tmpDescription;
-            if (_cursor.isNull(_cursorIndexOfDescription)) {
-              _tmpDescription = null;
-            } else {
-              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-            }
-            final long _tmpDateAdded;
-            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            final boolean _tmpShowNumberOfCards;
-            final int _tmp_2;
-            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
-            _tmpShowNumberOfCards = _tmp_2 != 0;
-            final long _tmpLastTrained1;
-            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
-            final long _tmpLastTrained2;
-            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
-            final long _tmpLastTrained3;
-            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
-            final long _tmpLastTrained4;
-            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
-            final long _tmpLastTrained5;
-            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
-            _item = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
-            _result.add(_item);
+    return FlowUtil.createFlow(__db, false, new String[] {"box"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+        final int _columnIndexOfTopic = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "topic");
+        final int _columnIndexOfReminders = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "reminders");
+        final int _columnIndexOfCategories = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categories");
+        final int _columnIndexOfDescription = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "description");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfShowNumberOfCards = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "showNumberOfCards");
+        final int _columnIndexOfLastTrained1 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained1");
+        final int _columnIndexOfLastTrained2 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained2");
+        final int _columnIndexOfLastTrained3 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained3");
+        final int _columnIndexOfLastTrained4 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained4");
+        final int _columnIndexOfLastTrained5 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained5");
+        final List<Box> _result = new ArrayList<Box>();
+        while (_stmt.step()) {
+          final Box _item;
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpName;
+          if (_stmt.isNull(_columnIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_columnIndexOfName);
           }
-          return _result;
-        } finally {
-          _cursor.close();
+          final String _tmpTopic;
+          if (_stmt.isNull(_columnIndexOfTopic)) {
+            _tmpTopic = null;
+          } else {
+            _tmpTopic = _stmt.getText(_columnIndexOfTopic);
+          }
+          final boolean _tmpReminders;
+          final int _tmp;
+          _tmp = (int) (_stmt.getLong(_columnIndexOfReminders));
+          _tmpReminders = _tmp != 0;
+          final boolean _tmpCategories;
+          final int _tmp_1;
+          _tmp_1 = (int) (_stmt.getLong(_columnIndexOfCategories));
+          _tmpCategories = _tmp_1 != 0;
+          final String _tmpDescription;
+          if (_stmt.isNull(_columnIndexOfDescription)) {
+            _tmpDescription = null;
+          } else {
+            _tmpDescription = _stmt.getText(_columnIndexOfDescription);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final boolean _tmpShowNumberOfCards;
+          final int _tmp_2;
+          _tmp_2 = (int) (_stmt.getLong(_columnIndexOfShowNumberOfCards));
+          _tmpShowNumberOfCards = _tmp_2 != 0;
+          final long _tmpLastTrained1;
+          _tmpLastTrained1 = _stmt.getLong(_columnIndexOfLastTrained1);
+          final long _tmpLastTrained2;
+          _tmpLastTrained2 = _stmt.getLong(_columnIndexOfLastTrained2);
+          final long _tmpLastTrained3;
+          _tmpLastTrained3 = _stmt.getLong(_columnIndexOfLastTrained3);
+          final long _tmpLastTrained4;
+          _tmpLastTrained4 = _stmt.getLong(_columnIndexOfLastTrained4);
+          final long _tmpLastTrained5;
+          _tmpLastTrained5 = _stmt.getLong(_columnIndexOfLastTrained5);
+          _item = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
+          _result.add(_item);
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1047,87 +462,77 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<Box> getBox(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"box"}, new Callable<Box>() {
-      @Override
-      @NonNull
-      public Box call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
-          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
-          final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
-          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
-          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
-          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
-          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
-          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
-          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
-          final Box _result;
-          if (_cursor.moveToFirst()) {
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
-            final String _tmpTopic;
-            if (_cursor.isNull(_cursorIndexOfTopic)) {
-              _tmpTopic = null;
-            } else {
-              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
-            }
-            final boolean _tmpReminders;
-            final int _tmp;
-            _tmp = _cursor.getInt(_cursorIndexOfReminders);
-            _tmpReminders = _tmp != 0;
-            final boolean _tmpCategories;
-            final int _tmp_1;
-            _tmp_1 = _cursor.getInt(_cursorIndexOfCategories);
-            _tmpCategories = _tmp_1 != 0;
-            final String _tmpDescription;
-            if (_cursor.isNull(_cursorIndexOfDescription)) {
-              _tmpDescription = null;
-            } else {
-              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-            }
-            final long _tmpDateAdded;
-            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            final boolean _tmpShowNumberOfCards;
-            final int _tmp_2;
-            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
-            _tmpShowNumberOfCards = _tmp_2 != 0;
-            final long _tmpLastTrained1;
-            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
-            final long _tmpLastTrained2;
-            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
-            final long _tmpLastTrained3;
-            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
-            final long _tmpLastTrained4;
-            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
-            final long _tmpLastTrained5;
-            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
-            _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
+    return FlowUtil.createFlow(__db, false, new String[] {"box"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+        final int _columnIndexOfTopic = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "topic");
+        final int _columnIndexOfReminders = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "reminders");
+        final int _columnIndexOfCategories = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categories");
+        final int _columnIndexOfDescription = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "description");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfShowNumberOfCards = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "showNumberOfCards");
+        final int _columnIndexOfLastTrained1 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained1");
+        final int _columnIndexOfLastTrained2 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained2");
+        final int _columnIndexOfLastTrained3 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained3");
+        final int _columnIndexOfLastTrained4 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained4");
+        final int _columnIndexOfLastTrained5 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained5");
+        final Box _result;
+        if (_stmt.step()) {
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpName;
+          if (_stmt.isNull(_columnIndexOfName)) {
+            _tmpName = null;
           } else {
-            _result = null;
+            _tmpName = _stmt.getText(_columnIndexOfName);
           }
-          return _result;
-        } finally {
-          _cursor.close();
+          final String _tmpTopic;
+          if (_stmt.isNull(_columnIndexOfTopic)) {
+            _tmpTopic = null;
+          } else {
+            _tmpTopic = _stmt.getText(_columnIndexOfTopic);
+          }
+          final boolean _tmpReminders;
+          final int _tmp;
+          _tmp = (int) (_stmt.getLong(_columnIndexOfReminders));
+          _tmpReminders = _tmp != 0;
+          final boolean _tmpCategories;
+          final int _tmp_1;
+          _tmp_1 = (int) (_stmt.getLong(_columnIndexOfCategories));
+          _tmpCategories = _tmp_1 != 0;
+          final String _tmpDescription;
+          if (_stmt.isNull(_columnIndexOfDescription)) {
+            _tmpDescription = null;
+          } else {
+            _tmpDescription = _stmt.getText(_columnIndexOfDescription);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final boolean _tmpShowNumberOfCards;
+          final int _tmp_2;
+          _tmp_2 = (int) (_stmt.getLong(_columnIndexOfShowNumberOfCards));
+          _tmpShowNumberOfCards = _tmp_2 != 0;
+          final long _tmpLastTrained1;
+          _tmpLastTrained1 = _stmt.getLong(_columnIndexOfLastTrained1);
+          final long _tmpLastTrained2;
+          _tmpLastTrained2 = _stmt.getLong(_columnIndexOfLastTrained2);
+          final long _tmpLastTrained3;
+          _tmpLastTrained3 = _stmt.getLong(_columnIndexOfLastTrained3);
+          final long _tmpLastTrained4;
+          _tmpLastTrained4 = _stmt.getLong(_columnIndexOfLastTrained4);
+          final long _tmpLastTrained5;
+          _tmpLastTrained5 = _stmt.getLong(_columnIndexOfLastTrained5);
+          _result = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
+        } else {
+          _result = null;
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1135,73 +540,63 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<Card> getCard(final long cardId) {
     final String _sql = "SELECT * FROM card WHERE cardId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, cardId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"card"}, new Callable<Card>() {
-      @Override
-      @NonNull
-      public Card call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final int _cursorIndexOfCardId = CursorUtil.getColumnIndexOrThrow(_cursor, "cardId");
-          final int _cursorIndexOfWord = CursorUtil.getColumnIndexOrThrow(_cursor, "word");
-          final int _cursorIndexOfMeaning = CursorUtil.getColumnIndexOrThrow(_cursor, "meaning");
-          final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
-          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-          final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
-          final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
-          final Card _result;
-          if (_cursor.moveToFirst()) {
-            final long _tmpCardId;
-            _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
-            final String _tmpWord;
-            if (_cursor.isNull(_cursorIndexOfWord)) {
-              _tmpWord = null;
-            } else {
-              _tmpWord = _cursor.getString(_cursorIndexOfWord);
-            }
-            final String _tmpMeaning;
-            if (_cursor.isNull(_cursorIndexOfMeaning)) {
-              _tmpMeaning = null;
-            } else {
-              _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
-            }
-            final String _tmpNotes;
-            if (_cursor.isNull(_cursorIndexOfNotes)) {
-              _tmpNotes = null;
-            } else {
-              _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
-            }
-            final long _tmpDateAdded;
-            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            final int _tmpLevel;
-            _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpMemoURI;
-            if (_cursor.isNull(_cursorIndexOfMemoURI)) {
-              _tmpMemoURI = null;
-            } else {
-              _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
-            }
-            final long _tmpCategoryId;
-            _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
-            _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
+    return FlowUtil.createFlow(__db, false, new String[] {"card"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        final int _columnIndexOfCardId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "cardId");
+        final int _columnIndexOfWord = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "word");
+        final int _columnIndexOfMeaning = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "meaning");
+        final int _columnIndexOfNotes = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "notes");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfLevel = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "level");
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfMemoURI = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "memoURI");
+        final int _columnIndexOfCategoryId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categoryId");
+        final Card _result;
+        if (_stmt.step()) {
+          final long _tmpCardId;
+          _tmpCardId = _stmt.getLong(_columnIndexOfCardId);
+          final String _tmpWord;
+          if (_stmt.isNull(_columnIndexOfWord)) {
+            _tmpWord = null;
           } else {
-            _result = null;
+            _tmpWord = _stmt.getText(_columnIndexOfWord);
           }
-          return _result;
-        } finally {
-          _cursor.close();
+          final String _tmpMeaning;
+          if (_stmt.isNull(_columnIndexOfMeaning)) {
+            _tmpMeaning = null;
+          } else {
+            _tmpMeaning = _stmt.getText(_columnIndexOfMeaning);
+          }
+          final String _tmpNotes;
+          if (_stmt.isNull(_columnIndexOfNotes)) {
+            _tmpNotes = null;
+          } else {
+            _tmpNotes = _stmt.getText(_columnIndexOfNotes);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final int _tmpLevel;
+          _tmpLevel = (int) (_stmt.getLong(_columnIndexOfLevel));
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpMemoURI;
+          if (_stmt.isNull(_columnIndexOfMemoURI)) {
+            _tmpMemoURI = null;
+          } else {
+            _tmpMemoURI = _stmt.getText(_columnIndexOfMemoURI);
+          }
+          final long _tmpCategoryId;
+          _tmpCategoryId = _stmt.getLong(_columnIndexOfCategoryId);
+          _result = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
+        } else {
+          _result = null;
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1209,50 +604,40 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<Tag> getTag(final long tagId) {
     final String _sql = "SELECT * FROM tag WHERE tagId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, tagId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"tag"}, new Callable<Tag>() {
-      @Override
-      @NonNull
-      public Tag call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final int _cursorIndexOfTagId = CursorUtil.getColumnIndexOrThrow(_cursor, "tagId");
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfText = CursorUtil.getColumnIndexOrThrow(_cursor, "text");
-          final int _cursorIndexOfColor = CursorUtil.getColumnIndexOrThrow(_cursor, "color");
-          final Tag _result;
-          if (_cursor.moveToFirst()) {
-            final long _tmpTagId;
-            _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpText;
-            if (_cursor.isNull(_cursorIndexOfText)) {
-              _tmpText = null;
-            } else {
-              _tmpText = _cursor.getString(_cursorIndexOfText);
-            }
-            final String _tmpColor;
-            if (_cursor.isNull(_cursorIndexOfColor)) {
-              _tmpColor = null;
-            } else {
-              _tmpColor = _cursor.getString(_cursorIndexOfColor);
-            }
-            _result = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
+    return FlowUtil.createFlow(__db, false, new String[] {"tag"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, tagId);
+        final int _columnIndexOfTagId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "tagId");
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfText = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "text");
+        final int _columnIndexOfColor = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "color");
+        final Tag _result;
+        if (_stmt.step()) {
+          final long _tmpTagId;
+          _tmpTagId = _stmt.getLong(_columnIndexOfTagId);
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpText;
+          if (_stmt.isNull(_columnIndexOfText)) {
+            _tmpText = null;
           } else {
-            _result = null;
+            _tmpText = _stmt.getText(_columnIndexOfText);
           }
-          return _result;
-        } finally {
-          _cursor.close();
+          final String _tmpColor;
+          if (_stmt.isNull(_columnIndexOfColor)) {
+            _tmpColor = null;
+          } else {
+            _tmpColor = _stmt.getText(_columnIndexOfColor);
+          }
+          _result = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
+        } else {
+          _result = null;
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1260,104 +645,93 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<BoxWithCards> getBoxWithCards(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"Card",
-        "box"}, new Callable<BoxWithCards>() {
-      @Override
-      @NonNull
-      public BoxWithCards call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-        try {
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
-          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
-          final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
-          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
-          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
-          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
-          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
-          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
-          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
-          final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
-          while (_cursor.moveToNext()) {
-            final long _tmpKey;
-            _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
-            if (!_collectionCards.containsKey(_tmpKey)) {
-              _collectionCards.put(_tmpKey, new ArrayList<Card>());
-            }
+    return FlowUtil.createFlow(__db, false, new String[] {"Card", "box"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+        final int _columnIndexOfTopic = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "topic");
+        final int _columnIndexOfReminders = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "reminders");
+        final int _columnIndexOfCategories = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categories");
+        final int _columnIndexOfDescription = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "description");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfShowNumberOfCards = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "showNumberOfCards");
+        final int _columnIndexOfLastTrained1 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained1");
+        final int _columnIndexOfLastTrained2 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained2");
+        final int _columnIndexOfLastTrained3 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained3");
+        final int _columnIndexOfLastTrained4 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained4");
+        final int _columnIndexOfLastTrained5 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained5");
+        final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
+        while (_stmt.step()) {
+          final long _tmpKey;
+          _tmpKey = _stmt.getLong(_columnIndexOfBoxId);
+          if (!_collectionCards.containsKey(_tmpKey)) {
+            _collectionCards.put(_tmpKey, new ArrayList<Card>());
           }
-          _cursor.moveToPosition(-1);
-          __fetchRelationshipCardAscomExampleIndexcardsDataCard(_collectionCards);
-          final BoxWithCards _result;
-          if (_cursor.moveToFirst()) {
-            final Box _tmpBox;
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
-            final String _tmpTopic;
-            if (_cursor.isNull(_cursorIndexOfTopic)) {
-              _tmpTopic = null;
-            } else {
-              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
-            }
-            final boolean _tmpReminders;
-            final int _tmp;
-            _tmp = _cursor.getInt(_cursorIndexOfReminders);
-            _tmpReminders = _tmp != 0;
-            final boolean _tmpCategories;
-            final int _tmp_1;
-            _tmp_1 = _cursor.getInt(_cursorIndexOfCategories);
-            _tmpCategories = _tmp_1 != 0;
-            final String _tmpDescription;
-            if (_cursor.isNull(_cursorIndexOfDescription)) {
-              _tmpDescription = null;
-            } else {
-              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-            }
-            final long _tmpDateAdded;
-            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            final boolean _tmpShowNumberOfCards;
-            final int _tmp_2;
-            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
-            _tmpShowNumberOfCards = _tmp_2 != 0;
-            final long _tmpLastTrained1;
-            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
-            final long _tmpLastTrained2;
-            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
-            final long _tmpLastTrained3;
-            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
-            final long _tmpLastTrained4;
-            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
-            final long _tmpLastTrained5;
-            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
-            final ArrayList<Card> _tmpCardsCollection;
-            final long _tmpKey_1;
-            _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
-            _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
-            _result = new BoxWithCards(_tmpBox,_tmpCardsCollection);
-          } else {
-            _result = null;
-          }
-          return _result;
-        } finally {
-          _cursor.close();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        _stmt.reset();
+        __fetchRelationshipCardAscomExampleIndexcardsDataCard(_connection, _collectionCards);
+        final BoxWithCards _result;
+        if (_stmt.step()) {
+          final Box _tmpBox;
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpName;
+          if (_stmt.isNull(_columnIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_columnIndexOfName);
+          }
+          final String _tmpTopic;
+          if (_stmt.isNull(_columnIndexOfTopic)) {
+            _tmpTopic = null;
+          } else {
+            _tmpTopic = _stmt.getText(_columnIndexOfTopic);
+          }
+          final boolean _tmpReminders;
+          final int _tmp;
+          _tmp = (int) (_stmt.getLong(_columnIndexOfReminders));
+          _tmpReminders = _tmp != 0;
+          final boolean _tmpCategories;
+          final int _tmp_1;
+          _tmp_1 = (int) (_stmt.getLong(_columnIndexOfCategories));
+          _tmpCategories = _tmp_1 != 0;
+          final String _tmpDescription;
+          if (_stmt.isNull(_columnIndexOfDescription)) {
+            _tmpDescription = null;
+          } else {
+            _tmpDescription = _stmt.getText(_columnIndexOfDescription);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final boolean _tmpShowNumberOfCards;
+          final int _tmp_2;
+          _tmp_2 = (int) (_stmt.getLong(_columnIndexOfShowNumberOfCards));
+          _tmpShowNumberOfCards = _tmp_2 != 0;
+          final long _tmpLastTrained1;
+          _tmpLastTrained1 = _stmt.getLong(_columnIndexOfLastTrained1);
+          final long _tmpLastTrained2;
+          _tmpLastTrained2 = _stmt.getLong(_columnIndexOfLastTrained2);
+          final long _tmpLastTrained3;
+          _tmpLastTrained3 = _stmt.getLong(_columnIndexOfLastTrained3);
+          final long _tmpLastTrained4;
+          _tmpLastTrained4 = _stmt.getLong(_columnIndexOfLastTrained4);
+          final long _tmpLastTrained5;
+          _tmpLastTrained5 = _stmt.getLong(_columnIndexOfLastTrained5);
+          _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
+          final ArrayList<Card> _tmpCardsCollection;
+          final long _tmpKey_1;
+          _tmpKey_1 = _stmt.getLong(_columnIndexOfBoxId);
+          _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
+          _result = new BoxWithCards(_tmpBox,_tmpCardsCollection);
+        } else {
+          _result = null;
+        }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1365,104 +739,93 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<BoxWithTags> getBoxWithTags(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"Tag",
-        "box"}, new Callable<BoxWithTags>() {
-      @Override
-      @NonNull
-      public BoxWithTags call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-        try {
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
-          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
-          final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
-          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
-          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
-          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
-          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
-          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
-          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
-          final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
-          while (_cursor.moveToNext()) {
-            final long _tmpKey;
-            _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
-            if (!_collectionTags.containsKey(_tmpKey)) {
-              _collectionTags.put(_tmpKey, new ArrayList<Tag>());
-            }
+    return FlowUtil.createFlow(__db, false, new String[] {"Tag", "box"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+        final int _columnIndexOfTopic = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "topic");
+        final int _columnIndexOfReminders = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "reminders");
+        final int _columnIndexOfCategories = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categories");
+        final int _columnIndexOfDescription = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "description");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfShowNumberOfCards = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "showNumberOfCards");
+        final int _columnIndexOfLastTrained1 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained1");
+        final int _columnIndexOfLastTrained2 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained2");
+        final int _columnIndexOfLastTrained3 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained3");
+        final int _columnIndexOfLastTrained4 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained4");
+        final int _columnIndexOfLastTrained5 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained5");
+        final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
+        while (_stmt.step()) {
+          final long _tmpKey;
+          _tmpKey = _stmt.getLong(_columnIndexOfBoxId);
+          if (!_collectionTags.containsKey(_tmpKey)) {
+            _collectionTags.put(_tmpKey, new ArrayList<Tag>());
           }
-          _cursor.moveToPosition(-1);
-          __fetchRelationshipTagAscomExampleIndexcardsDataTag(_collectionTags);
-          final BoxWithTags _result;
-          if (_cursor.moveToFirst()) {
-            final Box _tmpBox;
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
-            final String _tmpTopic;
-            if (_cursor.isNull(_cursorIndexOfTopic)) {
-              _tmpTopic = null;
-            } else {
-              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
-            }
-            final boolean _tmpReminders;
-            final int _tmp;
-            _tmp = _cursor.getInt(_cursorIndexOfReminders);
-            _tmpReminders = _tmp != 0;
-            final boolean _tmpCategories;
-            final int _tmp_1;
-            _tmp_1 = _cursor.getInt(_cursorIndexOfCategories);
-            _tmpCategories = _tmp_1 != 0;
-            final String _tmpDescription;
-            if (_cursor.isNull(_cursorIndexOfDescription)) {
-              _tmpDescription = null;
-            } else {
-              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-            }
-            final long _tmpDateAdded;
-            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            final boolean _tmpShowNumberOfCards;
-            final int _tmp_2;
-            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
-            _tmpShowNumberOfCards = _tmp_2 != 0;
-            final long _tmpLastTrained1;
-            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
-            final long _tmpLastTrained2;
-            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
-            final long _tmpLastTrained3;
-            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
-            final long _tmpLastTrained4;
-            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
-            final long _tmpLastTrained5;
-            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
-            final ArrayList<Tag> _tmpTagsCollection;
-            final long _tmpKey_1;
-            _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
-            _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
-            _result = new BoxWithTags(_tmpBox,_tmpTagsCollection);
-          } else {
-            _result = null;
-          }
-          return _result;
-        } finally {
-          _cursor.close();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        _stmt.reset();
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag(_connection, _collectionTags);
+        final BoxWithTags _result;
+        if (_stmt.step()) {
+          final Box _tmpBox;
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpName;
+          if (_stmt.isNull(_columnIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_columnIndexOfName);
+          }
+          final String _tmpTopic;
+          if (_stmt.isNull(_columnIndexOfTopic)) {
+            _tmpTopic = null;
+          } else {
+            _tmpTopic = _stmt.getText(_columnIndexOfTopic);
+          }
+          final boolean _tmpReminders;
+          final int _tmp;
+          _tmp = (int) (_stmt.getLong(_columnIndexOfReminders));
+          _tmpReminders = _tmp != 0;
+          final boolean _tmpCategories;
+          final int _tmp_1;
+          _tmp_1 = (int) (_stmt.getLong(_columnIndexOfCategories));
+          _tmpCategories = _tmp_1 != 0;
+          final String _tmpDescription;
+          if (_stmt.isNull(_columnIndexOfDescription)) {
+            _tmpDescription = null;
+          } else {
+            _tmpDescription = _stmt.getText(_columnIndexOfDescription);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final boolean _tmpShowNumberOfCards;
+          final int _tmp_2;
+          _tmp_2 = (int) (_stmt.getLong(_columnIndexOfShowNumberOfCards));
+          _tmpShowNumberOfCards = _tmp_2 != 0;
+          final long _tmpLastTrained1;
+          _tmpLastTrained1 = _stmt.getLong(_columnIndexOfLastTrained1);
+          final long _tmpLastTrained2;
+          _tmpLastTrained2 = _stmt.getLong(_columnIndexOfLastTrained2);
+          final long _tmpLastTrained3;
+          _tmpLastTrained3 = _stmt.getLong(_columnIndexOfLastTrained3);
+          final long _tmpLastTrained4;
+          _tmpLastTrained4 = _stmt.getLong(_columnIndexOfLastTrained4);
+          final long _tmpLastTrained5;
+          _tmpLastTrained5 = _stmt.getLong(_columnIndexOfLastTrained5);
+          _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
+          final ArrayList<Tag> _tmpTagsCollection;
+          final long _tmpKey_1;
+          _tmpKey_1 = _stmt.getLong(_columnIndexOfBoxId);
+          _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
+          _result = new BoxWithTags(_tmpBox,_tmpTagsCollection);
+        } else {
+          _result = null;
+        }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1470,104 +833,93 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<BoxWithCategories> getBoxWithCategories(final long boxId) {
     final String _sql = "SELECT * FROM box WHERE boxId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"Category",
-        "box"}, new Callable<BoxWithCategories>() {
-      @Override
-      @NonNull
-      public BoxWithCategories call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-        try {
-          final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfTopic = CursorUtil.getColumnIndexOrThrow(_cursor, "topic");
-          final int _cursorIndexOfReminders = CursorUtil.getColumnIndexOrThrow(_cursor, "reminders");
-          final int _cursorIndexOfCategories = CursorUtil.getColumnIndexOrThrow(_cursor, "categories");
-          final int _cursorIndexOfDescription = CursorUtil.getColumnIndexOrThrow(_cursor, "description");
-          final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-          final int _cursorIndexOfShowNumberOfCards = CursorUtil.getColumnIndexOrThrow(_cursor, "showNumberOfCards");
-          final int _cursorIndexOfLastTrained1 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained1");
-          final int _cursorIndexOfLastTrained2 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained2");
-          final int _cursorIndexOfLastTrained3 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained3");
-          final int _cursorIndexOfLastTrained4 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained4");
-          final int _cursorIndexOfLastTrained5 = CursorUtil.getColumnIndexOrThrow(_cursor, "lastTrained5");
-          final LongSparseArray<ArrayList<Category>> _collectionCategories = new LongSparseArray<ArrayList<Category>>();
-          while (_cursor.moveToNext()) {
-            final long _tmpKey;
-            _tmpKey = _cursor.getLong(_cursorIndexOfBoxId);
-            if (!_collectionCategories.containsKey(_tmpKey)) {
-              _collectionCategories.put(_tmpKey, new ArrayList<Category>());
-            }
+    return FlowUtil.createFlow(__db, false, new String[] {"Category", "box"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+        final int _columnIndexOfTopic = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "topic");
+        final int _columnIndexOfReminders = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "reminders");
+        final int _columnIndexOfCategories = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categories");
+        final int _columnIndexOfDescription = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "description");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfShowNumberOfCards = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "showNumberOfCards");
+        final int _columnIndexOfLastTrained1 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained1");
+        final int _columnIndexOfLastTrained2 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained2");
+        final int _columnIndexOfLastTrained3 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained3");
+        final int _columnIndexOfLastTrained4 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained4");
+        final int _columnIndexOfLastTrained5 = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastTrained5");
+        final LongSparseArray<ArrayList<Category>> _collectionCategories = new LongSparseArray<ArrayList<Category>>();
+        while (_stmt.step()) {
+          final long _tmpKey;
+          _tmpKey = _stmt.getLong(_columnIndexOfBoxId);
+          if (!_collectionCategories.containsKey(_tmpKey)) {
+            _collectionCategories.put(_tmpKey, new ArrayList<Category>());
           }
-          _cursor.moveToPosition(-1);
-          __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(_collectionCategories);
-          final BoxWithCategories _result;
-          if (_cursor.moveToFirst()) {
-            final Box _tmpBox;
-            final long _tmpBoxId;
-            _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-            final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
-            final String _tmpTopic;
-            if (_cursor.isNull(_cursorIndexOfTopic)) {
-              _tmpTopic = null;
-            } else {
-              _tmpTopic = _cursor.getString(_cursorIndexOfTopic);
-            }
-            final boolean _tmpReminders;
-            final int _tmp;
-            _tmp = _cursor.getInt(_cursorIndexOfReminders);
-            _tmpReminders = _tmp != 0;
-            final boolean _tmpCategories;
-            final int _tmp_1;
-            _tmp_1 = _cursor.getInt(_cursorIndexOfCategories);
-            _tmpCategories = _tmp_1 != 0;
-            final String _tmpDescription;
-            if (_cursor.isNull(_cursorIndexOfDescription)) {
-              _tmpDescription = null;
-            } else {
-              _tmpDescription = _cursor.getString(_cursorIndexOfDescription);
-            }
-            final long _tmpDateAdded;
-            _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-            final boolean _tmpShowNumberOfCards;
-            final int _tmp_2;
-            _tmp_2 = _cursor.getInt(_cursorIndexOfShowNumberOfCards);
-            _tmpShowNumberOfCards = _tmp_2 != 0;
-            final long _tmpLastTrained1;
-            _tmpLastTrained1 = _cursor.getLong(_cursorIndexOfLastTrained1);
-            final long _tmpLastTrained2;
-            _tmpLastTrained2 = _cursor.getLong(_cursorIndexOfLastTrained2);
-            final long _tmpLastTrained3;
-            _tmpLastTrained3 = _cursor.getLong(_cursorIndexOfLastTrained3);
-            final long _tmpLastTrained4;
-            _tmpLastTrained4 = _cursor.getLong(_cursorIndexOfLastTrained4);
-            final long _tmpLastTrained5;
-            _tmpLastTrained5 = _cursor.getLong(_cursorIndexOfLastTrained5);
-            _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
-            final ArrayList<Category> _tmpCategoriesCollection;
-            final long _tmpKey_1;
-            _tmpKey_1 = _cursor.getLong(_cursorIndexOfBoxId);
-            _tmpCategoriesCollection = _collectionCategories.get(_tmpKey_1);
-            _result = new BoxWithCategories(_tmpBox,_tmpCategoriesCollection);
-          } else {
-            _result = null;
-          }
-          return _result;
-        } finally {
-          _cursor.close();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        _stmt.reset();
+        __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(_connection, _collectionCategories);
+        final BoxWithCategories _result;
+        if (_stmt.step()) {
+          final Box _tmpBox;
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpName;
+          if (_stmt.isNull(_columnIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_columnIndexOfName);
+          }
+          final String _tmpTopic;
+          if (_stmt.isNull(_columnIndexOfTopic)) {
+            _tmpTopic = null;
+          } else {
+            _tmpTopic = _stmt.getText(_columnIndexOfTopic);
+          }
+          final boolean _tmpReminders;
+          final int _tmp;
+          _tmp = (int) (_stmt.getLong(_columnIndexOfReminders));
+          _tmpReminders = _tmp != 0;
+          final boolean _tmpCategories;
+          final int _tmp_1;
+          _tmp_1 = (int) (_stmt.getLong(_columnIndexOfCategories));
+          _tmpCategories = _tmp_1 != 0;
+          final String _tmpDescription;
+          if (_stmt.isNull(_columnIndexOfDescription)) {
+            _tmpDescription = null;
+          } else {
+            _tmpDescription = _stmt.getText(_columnIndexOfDescription);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final boolean _tmpShowNumberOfCards;
+          final int _tmp_2;
+          _tmp_2 = (int) (_stmt.getLong(_columnIndexOfShowNumberOfCards));
+          _tmpShowNumberOfCards = _tmp_2 != 0;
+          final long _tmpLastTrained1;
+          _tmpLastTrained1 = _stmt.getLong(_columnIndexOfLastTrained1);
+          final long _tmpLastTrained2;
+          _tmpLastTrained2 = _stmt.getLong(_columnIndexOfLastTrained2);
+          final long _tmpLastTrained3;
+          _tmpLastTrained3 = _stmt.getLong(_columnIndexOfLastTrained3);
+          final long _tmpLastTrained4;
+          _tmpLastTrained4 = _stmt.getLong(_columnIndexOfLastTrained4);
+          final long _tmpLastTrained5;
+          _tmpLastTrained5 = _stmt.getLong(_columnIndexOfLastTrained5);
+          _tmpBox = new Box(_tmpBoxId,_tmpName,_tmpTopic,_tmpReminders,_tmpCategories,_tmpDescription,_tmpDateAdded,_tmpShowNumberOfCards,_tmpLastTrained1,_tmpLastTrained2,_tmpLastTrained3,_tmpLastTrained4,_tmpLastTrained5);
+          final ArrayList<Category> _tmpCategoriesCollection;
+          final long _tmpKey_1;
+          _tmpKey_1 = _stmt.getLong(_columnIndexOfBoxId);
+          _tmpCategoriesCollection = _collectionCategories.get(_tmpKey_1);
+          _result = new BoxWithCategories(_tmpBox,_tmpCategoriesCollection);
+        } else {
+          _result = null;
+        }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1575,73 +927,57 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<TagWithCards> getTagWithCards(final long tagId) {
     final String _sql = "SELECT * FROM tag WHERE tagId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, tagId);
-    return CoroutinesRoom.createFlow(__db, true, new String[] {"TagCardCrossRef", "Card",
-        "tag"}, new Callable<TagWithCards>() {
-      @Override
-      @NonNull
-      public TagWithCards call() throws Exception {
-        __db.beginTransaction();
-        try {
-          final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-          try {
-            final int _cursorIndexOfTagId = CursorUtil.getColumnIndexOrThrow(_cursor, "tagId");
-            final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-            final int _cursorIndexOfText = CursorUtil.getColumnIndexOrThrow(_cursor, "text");
-            final int _cursorIndexOfColor = CursorUtil.getColumnIndexOrThrow(_cursor, "color");
-            final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
-            while (_cursor.moveToNext()) {
-              final long _tmpKey;
-              _tmpKey = _cursor.getLong(_cursorIndexOfTagId);
-              if (!_collectionCards.containsKey(_tmpKey)) {
-                _collectionCards.put(_tmpKey, new ArrayList<Card>());
-              }
-            }
-            _cursor.moveToPosition(-1);
-            __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(_collectionCards);
-            final TagWithCards _result;
-            if (_cursor.moveToFirst()) {
-              final Tag _tmpTag;
-              final long _tmpTagId;
-              _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
-              final long _tmpBoxId;
-              _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-              final String _tmpText;
-              if (_cursor.isNull(_cursorIndexOfText)) {
-                _tmpText = null;
-              } else {
-                _tmpText = _cursor.getString(_cursorIndexOfText);
-              }
-              final String _tmpColor;
-              if (_cursor.isNull(_cursorIndexOfColor)) {
-                _tmpColor = null;
-              } else {
-                _tmpColor = _cursor.getString(_cursorIndexOfColor);
-              }
-              _tmpTag = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
-              final ArrayList<Card> _tmpCardsCollection;
-              final long _tmpKey_1;
-              _tmpKey_1 = _cursor.getLong(_cursorIndexOfTagId);
-              _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
-              _result = new TagWithCards(_tmpTag,_tmpCardsCollection);
-            } else {
-              _result = null;
-            }
-            __db.setTransactionSuccessful();
-            return _result;
-          } finally {
-            _cursor.close();
+    return FlowUtil.createFlow(__db, true, new String[] {"TagCardCrossRef", "Card",
+        "tag"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, tagId);
+        final int _columnIndexOfTagId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "tagId");
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfText = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "text");
+        final int _columnIndexOfColor = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "color");
+        final LongSparseArray<ArrayList<Card>> _collectionCards = new LongSparseArray<ArrayList<Card>>();
+        while (_stmt.step()) {
+          final long _tmpKey;
+          _tmpKey = _stmt.getLong(_columnIndexOfTagId);
+          if (!_collectionCards.containsKey(_tmpKey)) {
+            _collectionCards.put(_tmpKey, new ArrayList<Card>());
           }
-        } finally {
-          __db.endTransaction();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        _stmt.reset();
+        __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(_connection, _collectionCards);
+        final TagWithCards _result;
+        if (_stmt.step()) {
+          final Tag _tmpTag;
+          final long _tmpTagId;
+          _tmpTagId = _stmt.getLong(_columnIndexOfTagId);
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpText;
+          if (_stmt.isNull(_columnIndexOfText)) {
+            _tmpText = null;
+          } else {
+            _tmpText = _stmt.getText(_columnIndexOfText);
+          }
+          final String _tmpColor;
+          if (_stmt.isNull(_columnIndexOfColor)) {
+            _tmpColor = null;
+          } else {
+            _tmpColor = _stmt.getText(_columnIndexOfColor);
+          }
+          _tmpTag = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
+          final ArrayList<Card> _tmpCardsCollection;
+          final long _tmpKey_1;
+          _tmpKey_1 = _stmt.getLong(_columnIndexOfTagId);
+          _tmpCardsCollection = _collectionCards.get(_tmpKey_1);
+          _result = new TagWithCards(_tmpTag,_tmpCardsCollection);
+        } else {
+          _result = null;
+        }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1649,96 +985,80 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<CardWithTags> getCardWithTags(final long cardId) {
     final String _sql = "SELECT * FROM card WHERE cardId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, cardId);
-    return CoroutinesRoom.createFlow(__db, true, new String[] {"TagCardCrossRef", "Tag",
-        "card"}, new Callable<CardWithTags>() {
-      @Override
-      @NonNull
-      public CardWithTags call() throws Exception {
-        __db.beginTransaction();
-        try {
-          final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-          try {
-            final int _cursorIndexOfCardId = CursorUtil.getColumnIndexOrThrow(_cursor, "cardId");
-            final int _cursorIndexOfWord = CursorUtil.getColumnIndexOrThrow(_cursor, "word");
-            final int _cursorIndexOfMeaning = CursorUtil.getColumnIndexOrThrow(_cursor, "meaning");
-            final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
-            final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-            final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
-            final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-            final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
-            final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
-            final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
-            while (_cursor.moveToNext()) {
-              final long _tmpKey;
-              _tmpKey = _cursor.getLong(_cursorIndexOfCardId);
-              if (!_collectionTags.containsKey(_tmpKey)) {
-                _collectionTags.put(_tmpKey, new ArrayList<Tag>());
-              }
-            }
-            _cursor.moveToPosition(-1);
-            __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_collectionTags);
-            final CardWithTags _result;
-            if (_cursor.moveToFirst()) {
-              final Card _tmpCard;
-              final long _tmpCardId;
-              _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
-              final String _tmpWord;
-              if (_cursor.isNull(_cursorIndexOfWord)) {
-                _tmpWord = null;
-              } else {
-                _tmpWord = _cursor.getString(_cursorIndexOfWord);
-              }
-              final String _tmpMeaning;
-              if (_cursor.isNull(_cursorIndexOfMeaning)) {
-                _tmpMeaning = null;
-              } else {
-                _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
-              }
-              final String _tmpNotes;
-              if (_cursor.isNull(_cursorIndexOfNotes)) {
-                _tmpNotes = null;
-              } else {
-                _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
-              }
-              final long _tmpDateAdded;
-              _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-              final int _tmpLevel;
-              _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
-              final long _tmpBoxId;
-              _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-              final String _tmpMemoURI;
-              if (_cursor.isNull(_cursorIndexOfMemoURI)) {
-                _tmpMemoURI = null;
-              } else {
-                _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
-              }
-              final long _tmpCategoryId;
-              _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
-              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
-              final ArrayList<Tag> _tmpTagsCollection;
-              final long _tmpKey_1;
-              _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
-              _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
-              _result = new CardWithTags(_tmpCard,_tmpTagsCollection);
-            } else {
-              _result = null;
-            }
-            __db.setTransactionSuccessful();
-            return _result;
-          } finally {
-            _cursor.close();
+    return FlowUtil.createFlow(__db, true, new String[] {"TagCardCrossRef", "Tag",
+        "card"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        final int _columnIndexOfCardId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "cardId");
+        final int _columnIndexOfWord = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "word");
+        final int _columnIndexOfMeaning = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "meaning");
+        final int _columnIndexOfNotes = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "notes");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfLevel = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "level");
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfMemoURI = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "memoURI");
+        final int _columnIndexOfCategoryId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categoryId");
+        final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
+        while (_stmt.step()) {
+          final long _tmpKey;
+          _tmpKey = _stmt.getLong(_columnIndexOfCardId);
+          if (!_collectionTags.containsKey(_tmpKey)) {
+            _collectionTags.put(_tmpKey, new ArrayList<Tag>());
           }
-        } finally {
-          __db.endTransaction();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        _stmt.reset();
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_connection, _collectionTags);
+        final CardWithTags _result;
+        if (_stmt.step()) {
+          final Card _tmpCard;
+          final long _tmpCardId;
+          _tmpCardId = _stmt.getLong(_columnIndexOfCardId);
+          final String _tmpWord;
+          if (_stmt.isNull(_columnIndexOfWord)) {
+            _tmpWord = null;
+          } else {
+            _tmpWord = _stmt.getText(_columnIndexOfWord);
+          }
+          final String _tmpMeaning;
+          if (_stmt.isNull(_columnIndexOfMeaning)) {
+            _tmpMeaning = null;
+          } else {
+            _tmpMeaning = _stmt.getText(_columnIndexOfMeaning);
+          }
+          final String _tmpNotes;
+          if (_stmt.isNull(_columnIndexOfNotes)) {
+            _tmpNotes = null;
+          } else {
+            _tmpNotes = _stmt.getText(_columnIndexOfNotes);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final int _tmpLevel;
+          _tmpLevel = (int) (_stmt.getLong(_columnIndexOfLevel));
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpMemoURI;
+          if (_stmt.isNull(_columnIndexOfMemoURI)) {
+            _tmpMemoURI = null;
+          } else {
+            _tmpMemoURI = _stmt.getText(_columnIndexOfMemoURI);
+          }
+          final long _tmpCategoryId;
+          _tmpCategoryId = _stmt.getLong(_columnIndexOfCategoryId);
+          _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
+          final ArrayList<Tag> _tmpTagsCollection;
+          final long _tmpKey_1;
+          _tmpKey_1 = _stmt.getLong(_columnIndexOfCardId);
+          _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
+          _result = new CardWithTags(_tmpCard,_tmpTagsCollection);
+        } else {
+          _result = null;
+        }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1746,96 +1066,80 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Flow<List<CardWithTags>> getAllCardsWithTagsOfBox(final long boxId) {
     final String _sql = "SELECT * FROM card WHERE boxId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    return CoroutinesRoom.createFlow(__db, true, new String[] {"TagCardCrossRef", "Tag",
-        "card"}, new Callable<List<CardWithTags>>() {
-      @Override
-      @NonNull
-      public List<CardWithTags> call() throws Exception {
-        __db.beginTransaction();
-        try {
-          final Cursor _cursor = DBUtil.query(__db, _statement, true, null);
-          try {
-            final int _cursorIndexOfCardId = CursorUtil.getColumnIndexOrThrow(_cursor, "cardId");
-            final int _cursorIndexOfWord = CursorUtil.getColumnIndexOrThrow(_cursor, "word");
-            final int _cursorIndexOfMeaning = CursorUtil.getColumnIndexOrThrow(_cursor, "meaning");
-            final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
-            final int _cursorIndexOfDateAdded = CursorUtil.getColumnIndexOrThrow(_cursor, "dateAdded");
-            final int _cursorIndexOfLevel = CursorUtil.getColumnIndexOrThrow(_cursor, "level");
-            final int _cursorIndexOfBoxId = CursorUtil.getColumnIndexOrThrow(_cursor, "boxId");
-            final int _cursorIndexOfMemoURI = CursorUtil.getColumnIndexOrThrow(_cursor, "memoURI");
-            final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
-            final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
-            while (_cursor.moveToNext()) {
-              final long _tmpKey;
-              _tmpKey = _cursor.getLong(_cursorIndexOfCardId);
-              if (!_collectionTags.containsKey(_tmpKey)) {
-                _collectionTags.put(_tmpKey, new ArrayList<Tag>());
-              }
-            }
-            _cursor.moveToPosition(-1);
-            __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_collectionTags);
-            final List<CardWithTags> _result = new ArrayList<CardWithTags>(_cursor.getCount());
-            while (_cursor.moveToNext()) {
-              final CardWithTags _item;
-              final Card _tmpCard;
-              final long _tmpCardId;
-              _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
-              final String _tmpWord;
-              if (_cursor.isNull(_cursorIndexOfWord)) {
-                _tmpWord = null;
-              } else {
-                _tmpWord = _cursor.getString(_cursorIndexOfWord);
-              }
-              final String _tmpMeaning;
-              if (_cursor.isNull(_cursorIndexOfMeaning)) {
-                _tmpMeaning = null;
-              } else {
-                _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
-              }
-              final String _tmpNotes;
-              if (_cursor.isNull(_cursorIndexOfNotes)) {
-                _tmpNotes = null;
-              } else {
-                _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
-              }
-              final long _tmpDateAdded;
-              _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
-              final int _tmpLevel;
-              _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
-              final long _tmpBoxId;
-              _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
-              final String _tmpMemoURI;
-              if (_cursor.isNull(_cursorIndexOfMemoURI)) {
-                _tmpMemoURI = null;
-              } else {
-                _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
-              }
-              final long _tmpCategoryId;
-              _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
-              _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
-              final ArrayList<Tag> _tmpTagsCollection;
-              final long _tmpKey_1;
-              _tmpKey_1 = _cursor.getLong(_cursorIndexOfCardId);
-              _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
-              _item = new CardWithTags(_tmpCard,_tmpTagsCollection);
-              _result.add(_item);
-            }
-            __db.setTransactionSuccessful();
-            return _result;
-          } finally {
-            _cursor.close();
+    return FlowUtil.createFlow(__db, true, new String[] {"TagCardCrossRef", "Tag",
+        "card"}, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        final int _columnIndexOfCardId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "cardId");
+        final int _columnIndexOfWord = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "word");
+        final int _columnIndexOfMeaning = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "meaning");
+        final int _columnIndexOfNotes = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "notes");
+        final int _columnIndexOfDateAdded = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "dateAdded");
+        final int _columnIndexOfLevel = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "level");
+        final int _columnIndexOfBoxId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "boxId");
+        final int _columnIndexOfMemoURI = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "memoURI");
+        final int _columnIndexOfCategoryId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "categoryId");
+        final LongSparseArray<ArrayList<Tag>> _collectionTags = new LongSparseArray<ArrayList<Tag>>();
+        while (_stmt.step()) {
+          final long _tmpKey;
+          _tmpKey = _stmt.getLong(_columnIndexOfCardId);
+          if (!_collectionTags.containsKey(_tmpKey)) {
+            _collectionTags.put(_tmpKey, new ArrayList<Tag>());
           }
-        } finally {
-          __db.endTransaction();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
+        _stmt.reset();
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_connection, _collectionTags);
+        final List<CardWithTags> _result = new ArrayList<CardWithTags>();
+        while (_stmt.step()) {
+          final CardWithTags _item;
+          final Card _tmpCard;
+          final long _tmpCardId;
+          _tmpCardId = _stmt.getLong(_columnIndexOfCardId);
+          final String _tmpWord;
+          if (_stmt.isNull(_columnIndexOfWord)) {
+            _tmpWord = null;
+          } else {
+            _tmpWord = _stmt.getText(_columnIndexOfWord);
+          }
+          final String _tmpMeaning;
+          if (_stmt.isNull(_columnIndexOfMeaning)) {
+            _tmpMeaning = null;
+          } else {
+            _tmpMeaning = _stmt.getText(_columnIndexOfMeaning);
+          }
+          final String _tmpNotes;
+          if (_stmt.isNull(_columnIndexOfNotes)) {
+            _tmpNotes = null;
+          } else {
+            _tmpNotes = _stmt.getText(_columnIndexOfNotes);
+          }
+          final long _tmpDateAdded;
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
+          final int _tmpLevel;
+          _tmpLevel = (int) (_stmt.getLong(_columnIndexOfLevel));
+          final long _tmpBoxId;
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
+          final String _tmpMemoURI;
+          if (_stmt.isNull(_columnIndexOfMemoURI)) {
+            _tmpMemoURI = null;
+          } else {
+            _tmpMemoURI = _stmt.getText(_columnIndexOfMemoURI);
+          }
+          final long _tmpCategoryId;
+          _tmpCategoryId = _stmt.getLong(_columnIndexOfCategoryId);
+          _tmpCard = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
+          final ArrayList<Tag> _tmpTagsCollection;
+          final long _tmpKey_1;
+          _tmpKey_1 = _stmt.getLong(_columnIndexOfCardId);
+          _tmpTagsCollection = _collectionTags.get(_tmpKey_1);
+          _item = new CardWithTags(_tmpCard,_tmpTagsCollection);
+          _result.add(_item);
+        }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     });
   }
@@ -1843,31 +1147,24 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Object getBiggestBoxId(final Continuation<? super Long> $completion) {
     final String _sql = "SELECT MAX(boxId) FROM box";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Long>() {
-      @Override
-      @Nullable
-      public Long call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Long _result;
-          if (_cursor.moveToFirst()) {
-            final Long _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getLong(0);
-            }
-            _result = _tmp;
+    return DBUtil.performSuspending(__db, true, false, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        final Long _result;
+        if (_stmt.step()) {
+          final Long _tmp;
+          if (_stmt.isNull(0)) {
+            _tmp = null;
           } else {
-            _result = null;
+            _tmp = _stmt.getLong(0);
           }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
+          _result = _tmp;
+        } else {
+          _result = null;
         }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     }, $completion);
   }
@@ -1875,31 +1172,24 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Object getBiggestCategoryId(final Continuation<? super Long> $completion) {
     final String _sql = "SELECT MAX(categoryId) FROM category";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Long>() {
-      @Override
-      @Nullable
-      public Long call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Long _result;
-          if (_cursor.moveToFirst()) {
-            final Long _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getLong(0);
-            }
-            _result = _tmp;
+    return DBUtil.performSuspending(__db, true, false, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        final Long _result;
+        if (_stmt.step()) {
+          final Long _tmp;
+          if (_stmt.isNull(0)) {
+            _tmp = null;
           } else {
-            _result = null;
+            _tmp = _stmt.getLong(0);
           }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
+          _result = _tmp;
+        } else {
+          _result = null;
         }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     }, $completion);
   }
@@ -1907,31 +1197,24 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Object getBiggestCardId(final Continuation<? super Long> $completion) {
     final String _sql = "SELECT MAX(cardId) FROM card";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Long>() {
-      @Override
-      @Nullable
-      public Long call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Long _result;
-          if (_cursor.moveToFirst()) {
-            final Long _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getLong(0);
-            }
-            _result = _tmp;
+    return DBUtil.performSuspending(__db, true, false, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        final Long _result;
+        if (_stmt.step()) {
+          final Long _tmp;
+          if (_stmt.isNull(0)) {
+            _tmp = null;
           } else {
-            _result = null;
+            _tmp = _stmt.getLong(0);
           }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
+          _result = _tmp;
+        } else {
+          _result = null;
         }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     }, $completion);
   }
@@ -1939,31 +1222,24 @@ public final class AppDao_Impl implements AppDao {
   @Override
   public Object getBiggestTagId(final Continuation<? super Long> $completion) {
     final String _sql = "SELECT MAX(tagId) FROM tag";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Long>() {
-      @Override
-      @Nullable
-      public Long call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Long _result;
-          if (_cursor.moveToFirst()) {
-            final Long _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getLong(0);
-            }
-            _result = _tmp;
+    return DBUtil.performSuspending(__db, true, false, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        final Long _result;
+        if (_stmt.step()) {
+          final Long _tmp;
+          if (_stmt.isNull(0)) {
+            _tmp = null;
           } else {
-            _result = null;
+            _tmp = _stmt.getLong(0);
           }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
+          _result = _tmp;
+        } else {
+          _result = null;
         }
+        return _result;
+      } finally {
+        _stmt.close();
       }
     }, $completion);
   }
@@ -1972,35 +1248,272 @@ public final class AppDao_Impl implements AppDao {
   public Object getNumberOfCardsOfLevelInBox(final long boxId, final int level,
       final Continuation<? super Integer> $completion) {
     final String _sql = "SELECT COUNT(*) FROM card WHERE boxId = ? AND level = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, boxId);
-    _argIndex = 2;
-    _statement.bindLong(_argIndex, level);
-    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
-    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Integer>() {
-      @Override
-      @NonNull
-      public Integer call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-          final Integer _result;
-          if (_cursor.moveToFirst()) {
-            final Integer _tmp;
-            if (_cursor.isNull(0)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(0);
-            }
-            _result = _tmp;
+    return DBUtil.performSuspending(__db, true, false, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _argIndex = 2;
+        _stmt.bindLong(_argIndex, level);
+        final Integer _result;
+        if (_stmt.step()) {
+          final Integer _tmp;
+          if (_stmt.isNull(0)) {
+            _tmp = null;
           } else {
-            _result = null;
+            _tmp = (int) (_stmt.getLong(0));
           }
-          return _result;
-        } finally {
-          _cursor.close();
-          _statement.release();
+          _result = _tmp;
+        } else {
+          _result = null;
         }
+        return _result;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateTag(final long tagId, final String text, final String color,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "UPDATE tag SET text = ?, color = ? WHERE tagId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        if (text == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindText(_argIndex, text);
+        }
+        _argIndex = 2;
+        if (color == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindText(_argIndex, color);
+        }
+        _argIndex = 3;
+        _stmt.bindLong(_argIndex, tagId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteBox(final long boxId, final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM box WHERE boxId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCategory(final long categoryId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM category WHERE categoryId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, categoryId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCard(final long cardId, final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM card WHERE cardId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteTag(final long tagId, final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM tag WHERE tagId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, tagId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCardsFromBox(final long boxId, final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM card WHERE boxId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCategoriesFromBox(final long boxId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM category WHERE boxId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteTagsFromBox(final long boxId, final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM tag WHERE boxId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteTagsFromCard(final long tagId, final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM tagcardcrossref WHERE tagId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, tagId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteCardFromTags(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "DELETE FROM tagcardcrossref WHERE cardId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object upgradeLevelOnCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "UPDATE Card SET level = level + 1 WHERE cardId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object downgradeLevelOnCard(final long cardId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "UPDATE Card SET level = level - 1 WHERE cardId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, cardId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object enableNotificationsForBox(final long boxId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "UPDATE Box SET reminders = 1 WHERE boxId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object disableNotificationsForBox(final long boxId,
+      final Continuation<? super Unit> $completion) {
+    final String _sql = "UPDATE Box SET reminders = 0 WHERE boxId = ?";
+    return DBUtil.performSuspending(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, boxId);
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
       }
     }, $completion);
   }
@@ -2011,378 +1524,373 @@ public final class AppDao_Impl implements AppDao {
   }
 
   private void __fetchRelationshipCardAscomExampleIndexcardsDataCard(
+      @NonNull final SQLiteConnection _connection,
       @NonNull final LongSparseArray<ArrayList<Card>> _map) {
     if (_map.isEmpty()) {
       return;
     }
-    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
-      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipCardAscomExampleIndexcardsDataCard(map);
+    if (_map.size() > 999) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (_tmpMap) -> {
+        __fetchRelationshipCardAscomExampleIndexcardsDataCard(_connection, _tmpMap);
         return Unit.INSTANCE;
       });
       return;
     }
-    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    final StringBuilder _stringBuilder = new StringBuilder();
     _stringBuilder.append("SELECT `cardId`,`word`,`meaning`,`notes`,`dateAdded`,`level`,`boxId`,`memoURI`,`categoryId` FROM `Card` WHERE `boxId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    final SQLiteStatement _stmt = _connection.prepare(_sql);
     int _argIndex = 1;
     for (int i = 0; i < _map.size(); i++) {
       final long _item = _map.keyAt(i);
       _stmt.bindLong(_argIndex, _item);
       _argIndex++;
     }
-    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
-      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "boxId");
+      final int _itemKeyIndex = SQLiteStatementUtil.getColumnIndex(_stmt, "boxId");
       if (_itemKeyIndex == -1) {
         return;
       }
-      final int _cursorIndexOfCardId = 0;
-      final int _cursorIndexOfWord = 1;
-      final int _cursorIndexOfMeaning = 2;
-      final int _cursorIndexOfNotes = 3;
-      final int _cursorIndexOfDateAdded = 4;
-      final int _cursorIndexOfLevel = 5;
-      final int _cursorIndexOfBoxId = 6;
-      final int _cursorIndexOfMemoURI = 7;
-      final int _cursorIndexOfCategoryId = 8;
-      while (_cursor.moveToNext()) {
+      final int _columnIndexOfCardId = 0;
+      final int _columnIndexOfWord = 1;
+      final int _columnIndexOfMeaning = 2;
+      final int _columnIndexOfNotes = 3;
+      final int _columnIndexOfDateAdded = 4;
+      final int _columnIndexOfLevel = 5;
+      final int _columnIndexOfBoxId = 6;
+      final int _columnIndexOfMemoURI = 7;
+      final int _columnIndexOfCategoryId = 8;
+      while (_stmt.step()) {
         final long _tmpKey;
-        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        _tmpKey = _stmt.getLong(_itemKeyIndex);
         final ArrayList<Card> _tmpRelation = _map.get(_tmpKey);
         if (_tmpRelation != null) {
           final Card _item_1;
           final long _tmpCardId;
-          _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
+          _tmpCardId = _stmt.getLong(_columnIndexOfCardId);
           final String _tmpWord;
-          if (_cursor.isNull(_cursorIndexOfWord)) {
+          if (_stmt.isNull(_columnIndexOfWord)) {
             _tmpWord = null;
           } else {
-            _tmpWord = _cursor.getString(_cursorIndexOfWord);
+            _tmpWord = _stmt.getText(_columnIndexOfWord);
           }
           final String _tmpMeaning;
-          if (_cursor.isNull(_cursorIndexOfMeaning)) {
+          if (_stmt.isNull(_columnIndexOfMeaning)) {
             _tmpMeaning = null;
           } else {
-            _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
+            _tmpMeaning = _stmt.getText(_columnIndexOfMeaning);
           }
           final String _tmpNotes;
-          if (_cursor.isNull(_cursorIndexOfNotes)) {
+          if (_stmt.isNull(_columnIndexOfNotes)) {
             _tmpNotes = null;
           } else {
-            _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+            _tmpNotes = _stmt.getText(_columnIndexOfNotes);
           }
           final long _tmpDateAdded;
-          _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
           final int _tmpLevel;
-          _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
+          _tmpLevel = (int) (_stmt.getLong(_columnIndexOfLevel));
           final long _tmpBoxId;
-          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
           final String _tmpMemoURI;
-          if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+          if (_stmt.isNull(_columnIndexOfMemoURI)) {
             _tmpMemoURI = null;
           } else {
-            _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+            _tmpMemoURI = _stmt.getText(_columnIndexOfMemoURI);
           }
           final long _tmpCategoryId;
-          _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+          _tmpCategoryId = _stmt.getLong(_columnIndexOfCategoryId);
           _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
           _tmpRelation.add(_item_1);
         }
       }
     } finally {
-      _cursor.close();
+      _stmt.close();
     }
   }
 
   private void __fetchRelationshipTagAscomExampleIndexcardsDataTag(
+      @NonNull final SQLiteConnection _connection,
       @NonNull final LongSparseArray<ArrayList<Tag>> _map) {
     if (_map.isEmpty()) {
       return;
     }
-    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
-      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipTagAscomExampleIndexcardsDataTag(map);
+    if (_map.size() > 999) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (_tmpMap) -> {
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag(_connection, _tmpMap);
         return Unit.INSTANCE;
       });
       return;
     }
-    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    final StringBuilder _stringBuilder = new StringBuilder();
     _stringBuilder.append("SELECT `tagId`,`boxId`,`text`,`color` FROM `Tag` WHERE `boxId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    final SQLiteStatement _stmt = _connection.prepare(_sql);
     int _argIndex = 1;
     for (int i = 0; i < _map.size(); i++) {
       final long _item = _map.keyAt(i);
       _stmt.bindLong(_argIndex, _item);
       _argIndex++;
     }
-    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
-      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "boxId");
+      final int _itemKeyIndex = SQLiteStatementUtil.getColumnIndex(_stmt, "boxId");
       if (_itemKeyIndex == -1) {
         return;
       }
-      final int _cursorIndexOfTagId = 0;
-      final int _cursorIndexOfBoxId = 1;
-      final int _cursorIndexOfText = 2;
-      final int _cursorIndexOfColor = 3;
-      while (_cursor.moveToNext()) {
+      final int _columnIndexOfTagId = 0;
+      final int _columnIndexOfBoxId = 1;
+      final int _columnIndexOfText = 2;
+      final int _columnIndexOfColor = 3;
+      while (_stmt.step()) {
         final long _tmpKey;
-        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        _tmpKey = _stmt.getLong(_itemKeyIndex);
         final ArrayList<Tag> _tmpRelation = _map.get(_tmpKey);
         if (_tmpRelation != null) {
           final Tag _item_1;
           final long _tmpTagId;
-          _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
+          _tmpTagId = _stmt.getLong(_columnIndexOfTagId);
           final long _tmpBoxId;
-          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
           final String _tmpText;
-          if (_cursor.isNull(_cursorIndexOfText)) {
+          if (_stmt.isNull(_columnIndexOfText)) {
             _tmpText = null;
           } else {
-            _tmpText = _cursor.getString(_cursorIndexOfText);
+            _tmpText = _stmt.getText(_columnIndexOfText);
           }
           final String _tmpColor;
-          if (_cursor.isNull(_cursorIndexOfColor)) {
+          if (_stmt.isNull(_columnIndexOfColor)) {
             _tmpColor = null;
           } else {
-            _tmpColor = _cursor.getString(_cursorIndexOfColor);
+            _tmpColor = _stmt.getText(_columnIndexOfColor);
           }
           _item_1 = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
           _tmpRelation.add(_item_1);
         }
       }
     } finally {
-      _cursor.close();
+      _stmt.close();
     }
   }
 
   private void __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(
+      @NonNull final SQLiteConnection _connection,
       @NonNull final LongSparseArray<ArrayList<Category>> _map) {
     if (_map.isEmpty()) {
       return;
     }
-    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
-      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(map);
+    if (_map.size() > 999) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (_tmpMap) -> {
+        __fetchRelationshipCategoryAscomExampleIndexcardsDataCategory(_connection, _tmpMap);
         return Unit.INSTANCE;
       });
       return;
     }
-    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    final StringBuilder _stringBuilder = new StringBuilder();
     _stringBuilder.append("SELECT `categoryId`,`boxId`,`name` FROM `Category` WHERE `boxId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    final SQLiteStatement _stmt = _connection.prepare(_sql);
     int _argIndex = 1;
     for (int i = 0; i < _map.size(); i++) {
       final long _item = _map.keyAt(i);
       _stmt.bindLong(_argIndex, _item);
       _argIndex++;
     }
-    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
-      final int _itemKeyIndex = CursorUtil.getColumnIndex(_cursor, "boxId");
+      final int _itemKeyIndex = SQLiteStatementUtil.getColumnIndex(_stmt, "boxId");
       if (_itemKeyIndex == -1) {
         return;
       }
-      final int _cursorIndexOfCategoryId = 0;
-      final int _cursorIndexOfBoxId = 1;
-      final int _cursorIndexOfName = 2;
-      while (_cursor.moveToNext()) {
+      final int _columnIndexOfCategoryId = 0;
+      final int _columnIndexOfBoxId = 1;
+      final int _columnIndexOfName = 2;
+      while (_stmt.step()) {
         final long _tmpKey;
-        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        _tmpKey = _stmt.getLong(_itemKeyIndex);
         final ArrayList<Category> _tmpRelation = _map.get(_tmpKey);
         if (_tmpRelation != null) {
           final Category _item_1;
           final long _tmpCategoryId;
-          _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+          _tmpCategoryId = _stmt.getLong(_columnIndexOfCategoryId);
           final long _tmpBoxId;
-          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
           final String _tmpName;
-          if (_cursor.isNull(_cursorIndexOfName)) {
+          if (_stmt.isNull(_columnIndexOfName)) {
             _tmpName = null;
           } else {
-            _tmpName = _cursor.getString(_cursorIndexOfName);
+            _tmpName = _stmt.getText(_columnIndexOfName);
           }
           _item_1 = new Category(_tmpCategoryId,_tmpBoxId,_tmpName);
           _tmpRelation.add(_item_1);
         }
       }
     } finally {
-      _cursor.close();
+      _stmt.close();
     }
   }
 
   private void __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(
+      @NonNull final SQLiteConnection _connection,
       @NonNull final LongSparseArray<ArrayList<Card>> _map) {
     if (_map.isEmpty()) {
       return;
     }
-    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
-      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(map);
+    if (_map.size() > 999) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (_tmpMap) -> {
+        __fetchRelationshipCardAscomExampleIndexcardsDataCard_1(_connection, _tmpMap);
         return Unit.INSTANCE;
       });
       return;
     }
-    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    final StringBuilder _stringBuilder = new StringBuilder();
     _stringBuilder.append("SELECT `Card`.`cardId` AS `cardId`,`Card`.`word` AS `word`,`Card`.`meaning` AS `meaning`,`Card`.`notes` AS `notes`,`Card`.`dateAdded` AS `dateAdded`,`Card`.`level` AS `level`,`Card`.`boxId` AS `boxId`,`Card`.`memoURI` AS `memoURI`,`Card`.`categoryId` AS `categoryId`,_junction.`tagId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Card` ON (_junction.`cardId` = `Card`.`cardId`) WHERE _junction.`tagId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    final SQLiteStatement _stmt = _connection.prepare(_sql);
     int _argIndex = 1;
     for (int i = 0; i < _map.size(); i++) {
       final long _item = _map.keyAt(i);
       _stmt.bindLong(_argIndex, _item);
       _argIndex++;
     }
-    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
       // _junction.tagId;
       final int _itemKeyIndex = 9;
       if (_itemKeyIndex == -1) {
         return;
       }
-      final int _cursorIndexOfCardId = 0;
-      final int _cursorIndexOfWord = 1;
-      final int _cursorIndexOfMeaning = 2;
-      final int _cursorIndexOfNotes = 3;
-      final int _cursorIndexOfDateAdded = 4;
-      final int _cursorIndexOfLevel = 5;
-      final int _cursorIndexOfBoxId = 6;
-      final int _cursorIndexOfMemoURI = 7;
-      final int _cursorIndexOfCategoryId = 8;
-      while (_cursor.moveToNext()) {
+      final int _columnIndexOfCardId = 0;
+      final int _columnIndexOfWord = 1;
+      final int _columnIndexOfMeaning = 2;
+      final int _columnIndexOfNotes = 3;
+      final int _columnIndexOfDateAdded = 4;
+      final int _columnIndexOfLevel = 5;
+      final int _columnIndexOfBoxId = 6;
+      final int _columnIndexOfMemoURI = 7;
+      final int _columnIndexOfCategoryId = 8;
+      while (_stmt.step()) {
         final long _tmpKey;
-        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        _tmpKey = _stmt.getLong(_itemKeyIndex);
         final ArrayList<Card> _tmpRelation = _map.get(_tmpKey);
         if (_tmpRelation != null) {
           final Card _item_1;
           final long _tmpCardId;
-          _tmpCardId = _cursor.getLong(_cursorIndexOfCardId);
+          _tmpCardId = _stmt.getLong(_columnIndexOfCardId);
           final String _tmpWord;
-          if (_cursor.isNull(_cursorIndexOfWord)) {
+          if (_stmt.isNull(_columnIndexOfWord)) {
             _tmpWord = null;
           } else {
-            _tmpWord = _cursor.getString(_cursorIndexOfWord);
+            _tmpWord = _stmt.getText(_columnIndexOfWord);
           }
           final String _tmpMeaning;
-          if (_cursor.isNull(_cursorIndexOfMeaning)) {
+          if (_stmt.isNull(_columnIndexOfMeaning)) {
             _tmpMeaning = null;
           } else {
-            _tmpMeaning = _cursor.getString(_cursorIndexOfMeaning);
+            _tmpMeaning = _stmt.getText(_columnIndexOfMeaning);
           }
           final String _tmpNotes;
-          if (_cursor.isNull(_cursorIndexOfNotes)) {
+          if (_stmt.isNull(_columnIndexOfNotes)) {
             _tmpNotes = null;
           } else {
-            _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
+            _tmpNotes = _stmt.getText(_columnIndexOfNotes);
           }
           final long _tmpDateAdded;
-          _tmpDateAdded = _cursor.getLong(_cursorIndexOfDateAdded);
+          _tmpDateAdded = _stmt.getLong(_columnIndexOfDateAdded);
           final int _tmpLevel;
-          _tmpLevel = _cursor.getInt(_cursorIndexOfLevel);
+          _tmpLevel = (int) (_stmt.getLong(_columnIndexOfLevel));
           final long _tmpBoxId;
-          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
           final String _tmpMemoURI;
-          if (_cursor.isNull(_cursorIndexOfMemoURI)) {
+          if (_stmt.isNull(_columnIndexOfMemoURI)) {
             _tmpMemoURI = null;
           } else {
-            _tmpMemoURI = _cursor.getString(_cursorIndexOfMemoURI);
+            _tmpMemoURI = _stmt.getText(_columnIndexOfMemoURI);
           }
           final long _tmpCategoryId;
-          _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+          _tmpCategoryId = _stmt.getLong(_columnIndexOfCategoryId);
           _item_1 = new Card(_tmpCardId,_tmpWord,_tmpMeaning,_tmpNotes,_tmpDateAdded,_tmpLevel,_tmpBoxId,_tmpMemoURI,_tmpCategoryId);
           _tmpRelation.add(_item_1);
         }
       }
     } finally {
-      _cursor.close();
+      _stmt.close();
     }
   }
 
   private void __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(
+      @NonNull final SQLiteConnection _connection,
       @NonNull final LongSparseArray<ArrayList<Tag>> _map) {
     if (_map.isEmpty()) {
       return;
     }
-    if (_map.size() > RoomDatabase.MAX_BIND_PARAMETER_CNT) {
-      RelationUtil.recursiveFetchLongSparseArray(_map, true, (map) -> {
-        __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(map);
+    if (_map.size() > 999) {
+      RelationUtil.recursiveFetchLongSparseArray(_map, true, (_tmpMap) -> {
+        __fetchRelationshipTagAscomExampleIndexcardsDataTag_1(_connection, _tmpMap);
         return Unit.INSTANCE;
       });
       return;
     }
-    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    final StringBuilder _stringBuilder = new StringBuilder();
     _stringBuilder.append("SELECT `Tag`.`tagId` AS `tagId`,`Tag`.`boxId` AS `boxId`,`Tag`.`text` AS `text`,`Tag`.`color` AS `color`,_junction.`cardId` FROM `TagCardCrossRef` AS _junction INNER JOIN `Tag` ON (_junction.`tagId` = `Tag`.`tagId`) WHERE _junction.`cardId` IN (");
     final int _inputSize = _map.size();
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _stmt = RoomSQLiteQuery.acquire(_sql, _argCount);
+    final SQLiteStatement _stmt = _connection.prepare(_sql);
     int _argIndex = 1;
     for (int i = 0; i < _map.size(); i++) {
       final long _item = _map.keyAt(i);
       _stmt.bindLong(_argIndex, _item);
       _argIndex++;
     }
-    final Cursor _cursor = DBUtil.query(__db, _stmt, false, null);
     try {
       // _junction.cardId;
       final int _itemKeyIndex = 4;
       if (_itemKeyIndex == -1) {
         return;
       }
-      final int _cursorIndexOfTagId = 0;
-      final int _cursorIndexOfBoxId = 1;
-      final int _cursorIndexOfText = 2;
-      final int _cursorIndexOfColor = 3;
-      while (_cursor.moveToNext()) {
+      final int _columnIndexOfTagId = 0;
+      final int _columnIndexOfBoxId = 1;
+      final int _columnIndexOfText = 2;
+      final int _columnIndexOfColor = 3;
+      while (_stmt.step()) {
         final long _tmpKey;
-        _tmpKey = _cursor.getLong(_itemKeyIndex);
+        _tmpKey = _stmt.getLong(_itemKeyIndex);
         final ArrayList<Tag> _tmpRelation = _map.get(_tmpKey);
         if (_tmpRelation != null) {
           final Tag _item_1;
           final long _tmpTagId;
-          _tmpTagId = _cursor.getLong(_cursorIndexOfTagId);
+          _tmpTagId = _stmt.getLong(_columnIndexOfTagId);
           final long _tmpBoxId;
-          _tmpBoxId = _cursor.getLong(_cursorIndexOfBoxId);
+          _tmpBoxId = _stmt.getLong(_columnIndexOfBoxId);
           final String _tmpText;
-          if (_cursor.isNull(_cursorIndexOfText)) {
+          if (_stmt.isNull(_columnIndexOfText)) {
             _tmpText = null;
           } else {
-            _tmpText = _cursor.getString(_cursorIndexOfText);
+            _tmpText = _stmt.getText(_columnIndexOfText);
           }
           final String _tmpColor;
-          if (_cursor.isNull(_cursorIndexOfColor)) {
+          if (_stmt.isNull(_columnIndexOfColor)) {
             _tmpColor = null;
           } else {
-            _tmpColor = _cursor.getString(_cursorIndexOfColor);
+            _tmpColor = _stmt.getText(_columnIndexOfColor);
           }
           _item_1 = new Tag(_tmpTagId,_tmpBoxId,_tmpText,_tmpColor);
           _tmpRelation.add(_item_1);
         }
       }
     } finally {
-      _cursor.close();
+      _stmt.close();
     }
   }
 }

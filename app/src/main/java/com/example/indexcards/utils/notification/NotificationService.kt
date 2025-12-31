@@ -10,13 +10,14 @@ import com.example.indexcards.MainActivity
 import com.example.indexcards.R
 import java.time.ZonedDateTime
 
-val NOTIFICATION_REQUEST_CODES = 1..4
+val NOTIFICATION_REQUEST_CODES = 1..5
 
 object NotificationRequest {
     const val MAKE_REMINDER: Int = 1
     const val GO_TO_BOX: Int = 2
     const val GO_TO_TRAINING: Int = 3
-    const val REMIND_LATER: Int = 4
+    const val MAKE_REMINDER_LATER: Int = 4
+    const val REMIND_LATER: Int = 5
 }
 
 class NotificationService(
@@ -109,14 +110,14 @@ class NotificationService(
         boxName: String = "",
         triggerTime: Long = ZonedDateTime.now().plusHours(1).toInstant().toEpochMilli(),
     ) {
-        val intent = Intent(context, NotificationReceiver::class.java)
-            .putExtra("id", NotificationRequest.MAKE_REMINDER)
-            .putExtra("boxId", boxId)
-            .putExtra("level", level)
-            .putExtra("boxName", boxName)
-        val requestId = getIntentId(boxId, level, NotificationRequest.MAKE_REMINDER)
-
         if (boxId != (-1).toLong() && level != -1) {
+            val intent = Intent(context, NotificationReceiver::class.java)
+                .putExtra("id", NotificationRequest.REMIND_LATER)
+                .putExtra("boxId", boxId)
+                .putExtra("level", level)
+                .putExtra("boxName", boxName)
+            val requestId = getIntentId(boxId, level, NotificationRequest.REMIND_LATER)
+
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 requestId,

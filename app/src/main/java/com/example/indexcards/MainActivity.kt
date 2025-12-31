@@ -33,7 +33,6 @@ import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.ui.theme.IndexCardsTheme
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenViewModel
-import com.example.indexcards.utils.notification.NOTIFICATION_REQUEST_CODES
 import com.example.indexcards.utils.notification.NotificationRequest
 import com.example.indexcards.utils.notification.NotificationService
 import kotlinx.coroutines.flow.first
@@ -89,9 +88,10 @@ class MainActivity : ComponentActivity() {
             var isCSVFile by remember { mutableStateOf(false) }
             val mustBeCSVToast = stringResource(id = R.string.must_be_csv)
 
-            if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
-                service.closeNotification(boxId, level, 0)
-            }
+            /* Can be deleted maybe? intentID=0 is not used anyways */
+//            if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
+//                service.closeNotification(boxId, level, 0)
+//            }
 
             val appRepository = OfflineAppRepository(AppDatabase.getDatabase(context).appDao())
 
@@ -103,7 +103,12 @@ class MainActivity : ComponentActivity() {
                             service.closeNotification(
                                 boxId = box.boxId,
                                 level = lvl,
-                                NotificationRequest.MAKE_REMINDER
+                                NotificationRequest.MAKE_REMINDER,
+                            )
+                            service.closeNotification(
+                                boxId = box.boxId,
+                                level = lvl,
+                                NotificationRequest.REMIND_LATER,
                             )
                         }
                     }
