@@ -9,6 +9,9 @@ build/
 *.bin
 *.probe
 *.properties
+.idea/
+.gradle/
+local.properties
 
 # Compiled class file
 *.class
