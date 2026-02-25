@@ -4,17 +4,17 @@ IndexCards is a simple app for learning anything, in particular languages, using
 
 ## Screenshots
 
-A picture say more than a thousand words. The home screen contains an overview of all boxes:
+A picture says more than a thousand words. The home screen contains an overview of all boxes:
 
 <table>
   <tr>
     <td align="center">
       <img src="res/homescreen_empty.png" width="200px;"/><br />
-      <sub><b>When first opening the app.</b></sub>
+      <sub><b>When first opening the app it is empty.</b></sub>
     </td>
     <td align="center">
       <img src="res/new_box_dialog.png" width="200px;"/><br />
-      <sub><b>The dialog for adding a new box.</b></sub>
+      <sub><b>A box can be added by tapping the '+' icon and its details can be entered.</b></sub>
     </td>
     <td align="center">
       <img src="res/homescreen_filled.png" width="200px;"/><br />
@@ -23,7 +23,7 @@ A picture say more than a thousand words. The home screen contains an overview o
   </tr>
 </table>
 
-From the options on the top right of the home screen you can access the settings screen:
+From the options on the top right of the home screen you can access the settings screen and also start the tutorial (work in progress):
 
 <table>
   <tr>
@@ -34,6 +34,10 @@ From the options on the top right of the home screen you can access the settings
     <td align="center">
       <img src="res/settings.png" width="200px;"/><br />
       <sub><b>The seetings screen.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/tutorial.png" width="200px;"/><br />
+      <sub><b>The first tutorial dialog.</b></sub>
     </td>
   </tr>
 </table>
@@ -52,7 +56,7 @@ Clicking on a box on the home screen reveals it contents:
     </td>
     <td align="center">
       <img src="res/boxscreen_filled.png" width="200px;"/><br />
-      <sub><b>When first opening a box it is empty.</b></sub>
+      <sub><b>The box screen after adding several cards.</b></sub>
     </td>
   </tr>
 </table>
@@ -76,13 +80,17 @@ Cards can be associated with tags and have a level according to how often in a r
   </tr>
 </table>
 
-The details of the box can also be edited:
+The options on the box screen let you search for a keyword, sort cards, enter training, and edit the box details:
 
 <table>
   <tr>
     <td align="center">
       <img src="res/boxscreen_options.png" width="200px;"/><br />
       <sub><b>The options available on the box screen.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/boxscreen_sorting.png" width="200px;"/><br />
+      <sub><b>There are several sorting options available.</b></sub>
     </td>
     <td align="center">
       <img src="res/edit_box_screen.png" width="200px;"/><br />
@@ -95,8 +103,8 @@ The details of the box can also be edited:
 ## Features
 
 - Learning languages 
-- Tutorial
-- Reminders for training as notifications
+- Tutorial (work in progress)
+- Reminders for training as notifications (still some bugs)
 - User preferences
 - Exporting to and importing from CSV files
 
@@ -134,4 +142,4 @@ The UI of the app is available in English and German. There following languages 
 
 This app is written entirely in [Kotlin](https://kotlinlang.org/). It uses [Compose](https://developer.android.com/compose) for the UI and [Room](https://developer.android.com/training/data-storage/room/) for persistent storage of data. Other modules used are the [colopicker-compose by skydoves](https://github.com/skydoves/colorpicker-compose) and [datastore](https://developer.android.com/topic/libraries/architecture/datastore) for storing preferences.
 
-Boxes, cards, tags, and categories are stored in an SQLite database.
+Boxes, cards, tags, and categories are stored in a relational SQLite database.
