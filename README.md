@@ -13,8 +13,80 @@ A picture say more than a thousand words. The home screen contains an overview o
       <sub><b>When first opening the app.</b></sub>
     </td>
     <td align="center">
+      <img src="res/new_box_dialog.png" width="200px;"/><br />
+      <sub><b>The dialog for adding a new box.</b></sub>
+    </td>
+    <td align="center">
       <img src="res/homescreen_filled.png" width="200px;"/><br />
       <sub><b>The home screen after adding several boxes.</b></sub>
+    </td>
+  </tr>
+</table>
+
+From the options on the top right of the home screen you can access the settings screen:
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="res/homescreen_options.png" width="200px;"/><br />
+      <sub><b>The options available on the home screen.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/settings.png" width="200px;"/><br />
+      <sub><b>The seetings screen.</b></sub>
+    </td>
+  </tr>
+</table>
+
+Clicking on a box on the home screen reveals it contents:
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="res/boxscreen_empty.png" width="200px;"/><br />
+      <sub><b>When first opening a box it is empty.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/new_card_dialog.png" width="200px;"/><br />
+      <sub><b>The dialog for adding a new card to the current box.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/boxscreen_filled.png" width="200px;"/><br />
+      <sub><b>When first opening a box it is empty.</b></sub>
+    </td>
+  </tr>
+</table>
+
+Cards can be associated with tags and have a level according to how often in a row you have got them correct during training. When you get a card right, it moves up one level; getting a card wrong decreases its level. Higher levels have to be trained less often.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="res/training_covered.png" width="200px;"/><br />
+      <sub><b>During training cards are first shown with the answer covered.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/training_revealed.png" width="200px;"/><br />
+      <sub><b>Tapping on the card revels the answer from where you select if you got it correct or not.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/training_options.png" width="200px;"/><br />
+      <sub><b>The faces/sides of the cards can also be reversed.</b></sub>
+    </td>
+  </tr>
+</table>
+
+The details of the box can also be edited:
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="res/boxscreen_options.png" width="200px;"/><br />
+      <sub><b>The options available on the box screen.</b></sub>
+    </td>
+    <td align="center">
+      <img src="res/edit_box_screen.png" width="200px;"/><br />
+      <sub><b>The screen for editing a boxes details.</b></sub>
     </td>
   </tr>
 </table>
