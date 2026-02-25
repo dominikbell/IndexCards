@@ -143,3 +143,13 @@ The UI of the app is available in English and German. There following languages 
 This app is written entirely in [Kotlin](https://kotlinlang.org/). It uses [Compose](https://developer.android.com/compose) for the UI and [Room](https://developer.android.com/training/data-storage/room/) for persistent storage of data. Other modules used are the [colopicker-compose by skydoves](https://github.com/skydoves/colorpicker-compose) and [datastore](https://developer.android.com/topic/libraries/architecture/datastore) for storing preferences.
 
 Boxes, cards, tags, and categories are stored in a relational SQLite database.
+
+## Developer Information
+
+To create a new release, the main branch has to be tagged and then pushed
+
+```
+git tag -a v1.0 -m "First release"
+
+git push origin v1.0
+```
