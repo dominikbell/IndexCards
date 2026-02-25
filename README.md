@@ -2,6 +2,10 @@
 
 IndexCards is a simple app for learning anything, in particular languages, using the index card learning principle.
 
+## Download
+
+[Click here to download the latest APK.](https://github.com/dominikbell/IndexCards/releases/latest)
+
 ## Screenshots
 
 A picture says more than a thousand words. The home screen contains an overview of all boxes:
