@@ -10,6 +10,9 @@ class OfflineAppRepository(
     override suspend fun upsertBox(box: Box) =
         appDao.upsertBox(box)
 
+    override suspend fun upsertCategory(category: Category) =
+        appDao.upsertCategory(category)
+
     override suspend fun upsertCard(card: Card) =
         appDao.upsertCard(card)
 
@@ -30,9 +33,22 @@ class OfflineAppRepository(
             .forEach {
                 appDao.deleteCardFromTags(cardId = it.cardId)
             }
+        appDao.deleteCategoriesFromBox(boxId = boxId)
         appDao.deleteTagsFromBox(boxId = boxId)
         appDao.deleteCardsFromBox(boxId = boxId)
         appDao.deleteBox(boxId = boxId)
+    }
+
+    override suspend fun deleteCategory(category: Category) {
+        appDao.getBoxWithCards(category.boxId)
+            .filterNotNull()
+            .first()
+            .cards
+            .filter { it.categoryId == category.categoryId }
+            .forEach {
+                appDao.upsertCard(card = it.copy(categoryId = -1))
+            }
+        appDao.deleteCategory(categoryId = category.categoryId)
     }
 
     override suspend fun deleteCard(cardId: Long) {
@@ -69,6 +85,9 @@ class OfflineAppRepository(
     override fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags> =
         appDao.getBoxWithTags(boxId)
 
+    override fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories> =
+        appDao.getBoxWithCategories(boxId)
+
     override fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags> =
         appDao.getCardWithTags(cardId)
 
@@ -77,6 +96,10 @@ class OfflineAppRepository(
 
     override suspend fun getBiggestBoxId(): Long {
         return appDao.getBiggestBoxId() ?: -1
+    }
+
+    override suspend fun getBiggestCategoryId(): Long {
+        return appDao.getBiggestCategoryId() ?: -1
     }
 
     override suspend fun getBiggestCardId(): Long {

@@ -25,10 +25,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.ui.elements.RequiredFieldsText
-import com.example.indexcards.utils.tag.TagDetails
-import com.example.indexcards.utils.tag.TagState
-import com.example.indexcards.utils.tag.emptyTag
-import com.example.indexcards.utils.tag.toTagDetails
+import com.example.indexcards.utils.state.TagDetails
+import com.example.indexcards.utils.state.TagState
+import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toTagDetails
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker

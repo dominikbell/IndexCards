@@ -4,28 +4,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.data.TagWithCards
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.card.CardDetails
-import com.example.indexcards.utils.card.CardState
-import com.example.indexcards.utils.card.UiCardWithTags
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.card.toCard
-import com.example.indexcards.utils.card.toCardDetails
-import com.example.indexcards.utils.tag.TagDetails
-import com.example.indexcards.utils.tag.TagState
-import com.example.indexcards.utils.tag.UiColorState
-import com.example.indexcards.utils.tag.emptyTag
-import com.example.indexcards.utils.tag.toTag
+import com.example.indexcards.utils.state.CardDetails
+import com.example.indexcards.utils.state.CardState
+import com.example.indexcards.utils.state.CategoryDetails
+import com.example.indexcards.utils.state.CategoryState
+import com.example.indexcards.utils.state.UiCardWithTags
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.toCard
+import com.example.indexcards.utils.state.toCardDetails
+import com.example.indexcards.utils.state.TagDetails
+import com.example.indexcards.utils.state.TagState
+import com.example.indexcards.utils.state.UiColorState
+import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.toBoxDetails
+import com.example.indexcards.utils.state.toCategory
+import com.example.indexcards.utils.state.toTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -38,6 +44,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 /** ViewModel for the BoxScreen
@@ -49,6 +56,7 @@ import kotlinx.coroutines.launch
  *
  * - enables filtering by levelSelected
  * - enables filtering by tagSelected (-> tagWithCards)
+ * - enables expanding and collapsing categories by expandedCategories
  *
  * - has CardUiState to view and edit card
  * - has TagUiState to view and edit tag
@@ -94,6 +102,24 @@ class BoxScreenViewModel(
             )
 
 
+    /** uiBoxWithCategories
+     * contains box and all its categories
+     */
+    val uiBoxWithCategories: StateFlow<UiBoxWithCategories> =
+        appRepository.getBoxWithCategoriesStream(boxId = boxId)
+            .filterNotNull()
+            .map {
+                UiBoxWithCategories(
+                    box = it.box,
+                    categoryList = it.categories,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = UiBoxWithCategories()
+            )
+
+
     /** uiCardWithTags
      * contains all cards together with their tags
      */
@@ -126,6 +152,8 @@ class BoxScreenViewModel(
         levelSelected.update { -1 }
     }
 
+
+    /** searchTerm */
     val searchTerm = MutableStateFlow("")
 
     fun setSearchTerm(newTerm: String) {
@@ -136,6 +164,62 @@ class BoxScreenViewModel(
         searchTerm.update { "" }
     }
 
+
+    /** For sorting */
+    val sortedBy = MutableStateFlow<BoxScreenSorting>(BoxScreenSorting.DATE_DESC)
+
+    fun setSortedBy(newSorting: BoxScreenSorting) {
+        sortedBy.update { newSorting }
+    }
+
+//    fun resetSortedBy() {
+//        sortedBy.update { BoxScreenSorting.DATE_DESC }
+//    }
+
+
+    /** For expanding, collapsing single or all categories */
+
+    val categoriesExpanded = MutableStateFlow<List<Long>>(listOf())
+
+    fun toggleCategoryExpanded(categoryId: Long) {
+        if (categoriesExpanded.value.contains(categoryId)) {
+            categoriesExpanded.update { categoriesExpanded.value.minus(categoryId) }
+        } else {
+            categoriesExpanded.update { categoriesExpanded.value.plus(categoryId) }
+        }
+    }
+
+    fun toggleAllCategoriesExpanded() {
+        /* if all categories are collapsed: expand all*/
+        if (allCategoriesCollapsed.value) {
+            for (categoryId in uiBoxWithCategories.value.categoryList.map { it.categoryId }
+                .plus((-1).toLong())) {
+                toggleCategoryExpanded(categoryId)
+            }
+        } else {
+            /* if not all categories are collapsed: collapse the expanded ones*/
+            for (categoryId in uiBoxWithCategories.value.categoryList
+                .map { it.categoryId }
+                .plus((-1).toLong())
+            ) {
+                if (categoriesExpanded.value.contains(categoryId)) {
+                    toggleCategoryExpanded(categoryId)
+                }
+            }
+        }
+    }
+
+    /* If all categories are collapsed */
+    val allCategoriesCollapsed: StateFlow<Boolean> =
+        categoriesExpanded.map { list ->
+            list.isEmpty()
+        }
+            .filterNotNull()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = false
+            )
 
 
     /** tagSelected
@@ -184,6 +268,47 @@ class BoxScreenViewModel(
         }
     }
 
+
+    /** currentCategory
+     * for editing and adding new categories
+     */
+    var categoryUiState by mutableStateOf(CategoryState())
+
+    fun updateCategoryUiState(categoryDetails: CategoryDetails) {
+        categoryUiState = CategoryState(
+            categoryDetails = categoryDetails,
+            isValid = categoryDetails.name.isNotBlank(),
+        )
+    }
+
+    fun resetCategoryUiState() {
+        categoryUiState = CategoryState()
+    }
+
+    fun saveCategory() {
+        viewModelScope.launch {
+            if (categoryUiState.isValid) {
+                if (categoryUiState.categoryDetails.boxId == (-1).toLong()) {
+                    updateCategoryUiState(categoryUiState.categoryDetails.copy(boxId = boxId))
+                }
+                val newId = if (categoryUiState.categoryDetails.id == (-1).toLong()) {
+                    appRepository.getBiggestCategoryId() + 1
+                } else {
+                    categoryUiState.categoryDetails.id
+                }
+                updateCategoryUiState(categoryUiState.categoryDetails.copy(id = newId))
+                appRepository.upsertCategory(categoryUiState.categoryDetails.toCategory())
+            }
+        }
+    }
+
+    fun deleteCategory(category: Category) {
+        viewModelScope.launch {
+            appRepository.deleteCategory(category)
+        }
+    }
+
+
     /** trainingCounts
      * maybe a temporary feature; changes if the training up-/downgrades cards during training
      */
@@ -219,15 +344,59 @@ class BoxScreenViewModel(
 
 
     /** functions for training that up-/downgrade the level on a card */
-    suspend fun onCardCorrect(card: Card) {
-        if (card.level < 4) {
-            appRepository.upgradeLevelOnCard(card.cardId)
+    fun onCardCorrect(card: Card) {
+        viewModelScope.launch {
+            if (card.level < 4) {
+                appRepository.upgradeLevelOnCard(card.cardId)
+            }
         }
     }
 
-    suspend fun onCardIncorrect(card: Card) {
-        if (card.level > 0) {
-            appRepository.downgradeLevelOnCard(card.cardId)
+    fun onCardIncorrect(card: Card) {
+        viewModelScope.launch {
+            if (card.level > 0) {
+                appRepository.downgradeLevelOnCard(card.cardId)
+            }
+        }
+    }
+
+    /** Set lastTrained time */
+    suspend fun setLastTrainedTime(level: Int, time: Long) {
+        if (level != -1) {
+            when (level) {
+                0 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained1 = time)
+                    )
+                }
+
+                1 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained2 = time)
+                    )
+                }
+
+                2 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained3 = time)
+                    )
+                }
+
+                3 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained4 = time)
+                    )
+                }
+
+                4 -> {
+                    updateBoxUiState(
+                        uiBoxWithCategories.value.box.toBoxDetails().copy(lastTrained5 = time)
+                    )
+                }
+
+                else -> {}
+            }
+            appRepository.upsertBox(boxUiState.boxDetails.toBox())
         }
     }
 
@@ -285,6 +454,9 @@ class BoxScreenViewModel(
         cardUiState = CardState(
             cardDetails = uiCardWithTags.value.card.toCardDetails(),
             tagList = uiCardWithTags.value.tagList,
+            isValid = true,
+            validWord = true,
+            validMeaning = true,
         )
     }
 
@@ -363,11 +535,29 @@ class BoxScreenViewModel(
 
     fun deleteCard(card: Card) {
         viewModelScope.launch {
+            if (card.memoURI.isNotBlank()) {
+                card.memoURI.toUri().path?.let { path ->
+                    File(path).also { file ->
+                        file.delete()
+                    }
+                }
+            }
             appRepository.deleteCard(cardId = card.cardId)
         }
         resetCard()
     }
 
+    suspend fun addTagToCard(tagId: Long, cardId: Long) {
+        appRepository.upsertTagCardCrossRef(TagCardCrossRef(tagId = tagId, cardId = cardId))
+    }
+
+    suspend fun removeTagFromCard(tagId: Long, cardId: Long) {
+        appRepository.deleteTagCardCrossRef(tagId = tagId, cardId = cardId)
+    }
+
+    suspend fun saveCardToCategory(card: Card, category: Category) {
+        appRepository.upsertCard(card.copy(categoryId = category.categoryId))
+    }
 
     /** functions for adding and deleting a tag to/from a card
      * are used upon saving a new card and immediately when clicking
@@ -483,8 +673,9 @@ class BoxScreenViewModel(
     }
 
     /** For exporting to a CSV file
-     * returns a string in which the first line holds the box name, topic, description, and tags (text and color)
-     * and in the following lines each one card, their meaning and their tags separated by a comma
+     * returns a string in which the first line holds the box name, topic, description
+     * The second line holds the categories, and the third line the tags (text and color).
+     * In the following lines each one card with word, meaning, category, and their tags separated by a semicolon
      * Warning: This only takes the first value emitted by the database, changes during
      * the process are not taken into consideration */
     var doneCollectingData by mutableStateOf(false)
@@ -493,9 +684,10 @@ class BoxScreenViewModel(
     fun collectCSVString() {
         viewModelScope.launch {
             doneCollectingData = false
+            val categories = mutableListOf<Pair<Long, String>>()
             var res = ""
 
-            /** Write Box and tags */
+            /** Write box and tags */
             appRepository.getBoxWithTagsStream(boxId = boxId)
                 .filterNotNull()
                 .first()
@@ -514,6 +706,20 @@ class BoxScreenViewModel(
                     }
                 }
 
+            /** Write categories */
+            appRepository.getBoxWithCategoriesStream(boxId = boxId)
+                .filterNotNull()
+                .first()
+                .also { boxWithCategories ->
+                    res += "\n"
+                    res += "Categories:;"
+
+                    boxWithCategories.categories.forEach { category ->
+                        categories.add(Pair(category.categoryId, category.name))
+                        res += category.name + ";"
+                    }
+                }
+
             res += "\n"
 
             /** Write Cards */
@@ -524,6 +730,9 @@ class BoxScreenViewModel(
                     res += cardWithTags.card.word + ";"
                     res += cardWithTags.card.meaning + ";"
                     res += cardWithTags.card.notes + ";"
+                    res += categories.firstOrNull { it.first == cardWithTags.card.categoryId }?.second
+                        ?: ""
+                    res += ";"
                     cardWithTags.tags.forEach { tag ->
                         res += tag.text + ";"
                     }

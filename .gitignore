@@ -1,8 +1,17 @@
+# DS store
+*.DS_Store
+
+# The build folder
+build/
+
 # Some other files from Android studio
 *.lock
 *.bin
 *.probe
 *.properties
+.idea/
+.gradle/
+local.properties
 
 # Compiled class file
 *.class

@@ -1,6 +1,7 @@
-package com.example.indexcards.utils.card
+package com.example.indexcards.utils.state
 
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -12,8 +13,9 @@ val emptyCard: Card = Card(
     meaning = "EMPTY CARD",
     notes = "EMPTY CARD",
     level = -1,
-    dateAdded = 0,
+    dateAdded = -1,
     memoURI = "",
+    categoryId = -1,
 )
 
 data class CardState(
@@ -32,6 +34,8 @@ data class CardDetails(
     val notes: String = "",
     val level: Int = 0,
     val memoURI: String = "",
+    val dateAdded: Long = -1,
+    val categoryId: Long = -1,
 )
 
 fun CardDetails.toCard(): Card = Card(
@@ -41,8 +45,9 @@ fun CardDetails.toCard(): Card = Card(
     meaning = meaning,
     notes = notes,
     level = level,
-    dateAdded = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
+    dateAdded = if (dateAdded == (-1).toLong()) LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) else dateAdded,
     memoURI = memoURI,
+    categoryId = categoryId,
 )
 
 fun Card.toCardDetails(): CardDetails = CardDetails(
@@ -52,7 +57,9 @@ fun Card.toCardDetails(): CardDetails = CardDetails(
     notes = notes,
     boxId = boxId,
     level = level,
-    memoURI = memoURI
+    dateAdded = dateAdded,
+    memoURI = memoURI,
+    categoryId = categoryId,
 )
 
 fun UiCardWithTags.toCardState(isValid: Boolean): CardState =

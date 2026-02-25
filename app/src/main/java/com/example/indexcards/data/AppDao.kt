@@ -13,6 +13,9 @@ interface AppDao {
     suspend fun upsertBox(box: Box)
 
     @Upsert
+    suspend fun upsertCategory(category: Category)
+
+    @Upsert
     suspend fun upsertCard(card: Card)
 
     @Upsert
@@ -27,6 +30,9 @@ interface AppDao {
     @Query("DELETE FROM box WHERE boxId = :boxId")
     suspend fun deleteBox(boxId: Long)
 
+    @Query("DELETE FROM category WHERE categoryId = :categoryId")
+    suspend fun deleteCategory(categoryId: Long)
+
     @Query("DELETE FROM card WHERE cardId = :cardId")
     suspend fun deleteCard(cardId: Long)
 
@@ -38,6 +44,9 @@ interface AppDao {
 
     @Query("DELETE FROM card WHERE boxId = :boxId")
     suspend fun deleteCardsFromBox(boxId: Long)
+
+    @Query("DELETE FROM category WHERE boxId = :boxId")
+    suspend fun deleteCategoriesFromBox(boxId: Long)
 
     @Query("DELETE FROM tag WHERE boxId = :boxId")
     suspend fun deleteTagsFromBox(boxId: Long)
@@ -66,6 +75,9 @@ interface AppDao {
     @Query("SELECT * FROM box WHERE boxId = :boxId")
     fun getBoxWithTags(boxId: Long): Flow<BoxWithTags>
 
+    @Query("SELECT * FROM box WHERE boxId = :boxId")
+    fun getBoxWithCategories(boxId: Long): Flow<BoxWithCategories>
+
     @Transaction
     @Query("SELECT * FROM tag WHERE tagId = :tagId")
     fun getTagWithCards(tagId: Long): Flow<TagWithCards>
@@ -80,6 +92,9 @@ interface AppDao {
 
     @Query("SELECT MAX(boxId) FROM box")
     suspend fun getBiggestBoxId(): Long?
+
+    @Query("SELECT MAX(categoryId) FROM category")
+    suspend fun getBiggestCategoryId(): Long?
 
     @Query("SELECT MAX(cardId) FROM card")
     suspend fun getBiggestCardId(): Long?

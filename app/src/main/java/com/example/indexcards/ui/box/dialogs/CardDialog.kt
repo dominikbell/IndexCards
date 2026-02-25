@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -43,17 +41,24 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.ui.box.TagList
-import com.example.indexcards.utils.card.UiCardWithTags
-import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.box.UiBoxWithCategories
+import com.example.indexcards.utils.state.UiCardWithTags
+import com.example.indexcards.utils.state.emptyCard
 import com.example.indexcards.utils.recording.AndroidAudioPlayer
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.emptyCategory
+import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.toBox
 import kotlinx.coroutines.delay
 import java.io.File
+
 
 @Composable
 fun CardDialog(
     modifier: Modifier = Modifier,
+    boxWithCategories: UiBoxWithCategories,
     cardWithTags: UiCardWithTags,
     isEditing: Boolean,
     audioPlayer: AndroidAudioPlayer,
@@ -63,23 +68,30 @@ fun CardDialog(
 ) {
     var isPlaying by remember { mutableStateOf(false) }
     var duration by remember { mutableLongStateOf(0) }
-
     var audioFile: File? by remember { mutableStateOf(null) }
-
+    val category: Category =
+        boxWithCategories.categoryList.firstOrNull { it.categoryId == cardWithTags.card.categoryId }
+            ?: emptyCategory
     val mmr = MediaMetadataRetriever()
 
     LaunchedEffect(key1 = cardWithTags.card.memoURI) {
         if (cardWithTags.card.memoURI.isNotBlank()) {
             audioFile = cardWithTags.card.memoURI.toUri().path?.let { File(it) }
 
-            duration =
-                audioFile?.let {
-                    mmr.setDataSource(it.toUri().path)
-                    mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                        ?.let { durInt ->
-                            Integer.parseInt(durInt).toLong()
-                        }
-                } ?: 0
+            if (audioFile?.exists() == true) {
+                duration =
+                    audioFile?.let {
+                        mmr.setDataSource(it.toUri().path)
+                        mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            ?.let { durInt ->
+                                Integer.parseInt(durInt).toLong()
+                            }
+                    } ?: 0
+            }
+
+        } else {
+            audioFile = null
+            duration = 0
         }
     }
 
@@ -114,7 +126,7 @@ fun CardDialog(
     ) {
         Surface(
             modifier = modifier
-                .height(300.dp),
+                .wrapContentHeight(),
             shape = AlertDialogDefaults.shape,
             color = AlertDialogDefaults.containerColor,
             tonalElevation = AlertDialogDefaults.TonalElevation,
@@ -122,36 +134,28 @@ fun CardDialog(
             Column(
                 modifier = Modifier
                     .padding(15.dp)
-                    .fillMaxHeight()
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Row(
-                        modifier = modifier.wrapContentHeight(),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         SelectionContainer(
-                            modifier = modifier.weight(1f),
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
                                 text = cardWithTags.card.word,
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                stopPlaying()
-                                showEditCardDialog()
-                            }
-                        ) {
-                            Icon(
-                                Icons.Default.Create,
-                                modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
-                                contentDescription = "Edit",
                             )
                         }
                     }
@@ -170,11 +174,35 @@ fun CardDialog(
 
                         Spacer(modifier = modifier.size(8.dp))
 
+                        if (category == emptyCategory) {
+                            Text(
+                                text = stringResource(id = R.string.no_category),
+                                fontStyle = FontStyle.Italic
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.category) + ": ",
+                                    fontStyle = FontStyle.Italic
+                                )
+
+                                SelectionContainer {
+                                    Text(text = category.name)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = modifier.size(4.dp))
+
                         TagList(
                             tagList = cardWithTags.tagList,
                             onClick = {},
                             onLongClick = {},
-                            selectedTags = cardWithTags.tagList
+                            selectedTags = cardWithTags.tagList,
+                            onBoxScreen = false,
                         )
 
                         Spacer(modifier = modifier.size(4.dp))
@@ -215,7 +243,7 @@ fun CardDialog(
                         }
 
 
-                        Spacer(modifier = modifier.size(4.dp))
+                        Spacer(modifier = modifier.size(6.dp))
 
                         if (cardWithTags.card.notes.isNotBlank()) {
                             Row {
@@ -229,18 +257,36 @@ fun CardDialog(
                     }
                 }
 
-                IconButton(
+                Row(
                     modifier = modifier
+                        .fillMaxWidth()
                         .align(Alignment.End),
-                    onClick = {
-                        stopPlaying()
-                        showDelete(cardWithTags.card)
-                    }
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete"
-                    )
+                    IconButton(
+                        onClick = {
+                            stopPlaying()
+                            showDelete(cardWithTags.card)
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete"
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            stopPlaying()
+                            showEditCardDialog()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Create,
+                            modifier = Modifier.size(MaterialTheme.typography.titleLarge.fontSize.value.dp),
+                            contentDescription = "Edit",
+                        )
+                    }
                 }
             }
         }
@@ -250,13 +296,29 @@ fun CardDialog(
 @Preview
 @Composable
 fun CardDialogPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text"
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
     CardDialog(
         cardWithTags = UiCardWithTags(
             card = emptyCard.copy(
                 word = "Kartonage",
+//                word = "Kartonage and a very long card title which forces the cards to ill-behave because the title is so long and convoluted",
                 meaning = "huch, upsi",
-                notes = "Diese Karte erklärt dir genau was schiefgelaufen ist als  du damals die falsche Milch gekauft hast",
-                memoURI = "not0"
+                notes = "Diese Karte erklärt dir genau was schiefgelaufen ist als du damals die falsche Milch gekauft hast",
+                memoURI = "not0",
+                categoryId = 1
             ),
             tagList = listOf(
                 emptyTag.copy(tagId = 1, text = "Tag1"),
@@ -265,6 +327,7 @@ fun CardDialogPreview() {
             )
         ),
         isEditing = false,
+        boxWithCategories = boxWithCategories,
         audioPlayer = AndroidAudioPlayer(LocalContext.current)
     )
 }

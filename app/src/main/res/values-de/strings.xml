@@ -1,68 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Karteikarten</string>
-    <string name="your_boxes">Deine Karteikästen</string>
+    <string name="app_name">KarteiKarten</string>
+
+    <!-- General Strings -->
     <string name="cancel">Abbrechen</string>
     <string name="save">Speichern</string>
     <string name="close">Schließen</string>
     <string name="delete">Löschen</string>
     <string name="not_implemented">Diese Funktion gibt es leider noch nicht!</string>
-    <string name="click_to_add_box">Drücke auf \'+\', um einen neuen Karteikasten anzulegen</string>
-    <string name="add_new_box">Einen neuen Karteikasten anlegen</string>
-    <string name="name">Name</string>
-    <string name="language">Sprache</string>
-    <string name="topic">Thema</string>
-    <string name="description">Beschreibung</string>
-    <string name="level">Niveau</string>
-    <string name="item_in_level">Karte</string>
-    <string name="items_in_level">Karten</string>
     <string name="required_fields">* benötigte Felder</string>
     <string name="required_field">* benötigtes Feld</string>
-    <string name="is_language">Karteikasten für eine Sprache</string>
-    <string name="delete_box">Karteikasten löschen</string>
-    <string name="delete_box_sure">Bist Du sicher, dass Du diesen Karteikasten löschen möchtest?</string>
+    <string name="action_cannot_be_undone">Dies kann nicht rückgängig gemacht werden!</string>
+    <string name="next">Next</string>
+    <string name="previous">Zurück</string>
+    <string name="finish">Fertig</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="loading">Laden</string>
+    <string name="wait">Bitte warte während diese Aktion abgeschlossen wird.</string>
+
+
+    <!--    HomeScreen
+    -->
+    <string name="your_boxes">Deine Karteikästen</string>
+    <string name="editing">Bearbeitend</string>
+    <string name="click_to_add_box">Drücke auf \'+\', um einen neuen Karteikasten anzulegen</string>
+    <string name="back_twice_to_close">Nochmaliges \'Zurück\'-Drücken schließt die App</string>
+
+    <!-- HomeScreen DropDownMenu -->
     <string name="settings">Einstellungen</string>
     <string name="statistics">Statistiken</string>
     <string name="about_app">Über diese App</string>
     <string name="about_app_text">Entwickelt in Kotlin von Dominik Bell</string>
+    <string name="import_box">Aus CSV importieren</string>
+    <string name="must_be_csv">Importieren ist nur aus .csv Dateien möglich!</string>
+    <string name="sort_by">Sortieren</string>
+    <string name="date_asc">Neueste zuert</string>
+    <string name="date_desc">Älteste zuerst</string>
+    <string name="name_asc">Name A .. Z</string>
+    <string name="name_desc">Name Z .. A</string>
+    <string name="start_tutorial">Start Tutorial</string>
+    <string name="end_tutorial">End Tutorial</string>
+
+    <!-- AddBox Dialog -->
+    <string name="add_new_box">Neuer Karteikasten</string>
+    <string name="name">Name</string>
+    <string name="language">Sprache</string>
+    <string name="topic">Thema</string>
+    <string name="description">Beschreibung</string>
+    <string name="is_language">Karteikasten für eine Sprache</string>
+
+    <!-- DeleteBox Dialog -->
+    <string name="delete_box">Karteikasten löschen</string>
+    <string name="delete_box_sure">Bist Du sicher, dass Du diesen Karteikasten löschen möchtest?</string>
+
+    <!-- DeleteBoxes Dialog -->
+    <string name="delete_boxes">Karteikästen löschen</string>
+    <string name="delete_boxes_names">Die folgenden Karteikästen werden gelöscht:</string>
+    <string name="delete_boxes_sure">Bist du sicher?</string>
+
+    <!-- MergeBoxes Dialog -->
+    <string name="merge_boxes">Karteikästen zusammenlegen</string>
+    <string name="merge_boxes_names">Die folgenden Karteikästen werden zusammengelegt:</string>
+    <string name="merge_boxes_explanation">Hierbei wird ein neuer Karteikasten erstellt mit den Karteikarten, Stichwörtern, und Kategorien der alten Karteikästen.</string>
+    <string name="merge_boxes_delete">Alte Karteikästen löschen</string>
+    <string name="merge_boxes_choose_name">Wähle einen Namen für die neue Box oder gib einen eigenen ein:</string>
+    <string name="merge_boxes_have_same_name">Alle gewählten Karteikästen haben denselben Namen. Möchtest du ihn behalten oder einen anderen eingeben?</string>
+    <string name="keep_topic">Behalten</string>
+    <string name="merge_boxes_choose_topic">Wähle Thema oder gib ein neues ein:</string>
+    <string name="merge_boxes_description">Hier kannst Du eine Beschreibung für den neuen Karteikasten eingeben:</string>
+    <string name="merge_boxes_choose_imports">Wähle aus, was alles in den neuen Karteikasten übernommen werden soll:</string>
+    <string name="keep_cards">Alle Karten übertragen</string>
+    <string name="keep_memos">Memos behalten</string>
+    <string name="keep_levels">Niveau der Karten merken</string>
+    <string name="keep_tags">Alle Stichwörter übertragen</string>
+    <string name="keep_categories">Alle Kategorien übertragen</string>
+    <string name="old_boxes_will_be_deleted">Deine alten Karteikästen werden gelöscht.</string>
+
+
+    <!--    BoxScreen
+    -->
     <string name="nr_card">Anzahl der Karten in diesem Kasten</string>
+    <string name="level">Niveau</string>
+    <string name="item_in_level">Karte</string>
+    <string name="items_in_level">Karten</string>
+    <string name="new_tag">Neues Stichwort</string>
+    <string name="click_to_add_card">Drücke auf \'+\', um eine neue Karte zu diesem Karteikasten hinzuzufügen</string>
+    <string name="no_category">Keine Kategorie</string>
+    <string name="no_cards_in_category">In dieser Kategorie sind noch keine Karten</string>
+
+    <!-- BoxScreen DropDownMenu -->
     <string name="edit_box">Karteikasten bearbeiten</string>
     <string name="search">Suchen</string>
     <string name="export_box">Zu CSV exportieren</string>
-    <string name="import_box">Aus CSV importieren</string>
-    <string name="must_be_csv">Importieren ist nur aus .csv Dateien möglich!</string>
-    <string name="click_to_add_card">Drücke auf \'+\', um eine neue Karte zu diesem Karteikasten hinzuzufügen</string>
-    <string name="new_tag">Neues Stichwort</string>
-    <string name="new_tag_short">Neu</string>
-    <string name="add_new_tag">Ein Stichwort erstellen</string>
-    <string name="edit_tag">Stichwort bearbeiten</string>
-    <string name="tag_name">Stichwort</string>
+    <string name="expand_all_categories">Alle Kategorien ausklappen</string>
+    <string name="collapse_all_categories">Alle Kategorien einklappen</string>
+    <string name="train_all">Alle trainieren</string>
+    <string name="train_selection">Auswahl trainieren</string>
+    <string name="word_asc">Wort A..Z</string>
+    <string name="word_desc">Wort Z..A</string>
+    <string name="level_asc">Niveau aufsteigend</string>
+    <string name="level_desc">Niveau absteigend</string>
+    <string name="edit_tags">Stichwörter von Karten bearbeiten</string>
+    <string name="editing_tags">Stichwörter von Karten bearbeiten</string>
+    <string name="editing_tags_text">Stichwörter von diesen Karten bearbeiten:</string>
+    <string name="adding_tags_text">Stichwörter werden hinzugefügt:</string>
+    <string name="removing_tags_text">Stichwörter werden entfernt:</string>
+    <string name="all_tags">Alle Stichwörter:</string>
+    <string name="common_tags">Gemeinsame Stichwörter:</string>
+    <string name="add_category">Karten zu Kategorie hinzufügen</string>
+    <string name="editing_category">Kategorie ändern</string>
+    <string name="editing_category_text">Kategorie für folgende Karteikarten ändern:</string>
+
+    <!-- New/Edit/ CardDialog -->
     <string name="add_new_card">Eine neue Karte hinzufügen</string>
+    <string name="new_tag_short">Neu</string>
+    <string name="category">Kategorie</string>
     <string name="word">Wort</string>
     <string name="meaning">Bedeutung</string>
+    <string name="frontside">Vorderseite</string>
     <string name="backside">Rückseite</string>
     <string name="notes">Notizen</string>
     <string name="edit_card">Bearbeiten von</string>
     <string name="delete_card">Löschen von</string>
     <string name="delete_card_sure">Bist Du sicher, dass Du diese Karteikarte löschen möchtest?</string>
+    <string name="delete_cards">Karteikarten löschen</string>
+    <string name="delete_cards_before">Die folgenden Karteikarten werden gelöscht</string>
+    <string name="delete_cards_sure">Bist Du sicher?</string>
+    <string name="memo">Memo</string>
+    <string name="no_memo">Für diese Karte gibt es keine Memo</string>
+
+    <!-- TagDialog -->
+    <string name="add_new_tag">Ein Stichwort erstellen</string>
+    <string name="edit_tag">Stichwort bearbeiten</string>
+    <string name="tag_name">Stichwort</string>
+
+    <!-- EditBoxScreen -->
+    <string name="show_categories">Zeige Kategorien</string>
+    <string name="use_categories">Kategorien benutzen</string>
+    <string name="new_category">Neue Kategorie</string>
+    <string name="box_created">Dieser Karteikasten wurde erstellt am</string>
+    <string name="at">um</string>
     <string name="editing_box">Bearbeiten von</string>
+
+    <!-- TrainingScreen -->
     <string name="training">Üben</string>
-    <string name="training_counts">Training zählt</string>
-    <string name="train_all">Alle trainieren</string>
-    <string name="train_selection">Auswahl trainieren</string>
+    <string name="training_counts">Üben zählt</string>
     <string name="reverse_sides">Seiten vertauschen</string>
-    <string name="sort_by">Sortieren</string>
     <string name="correct">Richtig</string>
     <string name="incorrect">Falsch</string>
     <string name="turn_over">Zum Umdrehen Karte antippen</string>
     <string name="reminders">Erinnere mich zu trainieren</string>
+    <string name="showNumbersOfCard">Anzahl der Karten anzeigen</string>
     <string name="back_to_box">Zurück zum Kasten</string>
     <string name="all_done">Fertig!</string>
     <string name="no_more_cards">Es gibt keine weiteren Karten zu trainieren.</string>
     <string name="oops_no_cards">Ups, keine Karten gefunden</string>
     <string name="no_cards_of_level_1">In diesem Kasten gibt es keine Karten im Niveau</string>
     <string name="no_cards_of_level_2">. Hier muss ein Fehler vorliegen.</string>
-    <string name="back_twice_to_close">Nochmaliges \'Zurück\'-Drücken schließt die App</string>
+
+
+    <!-- SettingsScreen -->
     <string name="day">Tag</string>
     <string name="week">Woche</string>
     <string name="month">Monat</string>
@@ -70,6 +168,8 @@
     <string name="weeks">Wochen</string>
     <string name="months">Monate</string>
     <string name="error">Fehler</string>
+    <string name="error_title">Fehler</string>
+    <string name="error_text">Das hätte nicht passieren sollen..</string>
     <string name="every_singular">Jede(n)</string>
     <string name="every_plural">Alle</string>
     <string name="first">erstes</string>
@@ -84,12 +184,52 @@
     <string name="set_reminders">Benachrichtigungen für Niveau</string>
     <string name="enter_name">Gib Deinen Name ein</string>
     <string name="my_name">Mein Name ist</string>
-    <string name="not_set1">Nicht festgelegt</string>
+    <string name="not_set1">Nicht festgelegt</string> <!-- has to be renamed since "not_set" is internally taken by Android -->
     <string name="default_notification_time">Standard Benachrichtigungszeit</string>
     <string name="set_reminder_time">Wähle einen Benachrichtigunszeitpunkt</string>
     <string name="do_not_use">Nicht Benutzen</string>
     <string name="global_reminders_set">Globale Benachrichtigungen wurden eingestellt!</string>
     <string name="global_reminders_cancelled">Alle ausstehenden Benachrichtigungen wurden gelöscht!</string>
-    <string name="memo">Memo</string>
-    <string name="no_memo">Für diese Karte gibt es keine Memo</string>
+
+
+    <!-- Notifications -->
+    <string name="training_waits">Die Karten warten!</string>
+    <string name="cards_need_train1">Karten des Niveaus</string>
+    <string name="cards_need_train2">des Kasten</string>
+    <string name="cards_need_train3">müssen geübt werden</string>
+    <string name="train_now">Jetzt üben</string>
+    <string name="go_to_box">Zum Kasten</string>
+    <string name="remind_me_later">Erinner mich in 1h</string>
+
+
+    <!-- TutorialDialog -->
+    <string name="welcome_title">Willkommen zu KarteiKarten!</string>
+    <string name="welcome_text">Diese Einleitung zeigt Dir wie man diese Anwendung benutzt.</string>
+    <string name="add_box_intro_title">Einen neuen Karteikasten hinzufügen</string>
+    <string name="add_box_intro_text">Tippe auf das \'+\' rechts unten, um einen neuen Karteikasten zu erstellen.</string>
+    <string name="new_box_title">Gut gemacht!</string>
+    <string name="new_box_text">Tippe auf den Karteikasten, um seine Inhalte zu sehen.</string>
+    <string name="add_card_intro_title">So leer hier</string>
+    <string name="add_card_intro_text">Erstelle eine neue Karteikarte. Tippe dazu auf das \'+\' rechts unten, um das Fenster dafür zu öffnen.</string>
+
+    <!-- AddBoxDialog Tutorial -->
+    <string name="add_box_dialog">In diesem Fenster kannst Du alle Details Deines Karteikastens hinzufügen.</string>
+    <string name="add_box_dialog_name">Gib als erstes Deinem Karteikasten einen Namen.</string>
+    <string name="add_box_dialog_topic">Wähle die Sprache aus, die Du lernen möchtest.</string>
+    <string name="add_box_dialog_check_box">Wenn dieser Karteikasten nicht für eine Sprache ist, entferne den Haken und gib das gewünschte Thema in das Feld darüber ein.</string>
+    <string name="add_box_dialog_description">Hier kannst du eine Beschreibung für Deinen Karteikastens hinzufügen.</string>
+    <string name="add_box_dialog_reminder">Wenn Du Benachrichtigungen erhalten möchtest, die Dich an das Üben erinnern, setze den Haken hier.</string>
+    <string name="add_box_dialog_save">Speichere Deinen neuen Karteikasten.</string>
+
+    <!-- AddCardDialog Tutorial -->
+    <string name="add_card_dialog">In diesem Fenster kannst Du die Informationen der neuen Karteikarte eingeben.</string>
+    <string name="add_card_dialog_word">Gib ein Wort ein, das Du in der neuen Sprache lernen möchtest.</string>
+    <string name="add_card_dialog_meaning">Gib die Bedeutung(en) des Wortes ein.</string>
+    <string name="add_card_dialog_front">Gib ein, was auf der Vorderseite der Karteikarte (wird während des Übens gezeigt) stehen soll.</string>
+    <string name="add_card_dialog_back">Gib ein, was auf der Rückseite der Karteikarte (wird während des Übens abgefragt) stehen soll.</string>
+    <string name="add_card_dialog_category">Hier kannst Du eine Kategorie auswählen, der Du diese Karteikarte zuordnest - wir werden später lernen wie man neue Kategorien hinzufügt.</string>
+    <string name="add_card_dialog_tag_list">In dieser Zeile sind die Stichwörter gelistet - Du kannst auch ein neues hinzufügen, wenn du auf den Knopf rechts drückst.</string>
+    <string name="add_card_dialog_memo">Hier kannst du eine Srpachnotiz zu dieser Karteikarte aufnehmen.</string>
+    <string name="add_card_dialog_notes">In diesem Feld ist Platz für zusätzliche Notizen, die Du dieser Karteikarte hinzufügen möchtest.</string>
+    <string name="add_card_dialog_save">Speichere die neu erstellte Karteikarte.</string>
 </resources>

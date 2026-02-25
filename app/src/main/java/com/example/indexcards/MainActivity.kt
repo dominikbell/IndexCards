@@ -33,23 +33,25 @@ import com.example.indexcards.data.OfflineAppRepository
 import com.example.indexcards.ui.theme.IndexCardsTheme
 import com.example.indexcards.utils.ViewModelProvider
 import com.example.indexcards.utils.home.HomeScreenViewModel
-import com.example.indexcards.utils.notification.NOTIFICATION_REQUEST_CODES
 import com.example.indexcards.utils.notification.NotificationRequest
 import com.example.indexcards.utils.notification.NotificationService
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // All are needed for cancelling the old notification
+        /* All are needed for cancelling the old notification */
         val requestId = intent.getIntExtra("id", -1)
         val boxId = intent.getLongExtra("boxId", -1)
         val level = intent.getIntExtra("level", -1)
 
-        val boxIdPass = if (requestId in listOf(
+        /* Get the boxId if we need to navigate to box or to training */
+        val boxIdPass = if (
+            requestId in listOf(
                 NotificationRequest.GO_TO_BOX,
                 NotificationRequest.GO_TO_TRAINING
             )
@@ -58,6 +60,8 @@ class MainActivity : ComponentActivity() {
         } else {
             (-1).toLong()
         }
+
+        /* Get the level if we need to navigate to training */
         val levelPass = if (requestId == NotificationRequest.GO_TO_TRAINING) {
             level
         } else {
@@ -84,9 +88,10 @@ class MainActivity : ComponentActivity() {
             var isCSVFile by remember { mutableStateOf(false) }
             val mustBeCSVToast = stringResource(id = R.string.must_be_csv)
 
-            if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
-                service.closeNotification(boxId, level, 0)
-            }
+            /* Can be deleted maybe? intentID=0 is not used anyways */
+//            if (NOTIFICATION_REQUEST_CODES.contains(requestId)) {
+//                service.closeNotification(boxId, level, 0)
+//            }
 
             val appRepository = OfflineAppRepository(AppDatabase.getDatabase(context).appDao())
 
@@ -94,8 +99,17 @@ class MainActivity : ComponentActivity() {
                 lifecycleScope.launch {
                     val boxList = appRepository.getAllBoxesStream().first()
                     for (box in boxList) {
-                        for (lvl in 0..4) {
-                            service.closeNotification(boxId = box.boxId, level = lvl, 0)
+                        for (lvl in 0..<NUMBER_OF_LEVELS) {
+                            service.closeNotification(
+                                boxId = box.boxId,
+                                level = lvl,
+                                NotificationRequest.MAKE_REMINDER,
+                            )
+                            service.closeNotification(
+                                boxId = box.boxId,
+                                level = lvl,
+                                NotificationRequest.REMIND_LATER,
+                            )
                         }
                     }
                 }
@@ -173,7 +187,7 @@ class MainActivity : ComponentActivity() {
                                     cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                                 cursor.moveToFirst()
                                 val fileName = cursor.getString(fileNameIndex)
-                                isCSVFile = fileName.split(".").last() == "csv"
+                                isCSVFile = fileName.split(".").last().substring(0, 3) == "csv"
                             }
                         contentResolver.openInputStream(uri).use { inputStream ->
                             inputStream?.let {
@@ -242,7 +256,7 @@ class MainActivity : ComponentActivity() {
                             service.closeNotification(boxId, level, 0)
                         },
                         scheduleNotification = { boxId, level, name, trigger, repeat ->
-                            service.scheduleNotification(
+                            service.scheduleNotificationRepeating(
                                 boxId = boxId, level = level, boxName = name,
                                 triggerTime = trigger, repeatingTime = repeat
                             )

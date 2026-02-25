@@ -1,7 +1,12 @@
 package com.example.indexcards.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
@@ -18,31 +23,47 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
+import com.example.indexcards.utils.home.HomeScreenSorting
 import com.example.indexcards.utils.home.HomeScreenState
+import com.example.indexcards.utils.home.homeScreenSorting
 
 @Composable
 fun HomeScreenTopBar(
     modifier: Modifier = Modifier,
     homeScreenState: HomeScreenState,
+    isSelecting: Boolean,
+    tutorial: Boolean,
     goToMainScreen: () -> Unit = {},
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
     showAboutApp: () -> Unit = {},
     importBox: () -> Unit = {},
+    onSortBy: (HomeScreenSorting) -> Unit = {},
+    stopSelecting: () -> Unit = {},
+    startTutorial: () -> Unit = {},
+    endTutorial: () -> Unit = {},
 ) {
     when (homeScreenState) {
         HomeScreenState.MAIN -> {
             MainScreenTopBar(
                 modifier = modifier,
+                isSelecting = isSelecting,
+                tutorial = tutorial,
                 showAboutApp = showAboutApp,
                 goToSettings = goToSettings,
                 goToStatistics = goToStatistics,
                 importBox = importBox,
+                onSortBy = onSortBy,
+                stopSelecting = stopSelecting,
+                startTutorial = startTutorial,
+                endTutorial = endTutorial,
             )
         }
 
@@ -120,74 +141,161 @@ fun StatisticsTopBarPreview() {
 @Composable
 fun MainScreenTopBar(
     modifier: Modifier,
+    isSelecting: Boolean,
+    tutorial: Boolean,
     showAboutApp: () -> Unit = {},
     goToSettings: () -> Unit = {},
     goToStatistics: () -> Unit = {},
     importBox: () -> Unit = {},
+    onSortBy: (HomeScreenSorting) -> Unit = {},
+    stopSelecting: () -> Unit = {},
+    startTutorial: () -> Unit = {},
+    endTutorial: () -> Unit = {},
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var sortExpanded by remember { mutableStateOf(false) }
 
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        title = {
-            Text(
-                text = stringResource(R.string.your_boxes),
-                fontWeight = FontWeight.Bold,
-                modifier = modifier
-            )
-        },
-        actions = {
-            IconButton(
-                onClick = { expanded = true }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "Menu"
+    if (isSelecting) {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Text(
+                    text = stringResource(id = R.string.editing),
+                    fontWeight = FontWeight.Bold
                 )
+            },
+            actions = {
+                IconButton(
+                    onClick = { stopSelecting() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear"
+                    )
+                }
             }
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = modifier
-            ) {
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.settings)) },
-                    onClick = {
-                        expanded = false
-                        goToSettings()
-                    }
+        )
+    } else {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Text(
+                    text = stringResource(R.string.your_boxes),
+                    fontWeight = FontWeight.Bold,
+                    modifier = modifier
                 )
+            },
+            actions = {
+                IconButton(
+                    onClick = { expanded = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "Menu"
+                    )
+                }
 
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.statistics)) },
-                    onClick = {
-                        expanded = false
-                        goToStatistics()
-                    }
-                )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = modifier
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.settings)) },
+                        onClick = {
+                            expanded = false
+                            goToSettings()
+                        }
+                    )
 
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.import_box)) },
-                    onClick = {
-                        expanded = false
-                        importBox()
-                    }
-                )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.statistics)) },
+                        onClick = {
+                            expanded = false
+                            goToStatistics()
+                        }
+                    )
 
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.about_app)) },
-                    onClick = {
-                        expanded = false
-                        showAboutApp()
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Text(text = stringResource(id = R.string.sort_by))
+
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowDropDown,
+                                    modifier = Modifier.rotate(-90f),
+                                    contentDescription = "sort by"
+                                )
+                            }
+                        },
+                        onClick = {
+                            expanded = false
+                            sortExpanded = true
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.import_box)) },
+                        onClick = {
+                            expanded = false
+                            importBox()
+                        }
+                    )
+
+                    if (tutorial) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.end_tutorial)) },
+                            onClick = {
+                                expanded = false
+                                endTutorial()
+                            }
+                        )
+                    } else {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.start_tutorial)) },
+                            onClick = {
+                                expanded = false
+                                startTutorial()
+                            }
+                        )
                     }
-                )
-            }
-        },
-    )
+
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.about_app)) },
+                        onClick = {
+                            expanded = false
+                            showAboutApp()
+                        }
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = sortExpanded,
+                    onDismissRequest = { sortExpanded = false }
+                ) {
+                    homeScreenSorting.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(option.second)) },
+                            onClick = {
+                                sortExpanded = false
+                                onSortBy(option.first)
+                            }
+                        )
+                    }
+                }
+            },
+        )
+    }
 }
 
 @Preview
@@ -195,5 +303,17 @@ fun MainScreenTopBar(
 fun MainScreenTopBarPreview() {
     MainScreenTopBar(
         modifier = Modifier,
+        isSelecting = false,
+        tutorial = false,
+    )
+}
+
+@Preview
+@Composable
+fun MainScreenTopBarSelectingPreview() {
+    MainScreenTopBar(
+        modifier = Modifier,
+        isSelecting = true,
+        tutorial = false,
     )
 }

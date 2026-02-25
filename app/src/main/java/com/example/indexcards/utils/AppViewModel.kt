@@ -1,16 +1,14 @@
 package com.example.indexcards.utils
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.indexcards.data.AppRepository
-import com.example.indexcards.data.BoxWithCards
-import com.example.indexcards.utils.box.BoxDetails
-import com.example.indexcards.utils.box.BoxState
-import com.example.indexcards.utils.box.toBox
+import com.example.indexcards.utils.state.BoxDetails
+import com.example.indexcards.utils.state.BoxState
+import com.example.indexcards.utils.state.toBox
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -60,8 +58,16 @@ open class AppViewModel(
     fun saveBox() {
         viewModelScope.launch {
             if (boxUiState.isValid) {
+                if (boxUiState.boxDetails.id == (-1).toLong()) {
+                    updateBoxUiState(
+                        boxUiState.boxDetails.copy(
+                            id = appRepository.getBiggestBoxId() + 1
+                        )
+                    )
+                }
                 appRepository.upsertBox(boxUiState.boxDetails.toBox())
             }
+            resetBoxUiState()
         }
     }
 
@@ -92,6 +98,7 @@ open class AppViewModel(
         }
     }
 
+    /* List of pairs of int (=amount) and string (=d,w,m) */
     val reminderIntervals: StateFlow<List<Pair<Int, String>>> =
         userPreferences.currentReminderIntervals
             .filterNotNull()
@@ -101,6 +108,7 @@ open class AppViewModel(
                 initialValue = DefaultPreferences.REMINDER_INTERVALS
             )
 
+    /* Time of reminder in pair: first is hour, second is minute */
     val reminderTime: StateFlow<Pair<Int, Int>> =
         userPreferences.currentReminderTime
             .filterNotNull()

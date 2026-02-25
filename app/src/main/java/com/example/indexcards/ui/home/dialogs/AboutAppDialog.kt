@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 
+
 @Composable
 fun AboutAppDialog(
     modifier: Modifier = Modifier,
@@ -32,7 +33,7 @@ fun AboutAppDialog(
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(bottom = 6.dp),
+                        .padding(bottom = 10.dp),
                     text = stringResource(id = R.string.app_name),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold

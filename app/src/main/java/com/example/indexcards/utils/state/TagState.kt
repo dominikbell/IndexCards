@@ -1,4 +1,4 @@
-package com.example.indexcards.utils.tag
+package com.example.indexcards.utils.state
 
 import androidx.compose.ui.graphics.Color
 import com.example.indexcards.data.Tag

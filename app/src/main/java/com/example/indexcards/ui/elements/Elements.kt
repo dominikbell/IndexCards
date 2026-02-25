@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,10 +11,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,13 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.data.LanguageData
-import com.example.indexcards.data.getImageId
-import com.example.indexcards.utils.box.BoxState
-import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.box.toBoxDetails
-import com.example.indexcards.utils.box.toBoxState
-import com.example.indexcards.utils.card.CardState
+import com.example.indexcards.utils.state.BoxState
+import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.toBoxState
+import com.example.indexcards.utils.state.CardState
+import com.example.indexcards.utils.state.getImageId
 
 @Composable
 fun BoxNameWithFlag(
@@ -56,7 +49,7 @@ fun BoxNameWithFlag(
         FontWeight.Normal
     }
 
-    val style = if(isTitle) {
+    val style = if (isTitle) {
         MaterialTheme.typography.titleLarge
     } else {
         LocalTextStyle.current
@@ -105,15 +98,23 @@ fun NewTagButton(
 fun WordField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
+    isLanguage: Boolean,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
+    val label = if (isLanguage) {
+        stringResource(R.string.word)
+    } else {
+        stringResource(R.string.frontside)
+    }
     OutlinedTextField(
         value = cardUiState.cardDetails.word,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = stringResource(R.string.word) + "*") },
+        label = { Text(text = "$label*") },
         isError = isError,
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -123,6 +124,7 @@ fun MeaningField(
     cardUiState: CardState,
     isLanguage: Boolean,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     val label =
@@ -138,6 +140,7 @@ fun MeaningField(
         label = { Text(text = "$label*") },
         isError = isError,
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -145,6 +148,7 @@ fun MeaningField(
 fun NotesField(
     modifier: Modifier = Modifier,
     cardUiState: CardState,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
@@ -152,6 +156,7 @@ fun NotesField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.notes)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -179,15 +184,17 @@ fun NameField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         value = boxUiState.boxDetails.name,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.name) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-        isError = isError
+        isError = isError,
+        enabled = isEnabled,
     )
 }
 
@@ -204,14 +211,16 @@ fun NameFieldPreview() {
 fun DescriptionField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         value = boxUiState.boxDetails.description,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.description)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+        enabled = isEnabled,
     )
 }
 
@@ -220,10 +229,11 @@ fun TopicField(
     modifier: Modifier = Modifier,
     boxUiState: BoxState,
     isError: Boolean,
+    isEnabled: Boolean = true,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         value = boxUiState.boxDetails.topic,
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.topic) + "*") },
@@ -232,105 +242,40 @@ fun TopicField(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LanguageDropDownMenu(
-    modifier: Modifier = Modifier,
-    boxUiState: BoxState,
-    expanded: Boolean,
-    isError: Boolean,
-    changeExpanded: () -> Unit = {},
-    onValueChange: (String) -> Unit = {},
-) {
-    val context = LocalContext.current
-
-    ExposedDropdownMenuBox(
-        modifier = modifier,
-        expanded = expanded,
-        onExpandedChange = { changeExpanded() }
-    ) {
-        OutlinedTextField(
-            modifier = modifier.menuAnchor(),
-            readOnly = true,
-            value = boxUiState.boxDetails.topic,
-            label = { Text(text = stringResource(R.string.language) + "*") },
-            onValueChange = { },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            isError = isError
-        )
-        ExposedDropdownMenu(
-            modifier = modifier.fillMaxWidth(),
-            expanded = expanded,
-            onDismissRequest = { changeExpanded() }) {
-            LanguageData.language.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = {
-                        Row(
-                            modifier = modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = getImageId(context, option.key)),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(AssistChipDefaults.IconSize),
-                            )
-                            Spacer(modifier = Modifier.size(6.dp))
-                            Text(text = option.value.first)
-                        }
-                    },
-                    onClick = {
-                        onValueChange(option.value.first)
-                        changeExpanded()
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LanguageDropDownMenuPreview() {
-    LanguageDropDownMenu(
-        expanded = true,
-        isError = false,
-        boxUiState = BoxState(boxDetails = emptyBox.copy(topic = "English").toBoxDetails()),
-    )
-}
-
 @Composable
 fun RemindersSwitch(
     modifier: Modifier = Modifier,
-    enabled: Boolean = false,
+    checked: Boolean = false,
     hasNotificationPermission: Boolean = false,
+    isEnabled: Boolean = true,
     onCheckedChange: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false }
 ) {
+    fun onClick() {
+        if (!hasNotificationPermission) {
+            val success = requestNotificationPermission()
+            if (success) {
+                onCheckedChange()
+            }
+        } else {
+            onCheckedChange()
+        }
+    }
+
     Row(
         modifier = Modifier
             .padding(top = 4.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClick() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = stringResource(id = R.string.reminders))
 
         Switch(
-            checked = enabled,
-            onCheckedChange = {
-                if (!hasNotificationPermission) {
-                    val success = requestNotificationPermission()
-                    if (success) {
-                        onCheckedChange()
-                    }
-                } else {
-                    onCheckedChange()
-                }
-            }
+            checked = checked,
+            onCheckedChange = { onClick() },
+            enabled = isEnabled,
         )
     }
 }
@@ -345,6 +290,7 @@ fun RemindersSwitchPreview() {
 fun IsLanguageCheckBox(
     modifier: Modifier = Modifier,
     isLanguage: Boolean,
+    isEnabled: Boolean = true,
     changeIsLanguage: () -> Unit = {},
 ) {
     Row(
@@ -353,13 +299,18 @@ fun IsLanguageCheckBox(
             .selectable(
                 selected = isLanguage,
                 role = Role.RadioButton,
-                onClick = { changeIsLanguage() }
+                onClick = {
+                    if (isEnabled) {
+                        changeIsLanguage()
+                    }
+                }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = isLanguage,
-            onCheckedChange = { changeIsLanguage() }
+            onCheckedChange = { changeIsLanguage() },
+            enabled = isEnabled,
         )
         Text(
             modifier = modifier.padding(start = 6.dp),

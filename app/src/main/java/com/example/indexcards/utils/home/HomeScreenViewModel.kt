@@ -9,26 +9,31 @@ import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.data.AppRepository
 import com.example.indexcards.data.Box
 import com.example.indexcards.data.Card
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
 import com.example.indexcards.data.TagCardCrossRef
 import com.example.indexcards.utils.AppViewModel
 import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.UserPreferences
-import com.example.indexcards.utils.box.UiBoxWithCards
-import com.example.indexcards.utils.box.emptyBox
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.box.BoxScreenSorting
+import com.example.indexcards.utils.state.UiBoxWithCards
+import com.example.indexcards.utils.state.emptyBox
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyCategory
+import com.example.indexcards.utils.state.emptyTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * ViewModel for the HomeScreen
@@ -51,6 +56,17 @@ class HomeScreenViewModel(
 
     fun updateHomeScreenState(newState: HomeScreenState) {
         homeScreenState = newState
+    }
+
+    /** For sorting */
+    val sortedBy = MutableStateFlow<HomeScreenSorting>(HomeScreenSorting.CREATED_ASC)
+
+    fun setSortedBy(newSorting: HomeScreenSorting) {
+        sortedBy.update { newSorting }
+    }
+
+    fun resetSortedBy() {
+        sortedBy.update { HomeScreenSorting.CREATED_ASC }
     }
 
 
@@ -214,16 +230,23 @@ class HomeScreenViewModel(
     }
 
 
+    /** For importing boxes */
+    var importingInProcess = MutableStateFlow(false)
+
     /** functionality for importing a box from a CSV */
     fun importBox(fileString: String) {
         viewModelScope.launch {
+            importingInProcess.update { true }
+
             val newBoxId = appRepository.getBiggestBoxId() + 1
             val newTagId = appRepository.getBiggestTagId() + 1
             val newCardId = appRepository.getBiggestCardId() + 1
+            val newCategoryId = appRepository.getBiggestCategoryId() + 1
 
             val splitText = fileString.split("\n")
             val tagList = mutableListOf<Tag>()
             val cardList = mutableListOf<Card>()
+            val categoryList = mutableListOf<Category>()
             val cardTagCrossRefs = mutableListOf<TagCardCrossRef>()
 
             splitText.forEachIndexed { ind, line ->
@@ -288,6 +311,29 @@ class HomeScreenViewModel(
                         }
                     }
 
+                    /** Categories */
+                    2 -> {
+                        var newCategory = emptyCategory
+
+                        splitLine.forEachIndexed { cellInd, cell ->
+                            when (cellInd) {
+                                0 -> {}
+                                else -> {
+                                    if (cell.isNotBlank()) {
+                                        newCategory =
+                                            newCategory.copy(
+                                                categoryId = newCategoryId + cellInd.toLong(),
+                                                boxId = newBoxId,
+                                                name = cell,
+                                            )
+                                        categoryList.add(newCategory)
+                                        newCategory = emptyCategory
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     /** Card */
                     else -> {
                         var newCard = emptyCard
@@ -312,19 +358,29 @@ class HomeScreenViewModel(
 
                                 2 -> {
                                     newCard = newCard.copy(notes = cell)
+                                }
+
+                                3 -> {
+                                    if (cell.isNotBlank()) {
+                                        newCard = newCard.copy(
+                                            categoryId = categoryList.firstOrNull { it.name == cell }?.categoryId
+                                                ?: (-1).toLong()
+                                        )
+                                    }
                                     cardList.add(newCard)
                                     newCard = emptyCard
                                 }
 
                                 else -> {
                                     if (cell.isNotBlank()) {
-                                        val tagId = tagList.first { tag -> tag.text == cell }.tagId
-                                        cardTagCrossRefs.add(
-                                            TagCardCrossRef(
-                                                tagId = tagId,
-                                                cardId = cardId
+                                        tagList.firstOrNull { it.text == cell }?.let {
+                                            cardTagCrossRefs.add(
+                                                TagCardCrossRef(
+                                                    tagId = it.tagId,
+                                                    cardId = cardId
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -338,6 +394,10 @@ class HomeScreenViewModel(
             if (boxUiState.isValid) {
                 saveBox()
 
+                categoryList.forEach {
+                    appRepository.upsertCategory(it)
+                }
+
                 tagList.forEach {
                     appRepository.insertTag(it)
                 }
@@ -350,6 +410,185 @@ class HomeScreenViewModel(
                     appRepository.upsertTagCardCrossRef(it)
                 }
             }
+
+            importingInProcess.update { false }
+        }
+    }
+
+    /** For merging boxes */
+    var mergingInProcess = MutableStateFlow(false)
+
+    fun mergeBoxes(
+        oldBoxes: List<Box>,
+        deleteOldBoxes: Boolean,
+        newBoxName: String,
+        newDescription: String,
+        newTopic: String,
+        transferCards: Boolean,
+        transferTags: Boolean,
+        transferCategories: Boolean,
+        transferMemos: Boolean,
+        keepLevels: Boolean,
+    ) {
+        viewModelScope.launch {
+            mergingInProcess.update { true }
+
+            val newBoxId = appRepository.getBiggestBoxId() + 1
+            var newTagId = appRepository.getBiggestTagId() + 1
+            var newCardId = appRepository.getBiggestCardId() + 1
+            var newCategoryId = appRepository.getBiggestCategoryId() + 1
+
+            val tagList = mutableListOf<Tag>()
+            val cardList = mutableListOf<Card>()
+            val categoryList = mutableListOf<Category>()
+            val cardTagCrossRefs = mutableListOf<TagCardCrossRef>()
+
+            /* Lists of two Longs where the first is the old Id and the second is the new Id */
+            val categoryIdMap = mutableListOf<Pair<Long, Long>>()
+            val tagIdMap = mutableListOf<Pair<Long, Long>>()
+
+            /* TODO: hot fix because files are a bish in android, for now nothing copies */
+            var skipMemo = false
+
+            updateBoxUiState(
+                boxDetails = boxUiState.boxDetails.copy(
+                    id = newBoxId, name = newBoxName, topic = newTopic, description = newDescription
+                )
+            )
+
+            for (box in oldBoxes) {
+                /** Add the categories */
+                if (transferCategories) {
+                    appRepository.getBoxWithCategoriesStream(boxId = box.boxId)
+                        .filterNotNull()
+                        .first()
+                        .also { boxWithCategories ->
+                            boxWithCategories.categories.forEach { category ->
+                                categoryList.add(
+                                    Category(
+                                        categoryId = newCategoryId,
+                                        boxId = newBoxId,
+                                        name = category.name
+                                    )
+                                )
+                                categoryIdMap.add(Pair(category.categoryId, newCategoryId))
+                                newCategoryId += 1
+                            }
+                        }
+                }
+
+                /** Add the tags */
+                if (transferTags) {
+                    appRepository.getBoxWithTagsStream(boxId = box.boxId)
+                        .filterNotNull()
+                        .first()
+                        .also { boxWithTags ->
+                            boxWithTags.tags.forEach { tag ->
+                                tagList.add(
+                                    Tag(
+                                        boxId = newBoxId,
+                                        tagId = newTagId,
+                                        text = tag.text,
+                                        color = tag.color,
+                                    )
+                                )
+                                tagIdMap.add(Pair(tag.tagId, newTagId))
+                                newTagId += 1
+                            }
+                        }
+                }
+
+                if (transferCards) {
+                    appRepository.getBoxWithCardsStream(boxId = box.boxId)
+                        .filterNotNull()
+                        .first()
+                        .also { boxWithCards ->
+                            boxWithCards.cards.forEach { card ->
+
+                                /** copy the memo */
+                                val newMemoUri =
+                                    card.memoURI.replace("memo${card.cardId}", "memo${newCardId}")
+                                if (transferMemos && card.memoURI.isNotBlank()) {
+                                    if (File(card.memoURI).exists()) {
+                                        File(newMemoUri).also {
+                                            File(card.memoURI).copyTo(it)
+                                        }
+                                    } else {
+                                        skipMemo = true
+                                    }
+                                }
+
+                                cardList.add(
+                                    emptyCard.copy(
+                                        boxId = newBoxId,
+                                        cardId = newCardId,
+                                        word = card.word,
+                                        meaning = card.meaning,
+                                        notes = card.notes,
+                                        level = if (keepLevels) card.level else 0,
+                                        categoryId = if (transferCategories)
+                                            categoryIdMap.firstOrNull { it.first == card.categoryId }?.second
+                                                ?: (-1).toLong()
+                                        else (-1).toLong(),
+                                        memoURI = if (transferMemos && !skipMemo) newMemoUri else ""
+                                    )
+                                )
+
+                                /** copy the tags */
+                                if (transferTags) {
+                                    appRepository.getCardWithTagsStream(card.cardId)
+                                        .filterNotNull()
+                                        .first()
+                                        .also { cardWithTags ->
+                                            cardWithTags.tags.forEach { tag ->
+                                                tagIdMap.firstOrNull { it.first == tag.tagId }
+                                                    ?.let {
+                                                        cardTagCrossRefs.add(
+                                                            TagCardCrossRef(
+                                                                cardId = newCardId,
+                                                                tagId = it.second
+                                                            )
+                                                        )
+                                                    }
+                                            }
+                                        }
+                                }
+
+                                newCardId += 1
+                                skipMemo = false
+                            }
+                        }
+                }
+            }
+
+            if (boxUiState.isValid) {
+                saveBox()
+
+                categoryList.forEach {
+                    appRepository.upsertCategory(it)
+                }
+
+                tagList.forEach {
+                    appRepository.insertTag(it)
+                }
+
+                cardList.forEach {
+                    appRepository.upsertCard(it)
+                }
+
+                cardTagCrossRefs.forEach {
+                    appRepository.upsertTagCardCrossRef(it)
+                }
+            }
+
+            /** Finally, delete old boxes*/
+            if (deleteOldBoxes) {
+                for (box in oldBoxes) {
+                    appRepository.deleteBox(box.boxId)
+                }
+            }
+
+            mergingInProcess.update { false }
         }
     }
 }

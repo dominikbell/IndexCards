@@ -1,0 +1,52 @@
+name: Android CI
+
+on:
+  push:
+    branches: ["devel", "main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleDebug
+
+      # 1. Always upload the APK as an artifact for every build (for testing)
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: IndexCards-Build-${{ github.sha }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      # 2. Automatically create a Release ONLY when merging into 'main'
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          # This uses the commit hash as a temporary tag name
+          # Or you can hardcode 'latest' (not recommended for history)
+          tag_name: v${{ github.run_number }}
+          name: Release v1.0 (Build ${{ github.run_number }})
+          body: |
+            Automated Release from PR merge to Main.
+            Version Code: 1
+          files: app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

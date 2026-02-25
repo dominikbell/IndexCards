@@ -2,11 +2,13 @@ package com.example.indexcards.ui.box
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,10 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -25,117 +34,438 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
+import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
+import com.example.indexcards.utils.box.UiBoxWithCategories
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
+import androidx.core.graphics.toColorInt
+
 
 @Composable
 fun CardList(
     modifier: Modifier = Modifier,
     cardWithTagList: List<CardWithTags>,
-    showCardDialog: (Card) -> Unit,
-    showEditCardDialog: (Card) -> Unit,
+    boxWithCategories: UiBoxWithCategories,
+    categoriesExpanded: List<Long>,
+    numberOfButtons: Int,
+    isSelecting: Boolean,
+    selectedCards: List<Card>,
+    showCardDialog: (Card) -> Unit = {},
+    trainCategory: (Long) -> Unit = {},
+    toggleCategoryExpanded: (Long) -> Unit = {},
+    startSelection: () -> Unit = {},
+    selectCard: (Card) -> Unit = {},
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Top
-    ) {
-        itemsIndexed(
-            items = cardWithTagList,
-        ) { index, item ->
-
-            val finalOffset = if (index == cardWithTagList.size - 1) {
-                (2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
-            } else {
-                0.dp
-            }
-
-            CardListItem(
-                modifier = Modifier.padding(bottom = finalOffset),
-                item = item.card,
-                onClick = {
-                    showCardDialog(it)
-                },
-                onLongClick = {
-                    showEditCardDialog(it)
-                },
-                tagList = item.tags
-            )
+    fun clickOnCard(card: Card) {
+        if (isSelecting) {
+            selectCard(card)
+        } else {
+            showCardDialog(card)
         }
     }
+
+    fun longClickCard(card: Card) {
+        if (!isSelecting) {
+            startSelection()
+            selectCard(card)
+        }
+    }
+
+    if (boxWithCategories.box.categories) {
+        val cardsWithoutCategory = cardWithTagList.filter { it.card.categoryId == (-1).toLong() }
+        val noCategoryExpanded = categoriesExpanded.contains((-1).toLong())
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
+        ) {
+            boxWithCategories.categoryList.forEachIndexed { index, category ->
+                val categoryFinalOffset = if (
+                    index == boxWithCategories.categoryList.size - 1 &&
+                    categoriesExpanded.isEmpty() &&
+                    cardsWithoutCategory.isEmpty()
+                ) {
+                    (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                } else {
+                    2.dp
+                }
+
+                val cardsOfCategory =
+                    cardWithTagList.filter { it.card.categoryId == category.categoryId }
+
+                item {
+                    CategoryListItem(
+                        modifier = Modifier.padding(bottom = categoryFinalOffset),
+                        category = category,
+                        expanded = categoriesExpanded.contains(category.categoryId),
+                        showNumberOfCards = boxWithCategories.box.showNumberOfCards,
+                        numberOfCards = cardsOfCategory.size,
+                        changeExpanded = { toggleCategoryExpanded(category.categoryId) },
+                        trainCategory = { trainCategory(category.categoryId) },
+                    )
+                }
+
+                if (categoriesExpanded.contains(category.categoryId)) {
+
+                    if (cardsOfCategory.isEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 6.dp),
+                                textAlign = TextAlign.Center,
+                                text = stringResource(id = R.string.no_cards_in_category),
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
+                    } else {
+                        itemsIndexed(cardsOfCategory) { ind, item ->
+                            val cardFinalOffset = if (
+                                index == boxWithCategories.categoryList.size - 1 &&
+                                ind == cardsOfCategory.size - 1 &&
+                                cardsWithoutCategory.isEmpty()
+                            ) {
+                                (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                            } else {
+                                2.dp
+                            }
+
+                            CardListItem(
+                                modifier = Modifier.padding(bottom = cardFinalOffset),
+                                cardWithTags = item,
+                                showCategories = boxWithCategories.box.categories,
+                                isSelecting = isSelecting,
+                                isSelected = selectedCards.contains(item.card),
+                                onClick = { clickOnCard(it) },
+                                onLongClick = { longClickCard(it) },
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (cardsWithoutCategory.isNotEmpty()) {
+                val categoryFinalOffset = if (!noCategoryExpanded) {
+                    (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                } else {
+                    0.dp
+                }
+
+                item {
+                    CategoryListItem(
+                        modifier = Modifier.padding(bottom = categoryFinalOffset),
+                        category = Category(
+                            categoryId = -1,
+                            boxId = boxWithCategories.box.boxId,
+                            name = stringResource(id = R.string.no_category)
+                        ),
+                        expanded = noCategoryExpanded,
+                        showNumberOfCards = boxWithCategories.box.showNumberOfCards,
+                        numberOfCards = cardsWithoutCategory.size,
+                        changeExpanded = { toggleCategoryExpanded((-1).toLong()) },
+                        trainCategory = { trainCategory((-1).toLong()) },
+                    )
+                }
+
+                if (noCategoryExpanded) {
+                    itemsIndexed(cardsWithoutCategory) { index, item ->
+                        val cardFinalOffset = if (index == cardsWithoutCategory.size - 1) {
+                            (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                        } else {
+                            0.dp
+                        }
+
+                        CardListItem(
+                            modifier = Modifier.padding(bottom = cardFinalOffset),
+                            cardWithTags = item,
+                            showCategories = boxWithCategories.box.categories,
+                            isSelecting = isSelecting,
+                            isSelected = selectedCards.contains(item.card),
+                            onClick = { clickOnCard(it) },
+                            onLongClick = { longClickCard(it) },
+                        )
+                    }
+                }
+            }
+        }
+
+        /** If no categories should be shown */
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top
+        ) {
+            itemsIndexed(items = cardWithTagList) { index, item ->
+                val finalOffset = if (index == cardWithTagList.size - 1) {
+                    (numberOfButtons * 2 * FloatingActionButtonDefaults.LargeIconSize.value).dp
+                } else {
+                    0.dp
+                }
+
+                CardListItem(
+                    modifier = Modifier.padding(bottom = finalOffset),
+                    cardWithTags = item,
+                    showCategories = boxWithCategories.box.categories,
+                    isSelecting = isSelecting,
+                    isSelected = selectedCards.contains(item.card),
+                    onClick = { clickOnCard(it) },
+                    onLongClick = { longClickCard(it) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryListItem(
+    modifier: Modifier = Modifier,
+    category: Category,
+    expanded: Boolean,
+    showNumberOfCards: Boolean,
+    numberOfCards: Int,
+    changeExpanded: () -> Unit = {},
+    trainCategory: () -> Unit = {},
+) {
+    val rotation = if (expanded) {
+        0F
+    } else {
+        -90F
+    }
+
+    val text = if (showNumberOfCards) {
+        category.name + " (" + numberOfCards.toString() + ")"
+    } else {
+        category.name
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(4.dp))
+                .clickable { changeExpanded() }
+                .padding(top = 8.dp, bottom = 8.dp, end = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                modifier = Modifier.rotate(rotation),
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "arrow"
+            )
+            Text(
+                modifier = Modifier.padding(end = 14.dp),
+                text = text,
+                fontWeight = FontWeight.Bold,
+            )
+            HorizontalDivider(
+                modifier = Modifier.weight(1F),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8F)
+            )
+            IconButton(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .clip(shape = CircleShape)
+                    .background(color = MaterialTheme.colorScheme.primaryContainer)
+                    .size(34.dp),
+                onClick = { trainCategory() }
+            ) {
+                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "train")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CategoryListItemPreview() {
+    CategoryListItem(
+        category = Category(categoryId = 1, boxId = 1, name = "Test123"),
+        expanded = false,
+        showNumberOfCards = true,
+        numberOfCards = 2,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CategoryListItemExpandedPreview() {
+    CategoryListItem(
+        category = Category(categoryId = 1, boxId = 1, name = "Test123"),
+        expanded = true,
+        showNumberOfCards = true,
+        numberOfCards = 2,
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardListItem(
     modifier: Modifier = Modifier,
-    item: Card,
-    onClick: (Card) -> Unit,
-    onLongClick: (Card) -> Unit,
-    tagList: List<Tag>
+    cardWithTags: CardWithTags,
+    showCategories: Boolean,
+    isSelecting: Boolean,
+    isSelected: Boolean,
+    onClick: (Card) -> Unit = {},
+    onLongClick: (Card) -> Unit = {},
 ) {
-    Card(
+    val height = 26.dp
+
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(4.dp)
+            .height(1.5 * height)
+            .clip(RoundedCornerShape(4.dp))
             .combinedClickable(
-                onClick = { onClick(item) },
-                onLongClick = { onLongClick(item) }
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = item.word,
-                textAlign = TextAlign.Start,
+                onClick = { onClick(cardWithTags.card) },
+                onLongClick = { onLongClick(cardWithTags.card) },
             )
+            .padding(
+                start = if (showCategories) 20.dp else 8.dp,
+                top = 6.dp,
+                bottom = 6.dp,
+                end = 6.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        if (isSelecting) {
+            Checkbox(
+                modifier = Modifier
+                    .size(height)
+                    .padding(end = 4.dp),
+                checked = isSelected,
+                onCheckedChange = {
+                    onClick(cardWithTags.card)
+                }
+            )
+        }
+        Text(
+            modifier = Modifier.weight(1f),
+            text = cardWithTags.card.word,
+            textAlign = TextAlign.Start,
+        )
 
-            Row {
-                if (tagList.size <= 3) {
-                    TagCircleRow(tagList = tagList)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (cardWithTags.card.memoURI.isNotBlank()) {
+                Icon(
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .size(26.dp - 2.dp),
+                    imageVector = Icons.Default.Mic,
+                    contentDescription = "micIcon"
+                )
+
+                VerticalDivider(
+                    modifier = Modifier
+                        .height(height)
+                        .padding(
+                            start = 3.dp,
+                            end = if (cardWithTags.tags.isNotEmpty()) 3.dp else 6.dp
+                        )
+                )
+            }
+
+            if (cardWithTags.tags.isNotEmpty()) {
+                if (cardWithTags.tags.size <= 3) {
+                    TagCircleRow(tagList = cardWithTags.tags)
                 } else {
-                    CompactTagCircleRow(tagList = tagList)
+                    CompactTagCircleRow(tagList = cardWithTags.tags)
                 }
 
                 VerticalDivider(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(3.dp)
+                        .height(height)
+                        .padding(start = 3.dp, end = 6.dp)
                 )
-
-                LevelIndicator(level = item.level)
             }
+
+            LevelIndicator(level = cardWithTags.card.level)
         }
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun CardListItemPreview() {
+    CardListItem(
+        cardWithTags = CardWithTags(
+            card = emptyCard.copy(word = "Vorderseite", memoURI = "nonzero", level = 1),
+            tags = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+                emptyTag.copy(tagId = 3, text = "Tag3"),
+            )
+        ),
+        showCategories = false,
+        isSelecting = false,
+        isSelected = false,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardListItemNotSelectedPreview() {
+    CardListItem(
+        cardWithTags = CardWithTags(
+            card = emptyCard.copy(word = "Vorderseite", memoURI = "nonzero", level = 1),
+            tags = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+                emptyTag.copy(tagId = 3, text = "Tag3"),
+            )
+        ),
+        showCategories = false,
+        isSelecting = true,
+        isSelected = false,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardListItemSelectedPreview() {
+    CardListItem(
+        cardWithTags = CardWithTags(
+            card = emptyCard.copy(word = "Vorderseite", memoURI = "nonzero", level = 1),
+            tags = listOf(
+                emptyTag.copy(tagId = 1, text = "Tag1"),
+                emptyTag.copy(tagId = 2, text = "Tag2"),
+                emptyTag.copy(tagId = 3, text = "Tag3"),
+            )
+        ),
+        showCategories = false,
+        isSelecting = true,
+        isSelected = true,
+    )
+}
+
 @Composable
 fun TagCircleRow(
-    modifier: Modifier = Modifier,
-    tagList: List<Tag> = listOf()
+    modifier: Modifier = Modifier, tagList: List<Tag> = listOf()
 ) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        modifier = modifier, horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         tagList.forEach {
             Canvas(
-                modifier = modifier
-                    .size(20.dp)
+                modifier = modifier.size(20.dp)
             ) {
                 drawCircle(
-                    color = Color(android.graphics.Color.parseColor(it.color)),
-                    radius = 20f
+                    color = Color(it.color.toColorInt()), radius = 20f
                 )
             }
         }
@@ -144,12 +474,10 @@ fun TagCircleRow(
 
 @Composable
 fun CompactTagCircleRow(
-    modifier: Modifier = Modifier,
-    tagList: List<Tag> = listOf()
+    modifier: Modifier = Modifier, tagList: List<Tag> = listOf()
 ) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        modifier = modifier, horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         tagList.forEach {
             Canvas(
@@ -159,7 +487,7 @@ fun CompactTagCircleRow(
                     .width(5.dp)
             ) {
                 drawRect(
-                    color = Color(android.graphics.Color.parseColor(it.color)),
+                    color = Color(it.color.toColorInt()),
                 )
             }
             Spacer(modifier = modifier.size(2.dp))
@@ -169,20 +497,17 @@ fun CompactTagCircleRow(
 
 @Composable
 fun LevelIndicator(
-    modifier: Modifier = Modifier,
-    level: Int
+    modifier: Modifier = Modifier, level: Int
 ) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        modifier = modifier, horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         for (k in 0..4) {
-            val color =
-                if (k <= level) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.25F)
-                }
+            val color = if (k <= level) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.25F)
+            }
             Canvas(
                 modifier = modifier
                     .clip(RoundedCornerShape(2.dp))

@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
@@ -23,6 +24,7 @@ import com.example.indexcards.utils.DefaultPreferences
 import com.example.indexcards.utils.home.toAtLeast2DigitString
 import com.example.indexcards.utils.home.toReminderText
 import com.example.indexcards.utils.home.toWord
+
 
 @Composable
 fun SettingsScreen(
@@ -120,17 +122,19 @@ fun SettingsScreen(
                 modifier = Modifier.clickable {
                     openRemindersTimeDialog()
                 },
-                text = reminderTimeText
+                text = reminderTimeText,
             )
         }
 
         HorizontalDivider()
 
         Text(text = stringResource(id = R.string.reminders_for) + " ..")
-        
+
         reminderIntervals.forEachIndexed { index, interval ->
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -144,7 +148,8 @@ fun SettingsScreen(
                     modifier = Modifier.clickable {
                         openRemindersDialog(index)
                     },
-                    text = interval.second.toReminderText(interval.first)
+                    text = " " + interval.second.toReminderText(interval.first) + " ",
+                    textDecoration = TextDecoration.Underline,
                 )
             }
         }

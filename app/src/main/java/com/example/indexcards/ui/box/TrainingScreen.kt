@@ -17,9 +17,11 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -37,10 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
+import kotlin.collections.listOf
 import kotlin.math.min
 
 @Composable
@@ -49,10 +55,9 @@ fun TrainingScreen(
     cardList: List<CardWithTags>,
     trainingCounts: Boolean,
     trainingDirection: Boolean,
-    navigateToBoxScreen: () -> Unit = {},
+    finishTraining: () -> Unit = {},
     onCardCorrect: (Card) -> Unit = {},
     onCardIncorrect: (Card) -> Unit = {},
-    setOtherLevelsReminder: () -> Unit = {},
 ) {
     var trainedCards by remember { mutableIntStateOf(0) }
     var turnedOver by remember { mutableStateOf(false) }
@@ -103,19 +108,12 @@ fun TrainingScreen(
 
         } else {
             AlertDialog(
-                onDismissRequest = {
-                    navigateToBoxScreen()
-                },
+                onDismissRequest = { finishTraining() },
                 title = { Text(text = stringResource(id = R.string.all_done)) },
-                text = {
-                    Text(text = stringResource(id = R.string.no_more_cards))
-                },
+                text = { Text(text = stringResource(id = R.string.no_more_cards)) },
                 confirmButton = {
                     TextButton(
-                        onClick = {
-                            setOtherLevelsReminder()
-                            navigateToBoxScreen()
-                        }
+                        onClick = { finishTraining() }
                     ) {
                         Text(text = stringResource(id = R.string.back_to_box))
                     }
@@ -132,7 +130,7 @@ fun TrainingScreenPreview() {
         cardList = listOf(
             CardWithTags(
                 card = emptyCard.copy(word = "Hallo", meaning = "Hello"),
-                tags = listOf()
+                tags = listOf(emptyTag.copy(tagId = 3, text = "Tag243")),
             ),
             CardWithTags(card = emptyCard, tags = listOf()),
             CardWithTags(card = emptyCard, tags = listOf()),
@@ -171,8 +169,11 @@ fun CardCard(
             currentCard.card.word
         }
 
+    val cardPadding = 35.dp
+
     Card(
         modifier = modifier
+            .clip(CardDefaults.shape)
             .height(cardHeight)
             .width(cardWidth)
             .clickable {
@@ -183,13 +184,14 @@ fun CardCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(30.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(30.dp),
             ) {
                 SelectionContainer(
                     modifier = Modifier.fillMaxWidth()
@@ -231,11 +233,13 @@ fun CardCard(
 
                         Spacer(modifier = Modifier.size(8.dp))
 
+                        // TODO: still has a slight ring in on phones (but not in preview) -> remove
                         TagList(
                             tagList = currentCard.tags,
                             onClick = {},
                             onLongClick = {},
-                            selectedTags = currentCard.tags
+                            selectedTags = currentCard.tags,
+                            onBoxScreen = false,
                         )
 
                         Spacer(modifier = Modifier.size(8.dp))
@@ -254,35 +258,99 @@ fun CardCard(
             }
 
             if (!turnedOver) {
-                Text(text = stringResource(id = R.string.turn_over))
+                Text(
+                    modifier = Modifier.padding(bottom = cardPadding),
+                    text = stringResource(id = R.string.turn_over)
+                )
             } else {
-                Row {
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            if (trainingCounts) {
-                                onCardIncorrect()
-                            }
-                        }
-                    ) {
-                        Text(text = stringResource(id = R.string.incorrect))
-                    }
-
-                    TextButton(
-                        onClick = {
-                            goToNextCard()
-                            if (trainingCounts) {
-                                onCardCorrect()
-                            }
-                        }
-                    ) {
-                        Text(text = stringResource(id = R.string.correct))
-                    }
-                }
+                CardButtons(
+                    trainingCounts = trainingCounts,
+                    cardPadding = cardPadding,
+                    goToNextCard = goToNextCard,
+                    onCardCorrect = onCardCorrect,
+                    onCardIncorrect = onCardIncorrect,
+                )
             }
         }
     }
 }
+
+@Composable
+fun CardButtons(
+    modifier: Modifier = Modifier,
+    trainingCounts: Boolean,
+    cardPadding: Dp,
+    goToNextCard: () -> Unit = {},
+    onCardCorrect: () -> Unit = {},
+    onCardIncorrect: () -> Unit = {},
+) {
+    val pad = 4.dp
+    val height = 2 * cardPadding + pad
+    val alpha = 0.4F
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        HorizontalDivider(
+            modifier = Modifier.padding(start = pad, end = pad),
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = alpha)
+        )
+
+        Row(
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .weight(1f)
+                    .clickable {
+                        goToNextCard()
+                        if (trainingCounts) {
+                            onCardIncorrect()
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.incorrect),
+                    fontWeight = FontWeight(550),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            VerticalDivider(
+                modifier = Modifier
+                    .height(height)
+                    .padding(top = pad, bottom = pad),
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = alpha)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .weight(1f)
+                    .clickable {
+                        goToNextCard()
+                        if (trainingCounts) {
+                            onCardCorrect()
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = R.string.correct),
+                    fontWeight = FontWeight(550),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
 
 @Preview
 @Composable
@@ -310,7 +378,7 @@ fun CardCardPreviewRevealed() {
         currentCard =
         CardWithTags(
             card = emptyCard.copy(word = "Hallo", meaning = "Hello", notes = "Very important card"),
-            tags = listOf()
+            tags = listOf(emptyTag.copy(tagId = 3, text = "Tag243")),
         ),
         cardHeight = 400.dp,
         cardWidth = 300.dp,

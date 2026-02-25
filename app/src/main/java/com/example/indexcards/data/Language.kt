@@ -2,6 +2,7 @@ package com.example.indexcards.data
 
 object LanguageData {
     val language: Map<String, Pair<String, String>> = mapOf(
+        "_al" to Pair("Albanian", "🇦🇱"),
         "_ar" to Pair("Arabic", "🇸🇦"),
         "_cn" to Pair("Chinese", "🇨🇳"),
         "_hr" to Pair("Croatian", "🇭🇷"),
@@ -18,6 +19,7 @@ object LanguageData {
         "_it" to Pair("Italian", "🇮🇹"),
         "_jp" to Pair("Japanese", "🇯🇵"),
         "_kr" to Pair("Korean", "🇰🇷"),
+        "_re" to Pair("Latin", ""),
         "_no" to Pair("Norwegian", "🇳🇴"),
         "_ir" to Pair("Persian", "🇮🇷"),
         "_pt" to Pair("Portuguese", "🇵🇹"),

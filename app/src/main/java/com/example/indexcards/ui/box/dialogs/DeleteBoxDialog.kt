@@ -9,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.indexcards.R
 import com.example.indexcards.data.Box
-import com.example.indexcards.utils.box.emptyBox
+import com.example.indexcards.utils.state.emptyBox
 
 @Composable
 fun DeleteBoxDialog(
@@ -21,8 +21,8 @@ fun DeleteBoxDialog(
     AlertDialog(
         modifier = modifier,
         onDismissRequest = onDismiss,
-        text = { Text(text = stringResource(R.string.delete_box_sure)) },
         title = { Text(text = stringResource(R.string.delete_box) + " '${boxToBeDeleted.name}'") },
+        text = { Text(text = stringResource(R.string.delete_box_sure)) },
         dismissButton =
         {
             TextButton(

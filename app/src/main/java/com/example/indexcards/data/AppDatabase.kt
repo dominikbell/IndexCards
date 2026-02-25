@@ -6,17 +6,22 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
+
 @Database(
     entities = [
         Box::class,
         Card::class,
         Tag::class,
+        Category::class,
         TagCardCrossRef::class,
     ],
-    version = 10,
+    version = 13,
     autoMigrations = [
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11),
+        AutoMigration(from = 11, to = 12),
+        AutoMigration(from = 12, to = 13),
     ]
 )
 

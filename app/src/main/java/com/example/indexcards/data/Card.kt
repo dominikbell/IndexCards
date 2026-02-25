@@ -16,4 +16,6 @@ data class Card(
     val boxId: Long,
     @ColumnInfo(name = "memoURI", defaultValue = "")
     val memoURI: String,
+    @ColumnInfo(name = "categoryId", defaultValue = "-1")
+    val categoryId: Long
 )

@@ -3,14 +3,13 @@ package com.example.indexcards.ui.box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,30 +26,39 @@ import androidx.compose.ui.unit.dp
 import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
+import com.example.indexcards.data.Category
 import com.example.indexcards.data.Tag
-import com.example.indexcards.data.isLanguage
 import com.example.indexcards.ui.elements.LevelList
 import com.example.indexcards.ui.elements.NewTagButton
-import com.example.indexcards.utils.box.BoxDetails
+import com.example.indexcards.utils.box.UiBoxWithCategories
+import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.box.UiCardsWithTags
 import com.example.indexcards.utils.box.UiTagWithCards
-import com.example.indexcards.utils.box.toBox
-import com.example.indexcards.utils.card.emptyCard
-import com.example.indexcards.utils.tag.emptyTag
+import com.example.indexcards.utils.state.toBox
+import com.example.indexcards.utils.state.emptyCard
+import com.example.indexcards.utils.state.emptyTag
+import com.example.indexcards.utils.state.isLanguage
+
 
 @Composable
 fun BoxScreenBody(
     modifier: Modifier = Modifier,
     levelSelected: Int,
     boxWithTags: UiBoxWithTags,
+    boxWithCategories: UiBoxWithCategories,
     cardsWithTags: UiCardsWithTags,
     tagWithCards: UiTagWithCards,
     filteredCardWithTagList: List<CardWithTags>,
     isSearching: Boolean,
     searchText: String,
+    categoriesExpanded: List<Long>,
+    numberOfButtons: Int,
+    isSelecting: Boolean,
+    selectedCards: List<Card>,
+    reminderIntervals:  List<Pair<Int, String>>,
+    reminderTime: Pair<Int, Int>,
     showCardDialog: (Card) -> Unit = {},
-    showEditCardDialog: (Card) -> Unit = {},
     showNewTagDialog: () -> Unit = {},
     onTagLongClick: (Tag) -> Unit = {},
     selectLevel: (Int) -> Unit = {},
@@ -58,6 +66,10 @@ fun BoxScreenBody(
     resetTagSortedBy: () -> Unit = {},
     updateSearchText: (String) -> Unit = {},
     onCloseSearch: () -> Unit = {},
+    trainCategory: (Long) -> Unit = {},
+    toggleCategoryExpanded: (Long) -> Unit = {},
+    selectCard: (Card) -> Unit = {},
+    startSelection: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -66,7 +78,10 @@ fun BoxScreenBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             if (isSearching) {
                 Row(
                     modifier = Modifier
@@ -110,12 +125,26 @@ fun BoxScreenBody(
             }
         }
 
-        Spacer(modifier = Modifier.size(4.dp))
-
         LevelList(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
             cardWithTagList = cardsWithTags.cardWithTagList,
             currentLevel = levelSelected,
             selectLevel = { selectLevel(it) },
+            lastReminders = listOf(
+                boxWithTags.box.lastTrained1,
+                boxWithTags.box.lastTrained2,
+                boxWithTags.box.lastTrained3,
+                boxWithTags.box.lastTrained4,
+                boxWithTags.box.lastTrained5,
+            ),
+            reminderIntervals = reminderIntervals,
+        )
+
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
         )
 
         Row(
@@ -135,7 +164,8 @@ fun BoxScreenBody(
                     }
                 },
                 onLongClick = { onTagLongClick(it) },
-                selectedTags = listOf(tagWithCards.tag)
+                selectedTags = listOf(tagWithCards.tag),
+                onBoxScreen = true,
             )
 
             VerticalDivider(
@@ -149,10 +179,14 @@ fun BoxScreenBody(
             )
         }
 
-        if (cardsWithTags.cardWithTagList.isEmpty()) {
-            Spacer(modifier = Modifier.size(4.dp))
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+        )
 
+        if (cardsWithTags.cardWithTagList.isEmpty()) {
             Text(
+                modifier = Modifier.padding(top = 10.dp),
                 text = stringResource(R.string.click_to_add_card),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
@@ -160,8 +194,16 @@ fun BoxScreenBody(
         } else {
             CardList(
                 cardWithTagList = filteredCardWithTagList,
+                categoriesExpanded = categoriesExpanded,
+                boxWithCategories = boxWithCategories,
                 showCardDialog = { showCardDialog(it) },
-                showEditCardDialog = { showEditCardDialog(it) }
+                numberOfButtons = numberOfButtons,
+                trainCategory = trainCategory,
+                toggleCategoryExpanded = toggleCategoryExpanded,
+                isSelecting = isSelecting,
+                selectedCards = selectedCards,
+                selectCard = selectCard,
+                startSelection = startSelection,
             )
         }
     }
@@ -200,8 +242,212 @@ fun BoxScreenBodyPreview() {
         isSearching = false,
         searchText = "",
         boxWithTags = boxWithTags,
+        boxWithCategories = UiBoxWithCategories(box = boxWithTags.box),
+        categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
+        isSelecting = false,
+        selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BoxScreenBodyCategoriesPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = true,
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val tag1 = emptyTag.copy(tagId = 1, text = "Tag123")
+    val tag2 = emptyTag.copy(tagId = 2, text = "Tag3")
+    val tag3 = emptyTag.copy(tagId = 3, text = "Tag243")
+
+    val tagList = listOf(tag1, tag2, tag3)
+
+    val cardWithTagsList = listOf(
+        CardWithTags(
+            emptyCard.copy(
+                word = "Hello",
+                meaning = "Oho",
+                memoURI = "asd",
+                level = 1,
+                categoryId = -1
+            ),
+            tags = tagList
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "SDee", meaning = "asd", level = 1, categoryId = 0),
+            tags = tagList.minus(tag1)
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "Plosad", meaning = "Okosd", level = 1, categoryId = 1),
+            tags = tagList.minus(tag1).minus(tag3)
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "Messs", meaning = "ploo", level = 1, categoryId = 1),
+            tags = tagList.minus(tag2).minus(tag1)
+        ),
+    )
+    val cardsWithTags = UiCardsWithTags(
+        cardWithTagList = cardWithTagsList
+    )
+
+    val boxWithTags = UiBoxWithTags(
+        box = box,
+        tagList = tagList
+    )
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
+    BoxScreenBody(
+        tagWithCards = UiTagWithCards(
+            tag = emptyTag.copy(text = "Tag123")
+        ),
+        levelSelected = -1,
+        isSearching = false,
+        searchText = "",
+        boxWithTags = boxWithTags,
+        boxWithCategories = boxWithCategories,
+        categoriesExpanded = listOf(0, -1),
+        cardsWithTags = cardsWithTags,
+        filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
+        isSelecting = false,
+        selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BoxScreenBodySelectingPreview() {
+    val tagList = listOf(
+        emptyTag.copy(tagId = 1, text = "Tag123"),
+        emptyTag.copy(tagId = 2, text = "Tag3"),
+        emptyTag.copy(tagId = 3, text = "Tag243"),
+    )
+    val cardWithTagsList = listOf(
+        CardWithTags(
+            emptyCard.copy(word = "Hello", meaning = "Oho", level = 1),
+            tags = tagList
+        )
+    )
+    val cardsWithTags = UiCardsWithTags(
+        cardWithTagList = cardWithTagsList
+    )
+    val boxWithTags = UiBoxWithTags(
+        box = BoxDetails().copy(
+            name = "Box 456",
+            topic = "Maschinenbau",
+            description = "Schreibebiung mit seeeehr langem Text"
+        ).toBox(),
+        tagList = tagList
+    )
+    BoxScreenBody(
+        tagWithCards = UiTagWithCards(
+            tag = emptyTag.copy(text = "Tag123")
+        ),
+        levelSelected = -1,
+        isSearching = false,
+        searchText = "",
+        boxWithTags = boxWithTags,
+        boxWithCategories = UiBoxWithCategories(),
+        categoriesExpanded = listOf(),
+        cardsWithTags = cardsWithTags,
+        filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
+        isSelecting = true,
+        selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BoxScreenBodyCategoriesSelectingPreview() {
+    val box = BoxDetails().copy(
+        name = "Box 456",
+        topic = "Maschinenbau",
+        description = "Schreibebiung mit seeeehr langem Text",
+        categories = true,
+    ).toBox()
+
+    val category1 = Category(categoryId = 0, boxId = -1, name = "Catta")
+    val category2 = Category(categoryId = 1, boxId = -1, name = "Fanstato")
+
+    val tag1 = emptyTag.copy(tagId = 1, text = "Tag123")
+    val tag2 = emptyTag.copy(tagId = 2, text = "Tag3")
+    val tag3 = emptyTag.copy(tagId = 3, text = "Tag243")
+
+    val tagList = listOf(tag1, tag2, tag3)
+
+    val cardWithTagsList = listOf(
+        CardWithTags(
+            emptyCard.copy(
+                word = "Hello",
+                meaning = "Oho",
+                memoURI = "asd",
+                level = 1,
+                categoryId = -1
+            ),
+            tags = tagList
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "SDee", meaning = "asd", level = 1, categoryId = 0),
+            tags = tagList.minus(tag1)
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "Plosad", meaning = "Okosd", level = 1, categoryId = 1),
+            tags = tagList.minus(tag1).minus(tag3)
+        ),
+        CardWithTags(
+            emptyCard.copy(word = "Messs", meaning = "ploo", level = 1, categoryId = 1),
+            tags = tagList.minus(tag2).minus(tag1)
+        ),
+    )
+    val cardsWithTags = UiCardsWithTags(
+        cardWithTagList = cardWithTagsList
+    )
+
+    val boxWithTags = UiBoxWithTags(
+        box = box,
+        tagList = tagList
+    )
+    val boxWithCategories = UiBoxWithCategories(
+        box = box,
+        categoryList = listOf(category1, category2)
+    )
+
+    BoxScreenBody(
+        tagWithCards = UiTagWithCards(
+            tag = emptyTag.copy(text = "Tag123")
+        ),
+        levelSelected = -1,
+        isSearching = false,
+        searchText = "",
+        boxWithTags = boxWithTags,
+        boxWithCategories = boxWithCategories,
+        categoriesExpanded = listOf(0, -1),
+        cardsWithTags = cardsWithTags,
+        filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
+        isSelecting = true,
+        selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }
 
@@ -238,7 +484,14 @@ fun BoxScreenBodySearchingPreview() {
         isSearching = true,
         searchText = "Search",
         boxWithTags = boxWithTags,
+        boxWithCategories = UiBoxWithCategories(),
+        categoriesExpanded = listOf(),
         cardsWithTags = cardsWithTags,
         filteredCardWithTagList = cardWithTagsList,
+        numberOfButtons = 1,
+        isSelecting = false,
+        selectedCards = listOf(),
+        reminderIntervals = listOf(),
+        reminderTime = Pair(0,0),
     )
 }

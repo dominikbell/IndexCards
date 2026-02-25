@@ -4,19 +4,25 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,22 +30,36 @@ import androidx.compose.ui.unit.sp
 import com.example.indexcards.NUMBER_OF_LEVELS
 import com.example.indexcards.R
 import com.example.indexcards.data.CardWithTags
-import com.example.indexcards.utils.card.emptyCard
+import com.example.indexcards.utils.notification.getTimeInterval
+import com.example.indexcards.utils.state.emptyCard
+import java.time.ZonedDateTime
+
 
 @Composable
 fun LevelList(
     modifier: Modifier = Modifier,
     cardWithTagList: List<CardWithTags>,
     currentLevel: Int,
-    selectLevel: (Int) -> Unit,
+    lastReminders: List<Long>,
+    reminderIntervals:  List<Pair<Int, String>>,
+    selectLevel: (Int) -> Unit = {},
 ) {
+    val needsTraining = (0..<NUMBER_OF_LEVELS).map { level ->
+        if (lastReminders[level] == (-1).toLong()) {
+            false
+        } else {
+            val trainTimeInterval = getTimeInterval(
+                reminderIntervals = reminderIntervals,
+                level = level
+            )
+            (ZonedDateTime.now().toInstant().toEpochMilli() - lastReminders[level]) >= trainTimeInterval
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
     ) {
-
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -54,14 +74,13 @@ fun LevelList(
                             .padding(3.dp),
                         level = level,
                         numberOfItems = cardWithTagList.filter { it.card.level == level }.size,
+                        selected = (currentLevel == level),
+                        needsTraining = needsTraining[level],
                         onClick = { selectLevel(level) },
-                        selected = (currentLevel == level)
                     )
                 }
             }
         }
-
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -84,7 +103,8 @@ fun LevelListPreview() {
             ),
         ),
         currentLevel = -1,
-        selectLevel = { }
+        lastReminders = (1..5).map { (-1).toLong() },
+        reminderIntervals = listOf(),
     )
 }
 
@@ -93,8 +113,9 @@ fun LevelListItem(
     modifier: Modifier = Modifier,
     level: Int,
     numberOfItems: Int,
-    selected: Boolean = false,
-    onClick: () -> Unit
+    selected: Boolean,
+    needsTraining: Boolean,
+    onClick: () -> Unit = {},
 ) {
     val borderThickness =
         if (selected) {
@@ -117,6 +138,12 @@ fun LevelListItem(
             numberOfItems.toString() + " " + stringResource(id = R.string.items_in_level)
         }
 
+    val text = if (needsTraining) {
+        stringResource(id = R.string.level) + " " + (level + 1).toString() + " "
+    } else {
+        stringResource(id = R.string.level) + " " + (level + 1).toString()
+    }
+
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(3.dp))
@@ -130,10 +157,24 @@ fun LevelListItem(
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(id = R.string.level) + " " + (level + 1).toString(),
-            fontSize = 18.sp
-        )
+        Box {
+            Text(
+                text = text,
+                fontSize = 18.sp,
+            )
+
+            if (needsTraining) {
+                Icon(
+                    imageVector = Icons.Filled.Timer,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 5.dp, y = (-4).dp)
+                        .size(14.dp),
+                    tint = Color.Yellow.copy(red = 0.9F, green = 0.8F, blue = 0F),
+                    contentDescription = "timer",
+                )
+            }
+        }
 
         Text(
             text = numberOfItemsText,

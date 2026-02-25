@@ -1,6 +1,5 @@
 package com.example.indexcards.data
 
-import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -13,47 +12,20 @@ data class Box(
     val topic: String,
     @ColumnInfo(name = "reminders", defaultValue = "0")
     val reminders: Boolean,
+    @ColumnInfo(name = "categories", defaultValue = "0")
+    val categories: Boolean,
     val description: String,
     val dateAdded: Long,
+    @ColumnInfo(name = "showNumberOfCards", defaultValue = "1")
+    val showNumberOfCards: Boolean,
+    @ColumnInfo(name = "lastTrained1", defaultValue = "-1")
+    val lastTrained1: Long,
+    @ColumnInfo(name = "lastTrained2", defaultValue = "-1")
+    val lastTrained2: Long,
+    @ColumnInfo(name = "lastTrained3", defaultValue = "-1")
+    val lastTrained3: Long,
+    @ColumnInfo(name = "lastTrained4", defaultValue = "-1")
+    val lastTrained4: Long,
+    @ColumnInfo(name = "lastTrained5", defaultValue = "-1")
+    val lastTrained5: Long,
 )
-
-fun Box.isLanguage(): Boolean {
-    return (LanguageData.language.map { it.value.first }.contains(this.topic))
-}
-
-/** Decided not to use emoji flags, but we will keep it in case it might come in handy */
-fun Box.namePlusFlag(): String {
-    return this.name +
-            if (this.isLanguage()) {
-                " " + this.getFlag()
-            } else {
-                ""
-            }
-}
-
-fun Box.getFlag(): String {
-    return if (this.isLanguage()) {
-        LanguageData.language.values.find { it.first == this.topic }?.second ?: ""
-    } else {
-        ""
-    }
-}
-
-fun Box.getImageId(context: Context): Int {
-    return if (this.isLanguage()) {
-        getImageId(
-            context = context,
-            nameBase = LanguageData.language.filterValues { it.first == this.topic }.keys.first()
-        )
-    } else {
-        -1
-    }
-}
-
-fun getImageId(context: Context, nameBase: String): Int {
-    return context.resources.getIdentifier(
-        "flag$nameBase",
-        "drawable",
-        context.packageName
-    )
-}
