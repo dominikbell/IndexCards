@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -164,6 +165,7 @@ fun NotesField(
 fun RequiredFieldsText(
     modifier: Modifier = Modifier,
     plural: Boolean = true,
+    textColor: Color = Color.Unspecified,
 ) {
     val text = if (plural) {
         stringResource(R.string.required_fields)
@@ -175,7 +177,8 @@ fun RequiredFieldsText(
         modifier = modifier.fillMaxWidth(),
         text = text,
         style = MaterialTheme.typography.bodySmall,
-        textAlign = TextAlign.Left
+        textAlign = TextAlign.Left,
+        color = textColor,
     )
 }
 
@@ -238,7 +241,8 @@ fun TopicField(
         onValueChange = { onValueChange(it) },
         label = { Text(text = stringResource(R.string.topic) + "*") },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-        isError = isError
+        isError = isError,
+        enabled = isEnabled,
     )
 }
 
@@ -248,6 +252,7 @@ fun RemindersSwitch(
     checked: Boolean = false,
     hasNotificationPermission: Boolean = false,
     isEnabled: Boolean = true,
+    textColor: Color = Color.Unspecified,
     onCheckedChange: () -> Unit = {},
     requestNotificationPermission: () -> Boolean = { false }
 ) {
@@ -270,7 +275,10 @@ fun RemindersSwitch(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = stringResource(id = R.string.reminders))
+        Text(
+            text = stringResource(id = R.string.reminders),
+            color = textColor,
+        )
 
         Switch(
             checked = checked,
@@ -292,6 +300,7 @@ fun IsLanguageCheckBox(
     isLanguage: Boolean,
     isEnabled: Boolean = true,
     changeIsLanguage: () -> Unit = {},
+    textColor: Color = Color.Unspecified,
 ) {
     Row(
         modifier = modifier
@@ -314,7 +323,8 @@ fun IsLanguageCheckBox(
         )
         Text(
             modifier = modifier.padding(start = 6.dp),
-            text = stringResource(R.string.is_language)
+            text = stringResource(R.string.is_language),
+            color = textColor,
         )
     }
 }

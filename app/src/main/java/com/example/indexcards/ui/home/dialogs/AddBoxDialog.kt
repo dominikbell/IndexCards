@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,7 +30,6 @@ import com.example.indexcards.ui.elements.RemindersSwitch
 import com.example.indexcards.ui.elements.RequiredFieldsText
 import com.example.indexcards.ui.elements.TopicField
 import com.example.indexcards.utils.home.TutorialState
-import com.example.indexcards.utils.home.isEqualOrLaterThan
 import com.example.indexcards.utils.state.BoxDetails
 import com.example.indexcards.utils.state.BoxState
 import com.example.indexcards.utils.state.emptyBox
@@ -63,6 +64,7 @@ fun AddBoxDialog(
         .clip(RoundedCornerShape(6.dp))
         .background(highlightColor)
         .padding(2.dp)
+    val mutedColor = LocalContentColor.current.copy(alpha = 0.38F) // 38% is the android standard
 
     CustomDialog(
         onDismissRequest = {
@@ -90,13 +92,16 @@ fun AddBoxDialog(
                             updateUiState(boxUiState.boxDetails.copy(name = it))
                         },
                         isEnabled =
-                            (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_NAME)),
+                            (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_NAME || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE),
                     )
                 }
 
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_TOPIC) highlightModifier else Modifier,
                 ) {
+                    val dropDownMenuIsEnabled =
+                        (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_TOPIC || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE)
+
                     if (!isLanguage) {
                         TopicField(
                             boxUiState = boxUiState,
@@ -105,12 +110,9 @@ fun AddBoxDialog(
                                 validTopic = true
                                 updateUiState(boxUiState.boxDetails.copy(topic = it))
                             },
-                            isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC)),
+                            isEnabled = dropDownMenuIsEnabled,
                         )
                     } else {
-                        val dropDownMenuIsEnabled =
-                            (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_TOPIC))
-
                         LanguageDropDownMenu(
                             modifier = Modifier,
                             boxUiState = boxUiState,
@@ -136,12 +138,13 @@ fun AddBoxDialog(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_CHECK_BOX) highlightModifier else Modifier,
                 ) {
                     val checkBoxIsEnabled =
-                        (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_CHECK_BOX))
+                        (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_CHECK_BOX || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE)
 
                     IsLanguageCheckBox(
                         modifier = modifier,
                         isLanguage = isLanguage,
                         isEnabled = checkBoxIsEnabled,
+                        textColor = if (checkBoxIsEnabled) Color.Unspecified else mutedColor,
                         changeIsLanguage = {
                             if (checkBoxIsEnabled) {
                                 updateUiState(boxUiState.boxDetails.copy(topic = ""))
@@ -157,29 +160,32 @@ fun AddBoxDialog(
                     DescriptionField(
                         boxUiState = boxUiState,
                         onValueChange = { updateUiState(boxUiState.boxDetails.copy(description = it)) },
-                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_DESCRIPTION)),
+                        isEnabled = (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_DESCRIPTION || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE),
                     )
                 }
 
-                RequiredFieldsText()
+                RequiredFieldsText(
+                    textColor = if (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE) Color.Unspecified else mutedColor
+                )
 
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_REMINDER) highlightModifier else Modifier,
                 ) {
                     val switchEnabled =
-                        (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_REMINDER))
+                        (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_REMINDER || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE)
 
                     RemindersSwitch(
                         modifier = modifier,
                         checked = (reminders && hasNotificationPermission),
+                        hasNotificationPermission = hasNotificationPermission,
+                        isEnabled = switchEnabled,
+                        textColor = if (switchEnabled) Color.Unspecified else mutedColor,
                         onCheckedChange = {
                             if (switchEnabled) {
                                 updateUiState(boxUiState.boxDetails.copy(reminders = !reminders))
                             }
                         },
-                        hasNotificationPermission = hasNotificationPermission,
                         requestNotificationPermission = requestNotificationPermission,
-                        isEnabled = switchEnabled,
                     )
                 }
             }
@@ -187,7 +193,7 @@ fun AddBoxDialog(
 
         confirmButton = {
             val saveButtonEnabled =
-                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
+                (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE)
             Box(
                 modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE) highlightModifier else Modifier,
             ) {
@@ -215,7 +221,7 @@ fun AddBoxDialog(
 
         dismissButton = {
             val cancelButtonEnabled =
-                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
+                (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE)
 
             TextButton(
                 enabled = cancelButtonEnabled,

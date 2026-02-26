@@ -219,7 +219,7 @@
     <string name="add_box_dialog_check_box">Wenn dieser Karteikasten nicht für eine Sprache ist, entferne den Haken und gib das gewünschte Thema in das Feld darüber ein.</string>
     <string name="add_box_dialog_description">Hier kannst du eine Beschreibung für Deinen Karteikastens hinzufügen.</string>
     <string name="add_box_dialog_reminder">Wenn Du Benachrichtigungen erhalten möchtest, die Dich an das Üben erinnern, setze den Haken hier.</string>
-    <string name="add_box_dialog_save">Speichere Deinen neuen Karteikasten.</string>
+    <string name="add_box_dialog_save">Überprüfe alle Felder und speichere dann Deinen neuen Karteikasten.</string>
 
     <!-- AddCardDialog Tutorial -->
     <string name="add_card_dialog">In diesem Fenster kannst Du die Informationen der neuen Karteikarte eingeben.</string>

@@ -216,7 +216,7 @@
     <string name="add_box_dialog_check_box">If your box is not for learning a language, you can disable the check box and type in the topic in the field above.</string>
     <string name="add_box_dialog_description">Here you can add a description for your new box.</string>
     <string name="add_box_dialog_reminder">If you want to receive notifications about training reminders, switch them on here.</string>
-    <string name="add_box_dialog_save">Finally, save the new box that you have just created.</string>
+    <string name="add_box_dialog_save">Finally, check all the fields again, then save the new box.</string>
 
     <!-- TutorialDialog on BoxScreen 1 -->
     <string name="add_card_intro_title">It is quite empty here</string>

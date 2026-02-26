@@ -8,11 +8,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -127,6 +130,11 @@ fun HomeScreen(
     var tutorialStep by remember { mutableIntStateOf(-1) }
     val tutorialState =
         TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
+
+    /** Height of the status bar so the TopAppBar can be greyed out correctly */
+    val statusBarHeight = WindowInsets.statusBars
+        .asPaddingValues()
+        .calculateTopPadding()
 
     BackHandler {
         when (homeScreenState) {
@@ -258,7 +266,7 @@ fun HomeScreen(
                 ) -> {
                     Box(
                         modifier = modifier
-                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp)
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp + statusBarHeight)
                             .fillMaxWidth()
                             .clickable(
                                 interactionSource = null,
