@@ -235,5 +235,6 @@
     <string name="add_card_dialog_notes">In this field you can write additional notes to this card.</string>
     <string name="add_card_dialog_save">Finally, save the new card you\'ve just created.</string>
 
-    <string name="end_of_tutorial">That is the end of the tutorial.</string>
+    <string name="end_of_tutorial_title">End the tutorial.</string>
+    <string name="end_of_tutorial_text">That is it for now with the tutorial.</string>
 </resources>

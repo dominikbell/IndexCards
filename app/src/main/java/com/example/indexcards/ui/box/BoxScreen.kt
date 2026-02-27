@@ -156,6 +156,9 @@ fun BoxScreen(
     var tutorialStep by remember { mutableIntStateOf(-1) }
     val tutorialState =
         TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
+    val greyBackground = listOf(
+        TutorialState.ADD_CARD_INTRO, TutorialState.END_OF_TUTORIAL,
+    ).contains(tutorialState)
 
     val filteredCardWithTagList =
         cardsWithTags.cardWithTagList.filter {
@@ -420,23 +423,17 @@ fun BoxScreen(
                 },
             )
 
-            when (tutorialState) {
-                in listOf(
-                    TutorialState.ADD_CARD_INTRO,
-                ) -> {
-                    Box(
-                        modifier = modifier
-                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp + statusBarHeight)
-                            .fillMaxWidth()
-                            .clickable(
-                                interactionSource = null,
-                                indication = null,
-                                onClick = {})
-                            .background(color = Color.Black.copy(alpha = 0.6F)),
-                    )
-                }
-
-                else -> {}
+            if (greyBackground) {
+                Box(
+                    modifier = modifier
+                        .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp + statusBarHeight)
+                        .fillMaxWidth()
+                        .clickable(
+                            interactionSource = null,
+                            indication = null,
+                            onClick = {})
+                        .background(color = Color.Black.copy(alpha = 0.6F)),
+                )
             }
         },
 
@@ -558,23 +555,17 @@ fun BoxScreen(
                     },
                 )
 
-                when (tutorialState) {
-                    in listOf(
-                        TutorialState.ADD_CARD_INTRO,
-                    ) -> {
-                        Box(
-                            modifier = modifier
-                                .padding(innerPadding)
-                                .fillMaxSize()
-                                .clickable(
-                                    interactionSource = null,
-                                    indication = null,
-                                    onClick = {})
-                                .background(color = Color.Black.copy(alpha = 0.6F)),
-                        )
-                    }
-
-                    else -> {}
+                if (greyBackground) {
+                    Box(
+                        modifier = modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                            .clickable(
+                                interactionSource = null,
+                                indication = null,
+                                onClick = {})
+                            .background(color = Color.Black.copy(alpha = 0.6F)),
+                    )
                 }
             }
 
@@ -654,6 +645,9 @@ fun BoxScreen(
             saveCard = {
                 newCardDialog = false
                 boxScreenViewModel.saveCard(doReset = true)
+                if (tutorial) {
+                    tutorialStep += 1
+                }
             },
             onTagClick = {
                 if (cardUiState.tagList.contains(it)) {

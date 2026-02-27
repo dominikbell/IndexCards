@@ -234,5 +234,6 @@
     <string name="add_card_dialog_notes">In diesem Feld ist Platz für zusätzliche Notizen, die Du dieser Karteikarte hinzufügen möchtest.</string>
     <string name="add_card_dialog_save">Speichere die neu erstellte Karteikarte.</string>
 
-    <string name="end_of_tutorial">Das ist das Ende der Einführung.</string>
+    <string name="end_of_tutorial_title">Ende der Einführung.</string>
+    <string name="end_of_tutorial_text">Das ist bisher alles mit der Einführung.</string>
 </resources>

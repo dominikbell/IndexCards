@@ -38,6 +38,7 @@ fun TutorialDialog(
         TutorialState.ADD_BOX_INTRO -> stringResource(id = R.string.add_box_intro_title)
         TutorialState.NEW_BOX -> stringResource(id = R.string.new_box_title)
         TutorialState.ADD_CARD_INTRO -> stringResource(id = R.string.add_card_intro_title)
+        TutorialState.END_OF_TUTORIAL -> stringResource(id = R.string.end_of_tutorial_title)
         else -> ""
     }
 
@@ -77,7 +78,7 @@ fun TutorialDialog(
 
                     TutorialState.ADD_CARD_INTRO -> stringResource(id = R.string.add_card_intro_text)
 
-                    TutorialState.END_OF_TUTORIAL -> stringResource(id = R.string.end_of_tutorial)
+                    TutorialState.END_OF_TUTORIAL -> stringResource(id = R.string.end_of_tutorial_text)
 
                     else -> ""
                 }
