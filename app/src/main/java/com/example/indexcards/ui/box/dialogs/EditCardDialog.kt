@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,7 +55,6 @@ import com.example.indexcards.ui.elements.WordField
 import com.example.indexcards.utils.box.UiBoxWithCategories
 import com.example.indexcards.utils.box.UiBoxWithTags
 import com.example.indexcards.utils.home.TutorialState
-import com.example.indexcards.utils.home.isEqualOrLaterThan
 import com.example.indexcards.utils.state.CardDetails
 import com.example.indexcards.utils.state.CardState
 import com.example.indexcards.utils.state.UiCardWithTags
@@ -421,6 +422,8 @@ fun CardDialogBody(
     var validWord by remember { mutableStateOf(true) }
     var validMeaning by remember { mutableStateOf(true) }
 
+    val mutedColor = LocalContentColor.current.copy(alpha = 0.38F) // 38% is the android standard
+
     LaunchedEffect(key1 = cardUiState.cardDetails.memoURI) {
         if (cardUiState.cardDetails.memoURI.isNotBlank()) {
             audioFile = cardUiState.cardDetails.memoURI.toUri().path?.let { File(it) }
@@ -558,7 +561,7 @@ fun CardDialogBody(
                         cardUiState = cardUiState,
                         isError = !validWord,
                         isLanguage = isLanguageBox,
-                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_WORD)),
+                        isEnabled = (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_WORD || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE),
                         onValueChange = {
                             validWord = true
                             updateUiState(cardUiState.cardDetails.copy(word = it))
@@ -578,11 +581,13 @@ fun CardDialogBody(
                             updateUiState(cardUiState.cardDetails.copy(meaning = it))
                         },
                         isLanguage = isLanguageBox,
-                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_MEANING)),
+                        isEnabled = (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_MEANING || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE),
                     )
                 }
 
-                RequiredFieldsText()
+                RequiredFieldsText(
+                    textColor = if (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE) Color.Unspecified else mutedColor
+                )
 
                 /** Category DropDownMenu */
                 if (tutorial || boxWithCategories.box.categories) {
@@ -591,18 +596,22 @@ fun CardDialogBody(
                     Box(
                         modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_CATEGORY) highlightModifier else Modifier,
                     ) {
+                        val categoriesEnabled = (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_CATEGORY || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE)
                         CategoriesDropDownMenu(
                             currentCategory = boxWithCategories.categoryList
                                 .firstOrNull { it.categoryId == cardUiState.cardDetails.categoryId }
                                 ?: emptyCategory,
                             boxWithCategories = boxWithCategories,
                             categoryUiState = categoryUiState,
+                            isEnabled = categoriesEnabled,
                             expanded = categoriesExpanded,
                             addCategory = addCategory,
                             changeExpanded = {
-                                addCategory = false
-                                categoryMenuOpened = true
-                                categoriesExpanded = !categoriesExpanded
+                                if (categoriesEnabled) {
+                                    addCategory = false
+                                    categoryMenuOpened = true
+                                    categoriesExpanded = !categoriesExpanded
+                                }
                             },
                             onSelectCategory = {
                                 updateUiState(
@@ -615,12 +624,9 @@ fun CardDialogBody(
                             resetCategoryUiState = resetCategoryUiState,
                             saveCategory = saveCategory,
                             updateAddCategory = {
-                                if (it) {
-                                    resetCategoryUiState()
-                                }
+                                if (it) resetCategoryUiState()
                                 addCategory = it
                             },
-                            isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_CATEGORY))
                         )
                     }
                 }
@@ -631,6 +637,8 @@ fun CardDialogBody(
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_TAG_LIST) highlightModifier else Modifier,
                 ) {
+                    val enabledTags =
+                        (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_TAG_LIST || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE)
                     Row(
                         modifier = modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -638,10 +646,11 @@ fun CardDialogBody(
                         TagList(
                             modifier = modifier.weight(1f),
                             tagList = boxWithTags.tagList,
-                            onClick = { onTagClick(it) },
-                            onLongClick = { showEditTagDialog(it) },
                             selectedTags = cardUiState.tagList,
                             onBoxScreen = false,
+                            enabled = enabledTags,
+                            onClick = { onTagClick(it) },
+                            onLongClick = { showEditTagDialog(it) },
                         )
 
                         VerticalDivider(
@@ -651,16 +660,19 @@ fun CardDialogBody(
                         )
 
                         NewTagButton(
+                            short = boxWithTags.tagList.isNotEmpty(),
+                            enabled = enabledTags,
                             onClick = {
                                 stopEverything()
                                 showNewTagDialog()
                             },
-                            short = boxWithTags.tagList.isNotEmpty(),
                         )
                     }
                 }
 
                 /** Voice memo */
+                val enableMemo =
+                    (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_MEMO || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE)
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_MEMO) highlightModifier else Modifier,
                 ) {
@@ -671,15 +683,20 @@ fun CardDialogBody(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start,
                     ) {
-                        Text(text = stringResource(id = R.string.memo) + ": ")
+                        Text(
+                            text = stringResource(id = R.string.memo) + ": ",
+                            color = if (enableMemo) Color.Unspecified else mutedColor,
+                        )
 
                         if (isRecording) {
                             IconButton(
-                                onClick = { onStopRecording() }
+                                onClick = { onStopRecording() },
+                                enabled = enableMemo,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Stop,
-                                    contentDescription = "stop"
+                                    contentDescription = "stop",
+                                    tint = if (enableMemo) LocalContentColor.current else mutedColor,
                                 )
                             }
                         } else {
@@ -693,11 +710,13 @@ fun CardDialogBody(
                                     } else {
                                         onRecord()
                                     }
-                                }
+                                },
+                                enabled = enableMemo,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Mic,
-                                    contentDescription = "record"
+                                    contentDescription = "record",
+                                    tint = if (enableMemo) LocalContentColor.current else mutedColor,
                                 )
                             }
                         }
@@ -710,31 +729,37 @@ fun CardDialogBody(
 
                                 if (isPlaying) {
                                     IconButton(
-                                        onClick = { onStopPlaying() }
+                                        onClick = { onStopPlaying() },
+                                        enabled = enableMemo,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Pause,
-                                            contentDescription = "stop"
+                                            contentDescription = "stop",
+                                            tint = if (enableMemo) LocalContentColor.current else mutedColor,
                                         )
                                     }
                                 } else {
                                     IconButton(
-                                        onClick = { onPlay() }
+                                        onClick = { onPlay() },
+                                        enabled = enableMemo,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.PlayArrow,
-                                            contentDescription = "play"
+                                            contentDescription = "play",
+                                            tint = if (enableMemo) LocalContentColor.current else mutedColor,
                                         )
                                     }
                                 }
                             }
 
                             IconButton(
-                                onClick = { onClickDelete() }
+                                onClick = { onClickDelete() },
+                                enabled = enableMemo,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "delete"
+                                    contentDescription = "delete",
+                                    tint = if (enableMemo) LocalContentColor.current else mutedColor,
                                 )
                             }
                         }
@@ -748,7 +773,7 @@ fun CardDialogBody(
                     NotesField(
                         cardUiState = cardUiState,
                         onValueChange = { updateUiState(cardUiState.cardDetails.copy(notes = it)) },
-                        isEnabled = (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_CARD_DIALOG_NOTES)),
+                        isEnabled = (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_NOTES || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE),
                     )
                 }
             }
@@ -756,7 +781,8 @@ fun CardDialogBody(
 
         confirmButton = {
             val saveButtonEnabled =
-                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
+                (!tutorial || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE)
+
             Box(
                 modifier = if (tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE) highlightModifier else Modifier,
             ) {
@@ -784,7 +810,7 @@ fun CardDialogBody(
 
         dismissButton = {
             val cancelButtonEnabled =
-                (!tutorial || tutorialState.isEqualOrLaterThan(TutorialState.ADD_BOX_DIALOG_SAVE))
+                (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE || tutorialState == TutorialState.ADD_CARD_DIALOG_SAVE)
 
             Row {
                 TextButton(

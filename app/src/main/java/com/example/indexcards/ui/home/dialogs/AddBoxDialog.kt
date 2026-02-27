@@ -133,6 +133,9 @@ fun AddBoxDialog(
                     }
                 }
 
+                RequiredFieldsText(
+                    textColor = if (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE) Color.Unspecified else mutedColor
+                )
 
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_CHECK_BOX) highlightModifier else Modifier,
@@ -163,10 +166,6 @@ fun AddBoxDialog(
                         isEnabled = (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_DESCRIPTION || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE),
                     )
                 }
-
-                RequiredFieldsText(
-                    textColor = if (!tutorial || tutorialState == TutorialState.ADD_BOX_DIALOG_SAVE) Color.Unspecified else mutedColor
-                )
 
                 Box(
                     modifier = if (tutorialState == TutorialState.ADD_BOX_DIALOG_REMINDER) highlightModifier else Modifier,

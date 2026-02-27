@@ -11,6 +11,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -82,16 +83,24 @@ fun BoxNameWithFlag(
 @Composable
 fun NewTagButton(
     short: Boolean = false,
+    enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
+    val textColor =
+        if (enabled) Color.Unspecified else LocalContentColor.current.copy(alpha = 0.38F)
+
     val text = if (short) {
         stringResource(R.string.new_tag_short)
     } else {
         stringResource(R.string.new_tag)
     }
     Text(
-        modifier = Modifier.clickable { onClick() },
-        text = text
+        modifier = Modifier.clickable(
+            enabled = enabled,
+            onClick = onClick
+            ),
+        text = text,
+        color = textColor,
     )
 }
 
@@ -188,6 +197,7 @@ fun NameField(
     boxUiState: BoxState,
     isError: Boolean,
     isEnabled: Boolean = true,
+    textColor: Color = Color.Unspecified,
     onValueChange: (String) -> Unit = {},
 ) {
     OutlinedTextField(

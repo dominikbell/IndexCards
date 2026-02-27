@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ fun TagList(
     tagList: List<Tag>,
     selectedTags: List<Tag>,
     onBoxScreen: Boolean,
+    enabled: Boolean = true,
     onClick: (Tag) -> Unit = {},
     onLongClick: (Tag) -> Unit = {},
 ) {
@@ -49,10 +51,11 @@ fun TagList(
             TagListItem(
                 modifier = modifier.padding(2.dp),
                 item = item,
-                onClick = { onClick(item) },
-                onLongClick = { onLongClick(item) },
                 selectedTags = selectedTags,
                 onBoxScreen = onBoxScreen,
+                enabled = enabled,
+                onClick = { onClick(item) },
+                onLongClick = { onLongClick(item) },
             )
         }
     }
@@ -94,25 +97,17 @@ fun TagListItem(
     item: Tag,
     selectedTags: List<Tag>,
     onBoxScreen: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
 ) {
     val selected = (selectedTags.contains(item))
     val strokeWidth = 6F
 
-    val borderThickness =
-        if (onBoxScreen) {
-            1.dp
-        } else {
-            0.dp
-        }
+    val borderThickness = if (onBoxScreen) 1.dp else 0.dp
     val borderColor =
         if (onBoxScreen) {
-            if (selected) {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.secondary.copy(alpha = 0.5F)
-            }
+            if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondary.copy(alpha = 0.5F)
         } else {
             AlertDialogDefaults.containerColor
         }
@@ -127,6 +122,7 @@ fun TagListItem(
             )
             .fillMaxWidth()
             .combinedClickable(
+                enabled = enabled,
                 onClick = onClick,
                 onLongClick = onLongClick
             )
@@ -143,17 +139,22 @@ fun TagListItem(
             if (selected) {
                 drawCircle(
                     color = Color(item.color.toColorInt()),
-                    radius = size.minDimension * 0.6F
+                    radius = size.minDimension * 0.6F,
+                    alpha = if (enabled) 1F else 0.6F,
                 )
             } else {
                 drawCircle(
                     color = Color(item.color.toColorInt()),
                     style = Stroke(width = strokeWidth),
-                    radius = (size.minDimension - strokeWidth) * 0.6F
+                    radius = (size.minDimension - strokeWidth) * 0.6F,
+                    alpha = if (enabled) 1F else 0.6F,
                 )
             }
         }
-        Text(text = item.text)
+        Text(
+            text = item.text,
+            color = if (enabled) Color.Unspecified else LocalContentColor.current.copy(alpha = 0.38F)
+        )
     }
 }
 

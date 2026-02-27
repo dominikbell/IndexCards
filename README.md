@@ -106,15 +106,16 @@ The options on the box screen let you search for a keyword, sort cards, enter tr
 
 ## Features
 
-- Learning languages 
-- Tutorial (work in progress)
+- Creating and editing index cards
+- voice memos
 - Reminders for training as notifications (still some bugs)
+- Tutorial (work in progress)
 - User preferences
 - Exporting to and importing from CSV files
 
 ## Languages
 
-The UI of the app is available in English and German. There following languages are supported with flags to select as a language box:
+The UI of the app is available in English and German. The following languages are supported with flags to select as a language box:
 
 - Albanian
 - Arabic
@@ -147,3 +148,7 @@ The UI of the app is available in English and German. There following languages 
 This app is written entirely in [Kotlin](https://kotlinlang.org/). It uses [Compose](https://developer.android.com/compose) for the UI and [Room](https://developer.android.com/training/data-storage/room/) for persistent storage of data. Other modules used are the [colopicker-compose by skydoves](https://github.com/skydoves/colorpicker-compose) and [datastore](https://developer.android.com/topic/libraries/architecture/datastore) for storing preferences.
 
 Boxes, cards, tags, and categories are stored in a relational SQLite database.
+
+## Code Guidelines
+
+Functions always take non-function arguments with no defaults first, then non-function arguments with defaults, and lastly function arguments which always must have an empty lambda as the default. The only exception to this rule are modifiers which are always the first argument. 
