@@ -89,12 +89,15 @@ class BoxScreenViewModel(
      */
     val uiBoxWithTags: StateFlow<UiBoxWithTags> =
         appRepository.getBoxWithTagsStream(boxId = boxId)
-            .filterNotNull()
             .map {
-                UiBoxWithTags(
-                    box = it.box,
-                    tagList = it.tags,
-                )
+                if (it == null) {
+                    UiBoxWithTags()
+                } else {
+                    UiBoxWithTags(
+                        box = it.box,
+                        tagList = it.tags,
+                    )
+                }
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -107,12 +110,15 @@ class BoxScreenViewModel(
      */
     val uiBoxWithCategories: StateFlow<UiBoxWithCategories> =
         appRepository.getBoxWithCategoriesStream(boxId = boxId)
-            .filterNotNull()
             .map {
-                UiBoxWithCategories(
-                    box = it.box,
-                    categoryList = it.categories,
-                )
+                if (it == null) {
+                    UiBoxWithCategories()
+                } else {
+                    UiBoxWithCategories(
+                        box = it.box,
+                        categoryList = it.categories,
+                    )
+                }
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),

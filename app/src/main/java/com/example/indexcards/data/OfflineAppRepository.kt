@@ -26,6 +26,7 @@ class OfflineAppRepository(
         appDao.upsertTagCardCrossRef(tagCrossRef)
 
     override suspend fun deleteBox(boxId: Long) {
+        // Delete all TagCardCrossReferences
         appDao.getBoxWithCards(boxId)
             .filterNotNull()
             .first()
@@ -33,9 +34,13 @@ class OfflineAppRepository(
             .forEach {
                 appDao.deleteCardFromTags(cardId = it.cardId)
             }
-        appDao.deleteCategoriesFromBox(boxId = boxId)
-        appDao.deleteTagsFromBox(boxId = boxId)
+        // Delete all cards
         appDao.deleteCardsFromBox(boxId = boxId)
+        // Delete all categories
+        appDao.deleteCategoriesFromBox(boxId = boxId)
+        // Delete all tags
+        appDao.deleteTagsFromBox(boxId = boxId)
+        // Delete the box
         appDao.deleteBox(boxId = boxId)
     }
 
@@ -76,16 +81,16 @@ class OfflineAppRepository(
     override fun getTag(tagId: Long): Flow<Tag> =
         appDao.getTag(tagId)
 
-    override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards> =
+    override fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards?> =
         appDao.getBoxWithCards(boxId)
 
     override fun getAllCardsWithTagsOfBoxStream(boxId: Long): Flow<List<CardWithTags>> =
         appDao.getAllCardsWithTagsOfBox(boxId)
 
-    override fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags> =
+    override fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags?> =
         appDao.getBoxWithTags(boxId)
 
-    override fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories> =
+    override fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories?> =
         appDao.getBoxWithCategories(boxId)
 
     override fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags> =

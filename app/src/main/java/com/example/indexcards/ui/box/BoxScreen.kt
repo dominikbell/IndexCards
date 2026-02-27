@@ -860,8 +860,10 @@ fun BoxScreen(
             onDismiss = { deleteBoxDialog = false },
             onDelete = {
                 navigateToBoxesOverview()
-                deleteAllMemos(cardsWithTags.cardWithTagList.map { it.card })
-                boxScreenViewModel.deleteBox(boxId = boxId)
+                boxScreenViewModel.viewModelScope.launch {
+                    deleteAllMemos(cardsWithTags.cardWithTagList.map { it.card })
+                    boxScreenViewModel.deleteBox(boxId = boxId)
+                }
             },
             boxToBeDeleted = boxWithTags.box
         )

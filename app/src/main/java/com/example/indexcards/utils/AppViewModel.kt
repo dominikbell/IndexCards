@@ -71,10 +71,8 @@ open class AppViewModel(
         }
     }
 
-    fun deleteBox(boxId: Long) {
-        viewModelScope.launch {
-            appRepository.deleteBox(boxId = boxId)
-        }
+    suspend fun deleteBox(boxId: Long) {
+        appRepository.deleteBox(boxId = boxId)
     }
 
 

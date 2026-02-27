@@ -151,4 +151,4 @@ Boxes, cards, tags, and categories are stored in a relational SQLite database.
 
 ## Code Guidelines
 
-Functions always take non-function arguments with no defaults first, then non-function arguments with defaults, and lastly function arguments which always must have an empty lambda as the default. The only exception to this rule are modifiers which are always the first argument. 
+Functions always take non-function arguments with no defaults first, then non-function arguments with defaults, and lastly function arguments which always must have an empty lambda as the default. The only exceptions to this rule are modifiers, which are always the first argument, and viewModels, which are always the last arguments. 

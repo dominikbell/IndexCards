@@ -33,13 +33,13 @@ interface AppRepository {
 
     fun getTag(tagId: Long): Flow<Tag>
 
-    fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards>
+    fun getBoxWithCardsStream(boxId: Long): Flow<BoxWithCards?>
 
     fun getAllCardsWithTagsOfBoxStream(boxId: Long): Flow<List<CardWithTags>>
 
-    fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags>
+    fun getBoxWithTagsStream(boxId: Long): Flow<BoxWithTags?>
 
-    fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories>
+    fun getBoxWithCategoriesStream(boxId: Long): Flow<BoxWithCategories?>
 
     fun getCardWithTagsStream(cardId: Long): Flow<CardWithTags>
 
