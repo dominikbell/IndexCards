@@ -77,6 +77,8 @@ fun TutorialDialog(
 
                     TutorialState.ADD_CARD_INTRO -> stringResource(id = R.string.add_card_intro_text)
 
+                    TutorialState.END_OF_TUTORIAL -> stringResource(id = R.string.end_of_tutorial)
+
                     else -> ""
                 }
             )

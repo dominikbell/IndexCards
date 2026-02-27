@@ -162,7 +162,6 @@ fun BoxScreenEditing(
                         }
                     } else {
                         onSwitchChanged()
-
                     }
                 },
                 hasNotificationPermission = hasNotificationPermission,

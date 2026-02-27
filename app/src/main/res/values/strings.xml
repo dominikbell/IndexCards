@@ -150,6 +150,7 @@
     <string name="incorrect">Incorrect</string>
     <string name="turn_over">Tap card to turn over</string>
     <string name="reminders">Remind me to train</string>
+    <string name="reminders_set">Reminders have been set!</string>
     <string name="showNumbersOfCard">Show number of cards</string>
     <string name="back_to_box">Go back to box</string>
     <string name="all_done">All done!</string>
@@ -233,4 +234,6 @@
     <string name="add_card_dialog_memo">Here you can record a voice memo for this card.</string>
     <string name="add_card_dialog_notes">In this field you can write additional notes to this card.</string>
     <string name="add_card_dialog_save">Finally, save the new card you\'ve just created.</string>
+
+    <string name="end_of_tutorial">That is the end of the tutorial.</string>
 </resources>

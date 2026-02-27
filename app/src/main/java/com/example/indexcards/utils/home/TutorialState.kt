@@ -26,6 +26,8 @@ sealed interface TutorialState {
     data object ADD_CARD_DIALOG_NOTES : TutorialState
     data object ADD_CARD_DIALOG_SAVE : TutorialState
 
+    data object END_OF_TUTORIAL : TutorialState
+
     data object HIGHLIGHT_MENU : TutorialState
 }
 
@@ -61,5 +63,7 @@ object TutorialMap {
         17 to TutorialState.ADD_CARD_DIALOG_MEMO,
         18 to TutorialState.ADD_CARD_DIALOG_NOTES,
         19 to TutorialState.ADD_CARD_DIALOG_SAVE,
+
+        20 to TutorialState.END_OF_TUTORIAL,
     )
 }

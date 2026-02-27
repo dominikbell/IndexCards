@@ -39,8 +39,8 @@
     <string name="date_desc">Älteste zuerst</string>
     <string name="name_asc">Name A .. Z</string>
     <string name="name_desc">Name Z .. A</string>
-    <string name="start_tutorial">Start Tutorial</string>
-    <string name="end_tutorial">End Tutorial</string>
+    <string name="start_tutorial">Start Einführung</string>
+    <string name="end_tutorial">End Einführung</string>
 
     <!-- AddBox Dialog -->
     <string name="add_new_box">Neuer Karteikasten</string>
@@ -151,6 +151,7 @@
     <string name="incorrect">Falsch</string>
     <string name="turn_over">Zum Umdrehen Karte antippen</string>
     <string name="reminders">Erinnere mich zu trainieren</string>
+    <string name="reminders_set">Erinnerungen wurden erstellt!</string>
     <string name="showNumbersOfCard">Anzahl der Karten anzeigen</string>
     <string name="back_to_box">Zurück zum Kasten</string>
     <string name="all_done">Fertig!</string>
@@ -182,7 +183,7 @@
     <string name="reminders_for">Benachrichtigungen für</string>
     <string name="level_pronoun">das</string>
     <string name="set_reminders">Benachrichtigungen für Niveau</string>
-    <string name="enter_name">Gib Deinen Name ein</string>
+    <string name="enter_name">Gib Deinen Namen ein</string>
     <string name="my_name">Mein Name ist</string>
     <string name="not_set1">Nicht festgelegt</string> <!-- has to be renamed since "not_set" is internally taken by Android -->
     <string name="default_notification_time">Standard Benachrichtigungszeit</string>
@@ -204,7 +205,7 @@
 
     <!-- TutorialDialog -->
     <string name="welcome_title">Willkommen zu KarteiKarten!</string>
-    <string name="welcome_text">Diese Einleitung zeigt Dir wie man diese Anwendung benutzt.</string>
+    <string name="welcome_text">Diese Einführung zeigt Dir wie man diese Anwendung benutzt.</string>
     <string name="add_box_intro_title">Einen neuen Karteikasten hinzufügen</string>
     <string name="add_box_intro_text">Tippe auf das \'+\' rechts unten, um einen neuen Karteikasten zu erstellen.</string>
     <string name="new_box_title">Gut gemacht!</string>
@@ -232,4 +233,6 @@
     <string name="add_card_dialog_memo">Hier kannst du eine Srpachnotiz zu dieser Karteikarte aufnehmen.</string>
     <string name="add_card_dialog_notes">In diesem Feld ist Platz für zusätzliche Notizen, die Du dieser Karteikarte hinzufügen möchtest.</string>
     <string name="add_card_dialog_save">Speichere die neu erstellte Karteikarte.</string>
+
+    <string name="end_of_tutorial">Das ist das Ende der Einführung.</string>
 </resources>

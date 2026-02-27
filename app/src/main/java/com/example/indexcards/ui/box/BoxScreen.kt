@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -38,10 +41,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.indexcards.NUMBER_OF_LEVELS
+import com.example.indexcards.R
 import com.example.indexcards.data.Card
 import com.example.indexcards.data.CardWithTags
 import com.example.indexcards.data.Tag
@@ -192,6 +197,10 @@ fun BoxScreen(
 
     val fileName = "${boxWithTags.box.name}.csv"
 
+    val statusBarHeight = WindowInsets.statusBars
+        .asPaddingValues()
+        .calculateTopPadding()
+
     /** Stuff for the voice memos */
     val recorder by lazy { AndroidAudioRecorder(applicationContext) }
     val player by lazy { AndroidAudioPlayer(applicationContext) }
@@ -242,13 +251,14 @@ fun BoxScreen(
         scheduleNotification(level, boxWithTags.box.name, time, period)
     }
 
+    val remindersSetText = stringResource(id = R.string.reminders_set)
     fun setAllReminders() {
         boxScreenViewModel.viewModelScope.launch {
             for (level in 0..<NUMBER_OF_LEVELS) {
                 if (boxScreenViewModel.getNumberOfCardsOfLevelInBox(level) != 0)
                     setReminder(level)
             }
-            Toast.makeText(context, "Reminders have been set!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, remindersSetText, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -416,7 +426,7 @@ fun BoxScreen(
                 ) -> {
                     Box(
                         modifier = modifier
-                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp)
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight.value.dp + statusBarHeight)
                             .fillMaxWidth()
                             .clickable(
                                 interactionSource = null,
