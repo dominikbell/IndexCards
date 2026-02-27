@@ -126,8 +126,8 @@ fun HomeScreen(
     var isLoading by remember { mutableStateOf(false) }
 
     /** Tutorial */
-    var tutorial by remember { mutableStateOf(true) }
-    var tutorialStep by remember { mutableIntStateOf(10) }
+    var tutorial by remember { mutableStateOf(false) }
+    var tutorialStep by remember { mutableIntStateOf(-1) }
     val tutorialState =
         TutorialMap.map.entries.firstOrNull { it.key == tutorialStep }?.value ?: TutorialState.ERROR
 
